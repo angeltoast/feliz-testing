@@ -10,13 +10,22 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
+<<<<<<< HEAD
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
+=======
+# Various input/output  22       SetGrubDevice        246
+# Internet connection   87       umount_partitions    274
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 # Mirrorlist           131       MountPartitions      283
 # SetScope             159       InstallKernel        342
 # SetKernel            193       TestExistingDM       336
 # ConfirmVbox          206       SetRootPassword      365
 # MakePartitionList    229       SetUserPassword      394
+<<<<<<< HEAD
+=======
+# arch_chroot          242
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 
 invalid_option() { # (from AUI scripts)
   echo 
@@ -176,6 +185,7 @@ SetGrubDevice() {
 	done
 }
 
+<<<<<<< HEAD
 InstallationMode() { # New function in each UI branch
 print_heading
 tput bold
@@ -185,6 +195,15 @@ read_timed "If you are re-using existing partitions, the system may" 1
 read_timed "pause to ask you to confirm that you wish to mount them." 1
 read_timed "This may happen more than once ..." 1
 read_timed "'y' would be an appropriate response." 1
+=======
+umount_partitions(){ # from Lution/AUI
+  MOUNTED=""
+  MOUNTED=$(mount | grep "/mnt" | awk '{print $3}' | sort -r)
+  swapoff -a 2>> feliz.log
+  for i in ${MOUNTED[@]}; do
+    umount $i >/dev/null 2>> feliz.log
+  done
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 }
 
 MountPartitions() {
@@ -192,7 +211,10 @@ MountPartitions() {
     "") TPecho "Not formatting root partition"
     ;;
     *) TPecho "Formatting /root partition"
+<<<<<<< HEAD
       umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
+=======
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
@@ -211,7 +233,10 @@ MountPartitions() {
   TPecho "Mounting /root partition"	
   mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
+<<<<<<< HEAD
     swapoff -a 2>> feliz.log
+=======
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
     if [ $MakeSwap = "Y" ]; then
       TPecho "Making /swap partition"
       Partition=`echo $SwapPartition | cut -c 6-`
@@ -229,7 +254,10 @@ MountPartitions() {
   for id in ${AddPartList}
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
+<<<<<<< HEAD
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+=======
+>>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
