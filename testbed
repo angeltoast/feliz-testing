@@ -3,12 +3,16 @@
 testbed() {
   
 # 
-Scope="notBasic"
-DIFFMIN=7
-DIFFSEC=35
-LuxuriesList="desktop luxury1 luxury2 luxury3"
-PickLuxuries
-
+( set -o posix ; set ) >/tmp/variables.before
+CopyArray[1]="Swap"
+CopyArray[2]="Root"
+CopyArray[3]="-"
+CopyArray[4]="Swap file"
+PartitionList="sda1 sda2 sda3"
+  listgen2 "$PartitionList" "Partitions" "" "CopyArray"
+( set -o posix ; set ) >/tmp/variables.after
+diff /tmp/variables.before /tmp/variables.after
+rm /tmp/variables.before /tmp/variables.after
 }
 
 # ~~~~~~~
@@ -86,12 +90,13 @@ BPur='\e[1;35m';
 BCya='\e[1;36m';
 UYel='\e[4;33m';
 NoCol='\e[0;00m';  
-  # Call the function 'testbed' holding code to be tested
-  testbed
-  echo $* # Add any variables needed for viewing before exit
-  echo "End of test"
+
+# Call the function 'testbed' holding code to be tested
+testbed
+echo $* # Add any variables needed for viewing before exit
+echo "End of test"
   
-  exit
+exit
   
   # Code for checking arrays
   Counter=0
