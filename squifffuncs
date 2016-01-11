@@ -10,22 +10,15 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-<<<<<<< HEAD
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
-=======
 # Various input/output  22       SetGrubDevice        246
 # Internet connection   87       umount_partitions    274
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 # Mirrorlist           131       MountPartitions      283
 # SetScope             159       InstallKernel        342
 # SetKernel            193       TestExistingDM       336
 # ConfirmVbox          206       SetRootPassword      365
 # MakePartitionList    229       SetUserPassword      394
-<<<<<<< HEAD
-=======
-# arch_chroot          242
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 
 TPecho() { # For displaying status while running on auto
   echo
@@ -128,97 +121,56 @@ SetGrubDevice() {
   fi
 }
 
-<<<<<<< HEAD
 InstallationMode() { # New function in each UI branch
-Passed="Entering installation mode"
-Message="If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
+Passed="Entering installation stage."
+Message="From this point, Feliz will operate in cli mode, so that you can see the steps it takes. If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
 dialog --backtitle "$Backtitle" --title " auto-partition " \
     --msgbox "\n$Message" 15 40
-    
-=======
-umount_partitions(){ # from Lution/AUI
-  MOUNTED=""
-  MOUNTED=$(mount | grep "/mnt" | awk '{print $3}' | sort -r)
-  swapoff -a 2>> feliz.log
-  for i in ${MOUNTED[@]}; do
-    umount $i >/dev/null 2>> feliz.log
-  done
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 }
-#
-# ..................... Done to here ... not tested .....................###########################
-#
-<<<<<<< HEAD
 
-MountPartitions() {
-  case $RootType in
-    "") Message="Not formatting root partition"
-    ;;
-    *) Message= "Formatting /root partition"
-      dialog --backtitle "$Backtitle" --title " auto-partition " \
-    --msgbox "\n$Message" 15 40
-    umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
-=======
 MountPartitions() {
   case $RootType in
     "") TPecho "Not formatting root partition"
     ;;
     *) TPecho "Formatting /root partition"
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
-    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${RootPartition}
-    elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} 2>> feliz.log
-    else
-      Partition=`echo $RootPartition | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
+      umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
+      # Check if replacing existing ext3/4 partition with btrfs
+      CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
+      if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+        btrfs-convert ${RootPartition}
+      elif [ $RootType = "btrfs" ]; then
+        mkfs.btrfs -f ${RootPartition} 2>> feliz.log
+      else
+        Partition=`echo $RootPartition | cut -c 6-`
+        Label="${LabellingArray[${Partition}]}"
+        if [ -n "${Label}" ]; then
+          Label="-L ${Label}"
+        fi
+        mke2fs ${Label} -t ${RootType} ${RootPartition}
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition}
-    fi
-  esac
-<<<<<<< HEAD
-  
-  Message="Mounting /root partition"
-  dialog --backtitle "$Backtitle" --title " auto-partition " \
-    --msgbox "\n$Message" 15 40
-
-  mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
-  if [ ${SwapPartition} ]; then
-    swapoff -a 2>> feliz.log
-    if [ $MakeSwap = "Y" ]; then
-      Message="Making /swap partition"
-  dialog --backtitle "$Backtitle" --title " auto-partition " \
-    --msgbox "\n$Message" 15 40
-=======
-  TPecho "Mounting /root partition"	
-  mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
-  if [ ${SwapPartition} ]; then
-    if [ $MakeSwap = "Y" ]; then
-      TPecho "Making /swap partition"
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
-      Partition=`echo $SwapPartition | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
+    esac
+    TPecho "Mounting /root partition"	
+    mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
+    if [ ${SwapPartition} ]; then
+      swapoff -a 2>> feliz.log
+      if [ $MakeSwap = "Y" ]; then
+        TPecho "Making /swap partition"
+        Partition=`echo $SwapPartition | cut -c 6-`
+        Label="${LabellingArray[${Partition}]}"
+        if [ -n "${Label}" ]; then
+          Label="-L ${Label}"
+        fi
+        mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
       fi
-      mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
+      TPecho "Activating /swap"
+      swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
     fi
-    TPecho "Activating /swap"
-    swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
-  fi
 
   local Counter=0
   for id in ${AddPartList}
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
-<<<<<<< HEAD
     umount ${id} /mnt${AddPartMount[$Counter]} /mnt >/dev/null 2>> feliz.log
-=======
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`

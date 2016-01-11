@@ -380,14 +380,14 @@ BuildPartitionLists() {
 
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
 	local Counter=0
-  # Empty NewArray
-  local HowMany="${#NewArray[@]}"
-  local x=0
-  until [ ${x} -eq ${HowMany} ]
-  do
-    unset NewArray[$x]
-    x=$((x+1))
-  done
+  declare -a NewArray  # Empty NewArray
+#  local HowMany="${#NewArray[@]}"
+#  local x=0
+#  until [ ${x} -eq ${HowMany} ]
+#  do
+#    unset NewArray[$x]
+#    x=$((x+1))
+#  done
   # Build NewArray without partition selected in calling function
   for p in "${PartitionArray[@]}"
   do

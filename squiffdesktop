@@ -6,180 +6,72 @@
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
-# ---------------     -----------------------
-# Function   Line     Function           Line
-# ---------------     -----------------------
-# Keymap      20      Display Managers    428
-# Locale      59      FinalCheck          549
-# Timezone   122      ManualSettings      640
-# Subzone    161      ChangeRootPartition 666
-# Username   235      ChangeSwapPartition 674
+# ----------------     -----------------------
+# Function    Line     Function           Line
+# ----------------     -----------------------
+# getkeymap    20     Display Managers    428
+# setlocale    35     FinalCheck          549
+# settimezone  52     ManualSettings      640
+#                     ChangeRootPartition 666
+# UserName     75     ChangeSwapPartition 674
 # Hostname   251      ChangePartitions    682
 # Extras     216      AddExtras           694    
 
 getkeymap() {
-print_heading
-echo
-PrintOne "Now let's try to find your keyboard."
-Repeat=1
-while [ $Repeat -eq 1 ]
-do
-  echo
-  PrintOne "If you know the code for your keyboard layout, enter"
-  PrintOne "it now. If not, try entering an abbreviation for your"
-  PrintOne "country or language and a list will be displayed ..."
-  echo
-  TPread "(eg: 'atari' or 'us'): "
-  local Term="${Response,,}"
-  echo
-  # ListKbs=`localectl list-keymaps | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'` # This line failed following change in Arch, so the following line has been substituted
-  ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
-  case ${ListKbs} in
-    "") print_heading
-      echo
-      PrintOne "No keyboards found containing '$Term'"
-      PrintOne "Try again"
-      continue
-      ;;
-    *) listgen1 "$ListKbs" "Keyboards" "Retry"
-  esac
-  case ${Result} in
-    "Retry") print_heading
-        continue
-      ;;
-    *) Repeat=0
-      Countrykbd="${Result}"
-    loadkeys ${Countrykbd} 2>> feliz.log
-    echo
-    read_timed "The keyboard is now set to: '$Countrykbd'" 1
-  esac
-done
+  Passed="Desktop settings"
+  ListKbs=`cat keymaps.list`
+  keyboards=""
+  for k in ${ListKbs[@]}; do
+    keyboards="$keyboards $k"
+  done
+  Message="Scroll through this list, or type a letter, to find your keyboard."
+  listgen1 "${keyboards}" "Keyboards" "nocancel"
+  Countrykbd="$Result"
+  loadkeys ${Countrykbd} 2>> feliz.log
+  dialog --backtitle "$Backtitle" --title " Keyboard " \
+    --msgbox "\nThe keyboard is now set to: '$Countrykbd'" 8 50  
 }
 
 setlocale() {
-SearchPrompt=" (for example: GB or en): "
-print_heading
-PrintOne "Next we will try to find your locale"
-PrintOne "This will be used to find the best mirrors"
-PrintOne "for downloading your system"
-InvalidEntry=1
-while [ $InvalidEntry -eq 1 ]
-do
-  echo
-  PrintOne "Please enter a two-letter code for your country or language."
-  echo
-  TPread "$SearchPrompt"
-  print_heading
-  if [ -z ${Response} ]
-  then
-    invalid_option
-  else
-    echo
-    searchterm="${Response,,}"
-    LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
-    if [ ${#LocaleList[@]} -eq 0 ]
-    then
-      SEARCHTERM="${Response^^}"
-      LocaleList=(`cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
-    fi
-    local Counter=0
-    localelist=""
-    for l in ${LocaleList[@]}
-    do
-      localelist="${localelist} $l"
-      Counter=$((Counter+1))
-    done
-    if [ $Counter -eq 0 ]; then
-      invalid_option
-      continue
-    fi
-    PrintOne "Choose your locale from this list, or 'Try_Again': "
-    echo
-    listgen1 "${localelist}" "" "Try_Again"
-    case $Result in
-      "Try_Again") continue
-      ;;
-      *) CountryLocale="${Result}.UTF-8"
-      CountryCode=(`echo ${Result} | cut -c4-6`)
-      break
-    esac
-  fi
-  print_heading
-done
-echo
-read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
+  LocaleList=`cat /etc/locale.gen`
+  local Counter=0
+  declare -a Options
+  for l in ${LocaleList}
+  do
+    Counter=$((Counter+1))
+    Options[${Counter}]="$l"
+  done
+  dialog --backtitle "$Backtitle" --title " Locale " --nocancel \
+      --menu "\nScroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system" 18 40 $Counter "${Options[@]}" 2> output.file
+  CountryLocale="$(cat output.file)"
+  CountryCode=(`cat output.file | cut -c4-5`)
+  dialog --backtitle "$Backtitle" --title " Locale " \
+    --msgbox "\nYour locale is now set to: '$CountryLocale'" 8 50
 }
 
 SetTimeZone() {
-Complete=0
-SearchPrompt="To set the system clock, please first"
-while [ $Complete -eq 0 ]
-do
-  print_heading
-  PrintOne "$SearchPrompt"
-  PrintOne "choose the World Zone of your location."
   Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
-  echo
-  zones=""
-  for x in ${Zones[@]}
-  do
-    zones="$zones $x"
+  passzones=""
+  for z in ${Zones[@]}; do
+    passzones="$passzones $z"
   done
-  listgen1 "${zones}" "Zones" "nodone"
+  Message="To set the system clock, please choose the World Zone of your location."
+  listgen1 "${passzones}" "World zones" "nocancel"
   ZONE=$Result
-  echo
-  case $Result in
-    "UTC") SUBZONE=""
-        read_timed "Zone set to: '$ZONE'" 1
-        Complete=1
-    ;;
-    *) SetSubZone
-    read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
-  esac
-done
-echo
-}
-
-SetSubZone() {
-SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
-while [ $Complete -eq 0 ]
-do
-  print_heading
-  PrintOne "World zone = $ZONE"
-  echo
-  PrintOne "Please enter the first letter"
-  TPread "of your nearest major city: "
-  echo
-  if [ -z ${Response} ]
-  then
-    invalid_option
-    continue
-  else
-    Zone2="${Response^^}"
-  fi
-  subzones=""
-  local Counter=0
-  for x in ${SubZones[@]}
-  do
-    if [ `echo $x | cut -c1` = $Zone2 ]; then
-      subzones="$subzones $x"
-      Counter=$((Counter+1))
-    fi
+  SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
+  passzones=""
+  for z in ${SubZones[@]}; do
+    passzones="$passzones $z"
   done
-  if [ ${Counter} -eq 0 ]; then
-    invalid_option
-    continue
-  fi
-  listgen1 "$subzones" "" "Try_Again"
-  case $Result in
-    "Try_Again") break
-    ;;
-    *) SUBZONE=$Result
-  esac
-  Complete=1
-done
+  Message="Now select your nearest city from this list."
+  listgen1 "$passzones" "Cities in ${ZONE}" "nocancel"
+  SUBZONE=$Result
+  dialog --backtitle "$Backtitle" --title " Locale " \
+    --msgbox "\nYour Zone and Subzone set to: '$ZONE/$SUBZONE'" 8 50
 }
-
+#
+# Done to here and tested
+#
 UserName() {
 	print_heading
 	PrintOne "Enter a name for the primary user of the new system."

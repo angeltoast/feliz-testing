@@ -5,10 +5,10 @@
 # Developed by Elizabeth Mills, incorporating some code adapted from the
 # excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
-# This module tests the internet connection then loads the scripts from Github
+# This module tests the internet connection then downloads the files
 
 #
-# Functions
+# Basic functions required for this script
 #
 Centre() { # Aligned text according to screen size
   width=`tput cols`
@@ -36,11 +36,6 @@ TPread() { # Aligned prompt for user-entry - returns result through $Response
   read -p "$EMPTY $1" Response
 }
 
-invalid_option() {
-  echo 
-  read_timed "Invalid option. Try again ..." 1
-}
-
 read_timed() { # $1 = text to display; $2 = duration
   T_COLS=`tput cols`
   lov=${#1}
@@ -63,7 +58,7 @@ CheckInternet() { # CLI welcome screen
   Service="N"
   while [ $Service = "N" ]
   do
-    Centre "Welcome to the Feliz Arch Linux installation script."
+    Centre "Welcome to the feliz! Arch Linux installation script."
     Centre "A working internet connection is needed for installation."
     Centre "Checking your connection now ..."
     CheckConnection
@@ -105,6 +100,34 @@ do
 done
 }
 
+UIselection() {
+  Retry="Y"
+  until [ $Retry = "N" ]
+  do
+    dialog --backtitle "VERSION" --title " Installer Version " \
+  --menu "\nYou can now choose between feliz's traditional, helpful, command-line interface, or a new semi-graphical dialog system ...\n \n" 20 50 2 \
+  "1" "Traditional command line" \
+  "2" "New! Semi-graphical" 2> output.file
+    # Note - in early testing, both options download the cli functions 
+    # "Downloading files - please wait ..."
+    case $(cat output.file) in
+      1) wget -N https://github.com/angeltoast/feliz/archive/cliff.zip 2>> feliz.log # CLI
+          unzip -o cliff.zip 2> feliz.log
+          cp feliz-cliff/* . 2> feliz.log
+          rm -rf feliz-cliff
+          Retry="N"
+      ;;
+      2) wget -N https://github.com/angeltoast/feliz/archive/cliff.zip 2>> feliz.log # Semi-graphical
+          unzip -o cliff.zip 2> feliz.log
+          cp feliz-cliff/* . 2> feliz.log
+          rm -rf feliz-cliff
+          Retry="N"
+      ;;
+      *) echo "code error at line: $LINENO" >> feliz.log
+    esac
+  done
+}
+
 #
 # Execute
 #
@@ -114,20 +137,17 @@ echo
 Centre "Downloading files - please wait"
 tput setf 0 # Change foreground colour to black temporarily to hide messages
 # Download common functions from Github
-wget -N https://github.com/angeltoast/feliz/archive/master.zip 2> feliz.log
-unzip -o master.zip 2> feliz.log
-# Copy the downloaded files to working directory and clean up
+wget -N https://github.com/angeltoast/feliz/archive/master.zip 2>> feliz.log
+unzip -o master.zip 2>> feliz.log
+# Copy all the downloaded files to working directory
 cp feliz-master/* .
 rm -rf feliz-master
 rm LICENSE README
-# Download the cli user-input functions from cliff branch and unzip
-wget -N https://github.com/angeltoast/feliz/archive/cliff.zip 2> feliz.log # CLI
-unzip -o cliff.zip 2> feliz.log
-cp feliz-cliff/* . 2> feliz.log
-# Clean up then add main feliz function and run it
-rm -rf feliz-cliff
-rm *.zip
 tput sgr0 # Reset colour
+# Offer user alternative UI
+UIselection
+# Clean up then add main feliz function and run it
+rm *.zip
 source feliz
 feliz
 

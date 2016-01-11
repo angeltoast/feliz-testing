@@ -3,16 +3,10 @@
 testbed() {
   
 # 
-( set -o posix ; set ) >/tmp/variables.before
-CopyArray[1]="Swap"
-CopyArray[2]="Root"
-CopyArray[3]="-"
-CopyArray[4]="Swap file"
-PartitionList="sda1 sda2 sda3"
-  listgen2 "$PartitionList" "Partitions" "" "CopyArray"
-( set -o posix ; set ) >/tmp/variables.after
-diff /tmp/variables.before /tmp/variables.after
-rm /tmp/variables.before /tmp/variables.after
+getkeymap
+setlocale
+SetTimeZone
+
 }
 
 # ~~~~~~~
@@ -20,31 +14,31 @@ rm /tmp/variables.before /tmp/variables.after
 # ~~~~~~~
   
 # First check for external functions and variables files
-  if [[ -f `pwd`/felizfuncs ]]; then
-    source felizfuncs
+  if [[ -f `pwd`/squifffuncs ]]; then
+    source squifffuncs
   else
-    echo "missing file: felizfuncs"
+    echo "missing file: squifffuncs"
     exit 1
   fi
   
-  if [[ -f `pwd`/felizparts ]]; then
-    source felizparts
+  if [[ -f `pwd`/squiffparts ]]; then
+    source squiffparts
   else
-    echo "missing file: felizparts"
+    echo "missing file: squiffparts"
     exit 1
   fi
   
-  if [[ -f `pwd`/felizdesktop ]]; then
-    source felizdesktop
+  if [[ -f `pwd`/squiffdesktop ]]; then
+    source squiffdesktop
   else
-    echo "missing file: felizdesktop"
+    echo "missing file: squiffdesktop"
     exit 1
   fi
  
-  if [[ -f `pwd`/listgen ]]; then
-    source listgen
+  if [[ -f `pwd`/squifflistgen ]]; then
+    source squifflistgen
   else
-    echo "missing file: listgen"
+    echo "missing file: squifflistgen"
     exit 1
   fi
   

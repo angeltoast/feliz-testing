@@ -9,7 +9,7 @@
 # listgen1 receives three parameters:
 # 1) Primary file (string of single-word references)
 # 2) Optional one-word --title
-# 3) Optional hiding of <Cancel>
+# 3) Optional hiding of <Cancel> ("nocancel")
 
 # listgen2 has extended descriptions using the name of the complex array
 # Passed as 4th parameter:
@@ -23,6 +23,7 @@ listgen1() {
     local Nocancel="--$3"
   fi
   local Counter=0
+  declare -a Options
   # Prepare $1 for dialog menu
   for part in $1 # Prepare string array of list items passed as $1
   do
@@ -41,6 +42,7 @@ listgen2() {
   if [ -n $3 ]; then
     local Nocancel="--$3"
   fi
+  declare -a Options
   local Counter=0
   for item in $1; do
     Items[${Counter}]=$item
@@ -64,7 +66,7 @@ listgen2() {
 Printit() {
   # Use $Counter and ${Options[@]} array in dialog
   Counter=$((Counter/2))
-  dialog --backtitle "$Backtitle" --title " $Title " \
+  dialog --backtitle "$Backtitle" --title " $Title " "$Nocancel"\
       --menu "\n$Message\n" 18 40 $Counter "${Options[@]}" 2> output.file
       
   Response=$? # Errorcode
