@@ -78,9 +78,16 @@ listgen2() {
 
 Printit() {
   Counter=$((Counter/2))
+  if [ $Counter -lt 4 ]; then
+    Height=8
+  elif [ $Counter -lt 10 ]; then
+    Height=18
+  else
+    Height=25
+  fi
   # Use $Counter and ${Options[@]} array in dialog
   dialog --backtitle "$Backtitle" --title " $Title " $Nocancel \
-      --menu "\n$Message\n" 18 $Width $Counter "${Options[@]}" 2> output.file
+      --menu "\n$Message\n" $Height $Width $Counter "${Options[@]}" 2> output.file
       
   Response=$? # Errorcode
   Result=$(cat output.file) # Selected item

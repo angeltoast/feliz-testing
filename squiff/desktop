@@ -17,11 +17,10 @@
 # Extras       101    ChangePartitions    472
 #                     AddExtras           483    
 
-Backtitle="Desktop settings. If you need guidance, consult the Arch Wiki Beginner's Guide"
+Backtitle="Desktop settings. If you need guidance, consult the Arch Wiki Beginners' Guide"
 Passed=$Backtitle
 
 getkeymap() {
-  Passed="Desktop settings"
   ListKbs=`cat keymaps.list`
   keyboards=""
   for k in ${ListKbs[@]}; do
@@ -37,7 +36,6 @@ getkeymap() {
 
 setlocale() {
   LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
-#  LocaleList=`cat /etc/locale.gen | awk '{print $1}'`
   local Message="Scroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system"
   listgen1 "$LocaleList" " Locales " "nocancel"
   CountryLocale="$(cat output.file).UTF-8"
@@ -98,68 +96,6 @@ SetHostname() {
   dialog --backtitle "$Backtitle" --title " Hostname " \
     --msgbox "\nHostname set to '$HostName'" 8 40
 }
-
-# ---- Extras ----
-Categories="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
-Accessories="brasero cairo-dock conky docky gnome-calculator gedit gparted nautilus xfce4-terminal yaourt"
-LongAccs[1]="Disc burning application from Gnome          "
-LongAccs[2]="Customizable dock and launcher application"
-LongAccs[3]="Desktop time and system information"
-LongAccs[4]="For opening applications and managing windows"
-LongAccs[5]="Calculator for your taskbar"
-LongAccs[6]="The text editor from Gnome"
-LongAccs[7]="make/delete/resize partitions"
-LongAccs[8]=" The file-manager from Gnome"
-LongAccs[9]="The Xfce terminal emulator"
-LongAccs[10]="Easy to use AUR package installer"
-Desktops="Cinnamon Gnome KDE LXDE LXQt Mate Xfce"
-LongDesk[1]="Slick DE from the Mint team"
-LongDesk[2]="Full-featured, modern DE"
-LongDesk[3]="Plasma 5 and accessories pack"
-LongDesk[4]="Traditional, lightweight DE"
-LongDesk[5]="Lightweight and modern Qt DE"
-LongDesk[6]="Traditional DE from the Mint team"
-LongDesk[7]="Lightweight, highly configurable DE"
-Graphical="evince gimp imagemagick gthumb simple-scan xsane"
-LongGraph[1]="Reader for PDF and other document formats"
-LongGraph[2]="Advanced image editing suite"
-LongGraph[3]="Command-line image manipulation"
-LongGraph[4]="Image viewer & basic editor"
-LongGraph[5]="A simple scanner GUI"
-LongGraph[6]="A full-featured GTK-based sane frontend"
-Internet="chromium epiphany filezilla firefox qbittorrent thunderbird transmission-gtk"
-LongNet[1]="Open source web browser from Google     "
-LongNet[2]="Gnome WebKitGTK+ browser (aka Web)"
-LongNet[3]="Fast and reliable FTP, FTPS & SFTP client"
-LongNet[4]="Extensible browser from Mozilla"
-LongNet[5]="Open source BitTorrent client"
-LongNet[6]="Feature-rich email client from Mozilla"
-LongNet[7]="Easy-to-use BitTorrent client"
-Multimedia="avidemux-gtk banshee handbrake openshot vlc xfburn"
-LongMulti[1]="Simple video editor               "
-LongMulti[2]="Feature-rich audio player"
-LongMulti[3]="Simple yet powerful video transcoder"
-LongMulti[4]="Easy-to-use non-linear video editor"
-LongMulti[5]="Middleweight video player"
-LongMulti[6]="Xfburn"
-Office="abiword gnumeric libreoffice orage scribus"
-LongOffice[1]="Full-featured word processor        "
-LongOffice[2]="Spreadsheet program from GNOME"
-LongOffice[3]="Open-source office software suite"
-LongOffice[4]="Calendar and task manager (incl with Xfce)"
-LongOffice[5]="Desktop publishing program"
-Programming="bluefish codeblocks emacs geany git netbeans"
-LongProg[1]="GTK+ IDE with support for Python plugins  "
-LongProg[2]="Open source & cross-platform C/C++ IDE"
-LongProg[3]="extensible, customizable text editor"
-LongProg[4]="Advanced text editor & IDE"
-LongProg[5]="open source distributed version control system"
-LongProg[6]="Integrated development environment (IDE)"
-WindowManagers="Enlightenment Fluxbox JWM Openbox"
-LongWMs[1]="Enlightenment"
-LongWMs[2]="Fluxbox"
-LongWMs[3]="JWM"
-LongWMs[4]="Openbox"
 
 PickLuxuries() { # User selects any combination from a store of extras
 Category="Continue"
@@ -231,16 +167,16 @@ do
   done
   # Then carry out any specific tests and add the item to the list
   case $Picked in
-    "Cinnamon") DesktopEnvironment=$Picked
+    "Cinnamon") DesktopEnvironment="Cinnamon"
         ChooseDM
       ;;
-    "Enlightenment") DesktopEnvironment=$Picked
+    "Enlightenment") DesktopEnvironment="Enlightenment"
         ChooseDM
       ;;
-    "Fluxbox") DesktopEnvironment=$Picked
+    "Fluxbox") DesktopEnvironment="Fluxbox"
         ChooseDM
       ;;
-    "Gnome") DesktopEnvironment=$Picked
+    "Gnome") DesktopEnvironment="Gnome"
         GoodiesGnome=""
         local Message="'Gnome with extras' adds a text editor, disk manager, archive manager and a set of games.\nIf in doubt, choose 'Standard Gnome'"
         GnomeOptions[1]="Minimal Gnome (gnome-shell)"
@@ -258,26 +194,25 @@ do
           *) invalid_option
         esac
       ;;
-    "JWM") DesktopEnvironment=$Picked
+    "JWM") DesktopEnvironment="JWM"
         ChooseDM
       ;;
-    "KDE") DesktopEnvironment=$Picked
+    "KDE") DesktopEnvironment="KDE"
       ;;
     "libreoffice") Picked="libreoffice-fresh"
       ;;
-
-    "LXDE") DesktopEnvironment=$Picked
+    "LXDE") DesktopEnvironment="LXDE"
       ;;
-    "LXQt") DesktopEnvironment=$Picked
+    "LXQt") DesktopEnvironment="LXQt"
         ChooseDM
       ;;
-    "Mate") DesktopEnvironment=$Picked
+    "Mate") DesktopEnvironment="Mate"
         ChooseDM
       ;;
-    "Openbox") DesktopEnvironment=$Picked
+    "Openbox") DesktopEnvironment="Openbox"
         ChooseDM
       ;;
-    "Xfce") DesktopEnvironment=$Picked
+    "Xfce") DesktopEnvironment="Xfce"
         dialog --backtitle "$Backtitle" --title " Xfce desktop environment " \
     --yesno "\nThe xfce4-goodies pack includes includes the Whisker menu, extra plugins and a number of utilities such as the mousepad editor\nInclude the $Extras pack?\n" 10 40
         case $? in

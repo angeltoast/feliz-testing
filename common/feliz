@@ -6,67 +6,14 @@
 # excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 #
-# Partition variables and arrays
-#
-declare -a AddPartList	  # Array of additional partitions eg: /dev/sda5
-declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
-declare -a AddPartType  	# Array of format type for the same partitions eg: ext4
-declare -a PartitionArray # List of long identifiers
-declare -a NewArray       # For copying any array
-declare -A LabellingArray # To hold full details of user labels for partitions
-declare -A Labelled       # Store labels
-declare -A FileSystem     # Store filesystem types (ext* swap)
-SwapPartition=""  # eg: /dev/sda3
-FormatSwap="N"    # User selects whether to reuse swap
-MakeSwap="Y"
-SwapFile=""       # eg: 2G
-IsSwap=""         # Result of lsblk test
-RootPartition=""  # eg: /dev/sda2
-RootType=""       # eg: ext4
-Partition=""      # eg: sda1
-AutoPart=0        # Flag - changes to 1 if auto-partition is chosen
-UseDisk="sda"     # Used if more than one disk
-DiskDetails=0     # Size of selected disk
-#
-# Grub, kernel & EFI variables
-#
-GrubDevice=""     # eg: /dev/sda
-Kernel="1"        # Default 1 = LTS
-IsInVbox=""       # Result of test to see if installation is in Virtualbox
-DualBoot="N"      # Ready for dual-booting option
-EFIPartition=""   # Will hold EFI partition mountpoint in format "/dev/sda1"
-OSprober="Y"
-#
-# Location variables
-#
-CountryCode=""    # eg: GB ... for mirrorlist
-CountryLocale=""  # eg: en_GB.UTF-8
-Countrykbd=""     # eg: uk
-ZONE=""           # eg: Europe For time
-SUBZONE=""        # eg: London
-#
-# Desktop environment, display manager and greeter variables
-#
-DesktopEnvironment="None"  # eg: xfce4
-GoodiesXfce=""
-GoodiesGnome=""
-GoodiesOpenbox=""
-DisplayManager=""      # eg: lightdm
-Greeter=""             # eg: lightdm-gtk-greeter (Not required for some DMs)
-#
-# Root and user variables
-#
-HostName=""  # eg: arch-linux
-UserName=""  # eg: archie
-Scope=""     # Installation scope ... 'Full' or 'Basic'
-#
-# Global user input variables
-#
-Response="" 
-Result=""
-#
 # Include files
 #
+if [[ -f `pwd`/shared ]]; then
+  source shared
+else
+  echo "missing file: shared"
+  exit 1
+fi
 if [[ -f `pwd`/various ]]; then
   source various
 else
@@ -351,9 +298,7 @@ if [ $Scope != "Basic" ]; then
   SetUserPassword
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
-print_heading
-echo
-PrintOne "Congratulations, installation is finished."
+Message="Congratulations, installation is finished."
 echo
 listgen1 "Reboot Shutdown" "" "nodone"
 case $Response in
