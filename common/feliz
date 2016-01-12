@@ -145,10 +145,6 @@ FinalCheck
 # No further user intervention from here
 #
 
-<<<<<<< HEAD
-
-# Unmount any existing partitions and mount as defined in setup
-=======
 print_heading
 tput bold
 read_timed "Entering installation mode" 1
@@ -158,9 +154,6 @@ read_timed "pause to ask you to confirm that you wish to mount them." 1
 read_timed "This may happen more than once ..." 1
 read_timed "'y' would be an appropriate response." 1
 
-# Unmount any existing partitions and mount as defined in setup
-umount_partitions
->>>>>>> 839bca0a6582a5c89205a512a944ef120accb950
 MountPartitions
 
 # Set mirrorlist

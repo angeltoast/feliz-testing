@@ -36,10 +36,11 @@ getkeymap() {
 }
 
 setlocale() {
-  LocaleList=`cat /etc/locale.gen | awk '{print $1}'`
+  LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
+#  LocaleList=`cat /etc/locale.gen | awk '{print $1}'`
   local Message="Scroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system"
   listgen1 "$LocaleList" " Locales " "nocancel"
-  CountryLocale="$(cat output.file)"
+  CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
   dialog --backtitle "$Backtitle" --title " Locale " \
     --msgbox "\nYour locale is now set to: '$CountryLocale'" 8 50
