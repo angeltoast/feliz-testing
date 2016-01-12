@@ -70,7 +70,13 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
 SetKernel() {
   local Message="Choose your kernel\nThe Long-Term-Support kernel (LTS) offers stabilty,\nwhile the Latest kernel has all the new features.\nIf in doubt, choose LTS."
   listgen1 "LTS Latest" "Kernels" "nocancel"
-  Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
+  case $(cat output.file) in
+    "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    ;;
+    "Latest") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    ;;
+    *) echo "Illogical, cap'n" >> feliz.log
+  esac
 }
 
 ConfirmVbox() {

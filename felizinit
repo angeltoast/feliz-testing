@@ -137,7 +137,7 @@ echo
 Centre "Downloading files - please wait"
 tput setf 0 # Change foreground colour to black temporarily to hide messages
 # Download common functions from Github
-wget -N https://github.com/angeltoast/feliz/archive/master.zip 2>> feliz.log
+wget -N https://github.com/angeltoast/feliz-testing/archive/master.zip 2>> feliz.log
 unzip -o master.zip 2>> feliz.log
 # Copy all the downloaded files to working directory
 cp feliz-master/* .

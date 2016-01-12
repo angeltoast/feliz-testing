@@ -9,13 +9,13 @@
 # ----------------     -----------------------
 # Function    Line     Function           Line
 # ----------------     -----------------------
-# getkeymap    20     Display Managers    428
-# setlocale    35     FinalCheck          549
-# settimezone  52     ManualSettings      640
-#                     ChangeRootPartition 666
-# UserName     75     ChangeSwapPartition 674
-# Hostname   251      ChangePartitions    682
-# Extras     216      AddExtras           694    
+# getkeymap    20     Display Managers    328
+# setlocale    35     FinalCheck          333
+# settimezone  52     ManualSettings      430
+# UserName     75     ChangeRootPartition 456
+# Hostname     151    ChangeSwapPartition 464
+# Extras       101    ChangePartitions    472
+#                     AddExtras           483    
 
 Backtitle="Desktop settings. If you need guidance, consult the Arch Wiki Beginner's Guide"
 Passed=$Backtitle
@@ -36,16 +36,9 @@ getkeymap() {
 }
 
 setlocale() {
-  LocaleList=`cat /etc/locale.gen`
-  local Counter=0
-  declare -a Options
-  for l in ${LocaleList}
-  do
-    Counter=$((Counter+1))
-    Options[${Counter}]="$l"
-  done
-  dialog --backtitle "$Backtitle" --title " Locale " --nocancel \
-      --menu "\nScroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system" 18 40 $Counter "${Options[@]}" 2> output.file
+  LocaleList=`cat /etc/locale.gen | awk '{print $1}'`
+  local Message="Scroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system"
+  listgen1 "$LocaleList" " Locales " "nocancel"
   CountryLocale="$(cat output.file)"
   CountryCode=(`cat output.file | cut -c4-5`)
   dialog --backtitle "$Backtitle" --title " Locale " \
@@ -169,10 +162,10 @@ LongWMs[4]="Openbox"
 
 PickLuxuries() { # User selects any combination from a store of extras
 Category="Continue"
+LuxuriesList=""
 until [ $Category = "Done" ]
 do
   # First select a category
-  LuxuriesList=""
   local Message="Now you have the option to add extras, such as a web browser, etc. Yaourt is available (in 'Accessories'). If you want only a base Arch installation, exit without choosing any extras."
   listgen1 "$Categories" " Categories " ""
   if [ $Response -gt 0 ]; then # <Cancel> selected
