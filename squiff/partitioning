@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# felizparts - Partitioning functions - Semi-GUI version
+# partitioning - Partitioning functions - Dialog version
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the excellent Lution scripts by Carl Duff and AUI scripts by HelmuthDU
@@ -12,14 +12,17 @@
 # -----------------------      ------------------------
 # CheckParts          24       BuildPartitionLists 322
 # Partitioning        94       UpdateArray         411
-# Parted             124       AllocateRoot        440
-# AutoPartition      128       CheckPartition      494
-# AutoWarning        171       AllocateSwap        504
-# RunAutoPart        188       SetSwapFile         588
-# FileSystem         259       MorePartitions      612
-# SetLabel           276       MakePartition       667
+# Parted             124       AllocateRoot        405
+# AutoPartition      128       CheckPartition      460
+# AutoWarning        171       AllocateSwap        569
+# RunAutoPart        188       SetSwapFile         553
+# FileSystem         259       MorePartitions      678
+# SetLabel           276       MakePartition       632
 # EditLabel          298
 # -----------------------      ------------------------
+
+Backtitle="Partitioning.  If you need guidance, consult the Arch Wiki Beginner's Guide"
+Passed=$Backtitle
 
 CheckParts() {
 # First test for existing partitions
@@ -31,12 +34,11 @@ CheckParts() {
   done
   PARTITIONS=${Counter}
 	# If no partitions exist, offer cfdisk to create (or exit)
-  Passed="If you are uncertain about partitioning, you should read the Arch Wiki"
   if [ $PARTITIONS -eq 0 ]
   then
     while [ $PARTITIONS -eq 0 ]
     do
-      Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose 'Cancel' the script will terminate to allow you to partition in some other way."
+      local Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose 'Cancel' the script will terminate to allow you to partition in some other way."
       Partitioning # Partitioning options
       if [ $Proceed -eq 3 ]; then
         read_timed "Exiting feliz! Hurry back, y'hear?"
@@ -64,7 +66,7 @@ CheckParts() {
       ExistingPartitions="$ExistingPartitions ${PartitionArray[$Counter]}\n"
       Counter=$((Counter+1))
     done
-    Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose '<Cancel>' the script will enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose '<Cancel>' the script will enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -125,7 +127,7 @@ do
     done
     while [ -z $UseDisk ]
     do
-      Message="There are $Counter devices available\n$ExistingPartitions\nWhich do you wish to use for installation?\n(Remember, this is auto-partition, and any data on the chosen device will be lost)"
+      local Message="There are $Counter devices available\n$ExistingPartitions\nWhich do you wish to use for installation?\n(Remember, this is auto-partition, and any data on the chosen device will be lost)"
       dialog --backtitle "$Backtitle" --title " auto-partition " \
       --inputbox "\n$Message\n" 18 50 2> output.file
       UseDisk=$(cat output.file)
@@ -222,21 +224,20 @@ RunAutoPart() {
     PrintHome"Home partition: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
   fi
   AutoPart=1 # Set flag to 'on' for mounting 
-  Message="Partitioning of ${GrubDevice} successful\n\n$ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later"
+  local Message="Partitioning of ${GrubDevice} successful\n\n$ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later"
   dialog --backtitle "$Backtitle" --title " auto-partition " \
     --msgbox "\n$Message" 15 40
 }
 
 FileSystem() { 
-  local Counter=0
-  Message="Please now select the file system for ${Partition}\nIf 'Cancel' is pressed 'ext4' will be used\nIt is not recommended to mix the btrfs file-system with others."
-  dialog --backtitle "$Backtitle" --title " Partitioning " \
+  local NoCancel="--$1"
+  dialog --backtitle "$Backtitle" --title " Partitioning " ${NoCancel}\
       --menu "\n$Message\n" 18 50 4 \
         "ext2" "-" \
         "ext3" "-" \
         "ext4" "-" \
         "btrfs" "-" 2> output.file
-  if [ $? -eq 1 ]; then # If 'Cancel' selected
+  if [ $? -gt 0 ]; then # If 'Cancel' selected
     PartitionType=""
   else
     PartitionType=$(cat output.file)
@@ -269,7 +270,7 @@ EditLabel() {
 Label="${Labelled[$1]}"
 if [ -n ${Label} ]; then
   # Inform the user and accept input
-  Message="The partition you have chosen is labelled '${Label}'\n"
+  local Message="The partition you have chosen is labelled '${Label}'\n"
   dialog --backtitle "$Backtitle" --title "  Edit Partition Label  " \
       --menu "\n$Message\n" 18 50 3 \
         "1" "Keep existing label" \
@@ -381,13 +382,6 @@ BuildPartitionLists() {
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
 	local Counter=0
   declare -a NewArray  # Empty NewArray
-#  local HowMany="${#NewArray[@]}"
-#  local x=0
-#  until [ ${x} -eq ${HowMany} ]
-#  do
-#    unset NewArray[$x]
-#    x=$((x+1))
-#  done
   # Build NewArray without partition selected in calling function
   for p in "${PartitionArray[@]}"
   do
@@ -442,13 +436,14 @@ AllocateRoot() {
 			RootPartition="${Partition}"
       # Before going to FileSystem, check the partition
       CheckPartition
-      if [ ${CurrentType} ]; then
-        Message="$Message\nYou can choose to leave it as it is, by selecting '<Cancel>', but be aware that not reformatting the root partition can have unexpected consequences."
-      else
-        Message="Please now select the file system for ${Partition}\nIf 'Cancel' is pressed 'ext4' will be used\nIt is not recommended to mix the btrfs file-system with others."      
-      fi
       # Now select a filesystem
- 			FileSystem
+      if [ ${CurrentType} ]; then
+        local Message="$Message\nYou can choose to leave it as it is, by selecting '<Cancel>', but be aware that not reformatting the root partition may have unexpected consequences."
+        FileSystem
+      else
+        local Message="Please now select the file system for ${Partition}\nIt is not recommended to mix the btrfs file-system with others.\n"
+        FileSystem "nocancel" 
+      fi
 			if [ -z ${PartitionType} ] && [ ${CurrentType} ]; then
 				RootType=""
 			elif [ -z ${PartitionType} ]; then
@@ -472,9 +467,9 @@ CheckPartition() {
 # Finds if there is an existing file system on the selected partition
 CurrentType=`file -sL ${Partition} | grep "ext" | cut -c26-30`
 if [ ${CurrentType} ]; then
-  Message="The selected partition ${Partition} is currently formatted to ${CurrentType}\nReformatting it will remove all data currently on it."
+  local Message="The selected partition ${Partition} is currently formatted to ${CurrentType}\nReformatting it will remove all data currently on it."
 else
- Message=""
+ local Message=""
 fi
 }
 
@@ -482,7 +477,7 @@ AllocateSwap() {
 # Checks if there are remaining partitions and allows selection for swap
 if [ -n "${PartitionList}" ]
 then
-  Message="Select a partition for /swap from the ones that remain, or you can allocate a swap file.\n Warning: Btrfs does not support swap files."
+  local Message="Select a partition for /swap from the ones that remain, or you can allocate a swap file.\n Warning: Btrfs does not support swap files."
   Remaining=""
   local Counter=0
   SwapPartition=""
@@ -496,7 +491,7 @@ then
     Counter=$((Counter+1))
   done
   CopyArray[${Counter}]="Swapfile"
-  Message="If you select <Cancel> no swap will be allocated:"
+  local Message="If you select <Cancel> no swap will be allocated:"
   listgen2 "$PickFrom" "Partitions" "" "CopyArray"
   if [ $Response -ne 0 ]; then
     Result="Done"
@@ -512,7 +507,7 @@ then
     *) SwapPartition="/dev/$Result"
         IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
         if [ -n "$IsSwap" ]; then
-          Message="$Result is already formatted as a swap partition, do you wish to reformat it?"
+          local Message="$Result is already formatted as a swap partition, do you wish to reformat it?"
           dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "\n$Message\n" 10 40
           # Use $? (exit status) ...
           case $? in
@@ -537,7 +532,7 @@ fi
 
 SetSwapFile() {
 LoopRepeat="Y"
-Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
+local Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
 while [ ${LoopRepeat} = "Y" ]
 do
   dialog --backtitle "$Backtitle" --title " auto-partition " \
@@ -548,7 +543,7 @@ do
 	CheckInput=(`echo $RESPONSE | grep "G\|M"`)
   echo
 	if [ -z ${CheckInput} ]; then
-    Message="You must include M or G\n$Message"
+    local Message="You must include M or G\n$Message"
 		SwapFile=""
 	else
     SwapFile=$RESPONSE
@@ -570,7 +565,7 @@ MorePartitions() {
   while [ $Elements -gt 0 ]  
   do
     Remaining=""
-    Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose <Cancel> to finish partitioning."
+    local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose <Cancel> to finish partitioning."
     listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
     if [ $Result != "Done" ]; then
       PassPart=$Result
@@ -618,7 +613,7 @@ MakePartition() { # Called by MorePartitions
 	AddPartList[$ExtraPartitions]="${Partition}"
   CheckPartition   # Before going to FileSystem, check the partition
   if [ ${CurrentType} ]; then
-    Message="You can choose to leave it as it is, by selecting 'Done', but not reformatting an existing partition can have unexpected consequences."
+    local Message="You can choose to leave it as it is, by selecting 'Done', but not reformatting an existing partition can have unexpected consequences."
   fi
   # 2) Select filesystem
   TypeList="ext2 ext3 ext4 btrfs" # Set format types for the selected partition
@@ -626,7 +621,7 @@ MakePartition() { # Called by MorePartitions
 	AddPartType[$ExtraPartitions]="${PartitionType}" 	# Add it to AddPartType list  
   # 3) Get a mountpoint
 	LoopRepeat="Y"
-  Message="Enter a mountpoint for ${Partition} (eg: '/home')"
+  local Message="Enter a mountpoint for ${Partition} (eg: '/home')"
 	while [ ${LoopRepeat} = "Y" ]
 	do
    
@@ -657,7 +652,7 @@ MakePartition() { # Called by MorePartitions
 			do 
 				MountPointCounter=$((MountPointCounter+1))
 				if [ $MountPoint = $PartMount ]; then
-					Message="Mountpoint ${PartMount} has already been used. Please use a different mountpoint.\n$Message"
+					local Message="Mountpoint ${PartMount} has already been used. Please use a different mountpoint.\n$Message"
 				else
 					LoopRepeat="N"
 					break

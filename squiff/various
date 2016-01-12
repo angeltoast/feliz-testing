@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# felizfuncs - Various functions - Dialog version
+# various - Various functions - Dialog version
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
@@ -12,13 +12,14 @@
 # -------------------------      -------------------------
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
-# Various input/output  22       SetGrubDevice        246
-# Internet connection   87       umount_partitions    274
 # Mirrorlist           131       MountPartitions      283
 # SetScope             159       InstallKernel        342
 # SetKernel            193       TestExistingDM       336
 # ConfirmVbox          206       SetRootPassword      365
 # MakePartitionList    229       SetUserPassword      394
+
+Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
+Passed=$Backtitle
 
 TPecho() { # For displaying status while running on auto
   echo
@@ -67,8 +68,7 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
 }
 
 SetKernel() {
-  Passed="To fully understand the installation process you should read the Arch Wiki"
-  Message="Choose your kernel\nThe Long-Term-Support kernel (LTS) offers stabilty,\nwhile the Latest kernel has all the new features.\nIf in doubt, choose LTS."
+  local Message="Choose your kernel\nThe Long-Term-Support kernel (LTS) offers stabilty,\nwhile the Latest kernel has all the new features.\nIf in doubt, choose LTS."
   listgen1 "LTS Latest" "Kernels" "nodone"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
@@ -77,7 +77,7 @@ ConfirmVbox() {
   Retry="Y"
   until [ $Retry = "N" ]
   do
-    Message="It appears that feliz is running in Virtualbox.\nIf it is, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities? (y/n): "
+    local Message="It appears that feliz is running in Virtualbox.\nIf it is, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities? (y/n): "
     dialog --backtitle "$Backtitle" --title " auto-partition " \
     --yesno "\n$Message\n" 10 40
     # Use $? (exit status) ...
@@ -112,7 +112,7 @@ SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   GrubDevice=""
-	Message="Select the device where Grub is to be installed.\nNote that if you select the <Cancel> option, Grub will not be installed, and you will have to make alternative arrangements for booting your new system."
+	local Message="Select the device where Grub is to be installed.\nNote that if you select the <Cancel> option, Grub will not be installed, and you will have to make alternative arrangements for booting your new system."
 	listgen1 "${DevicesList}" "Devices" ""
   if [ $Response -gt 0 ]; then
    GrubDevice=""
@@ -123,7 +123,7 @@ SetGrubDevice() {
 
 InstallationMode() { # New function in each UI branch
 Passed="Entering installation stage."
-Message="From this point, Feliz will operate in cli mode, so that you can see the steps it takes. If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
+local Message="From this point, Feliz will operate in cli mode, so that you can see the steps it takes. If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
 dialog --backtitle "$Backtitle" --title " auto-partition " \
     --msgbox "\n$Message" 15 40
 }

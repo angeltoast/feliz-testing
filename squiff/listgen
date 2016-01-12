@@ -19,28 +19,36 @@
 listgen1() {
   local Backtitle="$Passed"
   local Title="$2"
-  if [ -n $3 ]; then
-    local Nocancel="--$3"
+  if [ $3 ]; then
+    Nocancel="--nocancel"
+  else
+    Nocancel=""
   fi
   local Counter=0
   declare -a Options
+  Width=50
   # Prepare $1 for dialog menu
-  for part in $1 # Prepare string array of list items passed as $1
+  for item in $1 # Prepare string array of list items passed as $1
   do
     Counter=$((Counter+1))
-    Options[${Counter}]="$part"
+    Options[${Counter}]="$item"
     Counter=$((Counter+1))
     Options[${Counter}]="-"
+    Length=`echo ${#item}`
+    if [ $Length -gt $Width ]; then
+      Width=$((Length+15))
+    fi
   done
-  Counter=$((Counter/2))
   Printit
 }
 
 listgen2() { 
   local Backtitle="$Passed"
   local Title="$2"
-  if [ -n $3 ]; then
-    local Nocancel="--$3"
+  if [ $3 ]; then
+    Nocancel="--nocancel"
+  else
+    Nocancel=""
   fi
   declare -a Options
   local Counter=0
@@ -54,20 +62,25 @@ listgen2() {
   name=$4[@]
   LongName=("${!name}")
   # Prepare $1 and $4 for dialog menu
-  for part in "${LongName[@]}"; do
+  Width=40
+  for item in "${LongName[@]}"; do
     Options[$((Counter))]="${Items[${ItemCounter}]}"
-    Options[$((Counter+1))]="$part"
+    Options[$((Counter+1))]="$item"
     Counter=$((Counter+2))
     ItemCounter=$((ItemCounter+1))
+    Length=`echo ${#item}`
+    if [ $Length -gt $Width ]; then
+      Width=$((Length+20))
+    fi
   done
   Printit # The final frontier
 }
 
 Printit() {
-  # Use $Counter and ${Options[@]} array in dialog
   Counter=$((Counter/2))
-  dialog --backtitle "$Backtitle" --title " $Title " "$Nocancel"\
-      --menu "\n$Message\n" 18 40 $Counter "${Options[@]}" 2> output.file
+  # Use $Counter and ${Options[@]} array in dialog
+  dialog --backtitle "$Backtitle" --title " $Title " $Nocancel \
+      --menu "\n$Message\n" 18 $Width $Counter "${Options[@]}" 2> output.file
       
   Response=$? # Errorcode
   Result=$(cat output.file) # Selected item
