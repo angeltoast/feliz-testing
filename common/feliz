@@ -281,6 +281,9 @@ if [ $Scope != "Basic" ]; then
         "cairo-dock") TPecho "Installing $i and cairo-dock-plug-ins"
           pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
+        "conky") cp conkyrc /mnt/home/$UserName/.conkyrc 2>> feliz.log
+          cp Conky.desktop /mnt/home/$UserName/.config.autostart 2>> feliz.log
+        ;;
         *) TPecho "Installing $i"
           pacstrap /mnt $i 2>> feliz.log
       esac

@@ -5,6 +5,7 @@
 
 # Both functions return the selected item as text using global variable $Result
 # and errorcode as $Response (to remain consistent with the cli version as far as possible)
+# Window width and height are adjusted according to content
 
 # listgen1 receives three parameters:
 # 1) Primary file (string of single-word references)
@@ -26,7 +27,7 @@ listgen1() {
   fi
   local Counter=0
   declare -a Options
-  Width=50
+  Width=40
   # Prepare $1 for dialog menu
   for item in $1 # Prepare string array of list items passed as $1
   do
@@ -62,7 +63,7 @@ listgen2() {
   name=$4[@]
   LongName=("${!name}")
   # Prepare $1 and $4 for dialog menu
-  Width=40
+  Width=30
   for item in "${LongName[@]}"; do
     Options[$((Counter))]="${Items[${ItemCounter}]}"
     Options[$((Counter+1))]="$item"
@@ -78,12 +79,18 @@ listgen2() {
 
 Printit() {
   Counter=$((Counter/2))
-  if [ $Counter -lt 4 ]; then
-    Height=8
-  elif [ $Counter -lt 10 ]; then
+  # Calculate number of lines
+  echo $Message > message.file
+  countcharacters=`cat message.file | wc -c`  # Count number of characters in $Message
+  countlines=$((countcharacters/Width)) # Calculate lines
+  echo $Message | sed 's/[^\\]//g' > message.file   # Use sed to remove all except newlines
+  countnewlines=`cat message.file | wc -c` # Count newline characters
+  Height=$((countlines+countnewlines+Counter+6))
+  if [ $Height -gt 18 ]; then
     Height=18
-  else
-    Height=25
+      if [ $Width -lt 50 ]; then
+        Width=$((Width+5))
+      fi
   fi
   # Use $Counter and ${Options[@]} array in dialog
   dialog --backtitle "$Backtitle" --title " $Title " $Nocancel \

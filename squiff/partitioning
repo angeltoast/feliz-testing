@@ -566,24 +566,24 @@ MorePartitions() {
     Remaining=""
     local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose <Cancel> to finish partitioning."
     listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
-    if [ $Result != "Done" ]; then
+    if [ $Response -eq 0 ]; then # ie: not <Cancel>
       PassPart=$Result
       SetLabel "$Result"
       UpdateArray # Remove the selected partition from $PartitionArray[]
     fi
     echo
-    for Part in ${PartitionList} # Iterate through the list
+    for Part in ${PartitionList} # Iterate through the list to find selected item
     do
       Partition=""
       PartitionType=""
-      if [ $Part = $Result ] && [ $Result != "Done" ]; then
+      if [ $Part = $Result ] && [ $Response -eq 0 ]; then # Not <Cancel> and part is selected
         Partition="/dev/$Part"
         MakePartition # Call complete details
         Label="${Labelled[${PassPart}]}"
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      elif [ $Part != "Done" ]; then   # Part is not selected and not 'Done'
+      elif [ $Response -eq 0 ]; then # Not <Cancel> and part is not selected
         Remaining="$Remaining $Part" # Add unused partition to temp list
         AddedToRemaining=$(($AddedToRemaining+1))
       fi
