@@ -84,11 +84,11 @@ listgen2() {
 Printit() {
   Counter=$((Counter/2))
   # Calculate number of lines
-  echo $Message > message.file
-  countcharacters=`cat message.file | wc -c`  # Count number of characters in $Message
+  echo $Message > output.file
+  countcharacters=`cat output.file | wc -c`  # Count number of characters in $Message
   countlines=$((countcharacters/Width)) # Calculate lines
-  echo $Message | sed 's/[^\\]//g' > message.file   # Use sed to remove all except newlines
-  countnewlines=`cat message.file | wc -c` # Count newline characters
+  echo $Message | sed 's/[^\\]//g' > output.file   # Use sed to remove all except newlines
+  countnewlines=`cat output.file | wc -c` # Count newline characters
   Height=$((countlines+countnewlines+Counter+15-Counter))
   if [ $Height -gt 18 ]; then
     Height=18

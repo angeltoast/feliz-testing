@@ -110,7 +110,7 @@ SetGrubDevice() {
 
 InstallationMode() { # New function in each UI branch
 Passed="Entering installation stage."
-local Message="From this point, Feliz will operate in cli mode, so that you can see the steps it takes. If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
+local Message="If you are re-using existing partitions, the system may pause to ask you to confirm that you wish to mount them. This may happen more than once ...\n'y' would be an appropriate response."
 dialog --backtitle "$Backtitle" --title " auto-partition " \
     --msgbox "\n$Message" 15 40
 }
@@ -235,33 +235,25 @@ TestExistingDM() {
 }
 
 SetRootPassword() {
-  print_heading
-  echo
-  PrintOne "Success!"
-  echo
   if [ $Scope = "Basic" ]; then
-    PrintOne "Finished installing basic Arch in $DIFFMIN minutes and $DIFFSEC seconds"
+    PrintOne "Success!\nFinished installing basic Arch in $DIFFMIN minutes and $DIFFSEC seconds"
   else
-    PrintOne "Finished installing Arch with ..."
-    echo
-    PrintOne "${LuxuriesList}"
-    echo
-    PrintOne "... in $DIFFMIN minutes and $DIFFSEC seconds"
+    PrintOne "Success!\nFinished installing Arch with ... \n${LuxuriesList}\n... in $DIFFMIN minutes and $DIFFSEC seconds"
   fi
-  echo
- 	PrintOne "-----------------------"
-  echo
-  PrintOne "Finally we need to set passwords ..."
-  echo
+  Backtitle="Finally we need to set passwords ..."
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for root: " Pass1
-    echo
-    read -s -p "Re-enter root password: " Pass2
-    echo
+    Message="Enter a password for root: "
+    dialog --backtitle "$Backtitle" --title " User password " \
+      --inputbox "\n$Message\n" 18 50 2> output.file
+    Pass1=`cat output.file`
+    Message="Re-enter root password: "
+    dialog --backtitle "$Backtitle" --title " User password " \
+      --inputbox "\n$Message\n" 18 50 2> output.file
+    Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      PrintOne "Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -270,26 +262,26 @@ SetRootPassword() {
      rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
-      print_heading
       PrintOne "Passwords don't match. Try again"
     fi
   done
 }
 
 SetUserPassword() {
-  print_heading
-  echo
-	PrintOne   "And now a password for $UserName: "
-  echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
     read -s -p "Enter a password for $UserName: " Pass1
-    echo
-    read -s -p "Re-enter password for $UserName: " Pass2
-    echo
+    Message="Enter a password for $UserName:: "
+    dialog --backtitle "$Backtitle" --title " User password " \
+      --inputbox "\n$Message\n" 18 50 2> output.file
+    Pass1=`cat output.file`
+    Message="Re-enter ${UserName}'s password: "
+    dialog --backtitle "$Backtitle" --title " User password " \
+      --inputbox "\n$Message\n" 18 50 2> output.file
+    Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      PrintOne "Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -298,7 +290,7 @@ SetUserPassword() {
       rm /tmp/.passwd 2>> feliz.log
       Repeat="N"
     else
-      echo "Passwords don't match. Try again"
+      PrintOne "Passwords don't match. Try again"
     fi
   done
 }

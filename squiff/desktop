@@ -33,8 +33,13 @@ getkeymap() {
 
 setlocale() {
   LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
+  # Convert array to string
+  UseList=""
+  for l in ${LocaleList[@]}; do
+    UseList="$UseList $l"
+  done
   local Message="Scroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system"
-  listgen1 "$LocaleList" " Locales " "nocancel"
+  listgen1 "$UseList" " Locales " "nocancel"
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
   dialog --backtitle "$Backtitle" --title " Locale " \
@@ -124,7 +129,7 @@ local Complete=0
 Title="Choose your first item"
 while [ $Complete -eq 0 ]
 do
-  local Message="Added so far: ${LuxuriesList}\nMessage"
+  local Message="Added so far: ${LuxuriesList}\n$Message"
   # Pass category to listgen2 for user to choose one item;
   case $Category in
     "Accessories") listgen2 "$Accessories" "Accessories" "" "LongAccs"
