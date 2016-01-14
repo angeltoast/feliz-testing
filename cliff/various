@@ -25,6 +25,26 @@ invalid_option() { # (from AUI scripts)
   read_timed "Invalid option. Try again ..." 1
 }
 
+TPecho() { # For displaying status while running on auto
+  echo
+  CurrentTime=$(date +%s)
+  Difference=$(( $CurrentTime-$StartTime ))
+  DIFFMIN=$(( $Difference/60 ))
+  DIFFSEC=$(( $Difference % 60 ))
+  T_COLS=`tput cols`
+  tput bold
+  lov=${#1}
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 3 ))
+    EMPTY="$(printf '%*s' $stpt)"
+    echo -e "$EMPTY ${DIFFMIN}m ${DIFFSEC}s - $1 \n"
+  else
+    echo -e "${DIFFMIN}m ${DIFFSEC}s - $1 \n"
+  fi
+  tput sgr0
+  echo
+}
+
 SetKernel() {
   print_heading
   echo

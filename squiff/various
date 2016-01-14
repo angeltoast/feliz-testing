@@ -18,8 +18,35 @@
 # ConfirmVbox          206       SetRootPassword      365
 # MakePartitionList    229       SetUserPassword      394
 
-Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
-Passed=$Backtitle
+TPecho() { # For displaying status while running on auto
+  # Different versions in cliff and squiff
+  # squiff version is to be a progress gauge
+  CurrentTime=$(date +%s)
+  Difference=$(( $CurrentTime-$StartTime ))
+  DIFFMIN=$(( $Difference/60 ))
+  DIFFSEC=$(( $Difference % 60 ))
+  (( Progress+=5 ))
+  (
+  echo $Progress
+  echo "XXX"
+  $Progress
+  echo "After ${DIFFMIN}minutes ${DIFFSEC}seconds\n$1"
+  echo "XXX"
+  sleep 1
+  ) |
+
+  dialog --title " Installation " --gauge "" 8 70 0
+}
+
+PrintOne() {
+ # Just because 
+ dialog --title " Information " --infobox "$1" 10 30 ; sleep 4  
+}
+
+read_timed() {
+ # Just because 
+ dialog --title " Information " --infobox "$1" 10 30 ; sleep 4  
+}
 
 SetKernel() {
   local Message="Choose your kernel\nThe Long-Term-Support kernel (LTS) offers stabilty,\nwhile the Latest kernel has all the new features.\nIf in doubt, choose LTS."

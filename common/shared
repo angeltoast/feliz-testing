@@ -185,26 +185,6 @@ print_heading() {
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
-TPecho() { # For displaying status while running on auto
-  echo
-  CurrentTime=$(date +%s)
-  Difference=$(( $CurrentTime-$StartTime ))
-  DIFFMIN=$(( $Difference/60 ))
-  DIFFSEC=$(( $Difference % 60 ))
-  T_COLS=`tput cols`
-  tput bold
-  lov=${#1}
-  if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(( ($T_COLS - $lov) / 3 ))
-    EMPTY="$(printf '%*s' $stpt)"
-    echo -e "$EMPTY ${DIFFMIN}m ${DIFFSEC}s - $1 \n"
-  else
-    echo -e "${DIFFMIN}m ${DIFFSEC}s - $1 \n"
-  fi
-  tput sgr0
-  echo
-}
-
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
   TPecho "Using Reflector to generate mirrorlist"
   reflector --verbose -l 5 --sort rate --save /etc/pacman.d/mirrorlist 2>> feliz.log

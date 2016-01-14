@@ -27,7 +27,9 @@ listgen1() {
   fi
   local Counter=0
   declare -a Options
-  Width=40
+  if [ ! $Width ]; then
+    Width=40
+  fi
   # Prepare $1 for dialog menu
   for item in $1 # Prepare string array of list items passed as $1
   do
@@ -62,8 +64,10 @@ listgen2() {
   # Import the complex array
   name=$4[@]
   LongName=("${!name}")
+  if [ ! $Width ]; then
+    Width=40
+  fi
   # Prepare $1 and $4 for dialog menu
-  Width=30
   for item in "${LongName[@]}"; do
     Options[$((Counter))]="${Items[${ItemCounter}]}"
     Options[$((Counter+1))]="$item"
@@ -85,7 +89,7 @@ Printit() {
   countlines=$((countcharacters/Width)) # Calculate lines
   echo $Message | sed 's/[^\\]//g' > message.file   # Use sed to remove all except newlines
   countnewlines=`cat message.file | wc -c` # Count newline characters
-  Height=$((countlines+countnewlines+Counter+6))
+  Height=$((countlines+countnewlines+Counter+15-Counter))
   if [ $Height -gt 18 ]; then
     Height=18
       if [ $Width -lt 50 ]; then

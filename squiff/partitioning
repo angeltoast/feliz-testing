@@ -21,10 +21,9 @@
 # EditLabel          269
 # -----------------------      ------------------------
 
-Backtitle="Partitioning.  If you need guidance, consult the Arch Wiki Beginner's Guide"
-Passed=$Backtitle
-
 CheckParts() {
+Backtitle="If you need guidance, consult the Arch Wiki Beginners' Guide"
+Passed=$Backtitle
 # First test for existing partitions
 	ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
   local Counter=0
@@ -404,23 +403,13 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
 AllocateRoot() {
   # Display partitions for user-selection	
 	# Uses list of all available partitions in PartitionList
-	print_heading
 	Remaining=""
   Partition=""
 	PartitionType=""
 	local Counter=0
+  local Message="Select a partition to use as /root\n"
   # Prepare array for dialog menu
-  for part in ${PartitionList}
-  do
-    Counter=$((Counter+1))
-    Options[${Counter}]="$part"
-    Counter=$((Counter+1))
-    Options[${Counter}]="-"
-  done
-  Counter=$((Counter/2))
-  # Use $Counter and ${Options[@]} array in dialog
-  dialog --backtitle "$Backtitle" --title " Partitioning " --nocancel \
-      --menu "\nSelect a partition to use as /root\n" 18 40 $Counter "${Options[@]}" 2> output.file
+  listgen2 "$PartitionList" " Partitions " "nocancel" "PartitionArray"
   Result=$(cat output.file)
   # Reply is used later, so give it the value of $Response
   Reply=$Result
@@ -441,7 +430,7 @@ AllocateRoot() {
         local Message="$Message\nYou can choose to leave it as it is, by selecting '<Cancel>', but be aware that not reformatting the root partition may have unexpected consequences."
         FileSystem
       else
-        local Message="Please now select the file system for ${Partition}\nIt is not recommended to mix the btrfs file-system with others.\n"
+        local Message="Please now select the file system for ${Partition} ... It is not recommended to mix the btrfs file-system with others.\n"
         FileSystem "nocancel" 
       fi
 			if [ -z ${PartitionType} ] && [ ${CurrentType} ]; then
@@ -476,21 +465,21 @@ AllocateSwap() {
 # Checks if there are remaining partitions and allows selection for swap
 if [ -n "${PartitionList}" ]
 then
-  local Message="Select a partition for /swap from the ones that remain, or you can allocate a swap file.\n Warning: Btrfs does not support swap files."
+  local Message="Select a partition for swap, or allocate a swap file. Warning: Btrfs does not support swap files.\nIf you select <Cancel> no swap will be allocated"
   Remaining=""
   local Counter=0
   SwapPartition=""
   PickFrom="$PartitionList Swapfile"
   SwapFile=""
   declare -a CopyArray # For passing to listgen2
-  local Counter=0
+  local Counter=1
   for p in "${PartitionArray[@]}"
   do
     CopyArray[${Counter}]=${PartitionArray[$Counter]}
     Counter=$((Counter+1))
   done
   CopyArray[${Counter}]="Swapfile"
-  local Message="If you select <Cancel> no swap will be allocated:"
+  Width=50
   listgen2 "$PickFrom" "Partitions" "" "CopyArray"
   if [ $Response -ne 0 ]; then
     Result="Done"

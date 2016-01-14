@@ -17,9 +17,6 @@
 # Extras       101    ChangePartitions    472
 #                     AddExtras           483    
 
-Backtitle="Desktop settings. If you need guidance, consult the Arch Wiki Beginners' Guide"
-Passed=$Backtitle
-
 getkeymap() {
   ListKbs=`cat keymaps.list`
   keyboards=""
