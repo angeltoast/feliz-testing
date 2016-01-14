@@ -40,12 +40,12 @@ TPecho() { # For displaying status while running on auto
 
 PrintOne() {
  # Just because 
- dialog --title " Information " --infobox "$1" 10 30 ; sleep 4  
+ dialog --title " Information " --infobox "$1" 8 30 ; sleep 1
 }
 
 read_timed() {
  # Just because 
- dialog --title " Information " --infobox "$1" 10 30 ; sleep 4  
+ dialog --title " Information " --infobox "$1" 8 30 ; sleep 1
 }
 
 SetKernel() {
@@ -92,7 +92,7 @@ MakePartitionList() {
 }
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
+  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
 }  
 
 SetGrubDevice() {
@@ -120,13 +120,13 @@ MountPartitions() {
     "") TPecho "Not formatting root partition"
     ;;
     *) TPecho "Formatting /root partition"
-      umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
+      umount ${RootPartition} /mnt >/dev/null &>> feliz.log
       # Check if replacing existing ext3/4 partition with btrfs
       CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
       if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
         btrfs-convert ${RootPartition}
       elif [ $RootType = "btrfs" ]; then
-        mkfs.btrfs -f ${RootPartition} 2>> feliz.log
+        mkfs.btrfs -f ${RootPartition} &>> feliz.log
       else
         Partition=`echo $RootPartition | cut -c 6-`
         Label="${LabellingArray[${Partition}]}"
@@ -137,9 +137,9 @@ MountPartitions() {
       fi
     esac
     TPecho "Mounting /root partition"	
-    mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
+    mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
     if [ ${SwapPartition} ]; then
-      swapoff -a 2>> feliz.log
+      swapoff -a &>> feliz.log
       if [ $MakeSwap = "Y" ]; then
         TPecho "Making /swap partition"
         Partition=`echo $SwapPartition | cut -c 6-`
@@ -150,21 +150,21 @@ MountPartitions() {
         mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
       fi
       TPecho "Activating /swap"
-      swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
+      swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
     fi
 
   local Counter=0
   for id in ${AddPartList}
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
-    umount ${id} /mnt${AddPartMount[$Counter]} /mnt >/dev/null 2>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mkdir -p /mnt/home
+    umount ${id} /mnt${AddPartMount[$Counter]} /mnt >/dev/null &>> feliz.log
+    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id}
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} 2>> feliz.log
+      mkfs.btrfs -f ${id} &>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=`echo ${id} | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
@@ -173,14 +173,14 @@ MountPartitions() {
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mount /dev/sda3 /mnt/home
 		Counter=$((Counter+1))
 	done
 }
 
 InstallKernel() {
   TPecho "Installing cli tools"
-  pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver 2>> feliz.log
+  pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
     1) TPecho "Installing LTS kernel"
@@ -188,8 +188,8 @@ InstallKernel() {
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
           TPecho "Installing virtualbox guest modules"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
+          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
+          cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
         fi
       ;;  
     *) TPecho "Installing Latest kernel"
@@ -197,12 +197,12 @@ InstallKernel() {
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
           TPecho "Installing virtualbox guest modules"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
+          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
+          cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
         fi
   esac
   TPecho "Installing opensource video drivers"
-  pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
+  pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
 
 TestExistingDM() {
@@ -236,30 +236,30 @@ TestExistingDM() {
 
 SetRootPassword() {
   if [ $Scope = "Basic" ]; then
-    PrintOne "Success!\nFinished installing basic Arch in $DIFFMIN minutes and $DIFFSEC seconds"
+    Message="Success! Finished installing basic Arch in $DIFFMIN minutes and $DIFFSEC seconds"
   else
-    PrintOne "Success!\nFinished installing Arch with ... \n${LuxuriesList}\n... in $DIFFMIN minutes and $DIFFSEC seconds"
+    Message="Success! Finished installing Arch with ... \n${LuxuriesList}\n... in $DIFFMIN minutes and $DIFFSEC seconds"
   fi
   Backtitle="Finally we need to set passwords ..."
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    Message="Enter a password for root: "
-    dialog --backtitle "$Backtitle" --title " User password " \
-      --inputbox "\n$Message\n" 18 50 2> output.file
+    Message="$Message\n\nEnter a password for root: "
+    dialog --backtitle "$Backtitle" --title " User password " --nocancel \
+      --passwordbox "\n$Message\n" 14 50 2> output.file
     Pass1=`cat output.file`
     Message="Re-enter root password: "
-    dialog --backtitle "$Backtitle" --title " User password " \
-      --inputbox "\n$Message\n" 18 50 2> output.file
+    dialog --backtitle "$Backtitle" --title " User password " --nocancel \
+      --passwordbox "\n$Message\n" 10 50 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       PrintOne "Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd 2>> feliz.log
+     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
      arch_chroot "passwd root" < /tmp/.passwd >/dev/null
-     rm /tmp/.passwd 2>> feliz.log
+     rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
       PrintOne "Passwords don't match. Try again"
@@ -271,23 +271,22 @@ SetUserPassword() {
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for $UserName: " Pass1
     Message="Enter a password for $UserName:: "
-    dialog --backtitle "$Backtitle" --title " User password " \
-      --inputbox "\n$Message\n" 18 50 2> output.file
+    dialog --backtitle "$Backtitle" --title " User password " --nocancel\
+      --passwordbox "\n$Message\n" 10 50 2> output.file
     Pass1=`cat output.file`
     Message="Re-enter ${UserName}'s password: "
-    dialog --backtitle "$Backtitle" --title " User password " \
-      --inputbox "\n$Message\n" 18 50 2> output.file
+    dialog --backtitle "$Backtitle" --title " User password " --nocancel \
+      --passwordbox "\n$Message\n" 10 50 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       PrintOne "Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd 2>> feliz.log
+      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
       arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
-      rm /tmp/.passwd 2>> feliz.log
+      rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else
       PrintOne "Passwords don't match. Try again"
