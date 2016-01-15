@@ -243,11 +243,11 @@ SetRootPassword() {
   do
     Message="$Message\n\nEnter a password for root: "
     dialog --backtitle "$Backtitle" --title " User password " --nocancel \
-      --passwordbox "\n$Message\n" 14 50 2> output.file
+      --passwordbox --insecure "\n$Message\n" 14 50 2> output.file
     Pass1=`cat output.file`
     Message="Re-enter root password: "
     dialog --backtitle "$Backtitle" --title " User password " --nocancel \
-      --passwordbox "\n$Message\n" 10 50 2> output.file
+      --passwordbox --insecure "\n$Message\n" 10 50 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       PrintOne "Passwords cannot be blank. Try again ..."
@@ -270,11 +270,11 @@ SetUserPassword() {
   do
     Message="Enter a password for $UserName:: "
     dialog --backtitle "$Backtitle" --title " User password " --nocancel\
-      --passwordbox "\n$Message\n" 10 50 2> output.file
+      --passwordbox --insecure "\n$Message\n" 10 50 2> output.file
     Pass1=`cat output.file`
     Message="Re-enter ${UserName}'s password: "
     dialog --backtitle "$Backtitle" --title " User password " --nocancel \
-      --passwordbox "\n$Message\n" 10 50 2> output.file
+      --passwordbox --insecure "\n$Message\n" 10 50 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       PrintOne "Passwords cannot be blank. Try again ..."
