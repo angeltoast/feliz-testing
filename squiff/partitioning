@@ -378,6 +378,7 @@ BuildPartitionLists() {
 }
 
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
+  # Called by AllocateRoot & AllocateSwap
 	local Counter=0
   declare -a NewArray  # Empty NewArray
   # Build NewArray without partition selected in calling function
@@ -409,7 +410,7 @@ AllocateRoot() {
   local Message="Select a partition to use as /root\n"
   listgen2 "$PartitionList" " Partitions " "nocancel" "PartitionArray"
   Result=$(cat output.file)
-  # Reply is used later, so give it the value of $Response
+  # Reply is used later, so give it the value of $Result
   Reply=$Result
   PassPart=$Result
   SetLabel "$Result"
@@ -485,37 +486,38 @@ then
     Result=$(cat output.file)
   fi
   case $Result in
-    "Done") SwapPartition=""
-        break
-        ;;
-    "Swapfile") SetSwapFile
-        SwapPartition=""
-        break
-        ;;
-    *) SwapPartition="/dev/$Result"
-        IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
-        if [ -n "$IsSwap" ]; then
-          local Message="$Result is already formatted as a swap partition, do you wish to reformat it?"
-          dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "\n$Message\n" 10 40
-          # Use $? (exit status) ...
-          case $? in
-            0) MakeSwap="${Response^^}"
-            ;;
-            *) MakeSwap="Y"
-          esac
-        fi
-        Label="${Labelled[${PassPart}]}"
-        if [ -n "${Label}" ]; then
-          EditLabel "$PassPart"
-          SetLabel "$PassPart"
-        fi
-        UpdateArray # Remove the selected partition from $PartitionArray[]
-    esac          
-  if [ $i != "Done" ] && [ $i != Swapfile ]; then
-    Remaining="$Remaining $i"	# Add next available partition
-  fi
-  PartitionList=$Remaining	# Replace original PartitionList with remaining options
+  "Done") SwapPartition=""
+      break
+  ;;
+  "Swapfile") SetSwapFile
+      SwapPartition=""
+      break
+  ;;
+  *) SwapPartition="/dev/$Result"
+      IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
+      if [ -n "$IsSwap" ]; then
+        local Message="$Result is already formatted as a swap partition, do you wish to reformat it?"
+        dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "\n$Message\n" 10 40
+        # Use $? (exit status) ...
+        case $? in
+          0) MakeSwap="${Response^^}"
+          ;;
+          *) MakeSwap="Y"
+        esac
+      fi
+      Label="${Labelled[${PassPart}]}"
+      if [ -n "${Label}" ]; then
+        EditLabel "$PassPart"
+        SetLabel "$PassPart"
+      fi
+      UpdateArray # Remove the selected partition from $PartitionArray[]
+      for p in "${PartitionArray[@]}" # Then go through the array ...
+      do
+        Remaining="$Remaining $p"	# ... rebuilding the list
+      done
+  esac
 fi
+PartitionList=$Remaining	# Replace original PartitionList with remaining options
 }
 
 SetSwapFile() {
