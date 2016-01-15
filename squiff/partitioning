@@ -15,9 +15,9 @@
 # Parted             100       AllocateRoot        404
 # AutoPartition      104       CheckPartition      460
 # AutoWarning        152       AllocateSwap        476
-# RunAutoPart        167       SetSwapFile         553
-# FileSystem         232       MorePartitions      678
-# SetLabel           247       MakePartition       632
+# RunAutoPart        167       SetSwapFile         500
+# FileSystem         232       MorePartitions      544
+# SetLabel           247       MakePartition       600
 # EditLabel          269
 # -----------------------      ------------------------
 
@@ -479,8 +479,10 @@ then
   CopyArray[${Counter}]="Swapfile"
   Width=50
   listgen2 "$PickFrom" "Partitions" "" "CopyArray"
-  if [ $Response -ne 0 ]; then
+  if [ $? -ne 0 ]; then # 
     Result="Done"
+  else
+    Result=$(cat output.file)
   fi
   case $Result in
     "Done") SwapPartition=""

@@ -59,7 +59,7 @@ listgen2() {
       *) CancelButton="--cancel-label $3"
     esac
   else
-    Nocancel=""
+    CancelButton=""
   fi
   declare -a Options
   local Counter=0
