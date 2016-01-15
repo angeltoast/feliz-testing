@@ -10,10 +10,10 @@
 # -----------------------      ------------------------
 # Functions         Line       Functions           Line
 # -----------------------      ------------------------
-# CheckParts          27       BuildPartitionLists 293
-# Partitioning        76       UpdateArray         382
-# Parted             100       AllocateRoot        404
-# AutoPartition      104       CheckPartition      460
+# CheckParts          24       BuildPartitionLists 293
+# Partitioning        75       UpdateArray         382
+# Parted              99       AllocateRoot        404
+# AutoPartition      103       CheckPartition      460
 # AutoWarning        152       AllocateSwap        476
 # RunAutoPart        167       SetSwapFile         500
 # FileSystem         232       MorePartitions      544
@@ -26,18 +26,18 @@ Backtitle="If you need guidance, consult the Arch Wiki Beginners' Guide"
 Passed=$Backtitle
 # First test for existing partitions
 	ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
-  local Counter=0
+  local Partitions=0
   for i in $ShowPartitions
   do
-    Counter=$((Counter+1))
+    (( Partitions+=1 ))
+    break
   done
-  PARTITIONS=${Counter}
 	# If no partitions exist, offer cfdisk to create (or exit)
-  if [ $PARTITIONS -eq 0 ]
+  if [ ! $Partitions ]
   then
-    while [ $PARTITIONS -eq 0 ]
+    while [ $Partitions -eq 0 ]
     do
-      local Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose 'Cancel' the script will terminate to allow you to partition in some other way."
+      local Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose <Do nothing> the script will terminate to allow you to partition in some other way."
       Partitioning # Partitioning options
       if [ $Proceed -eq 3 ]; then
         read_timed "Exiting feliz! Hurry back, y'hear?"
@@ -45,27 +45,27 @@ Passed=$Backtitle
       fi
       # Check that partitions have been created
       ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
-      Counter=0
+      Partitions=0
       for i in $ShowPartitions
       do
-        Counter=$((Counter+1))
+        (( Partitions+=1 ))
+        break
       done
-      PARTITIONS=${Counter}
     done
     # Call function to generate an array of partitions
 		BuildPartitionLists # This is a first call
   else
     # Generate an array of partitions
 		BuildPartitionLists # This is a first call
-    Counter=0
+    Partitions=0
     # Copy array to variable for display
     ExistingPartitions=""
     for part in ${PartitionList}
     do
       ExistingPartitions="$ExistingPartitions ${PartitionArray[$Counter]}\n"
-      Counter=$((Counter+1))
+      (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose '<Cancel>' the script will enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -77,7 +77,7 @@ Partitioning() {
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    dialog --backtitle "$Backtitle" --title " Partitioning " \
+    dialog --backtitle "$Backtitle" --title " Partitioning " --cancel-label "Do nothing"\
       --menu "\n$Message\n" 18 50 2 \
         "1" "Open cfdisk so I can partition manually" \
         "2" "Allow feliz to partition the whole device" 2> output.file
@@ -111,7 +111,7 @@ do
   local Counter=0
   for i in $DiskDetails
   do
-    Counter=$((Counter+1))
+    (( Counter+=1 ))
     Drives[$Counter]=$i
   done
   if [ $Counter -gt 1 ]
@@ -121,7 +121,7 @@ do
     ExistingPartitions="" # Prepare variable
     for i in $DiskDetails
     do
-      Counter=$((Counter+1))    
+      (( Counter+=1 ))    
       ExistingPartitions="$ExistingPartitions $i\n"
     done
     while [ -z $UseDisk ]
@@ -418,7 +418,7 @@ AllocateRoot() {
   Counter=0  
   for i in ${PartitionList}
   do
-		Counter=$((Counter+1))
+		(( Counter+=1 ))
     if [ $i = $Reply ]; then
 			Partition="/dev/$i"
 			RootPartition="${Partition}"
@@ -464,7 +464,7 @@ AllocateSwap() {
 # Checks if there are remaining partitions and allows selection for swap
 if [ -n "${PartitionList}" ]
 then
-  local Message="Select a partition for swap, or allocate a swap file. Warning: Btrfs does not support swap files.\nIf you select <Cancel> no swap will be allocated"
+  local Message="Select a partition for swap, or allocate a swap file. Warning: Btrfs does not support swap files.\nIf you select <None> no swap will be allocated"
   Remaining=""
   local Counter=0
   SwapPartition=""
@@ -479,8 +479,8 @@ then
   done
   CopyArray[${Counter}]="Swapfile"
   Width=50
-  listgen2 "$PickFrom" "Partitions" "" "CopyArray"
-  if [ $? -ne 0 ]; then # 
+  listgen2 "$PickFrom" "Partitions" "None" "CopyArray"
+  if [ $? -ne 0 ]; then # If <Cancel> selected
     Result="Done"
   else
     Result=$(cat output.file)
