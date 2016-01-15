@@ -223,9 +223,8 @@ RunAutoPart() {
     PrintHome"Home partition: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
   fi
   AutoPart=1 # Set flag to 'on' for mounting 
-  local Message="Partitioning of ${GrubDevice} successful\n\n$ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later"
   dialog --backtitle "$Backtitle" --title " auto-partition " \
-    --msgbox "\n$Message" 15 40
+    --msgbox "Partitioning of ${GrubDevice} successful\n\n$ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later" 15 40
 }
 
 FileSystem() { 
@@ -408,7 +407,6 @@ AllocateRoot() {
 	PartitionType=""
 	local Counter=0
   local Message="Select a partition to use as /root\n"
-  # Prepare array for dialog menu
   listgen2 "$PartitionList" " Partitions " "nocancel" "PartitionArray"
   Result=$(cat output.file)
   # Reply is used later, so give it the value of $Response
@@ -612,12 +610,9 @@ MakePartition() { # Called by MorePartitions
   local Message="Enter a mountpoint for ${Partition} (eg: '/home')"
 	while [ ${LoopRepeat} = "Y" ]
 	do
-   
     dialog --backtitle "$Backtitle" --title " auto-partition " \
       --inputbox "\n$Message\n" 18 50 2> output.file
-      
     Response=$(cat output.file)
-    
  		# Check that entry includes '/'
 		CheckInput=(`echo $Response | cut -c1`)
 		case ${CheckInput} in

@@ -306,6 +306,14 @@ do
     "Cinnamon") DesktopEnvironment=$SaveResult
         ChooseDM
       ;;
+    "Deepin") DesktopEnvironment="Deepin"
+             AddDEextras "xfce4-goodies"
+        case $Response in
+          0) DDEextras="deepin-extra"
+           ;;
+          *) DDEextras=""
+        esac
+      ;;
     "Enlightenment") DesktopEnvironment=$SaveResult
         ChooseDM
       ;;
@@ -440,6 +448,10 @@ AddDEextras() {
  print_heading
  echo
  case $DesktopEnvironment in
+  "Deepin") PrintOne "The deepin-extras pack includes includes the Deepin game "
+    PrintOne "center, media players, terminal & screenshot tools"
+    echo
+    ;;
   "Openbox") PrintOne "tint2 is a system panel/taskbar that can be configured"
     PrintOne "to include a system tray, task list, battery monitor, clock, etc."
     echo

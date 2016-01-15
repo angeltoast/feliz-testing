@@ -10,22 +10,21 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# Various input/output  22       arch_chroot          242
-# Internet connection   87       SetGrubDevice        246
-# Mirrorlist           131       MountPartitions      283
-# SetScope             159       InstallKernel        342
-# SetKernel            193       TestExistingDM       336
-# ConfirmVbox          206       SetRootPassword      365
-# MakePartitionList    229       SetUserPassword      394
+# Various input/output  22       arch_chroot           93
+# Internet connection   87       SetGrubDevice         97
+# Mirrorlist           131       MountPartitions      117
+# SetScope             159       InstallKernel        180
+# SetKernel            193       TestExistingDM       196
+# ConfirmVbox          206       SetRootPassword      205
+# MakePartitionList    229       SetUserPassword      234
 
 TPecho() { # For displaying status while running on auto
   # Different versions in cliff and squiff
-  # squiff version is to be a progress gauge
   CurrentTime=$(date +%s)
   Difference=$(( $CurrentTime-$StartTime ))
   DIFFMIN=$(( $Difference/60 ))
   DIFFSEC=$(( $Difference % 60 ))
-  (( Progress+=5 ))
+  (( Progress+=3 ))
   (
   echo $Progress
   echo "XXX"
@@ -34,7 +33,6 @@ TPecho() { # For displaying status while running on auto
   echo "XXX"
   sleep 1
   ) |
-
   dialog --title " Installation " --gauge "" 8 70 0
 }
 
@@ -101,10 +99,10 @@ SetGrubDevice() {
   GrubDevice=""
 	local Message="Select the device where Grub is to be installed.\nNote that if you select the <Cancel> option, Grub will not be installed, and you will have to make alternative arrangements for booting your new system."
 	listgen1 "${DevicesList}" "Devices" ""
-  if [ $Response -gt 0 ]; then
+  if [ $? -gt 0 ]; then # <Cancel> selected
    GrubDevice=""
   else
-   GrubDevice=$Result
+   GrubDevice=$(cat output.file)
   fi
 }
 
@@ -117,42 +115,41 @@ dialog --backtitle "$Backtitle" --title " auto-partition " \
 
 MountPartitions() {
   case $RootType in
-    "") TPecho "Not formatting root partition"
-    ;;
-    *) TPecho "Formatting /root partition"
-      umount ${RootPartition} /mnt >/dev/null &>> feliz.log
-      # Check if replacing existing ext3/4 partition with btrfs
-      CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
-      if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-        btrfs-convert ${RootPartition}
-      elif [ $RootType = "btrfs" ]; then
-        mkfs.btrfs -f ${RootPartition} &>> feliz.log
-      else
-        Partition=`echo $RootPartition | cut -c 6-`
-        Label="${LabellingArray[${Partition}]}"
-        if [ -n "${Label}" ]; then
-          Label="-L ${Label}"
-        fi
-        mke2fs ${Label} -t ${RootType} ${RootPartition}
+  "") TPecho "Not formatting root partition"
+  ;;
+  *) TPecho "Formatting /root partition"
+    umount ${RootPartition} /mnt >/dev/null &>> feliz.log
+    # Check if replacing existing ext3/4 partition with btrfs
+    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
+    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${RootPartition}
+    elif [ $RootType = "btrfs" ]; then
+      mkfs.btrfs -f ${RootPartition} &>> feliz.log
+    else
+      Partition=`echo $RootPartition | cut -c 6-`
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"
       fi
-    esac
-    TPecho "Mounting /root partition"	
-    mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
-    if [ ${SwapPartition} ]; then
-      swapoff -a &>> feliz.log
-      if [ $MakeSwap = "Y" ]; then
-        TPecho "Making /swap partition"
-        Partition=`echo $SwapPartition | cut -c 6-`
-        Label="${LabellingArray[${Partition}]}"
-        if [ -n "${Label}" ]; then
-          Label="-L ${Label}"
-        fi
-        mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
-      fi
-      TPecho "Activating /swap"
-      swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
+      mke2fs ${Label} -t ${RootType} ${RootPartition}
     fi
-
+  esac
+  TPecho "Mounting /root partition"	
+  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
+  if [ ${SwapPartition} ]; then
+    swapoff -a &>> feliz.log
+    if [ $MakeSwap = "Y" ]; then
+      TPecho "Making /swap partition"
+      Partition=`echo $SwapPartition | cut -c 6-`
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"
+      fi
+      mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
+    fi
+    TPecho "Activating /swap"
+    swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
+  fi
   local Counter=0
   for id in ${AddPartList}
   do
@@ -183,23 +180,23 @@ InstallKernel() {
   pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-    1) TPecho "Installing LTS kernel"
-        pacstrap /mnt linux-lts
-        if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-          TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
-        fi
-      ;;  
-    *) TPecho "Installing Latest kernel"
-        pacstrap /mnt linux
-        if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-          TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
-        fi
+  1) TPecho "Installing LTS kernel"
+    pacstrap /mnt linux-lts &>> feliz.log
+    if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
+      TPecho "Installing virtualbox guest modules"
+      pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
+      echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
+      cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
+    fi
+  ;;  
+  *) TPecho "Installing Latest kernel"
+    pacstrap /mnt linux &>> feliz.log
+    if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
+      TPecho "Installing virtualbox guest modules"
+      pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
+      echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
+      cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
+    fi
   esac
   TPecho "Installing opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
@@ -212,25 +209,25 @@ TestExistingDM() {
   DMLine=`cat /mnt/etc/output.log`
   local Counter=1
   case ${DMLine} in
-    "") TPecho "No previous DM discovered"
-    ;;
-    *) local Continue="Y"
-      while [ ${Continue} = "Y" ]
-      do
-        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
-        if [ -z ${ExDM} ]; then
-          Continue="N" # Quit if no further entries
-          break
-        fi
-        Counter=$((Counter+1))
-        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
-        case ${ExDMStatus} in
-          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
-          ;;
-          *) TPecho "${ExDM} already disabled"
-        esac
-        Counter=$((Counter+1))
-      done
+  "") TPecho "No previous DM discovered"
+  ;;
+  *) local Continue="Y"
+    while [ ${Continue} = "Y" ]
+    do
+      ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
+      if [ -z ${ExDM} ]; then
+        Continue="N" # Quit if no further entries
+        break
+      fi
+      Counter=$((Counter+1))
+      ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
+      case ${ExDMStatus} in
+      "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
+      ;;
+      *) TPecho "${ExDM} already disabled"
+      esac
+      Counter=$((Counter+1))
+    done
   esac
 }
 

@@ -21,9 +21,13 @@ listgen1() {
   local Backtitle="$Passed"
   local Title="$2"
   if [ $3 ]; then
-    Nocancel="--nocancel"
+    case $3 in
+      "nocancel") CancelButton="--nocancel"
+      ;;
+      *) CancelButton="--cancel-label $3"
+    esac
   else
-    Nocancel=""
+    CancelButton=""
   fi
   local Counter=0
   declare -a Options
@@ -39,7 +43,7 @@ listgen1() {
     Options[${Counter}]="-"
     Length=`echo ${#item}`
     if [ $Length -gt $Width ]; then
-      Width=$((Length+15))
+      Width=$((Length+20))
     fi
   done
   Printit
@@ -49,7 +53,11 @@ listgen2() {
   local Backtitle="$Passed"
   local Title="$2"
   if [ $3 ]; then
-    Nocancel="--nocancel"
+    case $3 in
+      "nocancel") CancelButton="--nocancel"
+      ;;
+      *) CancelButton="--cancel-label $3"
+    esac
   else
     Nocancel=""
   fi
@@ -65,7 +73,7 @@ listgen2() {
   name=$4[@]
   LongName=("${!name}")
   if [ ! $Width ]; then
-    Width=40
+    Width=50
   fi
   # Prepare $1 and $4 for dialog menu
   for item in "${LongName[@]}"; do
@@ -75,7 +83,7 @@ listgen2() {
     ItemCounter=$((ItemCounter+1))
     Length=`echo ${#item}`
     if [ $Length -gt $Width ]; then
-      Width=$((Length+20))
+      Width=$((Length+30))
     fi
   done
   Printit # The final frontier
@@ -92,14 +100,11 @@ Printit() {
   Height=$((countlines+countnewlines+Counter+15-Counter))
   if [ $Height -gt 18 ]; then
     Height=18
-      if [ $Width -lt 50 ]; then
-        Width=$((Width+5))
-      fi
+    if [ $Width -lt 50 ]; then
+      Width=$((Width+10))
+    fi
   fi
   # Use $Counter and ${Options[@]} array in dialog
-  dialog --backtitle "$Backtitle" --title " $Title " $Nocancel \
+  dialog --backtitle "$Backtitle" --title " $Title " $CancelButton \
       --menu "\n$Message\n" $Height $Width $Counter "${Options[@]}" 2> output.file
-      
-  Response=$? # Errorcode
-  Result=$(cat output.file) # Selected item
 }

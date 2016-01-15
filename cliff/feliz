@@ -201,6 +201,14 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal 2>> feliz.log
           ;;
+        "Deepin") TPecho "Installing Deepin Desktop Environment"
+          pacstrap /mnt deepin ${DDEextras} &>> feliz.log
+          if [ -z ${DisplayManager} ]; then
+            arch_chroot "systemctl enable lightdm.service" &>> feliz.log
+          else
+            InstallDM
+          fi
+          ;;
         "Enlightenment") TPecho "Installing 'Enlightenment' Desktop Environment"
           InstallDM
           pacstrap /mnt enlightenment 2>> feliz.log
@@ -250,7 +258,7 @@ if [ $Scope != "Basic" ]; then
           ;;
         "Openbox") TPecho "Installing 'Openbox' Window Manager"
           InstallDM
-          pacstrap /mnt openbox xterm ${GoodiesOpenbox} 2>> feliz.log
+          pacstrap /mnt openbox xterm 2>> feliz.log
           ;;
         "Xfce") TPecho "Installing 'Xfce' Desktop Environment"
           InstallDM
@@ -264,7 +272,7 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
+        "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
           TPecho "Modifying pacman.conf and installing Yaourt"
