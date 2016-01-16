@@ -461,63 +461,59 @@ fi
 }
 
 AllocateSwap() {
-# Checks if there are remaining partitions and allows selection for swap
-if [ -n "${PartitionList}" ]
+# ~ Checks if there are remaining partitions and allows selection for swap ~
+if [ -n "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
 then
-  local Message="Select a partition for swap, or allocate a swap file. Warning: Btrfs does not support swap files.\nIf you select <None> no swap will be allocated"
-  Remaining=""
-  local Counter=0
-  SwapPartition=""
-  PickFrom="$PartitionList Swapfile"
+  SwapPartition=""                   # Make sure other variables are empty
   SwapFile=""
-  declare -a CopyArray # For passing to listgen2
-  local Counter=1
-  for p in "${PartitionArray[@]}"
+  declare -a CopyArray               # Prepare empty array for passing to listgen2
+  local Counter=0                    # Start counter at 1
+  for p in "${PartitionArray[@]}"    # Copy each item from PartitionArray .....
   do
-    CopyArray[${Counter}]=${PartitionArray[$Counter]}
-    Counter=$((Counter+1))
+    CopyArray[${Counter}]=${PartitionArray[$Counter]} # ... into CopyArray for display in menu
+    (( Counter+=1 ))                 # Counter is always 1 ahead of array elements
   done
-  CopyArray[${Counter}]="Swapfile"
-  Width=50
-  listgen2 "$PickFrom" "Partitions" "None" "CopyArray"
-  if [ $? -ne 0 ]; then # If <Cancel> selected
-    Result="Done"
-  else
-    Result=$(cat output.file)
+                                     # Prepare for passing to listgen2
+  CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
+  PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
+  Width=50                           # Set window minimum width for listgen2
+  local Message="Select a partition for swap, or allocate a swap file. Warning: Btrfs does not support swap files.\nIf you select <None> no swap will be allocated" # Passed to listgen2
+  listgen2 "$PickFrom" "Partitions" "None" "CopyArray" # listgen2 builds complex dialog menu
+  if [ $? -ne 0 ]; then              # If <Cancel> selected
+    Result="Done"                    # Prepare reporting variable before exiting
+    SwapPartition=""
+    break
   fi
-  case $Result in
-  "Done") SwapPartition=""
-      break
-  ;;
-  "Swapfile") SetSwapFile
-      SwapPartition=""
-      break
-  ;;
-  *) SwapPartition="/dev/$Result"
-      IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
-      if [ -n "$IsSwap" ]; then
-        local Message="$Result is already formatted as a swap partition, do you wish to reformat it?"
-        dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "\n$Message\n" 10 40
-        # Use $? (exit status) ...
-        case $? in
-          0) MakeSwap="${Response^^}"
-          ;;
-          *) MakeSwap="Y"
-        esac
-      fi
-      Label="${Labelled[${PassPart}]}"
-      if [ -n "${Label}" ]; then
-        EditLabel "$PassPart"
-        SetLabel "$PassPart"
-      fi
-      UpdateArray # Remove the selected partition from $PartitionArray[]
-      for p in "${PartitionArray[@]}" # Then go through the array ...
-      do
-        Remaining="$Remaining $p"	# ... rebuilding the list
-      done
-  esac
+  Result=$(cat output.file)          # Save selected partition ID
+  if [ $Result = "Swapfile" ]; then
+    SetSwapFile                      # Function call to set swapfile size
+    SwapPartition=""
+    break
+  else
+    SwapPartition="/dev/$Result"     # All other options are a partition in form 'sd*n'
+    IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
+    if [ -n "$IsSwap" ]; then                                     # If it is, offer yes/no ...
+      dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, do you wish to reformat it?" 10 40
+      case $? in                     # ... and use $? (exit status) to set variable
+      0) MakeSwap="Y"                # used during installation
+      ;;
+      *) MakeSwap="N"
+      esac
+    fi
+    Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
+    if [ -n "${Label}" ]; then       # If the is one ...
+      EditLabel "$Result"            # Pass partition ID to two functions
+      SetLabel "$Result"
+    fi
+    UpdateArray                      # Remove the selected partition ($Result) from $PartitionArray
+    Remaining=""
+    for p in "${PartitionArray[@]}"  # Then go through the array ...
+    do
+      Remaining="$Remaining $p"	     # ... building the new list in Remaining
+    done
+  fi
 fi
-PartitionList=$Remaining	# Replace original PartitionList with remaining options
+PartitionList=$Remaining             # Replace original PartitionList with remaining options
 }
 
 SetSwapFile() {
