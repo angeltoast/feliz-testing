@@ -95,7 +95,7 @@ FinalCheck
 # No further user intervention from here
 #
 
-InstallationMode
+# InstallationMode
 
 MountPartitions
 

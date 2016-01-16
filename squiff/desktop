@@ -33,18 +33,21 @@ getkeymap() {
 
 setlocale() {
   LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
-  # Convert array to string
-  UseList=""
-  for l in ${LocaleList[@]}; do
-    UseList="$UseList $l"
+  for item in ${LocaleList[@]}; do
+    Counter=$((Counter+1))
+    Options[${Counter}]="$item"
+    Counter=$((Counter+1))
+    Options[${Counter}]="UTF-8"
   done
-  local Message="Scroll through this list, or type a letter, to find your locale.\nThis will be used to find the best mirrors for downloading your system"
-  listgen1 "$UseList" " Locales " "nocancel"
+  local Message="Scroll through this list, or type a letter, to find your locale. This will be used to find the best mirrors for downloading your system"
+  dialog --backtitle "$Backtitle" --title " Locales " --nocancel \
+      --menu "\n$Message\n" 18 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
-  dialog --backtitle "$Backtitle" --title " Locale " \
+  dialog --backtitle "$Backtitle" --title " Locales " \
     --msgbox "\nYour locale is now set to: '$CountryLocale'" 8 50
 }
+
 
 SetTimeZone() {
   Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
@@ -271,7 +274,7 @@ InstallDM() { # Called from feliz when installing desktop environment
     "") TPecho "Not installing a Display Manager"
     ;;
     *) TPecho "Installing ${DisplayManager} Display Manager"
-      pacstrap /mnt ${DisplayManager} ${Greeter} 2>> feliz.log
+      pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl enable ${DisplayManager}.service" >/dev/null
   esac
 }
@@ -280,7 +283,7 @@ FinalCheck() {
 Repeat=1
 while [ $Repeat -gt 0 ]
 do
-  local Message="These are the settings you have entered. Please check them ...\nPress <Cancel> to install with these settings, or choose an item if you wish to change it: "
+  local Message="These are the settings you have entered. Please check them ...\nPress <Continue> to install with these settings, or choose an item if you wish to change it: "
   declare -a Settings
   Categories="1 2 3 4 5 6 7 8 9 10 11 12"
   Settings[1]="Root partition ... $RootPartition $RootType"
@@ -291,7 +294,7 @@ do
   fi
   if [ ${#AddPartList[@]} ]; then
     Counter=0
-    Settings[3]="Extra partitions ...\n"
+    Settings[3]="Extra partitions: "
     for i in ${AddPartList[@]}
     do
       Settings[3]="${Settings[3]}  ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}\n"
@@ -325,7 +328,7 @@ do
   fi
   Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
   Settings[12]="The following extras have been selected: ${LuxuriesList}"
-  listgen2 "$Categories" " Final Check " "" "Settings"
+  listgen2 "$Categories" " Final Check " "Continue" "Settings"
   Response=$(cat output.file)
   Repeat=$?
   if [ $Repeat -eq 0 ]; then

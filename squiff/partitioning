@@ -33,7 +33,7 @@ Passed=$Backtitle
     break
   done
 	# If no partitions exist, offer cfdisk to create (or exit)
-  if [ ! $Partitions ]
+  if [ $Partitions -eq 0 ]
   then
     while [ $Partitions -eq 0 ]
     do
