@@ -95,7 +95,7 @@ MakePartitionList() {
 }
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
+  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
 }  
 
 SetGrubDevice() {

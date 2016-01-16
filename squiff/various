@@ -28,7 +28,6 @@ TPecho() { # For displaying status while running on auto
   (
   echo $Progress
   echo "XXX"
-  $Progress
   echo "After ${DIFFMIN}minutes ${DIFFSEC}seconds\n$1"
   echo "XXX"
   sleep 1

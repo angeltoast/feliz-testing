@@ -11,11 +11,11 @@
 declare -a AddPartList	  # Array of additional partitions eg: /dev/sda5
 declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
 declare -a AddPartType  	# Array of format type for the same partitions eg: ext4
-declare -a PartitionArray # List of long identifiers
+declare -a PartitionArray # Array of long identifiers
 declare -a NewArray       # For copying any array
-declare -A LabellingArray # To hold full details of user labels for partitions
-declare -A Labelled       # Store labels
-declare -A FileSystem     # Store filesystem types (ext* swap)
+declare -A LabellingArray # Associative array of user labels for partitions
+declare -A Labelled       # Associative array of labelled partitions
+declare -A FileSystem     # Associative array of filesystem types (ext* swap)
 SwapPartition=""  # eg: /dev/sda3
 FormatSwap="N"    # User selects whether to reuse swap
 MakeSwap="Y"

@@ -323,8 +323,8 @@ do
   else
     Settings[10]="Display Manager = $DisplayManager"
   fi
-  Settings[11]="Root and user settings ...\n     Hostname = '$HostName'\n     User = '$UserName'"
-  Settings[12]="The following extras have been selected ...\n${LuxuriesList}"
+  Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
+  Settings[12]="The following extras have been selected: ${LuxuriesList}"
   listgen2 "$Categories" " Final Check " "" "Settings"
   Response=$(cat output.file)
   Repeat=$?

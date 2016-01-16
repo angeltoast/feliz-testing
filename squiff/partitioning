@@ -62,7 +62,7 @@ Passed=$Backtitle
     ExistingPartitions=""
     for part in ${PartitionList}
     do
-      ExistingPartitions="$ExistingPartitions ${PartitionArray[$Counter]}\n"
+      ExistingPartitions="$ExistingPartitions ${PartitionArray[$Partitions]}\n"
       (( Partitions+=1 ))
     done
     local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
@@ -372,7 +372,7 @@ BuildPartitionLists() {
     Label=""
     # Save the short ID for later functions
     PartitionList="${PartitionList} ${part}"
-    Counter=$((Counter+1))
+    (( Counter+=1 ))
   done
   PARTITIONS=${Counter}
 }
@@ -385,9 +385,11 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
   for p in "${PartitionArray[@]}"
   do
     First=`echo $p | cut -c 1-5`
-    if [ ${Result} != ${First} ]; then
-      NewArray[${Counter}]="$p"
-      Counter=$((Counter+1))
+    if [ $First ]; then
+      if [ ${PassPart} != ${First} ]; then
+        NewArray[${Counter}]="$p"
+        (( Counter+=1 ))
+      fi
     fi
   done
   # Then copy NewArray into PartitionArray
@@ -409,20 +411,18 @@ AllocateRoot() {
 	local Counter=0
   local Message="Select a partition to use as /root\n"
   listgen2 "$PartitionList" " Partitions " "nocancel" "PartitionArray"
-  Result=$(cat output.file)
-  # Reply is used later, so give it the value of $Result
-  Reply=$Result
-  PassPart=$Result
-  SetLabel "$Result"
+  Reply=$(cat output.file)
+  PassPart="$Reply"
+  SetLabel "$Reply"
   UpdateArray # Remove the selected partition from $PartitionArray[]
   Counter=0  
   for i in ${PartitionList}
   do
 		(( Counter+=1 ))
     if [ $i = $Reply ]; then
-			Partition="/dev/$i"
-			RootPartition="${Partition}"
-      # Before going to FileSystem, check the partition
+			Partition="$i"
+			RootPartition="/dev/$i"
+      # Before going to FileSystem, see if the partition is already formatted
       CheckPartition
       # Now select a filesystem
       if [ ${CurrentType} ]; then
