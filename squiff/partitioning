@@ -501,10 +501,11 @@ then
       esac
     fi
     Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
-    if [ -n "${Label}" ]; then       # If the is one ...
+    if [ -n "${Label}" ]; then       # If there is a label one ...
       EditLabel "$Result"            # Pass partition ID to two functions
       SetLabel "$Result"
     fi
+    PassPart="$Result"
     UpdateArray                      # Remove the selected partition ($Result) from $PartitionArray
     Remaining=""
     for p in "${PartitionArray[@]}"  # Then go through the array ...
@@ -542,9 +543,6 @@ done
 }
 
 MorePartitions() {
-  
-  read -p "$PartitionList"
-  
   local Elements=0
   AddedToRemaining=0
   for i in ${PartitionList}
