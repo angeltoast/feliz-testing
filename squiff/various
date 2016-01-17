@@ -28,7 +28,7 @@ TPecho() { # For displaying status while running on auto
   (
   echo $Progress
   echo "XXX"
-  echo "After ${DIFFMIN}minutes ${DIFFSEC}seconds\n$1"
+  echo "${DIFFMIN}minutes ${DIFFSEC}seconds\n$1"
   echo "XXX"
   sleep 1
   ) |
@@ -248,7 +248,8 @@ SetRootPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-     arch_chroot "passwd root" < /tmp/.passwd >/dev/null
+read -p "root = `cat /tmp/.passwd`"
+     arch_chroot "passwd root" < /tmp/.passwd &>> feliz.log
      rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
@@ -273,7 +274,8 @@ SetUserPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
       echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
+read -p "${UserName} = `cat /tmp/.passwd`"
+      arch_chroot "passwd ${UserName}" < /tmp/.passwd &>> feliz.log
       rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else
