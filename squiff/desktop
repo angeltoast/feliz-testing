@@ -27,8 +27,6 @@ getkeymap() {
   listgen1 "${keyboards}" "Keyboards" "nocancel"
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
-  dialog --backtitle "$Backtitle" --title " Keyboard " \
-    --msgbox "\nThe keyboard is now set to: '$Countrykbd'" 8 50  
 }
 
 setlocale() {
@@ -44,8 +42,6 @@ setlocale() {
       --menu "\n$Message\n" 18 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
-  dialog --backtitle "$Backtitle" --title " Locales " \
-    --msgbox "\nYour locale is now set to: '$CountryLocale'" 8 50
 }
 
 
@@ -66,8 +62,6 @@ SetTimeZone() {
   local Message="Now select your nearest city from this list."
   listgen1 "$passzones" "Cities in ${ZONE}" "nocancel"
   SUBZONE=$(cat output.file)
-  dialog --backtitle "$Backtitle" --title " Locale " \
-    --msgbox "\nYour Zone and Subzone set to: '$ZONE/$SUBZONE'" 8 50
 }
 
 UserName() {
@@ -81,8 +75,6 @@ UserName() {
 		;;
 		*) UserName=${Entered}
 	esac
-  dialog --backtitle "$Backtitle" --title " User name " \
-    --msgbox "\nUser '$UserName' will be created" 8 50
 }
 
 SetHostname() {
@@ -97,8 +89,6 @@ SetHostname() {
 		;;
 		*) HostName=${Entered}
 	esac
-  dialog --backtitle "$Backtitle" --title " Hostname " \
-    --msgbox "\nHostname set to '$HostName'" 8 40
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
