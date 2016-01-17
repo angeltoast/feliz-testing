@@ -65,7 +65,7 @@ Passed=$Backtitle
       ExistingPartitions="$ExistingPartitions ${PartitionArray[$Partitions]}\n"
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions'\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -542,11 +542,14 @@ done
 }
 
 MorePartitions() {
+  
+  read -p "$PartitionList"
+  
   local Elements=0
   AddedToRemaining=0
   for i in ${PartitionList}
   do
-    Elements=$((Elements+1))
+    (( Elements+=1 ))
   done
   while [ $Elements -gt 0 ]  
   do
