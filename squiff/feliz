@@ -307,9 +307,10 @@ if [ $Scope != "Basic" ]; then
   SetUserPassword
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
-Message="Congratulations, installation is finished."
-echo
-listgen1 "Reboot Shutdown" "" "nodone"
+dialog --title " Shutdown " --nocancel \
+  --menu "Congratulations, installation is finished." 12 40 2 \
+  - "Reboot" \
+  - "Shutdown" 2> output.file
 case $(cat output.file) in
   "Reboot") systemctl reboot
   ;;

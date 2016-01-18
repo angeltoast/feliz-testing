@@ -20,19 +20,27 @@
 
 TPecho() { # For displaying status while running on auto
   # Different versions in cliff and squiff
-  CurrentTime=$(date +%s)
-  Difference=$(( $CurrentTime-$StartTime ))
-  DIFFMIN=$(( $Difference/60 ))
-  DIFFSEC=$(( $Difference % 60 ))
-  (( Progress+=3 ))
-  (
-  echo $Progress
-  echo "XXX"
-  echo "${DIFFMIN}minutes ${DIFFSEC}seconds\n$1"
-  echo "XXX"
-  sleep 1
-  ) |
-  dialog --title " Installation " --gauge "" 8 70 0
+
+  case $2 in
+    "")  dialog --title " Information " --infobox "$1" 6 40 ;  sleep 1
+      ;;
+    *) StageTime=$2
+      Steps=$((StageTime/60))
+      Progress=0
+
+      (
+      while [ $Progress -lt 100 ]
+      do
+        Progress=$((Progress+${Steps}))
+        echo "XXX"
+        echo $Progress
+        echo "$1"
+        echo "XXX"
+        sleep 1
+      done
+      ) |
+      dialog --title " Installation " --gauge "" 8 70 0
+  esac
 }
 
 PrintOne() {
