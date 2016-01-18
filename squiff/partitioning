@@ -40,7 +40,7 @@ Passed=$Backtitle
       local Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose <Do nothing> the script will terminate to allow you to partition in some other way."
       Partitioning # Partitioning options
       if [ $Proceed -eq 3 ]; then
-        read_timed "Exiting feliz! Hurry back, y'hear?"
+        PrintOne "Exiting feliz! Hurry back, y'hear?"
         exit
       fi
       # Check that partitions have been created
