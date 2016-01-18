@@ -72,6 +72,22 @@ Passed=$Backtitle
 	fi
 }
 
+MakePartitionList() { # This function was missing from all parts of Feliz
+  # It has been recovered from Achoo, to see if this is the cause of 
+  # problems with displaying partitions. If successful in squiff, it should be added to cliff.
+  
+  # Call BuildPartitionLists function to generate an array of partitions
+  # This is not a first call, so first empty the existing array
+ 	local x=0
+  local HowMany="${#PartitionArray[@]}"
+  until [ ${x} -eq ${HowMany} ]
+  do
+    unset PartitionArray[$x]
+    x=$((x+1))
+  done
+  BuildPartitionLists # Then rebuild
+}
+
 Partitioning() {
   Proceed=""
   AutoPart=0 # Set flag to 'off' by default
