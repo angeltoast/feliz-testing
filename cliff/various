@@ -25,6 +25,20 @@ invalid_option() { # (from AUI scripts)
   read_timed "Invalid option. Try again ..." 1
 }
 
+TPread() { # Aligned prompt for user-entry - returns result through $Response
+  T_COLS=`tput cols`
+  lov=${#1}
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 2 ))
+  elif [ ${lov} -gt ${T_COLS} ]; then
+    stpt=0
+  else
+    stpt=$(( ($T_COLS - 10) / 2 ))
+  fi
+  EMPTY="$(printf '%*s' $stpt)"
+  read -p "$EMPTY $1" Response
+}
+
 TPecho() { # For displaying status while running on auto
   echo
   CurrentTime=$(date +%s)
