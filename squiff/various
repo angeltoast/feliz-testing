@@ -27,9 +27,8 @@ TPecho() { # For displaying status while running on auto
     *) StageTime=$2
       Steps=$((StageTime/60))
       Progress=0
-
       (
-      while [ $Progress -lt 100 ]
+      while [ $Progress -lt $StageTime ]
       do
         Progress=$((Progress+${Steps}))
         echo "XXX"
@@ -183,8 +182,13 @@ MountPartitions() {
 }
 
 InstallKernel() {
+
+  pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver & &>> feliz.log
+  
   TPecho "Installing cli tools" 60
-  pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver &>> feliz.log
+  
+  read
+  
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
   1) TPecho "Installing LTS kernel" 40

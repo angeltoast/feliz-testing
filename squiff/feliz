@@ -138,8 +138,10 @@ arch_chroot "hwclock --systohc --utc"
 if [ $Scope != "Basic" ]; then
   TPecho "Enabling dhcpcd"
   arch_chroot "systemctl enable dhcpcd.service"
-  TPecho "Installing and configuring network services" 8
+
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
+  TPecho "Installing and configuring network services" 8
+  
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
