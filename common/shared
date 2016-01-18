@@ -179,7 +179,6 @@ read_timed() { # $1 = text to display; $2 = duration
   echo
 }
 
-
 print_heading() {
   clear
   T_COLS=`tput cols`
@@ -189,7 +188,7 @@ print_heading() {
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
-  TPecho "Using Reflector to generate mirrorlist"
+  PrintOne "Using Reflector to generate mirrorlist"
   reflector --verbose -l 5 --sort rate --save /etc/pacman.d/mirrorlist &>> feliz.log
   if [ $? -gt 0 ]; then
     LocalMirrorList
@@ -200,7 +199,7 @@ ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirr
 
 LocalMirrorList() { # In case Reflector fails, generate and save a shortened 
   # mirrorlist of only the mirrors defined in the CountryCode variable.
-	TPecho "Reflector not available - generating local mirrorlist instead"
+	PrintOne "Reflector not available - generating local mirrorlist instead"
 	URL="https://www.archlinux.org/mirrorlist/?country=${CountryCode}&use_mirror_status=on"
 	MirrorTemp=$(mktemp --suffix=-mirrorlist) &>> feliz.log
 	# Use curl to get list of mirrors from the Arch mirrorlist ${URL} to ${MirrorTemp}
