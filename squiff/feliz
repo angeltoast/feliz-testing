@@ -138,13 +138,13 @@ arch_chroot "hwclock --systohc --utc"
 if [ $Scope != "Basic" ]; then
   TPecho "Enabling dhcpcd"
   arch_chroot "systemctl enable dhcpcd.service"
-  TPecho "Installing and configuring network services"
+  TPecho "Installing and configuring network services" 8
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
-  TPecho "Installing Grub to $GrubDevice"
+  TPecho "Installing Grub to $GrubDevice" 15
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -155,7 +155,7 @@ else
   TPecho "Not installing Grub"
 fi
 
-TPecho "Running mkinitcpio"
+TPecho "Running mkinitcpio" 28
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -182,12 +182,12 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  TPecho "Adding Flash and other Multimedia Codecs"
+  TPecho "Adding Flash and other Multimedia Codecs" 40
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   TPecho "Installing wireless tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log
-  TPecho "Installing X, graphics, etc"
+  TPecho "Installing X, graphics, etc" 13
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
@@ -198,11 +198,11 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") TPecho "Installing 'Cinnamon' Desktop Environment"
+        "Cinnamon") TPecho "Installing 'Cinnamon' Desktop Environment" 40
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
-        "Deepin") TPecho "Installing Deepin Desktop Environment"
+        "Deepin") TPecho "Installing Deepin Desktop Environment" 20
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lightdm.service" &>> feliz.log
@@ -210,15 +210,15 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "Enlightenment") TPecho "Installing 'Enlightenment' Desktop Environment"
+        "Enlightenment") TPecho "Installing 'Enlightenment' Desktop Environment" 20
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") TPecho "Installing 'Fluxbox' Window Manager"
+        "Fluxbox") TPecho "Installing 'Fluxbox' Window Manager" 20
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") TPecho "Installing 'Gnome' Desktop Environment"
+        "Gnome") TPecho "Installing 'Gnome' Desktop Environment" 60
           pacstrap /mnt gnome gedit ${GoodiesGnome} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable gdm.service" &>> feliz.log
@@ -226,21 +226,21 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "gnome-shell") TPecho "Installing 'gnome-shell'"
+        "gnome-shell") TPecho "Installing 'gnome-shell'" 60
           InstallDM
           pacstrap /mnt gnome-shell &>> feliz.log
           ;;
-        "KDE") TPecho "Installing Plasma meta package"
+        "KDE") TPecho "Installing KDE Plasma meta package" 80
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable sddm.service" &>> feliz.log
           else
             InstallDM
           fi
-          TPecho "Installing KDE applications package"
+          TPecho "Installing KDE applications package" 20
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") TPecho "Installing 'LXDE' Desktop Environment"
+        "LXDE") TPecho "Installing 'LXDE' Desktop Environment" 30
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lxdm.service" &>> feliz.log
@@ -249,19 +249,19 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "LXQt") TPecho "Installing 'LXQt' Desktop Environment"
+        "LXQt") TPecho "Installing 'LXQt' Desktop Environment" 30
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") TPecho "Installing 'Mate' Desktop Environment"
+        "Mate") TPecho "Installing 'Mate' Desktop Environment" 40
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") TPecho "Installing 'Openbox' Window Manager"
+        "Openbox") TPecho "Installing 'Openbox' Window Manager" 20
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") TPecho "Installing 'Xfce' Desktop Environment"
+        "Xfce") TPecho "Installing 'Xfce' Desktop Environment" 60
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;
@@ -276,16 +276,16 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-          TPecho "Modifying pacman.conf and installing Yaourt"
+          TPecho "Modifying pacman.conf and installing Yaourt" 5
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system
           cp pacman.conf /etc &>> feliz.log # For installer
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") TPecho "Installing $i and cairo-dock-plug-ins"
+        "cairo-dock") TPecho "Installing $i and cairo-dock-plug-ins" 10
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
-        "conky") TPecho "Installing $i"
+        "conky") TPecho "Installing $i" 10
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           cp Conky.desktop /mnt/home/$UserName/.config.autostart &>> feliz.log
