@@ -20,7 +20,7 @@
 
 PrintOne() {
  # Just because 
- dialog --title " Information " --infobox "$1" 8 30 ; sleep 1
+ dialog --title " Information " --infobox "$1" 6 40 ; sleep 1
 }
 
 SetKernel() {

@@ -21,7 +21,7 @@
 # EditLabel          269
 # -----------------------      ------------------------
 
-CheckParts() {
+CheckParts() { # First check of available partitions on the system
 Backtitle="If you need guidance, consult the Arch Wiki Beginners' Guide"
 Passed=$Backtitle
 # First test for existing partitions
@@ -244,51 +244,50 @@ FileSystem() {
 
 SetLabel() { # Called from the root, swap and extra partitions routines
 # ... each passing a single argument containing the partition ID
-# Build an associative array of partitions (LabellingArray[]) as
-# declared in felizrunning with other arrays
+# Build an associative array of partitions (LabellingArray[])
 PartitionID=$1
 local HowMany="${#PartitionArray[@]}"
 local x=0
-until [ ${x} -eq ${HowMany} ]
+until [ ${x} -eq ${HowMany} ] # Until last record passed
 do
-  CompareID=`echo ${PartitionArray[${x}]} | awk '{print $1}'`
-  if [ -z ${CompareID} ]; then
-    x=$((x+1))
+  CompareID=`echo ${PartitionArray[${x}]} | awk '{print $1}'` # Get matching record number
+  if [ -z ${CompareID} ]; then # If there are no records to compare
+    x=$((x+1))                 # Advance the counter and get next iteration
     continue
   fi
   if [ ${CompareID} = ${PartitionID} ]; then # If the partition is in the array, it has a label
-  #  Label=`echo ${PartitionArray[${x}]} | awk '{print $4}'` # Save the label
-  Label=`echo ${PartitionArray[${x}]}`
+  Label=`echo ${PartitionArray[${x}]} | awk '{print $4}'` # Save the label
+  # Label=`echo ${PartitionArray[${x}]}`
   fi
   x=$((x+1))
 done
 }
 
-EditLabel() {
+EditLabel() { # Called by AllocateRoot, AllocateSwap and MorePartitions
+# Allows user to keep, edit or remove an existing label
 Label="${Labelled[$1]}"
 if [ -n ${Label} ]; then
-  # Inform the user and accept input
-  local Message="The partition you have chosen is labelled '${Label}'\n"
   dialog --backtitle "$Backtitle" --title "  Edit Partition Label  " \
-      --menu "\n$Message\n" 18 50 3 \
+      --menu "The partition you have chosen is labelled '${Label}'" 18 50 3 \
         "1" "Keep existing label" \
         "2" "Delete label" \
         "3" "Enter a new label" 2> output.file
   Response=$(cat output.file)
   case $Response in
-    1) LabellingArray[$PartitionID]=$Label
+    1) LabellingArray[$PartitionID]=$Label # Keep saved label
     ;;
-    2) LabellingArray[$PartitionID]=""
+    2) LabellingArray[$PartitionID]="" # Empty label
     ;;
     *) dialog --backtitle "$Backtitle" --title " Edit Partition Label " \
-      --inputbox "\nEnter the new name for $PartitionID\n" 10 50 2> output.file
+      --inputbox "Enter the new name for $PartitionID" 10 50 2> output.file
       Response=$(cat output.file)
-      LabellingArray[$PartitionID]=$Response
+      LabellingArray[$PartitionID]=$Response # Save new label
   esac
 fi
 }
 
-BuildPartitionLists() {
+BuildPartitionLists() { # First called by CheckParts to generate details of partitions
+  # for display, then by feliz to prepare partition arrays for selection for root, swap and others
   # 1) First get a list of all partitions up to sda99 | select first field | remove /dev/ | remove colon 
   ListTypeIDs=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $1}' | cut -c 6- | sed s/://g`
   # Then get matching list of types, removing unwanted text (TYPE=) and quotes 
@@ -378,10 +377,10 @@ BuildPartitionLists() {
 }
 
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
-  # Called by AllocateRoot & AllocateSwap
+  # Called by AllocateRoot, AllocateSwap and MorePartitions
 	local Counter=0
   declare -a NewArray  # Empty NewArray
-  # Build NewArray without partition selected in calling function
+  # Build NewArray excluding the partition selected in the calling function
   for p in "${PartitionArray[@]}"
   do
     First=`echo $p | cut -c 1-5`
@@ -408,14 +407,13 @@ AllocateRoot() {
 	Remaining=""
   Partition=""
 	PartitionType=""
-	local Counter=0
   local Message="Select a partition to use as /root\n"
   listgen2 "$PartitionList" " Partitions " "nocancel" "PartitionArray"
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
   UpdateArray # Remove the selected partition from $PartitionArray[]
-  Counter=0  
+  local Counter=0  
   for i in ${PartitionList}
   do
 		(( Counter+=1 ))
@@ -542,12 +540,14 @@ do
 done 
 }
 
-MorePartitions() {
+MorePartitions() { # For any unallocated partitions. Uses PartitionList and PartitionArray
+  #  as updated by AllocateSwap()
   local Elements=0
   AddedToRemaining=0
   for i in ${PartitionList}
   do
     (( Elements+=1 ))
+    break
   done
   while [ $Elements -gt 0 ]  
   do
