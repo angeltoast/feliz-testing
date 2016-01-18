@@ -37,7 +37,7 @@ Passed=$Backtitle
   then
     while [ $Partitions -eq 0 ]
     do
-      local Message="There are no partitions on the device, and at least one partition is needed for the root directory.\n\nIf you choose <Do nothing> the script will terminate to allow you to partition in some other way."
+      local Message="There are no partitions on the device, and at least one partition is needed for the root directory. If you choose <Do nothing> the script will terminate to allow you to partition in some other way."
       Partitioning # Partitioning options
       if [ $Proceed -eq 3 ]; then
         PrintOne "Exiting feliz! Hurry back, y'hear?"
@@ -65,7 +65,7 @@ Passed=$Backtitle
       ExistingPartitions="$ExistingPartitions ${PartitionArray[$Partitions]}\n"
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices ...\n\n$ExistingPartitions\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices ...\n$ExistingPartitions\nIf you choose <Do nothing> the script will enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -94,7 +94,7 @@ Partitioning() {
   while [ -z $Proceed ]
   do
     dialog --backtitle "$Backtitle" --title " Partitioning " --cancel-label "Do nothing"\
-      --menu "\n$Message\n" 18 50 2 \
+      --menu "$Message" 20 55 2 \
         "1" "Open cfdisk so I can partition manually" \
         "2" "Allow feliz to partition the whole device" 2> output.file
     Proceed=$(cat output.file)
@@ -524,7 +524,8 @@ then
     Remaining=""
     for p in "${PartitionArray[@]}"  # Then go through the array ...
     do
-      Remaining="$Remaining $p"	     # ... building the new list in Remaining
+      First=`echo $p | awk '{print $1}'` # Separate first field, and use it
+      Remaining="$Remaining $First"	     # in building the new list
     done
   fi
 fi
@@ -563,7 +564,6 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   for i in ${PartitionList}
   do
     (( Elements+=1 ))
-    break
   done
   while [ $Elements -gt 0 ]  
   do

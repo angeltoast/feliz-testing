@@ -24,8 +24,8 @@ PrintOne() {
 }
 
 SetKernel() {
-  local Message="Choose your kernel\nThe Long-Term-Support kernel (LTS) offers stabilty,\nwhile the Latest kernel has all the new features.\nIf in doubt, choose LTS."
-  listgen1 "LTS Latest" "Kernels" "nocancel"
+  local Message="The Long-Term-Support kernel (LTS) offers stabilty,while the Latest kernel has all the new features. If in doubt, choose LTS."
+  listgen1 "LTS Latest" " Choose your kernel " "nocancel"
   case $(cat output.file) in
     "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
