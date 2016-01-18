@@ -95,8 +95,6 @@ FinalCheck
 # No further user intervention from here
 #
 
-# InstallationMode
-
 MountPartitions
 
 # Set mirrorlist
@@ -116,7 +114,7 @@ if [ ${SwapFile} ]; then
   chmod 600 /mnt/swapfile >/dev/null &>> feliz.log
   mkswap /mnt/swapfile >/dev/null &>> feliz.log
   swapon /mnt/swapfile >/dev/null &>> feliz.log
-  echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab
+  echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab &>> feliz.log
 fi
 
 PrintOne "Setting hostname"
@@ -167,7 +165,7 @@ echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf &>> feliz.log
 
 # Extra processes for desktop installation
 if [ $Scope != "Basic" ]; then
-  CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
+  CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}` &>> feliz.log
   # If not already exist, create user
   if [ -z ${CheckUsers} ]; then
     PrintOne "Adding user ${UserName} ... "
@@ -244,7 +242,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lxdm.service" &>> feliz.log
-            echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf
+            echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf &>> feliz.log
           else
             InstallDM
           fi
