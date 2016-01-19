@@ -10,17 +10,16 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# Various input/output  22       arch_chroot           93
-# Internet connection   87       SetGrubDevice         97
-# Mirrorlist           131       MountPartitions      117
-# SetScope             159       InstallKernel        180
-# SetKernel            193       TestExistingDM       196
-# ConfirmVbox          206       SetRootPassword      233
-# MakePartitionList    229       SetUserPassword      253
+# PrintOne              22       MountPartitions       86
+# SetKernel             26       InstallKernel        148
+# ConfirmVbox           38       TestExistingDM       175
+# MakePartitionList     56       SetRootPassword      204
+# arch_chroot           69       SetUserPassword      231
+# SetGrubDevice         73       
+      
 
-PrintOne() {
- # Just because 
- dialog --title " Information " --infobox "$1" 6 40 ; sleep 1
+PrintOne() { # Just because 
+ dialog --title " Information " --infobox "$1" 6 50 ; sleep 1
 }
 
 SetKernel() {
@@ -107,7 +106,7 @@ MountPartitions() {
   PrintOne "Mounting /root partition"	
   mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
-    swapoff -a &>> feliz.log &>> feliz.log
+    swapoff -a &>> feliz.log
     if [ $MakeSwap = "Y" ]; then
       PrintOne "Making /swap partition"
       Partition=`echo $SwapPartition | cut -c 6-`
@@ -124,7 +123,7 @@ MountPartitions() {
   for id in ${AddPartList}
   do
     PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}"
-    umount ${id} /mnt${AddPartMount[$Counter]} /mnt >/dev/null &>> feliz.log
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
@@ -146,11 +145,11 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  PrintOne "Installing cli tools"
+  PrintOne "Installing cli tools\nPlease wait"
   pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) PrintOne "Installing LTS kernel"
+  1) PrintOne "Installing LTS kernel\nPlease wait"
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -159,7 +158,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) PrintOne "Installing Latest kernel"
+  *) PrintOne "Installing Latest kernel\nPlease wait"
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       PrintOne "Installing virtualbox guest modules"

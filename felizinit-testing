@@ -71,7 +71,7 @@ CheckInternet() {
       esac
     ;;
     *) dialog --backtitle "VERSION" --title " Installer Version " \
-          --infobox "Welcome to the Feliz Arch Linux installation script.\nA working internet connection is needed for installation.\nChecking your connection now ..." 10 30
+          --infobox "Welcome to the Feliz Arch Linux installation script, testing edition.\nA working internet connection is needed for installation.\nChecking your connection now ..." 20 50
       CheckConnection
       case $Service in
         "N") read_timed 
@@ -136,7 +136,7 @@ done
 
 UIselection() {
   dialog --backtitle "VERSION" --title " Installer Version " --nocancel \
-  --menu "\nYou can now choose between feliz's traditional, helpful, command-line interface, or a new semi-graphical dialog system ...\n \n" 15 50 2 \
+  --menu "You can now choose between feliz's traditional, helpful, command-line interface, or a new semi-graphical dialog system" 20 50 2 \
   "1" "Traditional command line" \
   "2" "New! Semi-graphical" 2> output.file
     Chosen=$(cat output.file)

@@ -140,17 +140,6 @@ SetGrubDevice() {
 	done
 }
 
-InstallationMode() { # New function in each UI branch
-print_heading
-tput bold
-read_timed "Entering installation mode" 1
-tput sgr0
-read_timed "If you are re-using existing partitions, the system may" 1
-read_timed "pause to ask you to confirm that you wish to mount them." 1
-read_timed "This may happen more than once ..." 1
-read_timed "'y' would be an appropriate response." 1
-}
-
 MountPartitions() {
   case $RootType in
     "") TPecho "Not formatting root partition"
