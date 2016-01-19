@@ -136,13 +136,13 @@ arch_chroot "hwclock --systohc --utc"
 if [ $Scope != "Basic" ]; then
   PrintOne "Enabling dhcpcd"
   arch_chroot "systemctl enable dhcpcd.service"
-  PrintOne "Installing and configuring network services"
+  DisplayProgress "Installing and configuring network services" 10
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
-  PrintOne "Installing Grub to $GrubDevice"
+  DisplayProgress "Installing Grub to $GrubDevice" 10
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -153,7 +153,7 @@ else
   PrintOne "Not installing Grub"
 fi
 
-PrintOne "Running mkinitcpio"
+DisplayProgress "Running mkinitcpio" 20
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -180,12 +180,12 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  PrintOne "Adding Flash and other Multimedia Codecs"
+  DisplayProgress "Adding Flash and other Multimedia Codecs" 20
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   PrintOne "Installing wireless tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log
-  PrintOne "Installing X, graphics, etc" 13
+  DisplayProgress "Installing X, graphics, etc" 10
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
@@ -196,11 +196,11 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") PrintOne "Installing 'Cinnamon' Desktop Environment"
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 30
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
-        "Deepin") PrintOne "Installing Deepin Desktop Environment"
+        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 20
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lightdm.service" &>> feliz.log
@@ -208,15 +208,15 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "Enlightenment") PrintOne "Installing 'Enlightenment' Desktop Environment"
+        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 20
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") PrintOne "Installing 'Fluxbox' Window Manager"
+        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") PrintOne "Installing 'Gnome' Desktop Environment"
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 40
           pacstrap /mnt gnome gedit ${GoodiesGnome} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable gdm.service" &>> feliz.log
@@ -224,11 +224,11 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "gnome-shell") PrintOne "Installing 'gnome-shell'"
+        "gnome-shell") DisplayProgress "Installing 'gnome-shell'" 20
           InstallDM
           pacstrap /mnt gnome-shell &>> feliz.log
           ;;
-        "KDE") PrintOne "Installing KDE Plasma meta package"
+        "KDE") DisplayProgress "Installing KDE Plasma meta package" 50
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable sddm.service" &>> feliz.log
@@ -238,7 +238,7 @@ if [ $Scope != "Basic" ]; then
           PrintOne "Installing KDE applications package"
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") PrintOne "Installing 'LXDE' Desktop Environment"
+        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 20
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lxdm.service" &>> feliz.log
@@ -247,19 +247,19 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "LXQt") PrintOne "Installing 'LXQt' Desktop Environment"
+        "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 20
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") PrintOne "Installing 'Mate' Desktop Environment"
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 30
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") PrintOne "Installing 'Openbox' Window Manager"
+        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") PrintOne "Installing 'Xfce' Desktop Environment"
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;
@@ -305,12 +305,6 @@ if [ $Scope != "Basic" ]; then
   SetUserPassword
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
-dialog --title " Shutdown " --nocancel \
-  --menu "Congratulations, installation is finished." 12 40 2 \
-  - "Reboot" \
-  - "Shutdown" 2> output.file
-case $(cat output.file) in
-  "Reboot") systemctl reboot
-  ;;
-  *) shutdown now
-esac
+dialog --msgbox "\nCongratulations, installation is finished. It's time to exit the Feliz installer and start your new Arch Linux system. Don't forget to remove the installation media before restarting." 12 40
+
+shutdown -h now

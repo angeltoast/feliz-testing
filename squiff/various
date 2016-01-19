@@ -10,16 +10,37 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              22       MountPartitions       86
-# SetKernel             26       InstallKernel        148
-# ConfirmVbox           38       TestExistingDM       175
-# MakePartitionList     56       SetRootPassword      204
-# arch_chroot           69       SetUserPassword      231
-# SetGrubDevice         73       
+# PrintOne              22       SetGrubDevice         93
+# DisplayProgress       25       MountPartitions      106
+# SetKernel             46       InstallKernel        168
+# ConfirmVbox           58       TestExistingDM       195
+# MakePartitionList     76       SetRootPassword      224
+# arch_chroot           89       SetUserPassword      251
       
 
 PrintOne() { # Just because 
- dialog --title " Information " --infobox "$1" 6 50 ; sleep 1
+ dialog --title " ~ Information ~ " --infobox "$1" 6 50 ; sleep 1
+}
+
+DisplayProgress() { # New code for displaying progress for longer processes
+  local Message="$1"
+  local Duration=$2
+  local Sleep=$((Duration/10))
+  local Percent=10
+
+  (
+  while [ $Percent -lt 110 ]
+  do
+    echo "XXX"
+    echo $Percent
+    echo "$Message"
+    echo "XXX"
+    Percent=`expr $Percent + 10`
+    sleep $Sleep
+  done
+  ) |
+
+  dialog --title " ~ Installing ~ " --gauge "" 6 60 0 &
 }
 
 SetKernel() {
@@ -145,11 +166,11 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  PrintOne "Installing cli tools\nPlease wait"
+  DisplayProgress "Installing cli tools" 30
   pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) PrintOne "Installing LTS kernel\nPlease wait"
+  1) DisplayProgress "Installing LTS kernel" 40
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -158,10 +179,10 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) PrintOne "Installing Latest kernel\nPlease wait"
+  *) DisplayProgress "Installing Latest kernel" 40
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-      PrintOne "Installing virtualbox guest modules"
+      DisplayProgress "Installing virtualbox guest modules" 6
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
