@@ -597,12 +597,7 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
       fi
     done
     PartitionList=$Remaining	# Replace original PartitionList with temp list
-    if [ $Result = "Done" ]; then
-      Elements=0
-      break
-    else
-      Elements=$AddedToRemaining
-    fi
+    Elements=$AddedToRemaining
   done
   # Ensure that if AddPartList (the defining array) is empty, all others are too
   if [ -z ${#AddPartList[@]} ]
