@@ -180,7 +180,7 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  DisplayProgress "Adding Flash and other Multimedia Codecs" 60
+  DisplayProgress "Adding Flash and other Multimedia Codecs" 50
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   PrintOne "Installing wireless tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
@@ -207,6 +207,7 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          sed -i '/greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /etc/lightdm/lightdm.conf &>> feliz.log # 
           ;;
         "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 40
           InstallDM
@@ -217,7 +218,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 90
-          pacstrap /mnt gnome gedit ${GoodiesGnome} &>> feliz.log
+          pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable gdm.service" &>> feliz.log
           else
@@ -259,7 +260,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 60
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 50
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;
@@ -286,7 +287,7 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Installing $i"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-          cp Conky.desktop /mnt/home/$UserName/.config.autostart &>> feliz.log
+          cp conky.desktop /mnt/home/$UserName/.config/autostart/ &>> feliz.log
         ;;
         *) PrintOne "Installing $i"
           pacstrap /mnt $i &>> feliz.log
