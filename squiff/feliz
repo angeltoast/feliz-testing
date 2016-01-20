@@ -150,7 +150,7 @@ if [ ${GrubDevice} ]; then
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 else
-  PrintOne "Not installing Grub"
+  echo "Not installing Grub" >> feliz.log
 fi
 
 DisplayProgress "Running mkinitcpio" 20
@@ -196,11 +196,11 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 60
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 40
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
-        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 40
+        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lightdm.service" &>> feliz.log
@@ -209,15 +209,15 @@ if [ $Scope != "Basic" ]; then
           fi
           sed -i '/greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /etc/lightdm/lightdm.conf &>> feliz.log # 
           ;;
-        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 40
+        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 30
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 40
+        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 30
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 90
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 70
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable gdm.service" &>> feliz.log
@@ -225,11 +225,11 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "gnome-shell") DisplayProgress "Installing 'gnome-shell'" 40
+        "gnome-shell") DisplayProgress "Installing 'gnome-shell'" 30
           InstallDM
           pacstrap /mnt gnome-shell &>> feliz.log
           ;;
-        "KDE") DisplayProgress "Installing KDE Plasma meta package" 100
+        "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable sddm.service" &>> feliz.log
@@ -239,7 +239,7 @@ if [ $Scope != "Basic" ]; then
           PrintOne "Installing KDE applications package"
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 40
+        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 30
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable lxdm.service" &>> feliz.log
@@ -248,19 +248,19 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 40
+        "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 30
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 60
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 50
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 40
+        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 30
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 50
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 40
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;
@@ -287,8 +287,6 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Installing $i"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-        #  mkdir -p /mnt/home/$UserName/.config/autostart/ &>> feliz.log
-        #  cp conky.desktop /mnt/home/$UserName/.config/autostart/ &>> feliz.log
         ;;
         *) PrintOne "Installing $i"
           pacstrap /mnt $i &>> feliz.log
