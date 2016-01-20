@@ -107,7 +107,7 @@ SetGrubDevice() {
 
 MountPartitions() {
   case $RootType in
-  "") echo "Not formatting root partition" >> feliz.log
+  "") echo "Not formatting root partition" &>> feliz.log
   ;;
   *) echo "Formatting /root partition" >> feliz.log
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
