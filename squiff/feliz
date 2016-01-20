@@ -287,8 +287,8 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Installing $i"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-          mkdir -p /mnt/home/$UserName/.config/autostart/ &>> feliz.log
-          cp conky.desktop /mnt/home/$UserName/.config/autostart/ &>> feliz.log
+        #  mkdir -p /mnt/home/$UserName/.config/autostart/ &>> feliz.log
+        #  cp conky.desktop /mnt/home/$UserName/.config/autostart/ &>> feliz.log
         ;;
         *) PrintOne "Installing $i"
           pacstrap /mnt $i &>> feliz.log
