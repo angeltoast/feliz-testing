@@ -217,17 +217,13 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 70
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 120
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl enable gdm.service" &>> feliz.log
           else
             InstallDM
           fi
-          ;;
-        "gnome-shell") DisplayProgress "Installing 'gnome-shell'" 30
-          InstallDM
-          pacstrap /mnt gnome-shell &>> feliz.log
           ;;
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
           pacstrap /mnt plasma-meta &>> feliz.log
@@ -252,7 +248,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 50
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 120
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
