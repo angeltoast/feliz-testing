@@ -153,7 +153,7 @@ else
   PrintOne "Not installing Grub"
 fi
 
-DisplayProgress "Running mkinitcpio" 30
+DisplayProgress "Running mkinitcpio" 20
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -180,12 +180,12 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  DisplayProgress "Adding Flash and other Multimedia Codecs" 50
+  DisplayProgress "Adding Flash and other Multimedia Codecs" 40
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   PrintOne "Installing wireless tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log
-  DisplayProgress "Installing X, graphics, etc" 20
+  PrintOne "Installing X, graphics, etc"
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
