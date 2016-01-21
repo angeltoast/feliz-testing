@@ -142,7 +142,7 @@ if [ $Scope != "Basic" ]; then
 fi
 
 if [ ${GrubDevice} ]; then
-  DisplayProgress "Installing Grub to $GrubDevice" 10
+  PrintOne "Installing Grub to $GrubDevice"
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -153,7 +153,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-DisplayProgress "Running mkinitcpio" 20
+PrintOne "Running mkinitcpio" "Please be patient"
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -180,7 +180,7 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  DisplayProgress "Adding Flash and other Multimedia Codecs" 40
+  PrintOne "Adding Flash and other Multimedia Codecs" "Please be patient"
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   PrintOne "Installing wireless tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
@@ -198,11 +198,11 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 40
+        "Cinnamon") PrintOne "Installing 'Cinnamon' Desktop Environment" "Please be patient"
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
-        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
+        "Deepin") PrintOne "Installing Deepin Desktop Environment" "Please be patient"
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable lightdm.service" &>> feliz.log
@@ -211,15 +211,15 @@ if [ $Scope != "Basic" ]; then
           fi
           sed -i '/greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /etc/lightdm/lightdm.conf &>> feliz.log # 
           ;;
-        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 30
+        "Enlightenment") PrintOne "Installing 'Enlightenment' Desktop Environment" "Please be patient"
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 30
+        "Fluxbox") PrintOne "Installing 'Fluxbox' Window Manager" "Please be patient"
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 120
+        "Gnome") PrintOne "Installing 'Gnome' Desktop Environment" "Please be patient"
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
@@ -227,7 +227,7 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
+        "KDE") PrintOne "Installing KDE Plasma meta package" "Please be patient"
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
@@ -237,7 +237,7 @@ if [ $Scope != "Basic" ]; then
           PrintOne "Installing KDE applications package"
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 10
+        "LXDE") PrintOne "Installing 'LXDE' Desktop Environment" "Please be patient"
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
@@ -246,19 +246,19 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 30
+        "LXQt") PrintOne "Installing 'LXQt' Desktop Environment" "Please be patient"
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 120
+        "Mate") PrintOne "Installing 'Mate' Desktop Environment" "Please be patient"
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 30
+        "Openbox") PrintOne "Installing 'Openbox' Window Manager" "Please be patient"
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 40
+        "Xfce") PrintOne "Installing 'Xfce' Desktop Environment" "Please be patient"
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;

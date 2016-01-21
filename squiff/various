@@ -20,29 +20,7 @@
 
 PrintOne() { # Just because
   clear
-  dialog --title " - Information - " --infobox "$1" 6 50 ; sleep 1
-}
-
-DisplayProgress() { # New code for displaying progress for longer processes
-  clear
-  local Message="$1"
-  local Duration=$2
-  local Sleep=$((Duration/10))
-  local Percent=10
-
-  (
-  while [ $Percent -lt 110 ]
-  do
-    echo "XXX"
-    echo $Percent
-    echo "$Message"
-    echo "XXX"
-    Percent=`expr $Percent + 10`
-    sleep $Sleep
-  done
-  ) |
-
-  dialog --title " - Information - " --gauge "" 6 60 0 &
+  dialog --title " - Information - " --infobox "$1\n$2" 7 50 ; sleep 1
 }
 
 SetKernel() {
@@ -168,17 +146,17 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel" 70 &
+  PrintOne "Installing base-devel" "Please be patient"
   pacstrap /mnt base-devel &>> feliz.log
   PrintOne "Installing bash"
   pacstrap /mnt bash &>> feliz.log
-  DisplayProgress "Installing cli tools" 50 &
+  PrintOne "Installing cli tools" "Please be patient"
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
   PrintOne "Installing extra tools"
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) DisplayProgress "Installing LTS kernel" 60 &
+  1) PrintOne "Installing LTS kernel" "Please be patient"
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -187,7 +165,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) DisplayProgress "Installing Latest kernel" 60
+  *) PrintOne "Installing Latest kernel" "Please be patient"
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       PrintOne "Installing virtualbox guest modules"
