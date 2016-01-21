@@ -18,11 +18,13 @@
 # arch_chroot           89       SetUserPassword      251
       
 
-PrintOne() { # Just because 
+PrintOne() { # Just because
+  clear
   dialog --title " - Information - " --infobox "$1" 6 50 ; sleep 1
 }
 
 DisplayProgress() { # New code for displaying progress for longer processes
+  clear
   local Message="$1"
   local Duration=$2
   local Sleep=$((Duration/10))
@@ -166,17 +168,17 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel" 40
+  DisplayProgress "Installing base-devel" 70 &
   pacstrap /mnt base-devel &>> feliz.log
-  DisplayProgress "Installing bash" 40
+  PrintOne "Installing bash"
   pacstrap /mnt bash &>> feliz.log
-  PrintOne "Installing cli tools"
+  DisplayProgress "Installing cli tools" 50 &
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
   PrintOne "Installing extra tools"
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) DisplayProgress "Installing LTS kernel" 60
+  1) DisplayProgress "Installing LTS kernel" 60 &
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -201,7 +203,7 @@ InstallKernel() {
 TestExistingDM() {
   # Test for existing display manager and disable if necessary
   arch-chroot /mnt touch etc/output.log  &>> feliz.log # Create empty file
-  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > mnt/etc/output.log &>> feliz.log
+  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > etc/output.log &>> feliz.log
   DMLine=`cat /mnt/etc/output.log` &>> feliz.log
   local Counter=1
   case ${DMLine} in
