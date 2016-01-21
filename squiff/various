@@ -200,42 +200,13 @@ InstallKernel() {
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
 
-TestExistingDM() {
-  # Test for existing display manager and disable if necessary
-  arch-chroot /mnt touch etc/output.log  &>> feliz.log # Create empty file
-  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > etc/output.log &>> feliz.log
-  DMLine=`cat /mnt/etc/output.log` &>> feliz.log
-  local Counter=1
-  case ${DMLine} in
-  "") echo "No previous DM discovered" >> feliz.log
-  ;;
-  *) local Continue="Y"
-    while [ ${Continue} = "Y" ]
-    do
-      ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` &>> feliz.log # First of pair is DM
-      if [ -z ${ExDM} ]; then
-        Continue="N" # Quit if no further entries
-        break
-      fi
-      (( Counter+=1 ))
-      ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` &>> feliz.log # Second is status
-      case ${ExDMStatus} in
-      "enabled") arch_chroot "systemctl disable ${ExDM} >/dev/null"
-      ;;
-      *) echo "${ExDM} already disabled" >> feliz.log
-      esac
-      (( Counter+=1 ))
-    done
-  esac
-}
- 
 InstallDM() { # Called from feliz when installing desktop environment
   case ${DisplayManager} in
     "") echo "Not installing a Display Manager" >> feliz.log
     ;;
     *) PrintOne "Installing ${DisplayManager} Display Manager"
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
-      arch_chroot "systemctl enable ${DisplayManager}.service" >/dev/null
+      arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
 }
 

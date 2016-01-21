@@ -191,7 +191,9 @@ if [ $Scope != "Basic" ]; then
   pacstrap /mnt gvfs gamin &>> feliz.log
 
   # Install desktop environments, window managers and display managers
-  TestExistingDM # First clear any previously installed DM before installing DE
+  # TestExistingDM # First clear any previously installed DM before installing DE
+  # # Code change - instead of trying to detect and clear existing DM, I am testing
+  # # the -f (force) option in systemctl enable
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
@@ -203,7 +205,7 @@ if [ $Scope != "Basic" ]; then
         "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
-            arch_chroot "systemctl enable lightdm.service" &>> feliz.log
+            arch_chroot "systemctl -f enable lightdm.service" &>> feliz.log
           else
             InstallDM
           fi
@@ -220,7 +222,7 @@ if [ $Scope != "Basic" ]; then
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 120
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
-            arch_chroot "systemctl enable gdm.service" &>> feliz.log
+            arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
           else
             InstallDM
           fi
@@ -228,7 +230,7 @@ if [ $Scope != "Basic" ]; then
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
-            arch_chroot "systemctl enable sddm.service" &>> feliz.log
+            arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
           else
             InstallDM
           fi
@@ -238,7 +240,7 @@ if [ $Scope != "Basic" ]; then
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 10
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
-            arch_chroot "systemctl enable lxdm.service" &>> feliz.log
+            arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf &>> feliz.log
           else
             InstallDM
