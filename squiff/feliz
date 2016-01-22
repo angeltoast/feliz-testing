@@ -205,11 +205,12 @@ if [ $Scope != "Basic" ]; then
         "Deepin") PrintOne "Installing Deepin Desktop Environment" "Please be patient" 75
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
+            pacstrap /mnt lightdm deepin-session-ui &>> feliz.log
             arch_chroot "systemctl -f enable lightdm.service" &>> feliz.log
+            sed -i '/greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /etc/lightdm/lightdm.conf &>> feliz.log 
           else
             InstallDM
           fi
-          sed -i '/greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /etc/lightdm/lightdm.conf &>> feliz.log # 
           ;;
         "Enlightenment") PrintOne "Installing 'Enlightenment' Desktop Environment" "Please be patient" 75
           InstallDM
@@ -296,7 +297,7 @@ fi
 
 EndTime=$(date +%s)
 Difference=$(( $EndTime-$StartTime ))
-DIFFMIN=$(( $Difference/60 ))
+DIFFMIN=$(( $Difference / 60 ))
 DIFFSEC=$(( $Difference % 60 ))
 
 SetRootPassword

@@ -13,9 +13,9 @@
 # PrintOne              22       SetGrubDevice         93
 # DisplayProgress       25       MountPartitions      106
 # SetKernel             46       InstallKernel        168
-# ConfirmVbox           58       TestExistingDM       195
-# MakePartitionList     76       SetRootPassword      224
-# arch_chroot           89       SetUserPassword      251
+# ConfirmVbox           58       InstallDM            187
+# MakePartitionList     76       SetRootPassword      197
+# arch_chroot           89       SetUserPassword      224
       
 
 PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
