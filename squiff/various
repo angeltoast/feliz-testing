@@ -22,10 +22,44 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
 clear
 Component="$1"
 Patient="$2"
-
-  Message="$Component\n$Patient"
-
-  dialog --title " - Information - " --infobox "$Message" 8 55 ; sleep 1
+Complete=$3
+CurrentTime=$(date +%s)
+Difference=$(( $CurrentTime-$StartTime )) # Seconds since start
+DIFFMIN=$(( $Difference/60 ))             # Minutes since start
+DIFFSEC=$(( $Difference % 60 ))           # Modulus ... odd seconds
+if [ $DIFFMIN -gt 1 ]; then               # Format for Message
+  DIFFMIN="$DIFFMIN minutes and "
+else
+  DIFFMIN="$DIFFMIN minute and "
+fi
+if [ -n $Complete ]; then          # If percentage figure was passed by caller
+  Ratio=$(( $Difference/$Complete ))   # Calculate seconds per percent
+  Remaining=$(( 100-$Complete ))       # Calculate percentage remaining
+  CalTimeHR=$(date +%H)
+  CalTimeM=$(date +%M)
+  TOGO=$(( $Ratio * $Remaining / 60 )) # And combine to make minutes until finish
+  if [ $TOGO -ge 60 ]; then        # If more than 60 minutes to go
+    Add=$(( TOGO / 60 ))                 # Calculate how many hours 
+    CalTimeHR=$(( CalTimeHR + $Add ))  # And add to the remaining hours
+    CalTimeM=$(( TOGO % 60 ))          # Calculate how many minutes remain
+  else                             # If less than 60 minutes to go
+    CalTimeM=$(( CalTimeM + $TOGO ))   # Add to the remaining minutes
+    if [ $CalTimeM -ge 60 ]; then      # Check to see if new minutes now exceeds 60
+      Add=$(( CalTimeM / 60 ))         # If so, calculate how many hours
+      CalTimeHR=$(( CalTimeHR + $Add ))  # And add to remaining hours 
+      CalTimeM=$(( CalTimeM % 60 )) # Modulus (remaining minutes)
+    fi
+  fi
+  if [ $CalTimeM -eq 0 ]; then           # If zero minutes, display as two zeros
+    CalTimeM="00"
+  elif [ $CalTimeM -lt 10 ]; then        # Finally add leading zero if less than 10 minutes
+    CalTimeM="0$CalTimeM"
+  fi
+  Message="$DIFFMIN$DIFFSEC seconds into installation\n$Component\n$Patient\nArch installation is approximately $Complete% complete\nEstimated finishing time $CalTimeHR:$CalTimeM"
+else
+  Message="$DIFFMIN$DIFFSEC seconds in\n$Component\n$Patient"
+fi
+  dialog --title " - Information - " --infobox "$Message" 8 55
 }
 
 SetKernel() {
