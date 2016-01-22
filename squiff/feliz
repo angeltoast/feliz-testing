@@ -95,21 +95,34 @@ FinalCheck
 # No further user intervention from here
 #
 
-StartCounter=$(date +%s) # Start a new counter
-MountPartitions
-StopCounter=$(date +%s)  # To assess system speed for DisplayProgress
-Difference=$(( $StopCounter-$StartCounter )) # Stores actual time in seconds
-read -p "$Difference"
-# Set mirrorlist
-ReflectorMirrorList
-
-# Install kernel
-InstallKernel
-
+                         # 1
+StartCounter=$(date +%s) # Start 
+MountPartitions          # In 'various'
+                         # 4 seconds
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "MountPartitions $Difference seconds"
+                         # 2
+StartCounter=$(date +%s) # Start 
+ReflectorMirrorList      # In 'common/shared'
+                         # 
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "ReflectorMirrorList $Difference seconds"
+                         # 3
+StartCounter=$(date +%s) # Start 
+InstallKernel            # In 'various'
+                         #
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "InstallKernel $Difference seconds"
+#
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
 PrintOne "Generating fstab" "" 35
+                         # 4
+StartCounter=$(date +%s) # Start 
 genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
 if [ ${SwapFile} ]; then
   PrintOne "Making /swapfile" "" 36
@@ -119,6 +132,10 @@ if [ ${SwapFile} ]; then
   swapon /mnt/swapfile >/dev/null &>> feliz.log
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab &>> feliz.log
 fi
+                         #
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "fstab and swapfile $Difference seconds"
 
 PrintOne "Setting hostname" "" 37
 echo ${HostName} > /mnt/etc/hostname &>> feliz.log
