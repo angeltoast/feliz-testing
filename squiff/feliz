@@ -266,7 +266,7 @@ if [ $Scope != "Basic" ]; then
         *) continue # Ignore others on this pass
       esac
     done
-
+    PrintOne "Finished installing desktop environment(s)" "Nearly finished" 90
   # ... then install the others
     for i in ${LuxuriesList}
     do
@@ -274,21 +274,21 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-          PrintOne "Modifying pacman.conf and installing Yaourt" 85
+          PrintOne "Modifying pacman.conf and installing Yaourt" 95
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system
           cp pacman.conf /etc &>> feliz.log # For installer
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" 90
+        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" 96
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
-        "conky") PrintOne "Installing $i" 90
+        "conky") PrintOne "Installing $i" 97
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
         ;;
-        *) PrintOne "Installing $i" 95
+        *) PrintOne "Installing $i" 98
           pacstrap /mnt $i &>> feliz.log
       esac
     done

@@ -26,7 +26,7 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
     Complete=$3
   fi
   Message="Arch installation is approximately $Complete% complete\n$Component\n$Patient\n"
-  dialog --title " - Information - " --infobox "$Message" 8 55
+  dialog --title " - Information - " --infobox "$Message" 8 55 sleep 1 &
 }
 
 SetKernel() {
@@ -93,7 +93,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" &>> feliz.log
   ;;
-  *) echo "Formatting /root partition" >> feliz.log
+  *) PrintOne "Preparing /root partition"
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
@@ -154,7 +154,7 @@ MountPartitions() {
 InstallKernel() {
   PrintOne "Installing base-devel" "Please be patient" 10
   pacstrap /mnt base-devel &>> feliz.log
-  PrintOne "Installing bash"
+  PrintOne "Installing bash" "" 13
   pacstrap /mnt bash &>> feliz.log
   PrintOne "Installing cli tools" "Please be patient" 15
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
