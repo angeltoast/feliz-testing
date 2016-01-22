@@ -153,14 +153,43 @@ MountPartitions() {
 
 InstallKernel() {
   PrintOne "Installing base-devel" "Please be patient" 10
-  pacstrap /mnt base-devel &>> feliz.log
+                         # 3
+StartCounter=$(date +%s) # Start 
+  pacstrap /mnt base-devel &>> feliz.log # .........................................
+                         #
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "3 - base-devel $Difference seconds"
+
   PrintOne "Installing bash" "" 13
-  pacstrap /mnt bash &>> feliz.log
+                         # 4
+StartCounter=$(date +%s) # Start 
+  pacstrap /mnt bash &>> feliz.log # ...............................................
+                         # Actual time in seconds
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter ))
+read -p "4 - bash $Difference seconds"
+
   PrintOne "Installing cli tools" "Please be patient" 15
+                         # 5
+StartCounter=$(date +%s) # Start   
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
+                         # Actual time in seconds
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter ))
+read -p "5 - cli tools $Difference seconds"
+
   PrintOne "Installing extra tools"
+                         # 6
+StartCounter=$(date +%s) # Start   
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter ))
+read -p "6 - extra tools $Difference seconds"
+
+                         # 7
+StartCounter=$(date +%s) # Start   
   case $Kernel in
   1) PrintOne "Installing LTS kernel" "Please be patient" 20
     pacstrap /mnt linux-lts &>> feliz.log
@@ -180,6 +209,11 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   esac
+                         #
+StopCounter=$(date +%s)  # Stop
+Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
+read -p "7 - kernel $Difference seconds"
+
   PrintOne "Installing opensource video drivers" "" 30
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }

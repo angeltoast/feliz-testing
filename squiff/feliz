@@ -97,32 +97,27 @@ FinalCheck
 
                          # 1
 StartCounter=$(date +%s) # Start 
-MountPartitions          # In 'various'
+MountPartitions          # In 'various' ...........................................
                          # 4 seconds
 StopCounter=$(date +%s)  # Stop
 Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
 read -p "MountPartitions $Difference seconds"
                          # 2
 StartCounter=$(date +%s) # Start 
-ReflectorMirrorList      # In 'common/shared'
+ReflectorMirrorList      # In 'common/shared' .....................................
                          # 
 StopCounter=$(date +%s)  # Stop
 Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
 read -p "ReflectorMirrorList $Difference seconds"
-                         # 3
-StartCounter=$(date +%s) # Start 
-InstallKernel            # In 'various'
-                         #
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "InstallKernel $Difference seconds"
+
+InstallKernel            # In 'various' ...........................................
+
 #
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
 PrintOne "Generating fstab" "" 35
-                         # 4
-StartCounter=$(date +%s) # Start 
+
 genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
 if [ ${SwapFile} ]; then
   PrintOne "Making /swapfile" "" 36
