@@ -166,7 +166,7 @@ do
       ;;
     "Deepin") DesktopEnvironment="Deepin"
         dialog --backtitle "$Backtitle" --title " Deepin desktop environment " \
-    --yesno "\nThe deepin-extras pack includes includes the Deepin game center, media players, terminal & screenshot tools. Include the extras pack?\n" 10 40
+    --yesno "\nThe deepin-extras pack includes the Deepin game center, media players, terminal & screenshot tools. Include the extras pack?\n" 10 40
         case $? in
           0) DDEextras="deepin-extra"
            ;;
