@@ -22,12 +22,10 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
   clear
   Component="$1"
   Patient="$2"
-  Complete=$3
-  if [ -n $Complete ]; then          # If percentage figure was passed by caller
-    Message="Arch installation is approximately $Complete% complete\n$Component\n$Patient\n"
-  else
-    Message="$Component\n$Patient"
+  if [ $3 ]; then
+    Complete=$3
   fi
+  Message="Arch installation is approximately $Complete% complete\n$Component\n$Patient\n"
   dialog --title " - Information - " --infobox "$Message" 8 55
 }
 
@@ -112,12 +110,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  PrintOne "Mounting /root partition"	
+  PrintOne "Mounting /root partition"	"" 5
   mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a &>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      PrintOne "Making /swap partition"
+      PrintOne "Making /swap partition" "" 6
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
@@ -125,13 +123,13 @@ MountPartitions() {
       fi
       mkswap ${Label} ${SwapPartition} &>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
-    PrintOne "Activating /swap"
+    PrintOne "Activating /swap" "" 7
     swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
   fi
   local Counter=0
   for id in ${AddPartList}
   do
-    PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}"
+    PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}" "" 8
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
@@ -154,17 +152,17 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  PrintOne "Installing base-devel" "Please be patient" 30
+  PrintOne "Installing base-devel" "Please be patient" 10
   pacstrap /mnt base-devel &>> feliz.log
   PrintOne "Installing bash"
   pacstrap /mnt bash &>> feliz.log
-  PrintOne "Installing cli tools" "Please be patient" 35
+  PrintOne "Installing cli tools" "Please be patient" 15
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
   PrintOne "Installing extra tools"
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) PrintOne "Installing LTS kernel" "Please be patient" 40
+  1) PrintOne "Installing LTS kernel" "Please be patient" 20
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -173,7 +171,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) PrintOne "Installing Latest kernel" "Please be patient" 45
+  *) PrintOne "Installing Latest kernel" "Please be patient" 25
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -182,7 +180,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   esac
-  PrintOne "Installing opensource video drivers"
+  PrintOne "Installing opensource video drivers" "" 30
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
 
