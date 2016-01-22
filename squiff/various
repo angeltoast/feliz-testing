@@ -29,6 +29,28 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
   dialog --title " - Information - " --infobox "$Message" 8 55 ; sleep 1 &
 }
 
+DisplayProgress() { # Revised code for displaying progress for longer processes
+  local Message="$1"
+  local Duration=$2
+  local Sleep=$(( $Duration / 10 ))
+  Sleep=$(( $Sleep * $Factor ))
+  local Percent=10
+
+  (
+  while [ $Percent -lt 110 ]
+  do
+    echo "XXX"
+    echo $Percent
+    echo "$Message"
+    echo "XXX"
+    Percent=`expr $Percent + 10`
+    sleep $Sleep
+  done
+  ) |
+
+  dialog --title " - Information - " --gauge "" 6 60 0 &
+}
+
 SetKernel() {
   local Message="The Long-Term-Support kernel (LTS) offers stabilty,while the Latest kernel has all the new features. If in doubt, choose LTS."
   listgen1 "LTS Latest" " Choose your kernel " "nocancel"
@@ -152,46 +174,27 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  PrintOne "Installing base-devel" "Please be patient" 10
-                         # 3
-StartCounter=$(date +%s) # Start 
-  pacstrap /mnt base-devel &>> feliz.log # .........................................
-                         #
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "3 - base-devel $Difference seconds"
+  DisplayProgress "Installing base-devel and bash" 60
+  pacstrap /mnt base-devel bash &>> feliz.log  # my time = 60 seconds
+  StopCounter=$(date +%s)                      # Stop
+  Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds (mine is 68)
+  Factor=$(( $Difference / 68 ))               # Refine timing factor
 
-  PrintOne "Installing bash" "" 13
-                         # 4
-StartCounter=$(date +%s) # Start 
-  pacstrap /mnt bash &>> feliz.log # ...............................................
-                         # Actual time in seconds
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter ))
-read -p "4 - bash $Difference seconds"
+  DisplayProgress "Installing cli tools" 20
+  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log                 # My time = 21 seconds
+  StopCounter=$(date +%s)                      # Stop
+  Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds (mine is 89)
+  Factor=$(( $Difference / 89 ))                 # Refine timing factor
 
-  PrintOne "Installing cli tools" "Please be patient" 15
-                         # 5
-StartCounter=$(date +%s) # Start   
-  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
-                         # Actual time in seconds
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter ))
-read -p "5 - cli tools $Difference seconds"
-
-  PrintOne "Installing extra tools"
-                         # 6
-StartCounter=$(date +%s) # Start   
+  DisplayProgress "Installing extra tools" 50
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
-  arch_chroot "systemctl enable sshd.service" >/dev/null
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter ))
-read -p "6 - extra tools $Difference seconds"
+  arch_chroot "systemctl enable sshd.service" >/dev/null # My time = 54 seconds
+  StopCounter=$(date +%s)                                # Stop
+  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds (mine is 143)
+  Factor=$(( $Difference / 143 ))                        # Refine timing factor
 
-                         # 7
-StartCounter=$(date +%s) # Start   
   case $Kernel in
-  1) PrintOne "Installing LTS kernel" "Please be patient" 20
+  1) DisplayProgress "Installing LTS kernel" 60
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -200,20 +203,18 @@ StartCounter=$(date +%s) # Start
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) PrintOne "Installing Latest kernel" "Please be patient" 25
+  *) DisplayProgress "Installing Latest kernel" 60
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-      PrintOne "Installing virtualbox guest modules"
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
-  esac
-                         #
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "7 - kernel $Difference seconds"
-
+  esac # My time = 62 seconds
+  StopCounter=$(date +%s)                                # Stop
+  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds (mine is 205)
+  Factor=$(( $Difference / 205 ))                        # Refine timing factor
+# Factoring calculations end here (at present)
   PrintOne "Installing opensource video drivers" "" 30
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }

@@ -95,22 +95,16 @@ FinalCheck
 # No further user intervention from here
 #
 
-                         # 1
-StartCounter=$(date +%s) # Start 
-MountPartitions          # In 'various' ...........................................
-                         # 4 seconds
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "MountPartitions $Difference seconds"
-                         # 2
-StartCounter=$(date +%s) # Start 
-ReflectorMirrorList      # In 'common/shared' .....................................
-                         # 
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "ReflectorMirrorList $Difference seconds"
+StartCounter=$(date +%s) # Start counter to determine timing factor
+MountPartitions
 
-InstallKernel            # In 'various' ...........................................
+ReflectorMirrorList
+                         # My factor to here = 8 seconds
+StopCounter=$(date +%s)  # Stop counter for user time
+Difference=$(( $StopCounter - $StartCounter )) # Actual user time in seconds
+Factor=$(( $Difference / 8 )) # Actual / my factor = timing factor
+
+InstallKernel
 
 #
 # Set the default PATH variable
