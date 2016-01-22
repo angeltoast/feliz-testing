@@ -95,8 +95,11 @@ FinalCheck
 # No further user intervention from here
 #
 
+StartCounter=$(date +%s) # Start a new counter
 MountPartitions
-
+StopCounter=$(date +%s)  # To assess system speed for DisplayProgress
+Difference=$(( $StopCounter-$StartCounter )) # Stores actual time in seconds
+read -p "$Difference"
 # Set mirrorlist
 ReflectorMirrorList
 
@@ -274,21 +277,21 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-          PrintOne "Modifying pacman.conf and installing Yaourt" 95
+          PrintOne "Modifying pacman.conf and installing Yaourt" "" 96
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system
           cp pacman.conf /etc &>> feliz.log # For installer
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" 96
+        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" "" 97
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
-        "conky") PrintOne "Installing $i" 97
+        "conky") PrintOne "Installing $i" "" 98
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
         ;;
-        *) PrintOne "Installing $i" 98
+        *) PrintOne "Installing $i" "" 99
           pacstrap /mnt $i &>> feliz.log
       esac
     done
