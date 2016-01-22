@@ -18,9 +18,48 @@
 # arch_chroot           89       SetUserPassword      251
       
 
-PrintOne() { # Just because
-  clear
-  dialog --title " - Information - " --infobox "$1\n$2" 7 50 ; sleep 1
+PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
+clear
+Component="$1"
+Patient="$2"
+Complete=$3
+CurrentTime=$(date +%s)
+CalTimeHR=$(date +%H)
+CalTimeM=$(date +%M)
+Difference=$(( $CurrentTime-$StartTime )) # Seconds since start
+DIFFMIN=$(( $Difference/60 ))             # Minutes since start
+DIFFSEC=$(( $Difference % 60 ))           # Modulus ... odd seconds
+if [ $DIFFMIN -gt 1 ]; then        # Format for Message
+  DIFFMIN="$DIFFMIN minutes and "
+else
+  DIFFMIN="$DIFFMIN minute and "
+fi
+if [ -n $Complete ]; then          # If percentage figure was passed by caller
+  Ratio=$(( $Difference/$Complete ))   # Calculate seconds per percent
+  Remaining=$(( 100-$Complete ))       # Calculate percentage remaining
+  TOGO=$(( $Ratio * $Remaining / 60 )) # And combine to make minutes until finish
+  if [ $TOGO -ge 60 ]; then        # If more than 60 minutes to go
+    Add=$(( TOGO/60 ))                 # Calculate how many hours 
+    CalTimeHR=$(( CalTimeHR + $Add ))  # And add to the remaining hours
+    CalTimeM=$(( TOGO % 60 ))          # Calculate how many minutes remain
+  else                             # If less than 60 minutes to go
+    CalTimeM=$(( CalTimeM + $TOGO ))   # Add to the remaining minutes
+    if [ $CalTimeM -ge 60 ]; then      # Check to see if new minutes now exceeds 60
+      Add=$(( CalTimeM / 60 ))         # If so, calculate how many hours
+      CalTimeHR=$(( CalTimeHR + $Add ))  # And add to remaining hours 
+      CalTimeM=$(( CalTimeM % 60 ))      # Calculate modulus for remaining minutes
+    fi
+  fi
+  if [ $CalTimeM -eq 0 ]; then     # If zero minutes, display as two zeros
+    CalTimeM="00"
+  elif [ $CalTimeM -lt 10 ]; then  # Add leading zero if less than 10 minutes
+    CalTimeM="0$CalTimeM"
+  fi
+  Message="$DIFFMIN$DIFFSEC seconds in\n$Component\n$Patient\nArch installation is approximately $Complete% complete\nEstimated finishing time $CalTimeHR:$CalTimeM"
+else
+  Message="$DIFFMIN$DIFFSEC seconds in\n$Component\n$Patient"
+fi
+  dialog --title " - Information - " --infobox "$Message" 8 55 ; sleep 1
 }
 
 SetKernel() {
@@ -146,17 +185,17 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  PrintOne "Installing base-devel" "Please be patient"
+  PrintOne "Installing base-devel" "Please be patient" 30
   pacstrap /mnt base-devel &>> feliz.log
   PrintOne "Installing bash"
   pacstrap /mnt bash &>> feliz.log
-  PrintOne "Installing cli tools" "Please be patient"
+  PrintOne "Installing cli tools" "Please be patient" 35
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log
   PrintOne "Installing extra tools"
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-  1) PrintOne "Installing LTS kernel" "Please be patient"
+  1) PrintOne "Installing LTS kernel" "Please be patient" 40
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       PrintOne "Installing virtualbox guest modules"
@@ -165,7 +204,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) PrintOne "Installing Latest kernel" "Please be patient"
+  *) PrintOne "Installing Latest kernel" "Please be patient" 45
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       PrintOne "Installing virtualbox guest modules"
