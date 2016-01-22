@@ -26,7 +26,7 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
     Complete=$3
   fi
   Message="Arch installation is approximately $Complete% complete\n$Component\n$Patient\n"
-  dialog --title " - Information - " --infobox "$Message" 8 55 sleep 1 &
+  dialog --title " - Information - " --infobox "$Message" 8 55 ; sleep 1 &
 }
 
 SetKernel() {
