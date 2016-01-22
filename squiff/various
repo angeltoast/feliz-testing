@@ -93,7 +93,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" &>> feliz.log
   ;;
-  *) PrintOne "Preparing /root partition"
+  *) PrintOne "Preparing /root partition" "" 5
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
@@ -110,12 +110,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  PrintOne "Mounting /root partition"	"" 5
+  PrintOne "Mounting /root partition"	"" 6
   mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a &>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      PrintOne "Making /swap partition" "" 6
+      PrintOne "Making /swap partition" "" 7
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
