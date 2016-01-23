@@ -17,11 +17,11 @@
 # MakePartitionList     76       SetRootPassword      197
 # arch_chroot           89       SetUserPassword      224
       
-PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
+PrintOne() {  # Arguments: "Component" "Patient"
   clear
   Component="$1"
-  Message="$Component\n$Patient\n"
-  dialog --title " - Information - " --infobox "$Message" 5 55 ; sleep 1 &
+  Patient="$2"
+  dialog --backtitle "Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
@@ -30,7 +30,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   fi
   local Message="$1\nThis may take some time, depending on your system ..."
   local Duration=$2
-  Duration=(( $Duration * $Factor
+  Duration=$(( $Duration * $Factor ))
   local Sleep=$(( $Duration / 10 ))
   local Percent=10
 
@@ -46,7 +46,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   done
   ) |
 
-  dialog --title " - Information - " --gauge "" 7 60 0 &
+  dialog --backtitle "Backtitle" --title " - Information - " --gauge "" 7 60 0 &
 }
 
 SetKernel() {
