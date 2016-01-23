@@ -20,22 +20,18 @@
 PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
   clear
   Component="$1"
-  Patient="$2"
-  if [ $3 ]; then
-    Complete=$3
-  fi
-  Message="Arch installation is approximately $Complete% complete\n$Component\n$Patient\n"
-  dialog --title " - Information - " --infobox "$Message" 8 55 ; sleep 1 &
+  Message="$Component\n$Patient\n"
+  dialog --title " - Information - " --infobox "$Message" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
   if [ $Factor -lt 1 ]; then
     Factor=1
   fi
-  local Message="$1"
+  local Message="$1\nThis may take some time, depending on your system ..."
   local Duration=$2
+  Duration=(( $Duration * $Factor
   local Sleep=$(( $Duration / 10 ))
-  Sleep=$(( $Sleep * $Factor ))
   local Percent=10
 
   (
@@ -50,7 +46,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   done
   ) |
 
-  dialog --title " - Information - " --gauge "" 6 60 0 &
+  dialog --title " - Information - " --gauge "" 7 60 0 &
 }
 
 SetKernel() {

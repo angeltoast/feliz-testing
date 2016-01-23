@@ -250,7 +250,7 @@ while [ $Repeat -gt 0 ]
 do
   local Message="These are the settings you have entered. Please check them ...\nPress <Continue> to install with these settings, or choose an item if you wish to change it: "
   declare -a Settings
-  Categories="Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras"
+  Options="Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras"
   Settings[1]="$RootPartition $RootType                                         "
   if [ $SwapPartition ] || [ $SwapFile ]; then
     Settings[2]="$SwapPartition $SwapFile"
@@ -297,7 +297,7 @@ do
   fi
   Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
   Settings[12]="${LuxuriesList}"
-  listgen2 "$Categories" " Final Check " "Continue" "Settings"
+  listgen2 "$Options" " Final Check " "Continue" "Settings"
   Response=$(cat output.file)
   Repeat=$?
   if [ $Repeat -eq 0 ]; then

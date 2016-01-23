@@ -244,14 +244,18 @@ RunAutoPart() {
 }
 
 FileSystem() { 
-  local NoCancel="--$1"
-  dialog --backtitle "$Backtitle" --title " Partitioning " ${NoCancel}\
+  case $1 in
+  "nocancel") local Cancel="--$1"
+  ;;
+  *) local Cancel="--cancel-label $1"
+  esac
+  dialog --backtitle "$Backtitle" --title " Partitioning " ${Cancel} \
       --menu "\n$Message\n" 18 50 4 \
         "ext2" "-" \
         "ext3" "-" \
         "ext4" "-" \
         "btrfs" "-" 2> output.file
-  if [ $? -gt 0 ]; then # If 'Cancel' selected
+  if [ $? -gt 0 ]; then # If <Cancel> option selected
     PartitionType=""
   else
     PartitionType=$(cat output.file)
@@ -440,16 +444,14 @@ AllocateRoot() {
       CheckPartition
       # Now select a filesystem
       if [ ${CurrentType} ]; then
-        local Message="$Message\nYou can choose to leave it as it is, by selecting '<Cancel>', but be aware that not reformatting the root partition may have unexpected consequences."
+        local Message="$Message\nYou can choose to leave it as it is, by selecting '<None>', but be aware that not reformatting the root partition may have unexpected consequences."
         FileSystem
       else
         local Message="Please now select the file system for ${Partition} ... It is not recommended to mix the btrfs file-system with others.\n"
-        FileSystem "nocancel" 
+        FileSystem "None"
       fi
 			if [ -z ${PartitionType} ] && [ ${CurrentType} ]; then
 				RootType=""
-			elif [ -z ${PartitionType} ]; then
-				RootType="ext4"
 			else
         RootType="${PartitionType}"
         Label="${Labelled[${PassPart}]}"
@@ -568,10 +570,10 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   while [ $Elements -gt 0 ]  
   do
     Remaining=""
-    local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose <Cancel> to finish partitioning."
-    listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
+    local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose <Done> to finish partitioning."
+    listgen2 "$PartitionList" "Partitions" "Done" "PartitionArray"
     Response=$?
-    if [ $Response -gt 0 ]; then # ie: <Cancel>
+    if [ $Response -gt 0 ]; then # ie: <Done>
       Elements=0
       break
     else
