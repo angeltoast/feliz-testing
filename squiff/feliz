@@ -221,7 +221,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 30
+        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
@@ -243,7 +243,7 @@ if [ $Scope != "Basic" ]; then
           DisplayProgress "Installing KDE applications package" 210
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 30
+        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 20
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
@@ -260,7 +260,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 30
+        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
