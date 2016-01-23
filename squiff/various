@@ -17,7 +17,6 @@
 # MakePartitionList     76       SetRootPassword      197
 # arch_chroot           89       SetUserPassword      224
       
-
 PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
   clear
   Component="$1"
@@ -175,29 +174,28 @@ MountPartitions() {
 
 InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 60
-  pacstrap /mnt base-devel bash &>> feliz.log  # my time = 60 seconds
+  pacstrap /mnt base-devel bash &>> feliz.log  # my time to here is 68 seconds
   StopCounter=$(date +%s)                      # Stop
-  Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds (mine is 68)
+  Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference / 68 ))               # Refine timing factor
 
   DisplayProgress "Installing cli tools" 20
-  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log                 # My time = 21 seconds
-  StopCounter=$(date +%s)                      # Stop
-  Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds (mine is 89)
+  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log                   # My time to here is 89 seconds
+  StopCounter=$(date +%s)                        # Stop
+  Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference / 89 ))                 # Refine timing factor
 
   DisplayProgress "Installing extra tools" 50
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
-  arch_chroot "systemctl enable sshd.service" >/dev/null # My time = 54 seconds
+  arch_chroot "systemctl enable sshd.service" >/dev/null # My time to here is 143 seconds
   StopCounter=$(date +%s)                                # Stop
-  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds (mine is 143)
+  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
   Factor=$(( $Difference / 143 ))                        # Refine timing factor
 
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 60
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-      PrintOne "Installing virtualbox guest modules"
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
@@ -210,11 +208,11 @@ InstallKernel() {
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
-  esac # My time = 62 seconds
+  esac                                                   # My time to here is 205 seconds
   StopCounter=$(date +%s)                                # Stop
-  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds (mine is 205)
+  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
   Factor=$(( $Difference / 205 ))                        # Refine timing factor
-# Factoring calculations end here (at present)
+# Factoring calculations end here (at present) ..................................................
   PrintOne "Installing opensource video drivers" "" 30
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }

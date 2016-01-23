@@ -95,14 +95,14 @@ FinalCheck
 # No further user intervention from here
 #
 
-StartCounter=$(date +%s) # Start counter to determine timing factor
+StartCounter=$(date +%s) # Start separate timing counter to determine user factor
 MountPartitions
 
 ReflectorMirrorList
-                         # My factor to here = 8 seconds
-StopCounter=$(date +%s)  # Stop counter for user time
-Difference=$(( $StopCounter - $StartCounter )) # Actual user time in seconds
-Factor=$(( $Difference / 8 )) # Actual / my factor = timing factor
+
+StopCounter=$(date +%s)                        # Stop counter for user time
+Difference=$(( $StopCounter - $StartCounter )) # User time in seconds
+Factor=$(( $Difference / 8 ))                  # User / my time = timing factor
 
 InstallKernel
 
@@ -121,10 +121,6 @@ if [ ${SwapFile} ]; then
   swapon /mnt/swapfile >/dev/null &>> feliz.log
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab &>> feliz.log
 fi
-                         #
-StopCounter=$(date +%s)  # Stop
-Difference=$(( $StopCounter-$StartCounter )) # Actual time in seconds
-read -p "fstab and swapfile $Difference seconds"
 
 PrintOne "Setting hostname" "" 37
 echo ${HostName} > /mnt/etc/hostname &>> feliz.log
