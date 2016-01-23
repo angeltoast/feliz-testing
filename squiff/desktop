@@ -134,7 +134,7 @@ do
     ;;
     "Multimedia") listgen2 "$Multimedia" "Multimedia" "Done" "LongMulti"
     ;;
-    "Office") listgen2 "$Office" "Office" "" "LongOffice"
+    "Office") listgen2 "$Office" "Office" "Done" "LongOffice"
     ;;
     "Programming") listgen2 "$Programming" "Programming" "Done" "LongProg"
     ;;
