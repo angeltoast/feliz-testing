@@ -21,7 +21,7 @@ PrintOne() {  # Arguments: "Component" "Patient"
   clear
   Component="$1"
   Patient="$2"
-  dialog --backtitle "Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
@@ -46,7 +46,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   done
   ) |
 
-  dialog --backtitle "Backtitle" --title " - Information - " --gauge "" 7 60 0 &
+  dialog --backtitle "$Backtitle" --title " - Information - " --gauge "" 7 60 0 &
 }
 
 SetKernel() {
@@ -113,7 +113,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" &>> feliz.log
   ;;
-  *) PrintOne "Preparing /root partition" ""
+  *) PrintOne "Preparing and mounting partitions" ""
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
@@ -130,12 +130,10 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  PrintOne "Mounting /root partition"	""
   mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a &>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      PrintOne "Making /swap partition" ""
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
@@ -143,13 +141,11 @@ MountPartitions() {
       fi
       mkswap ${Label} ${SwapPartition} &>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
-    PrintOne "Activating /swap" "" 7
     swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
   fi
   local Counter=0
   for id in ${AddPartList}
   do
-    PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}" ""
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
