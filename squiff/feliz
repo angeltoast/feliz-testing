@@ -203,7 +203,7 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 50
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 110
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
@@ -256,7 +256,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 40
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 110
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
@@ -279,21 +279,21 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-          PrintOne "Modifying pacman.conf and installing Yaourt" "Almost there"
+          PrintOne "Adding your extra items" "Modifying pacman.conf and installing Yaourt"
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system
           cp pacman.conf /etc &>> feliz.log # For installer
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins"
+        "cairo-dock") PrintOne "Adding your extra items" "Installing $i and cairo-dock-plug-ins"
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
-        "conky") PrintOne "Installing $i"
+        "conky") PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
         ;;
-        *) PrintOne "Installing $i" "Finishing off"
+        *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
       esac
     done
