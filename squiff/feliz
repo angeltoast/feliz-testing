@@ -110,11 +110,11 @@ InstallKernel
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
-PrintOne "Generating fstab" "" 35
+PrintOne "Generating fstab" ""
 
 genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
 if [ ${SwapFile} ]; then
-  PrintOne "Making /swapfile" "" 36
+  PrintOne "Making /swapfile" ""
   fallocate -l ${SwapFile} /mnt/swapfile >/dev/null &>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null &>> feliz.log
   mkswap /mnt/swapfile >/dev/null &>> feliz.log
@@ -122,32 +122,32 @@ if [ ${SwapFile} ]; then
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab &>> feliz.log
 fi
 
-PrintOne "Setting hostname" "" 37
+PrintOne "Setting hostname" ""
 echo ${HostName} > /mnt/etc/hostname &>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
 
 # Set up locale, etc
-PrintOne "Preparing locale.gen" "" 38
+PrintOne "Preparing locale.gen" ""
 echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen &>> feliz.log # eg: en_US.UTF-8 UTF-8
 arch_chroot "locale-gen"
-PrintOne "Preparing locale.conf" "" 39
+PrintOne "Preparing locale.conf" ""
 echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf &>> feliz.log # eg: LANG=en_US.UTF-8
 export "LANG=${CountryLocale}" &>> feliz.log # eg: LANG=en_US.UTF-8
-PrintOne "Setting clock" "" 40
+PrintOne "Setting clock" ""
 arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 
 if [ $Scope != "Basic" ]; then
-  PrintOne "Enabling dhcpcd" "" 41
+  PrintOne "Enabling dhcpcd" ""
   arch_chroot "systemctl enable dhcpcd.service"
-  PrintOne "Installing and configuring network services" "" 42
+  PrintOne "Installing and configuring network services" ""
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
-  PrintOne "Installing Grub to $GrubDevice" "" 43
+  DisplayProgress "Installing Grub to $GrubDevice" 15
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -158,7 +158,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-PrintOne "Running mkinitcpio" "Please be patient" 50
+DisplayProgress "Running mkinitcpio" 20
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -173,10 +173,10 @@ if [ $Scope != "Basic" ]; then
   CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}` &>> feliz.log
   # If not already exist, create user
   if [ -z ${CheckUsers} ]; then
-    PrintOne "Adding user ${UserName} ... " "" 55
+    PrintOne "Adding user ${UserName} ... " ""
     arch_chroot "useradd ${UserName} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user
-    PrintOne "Setting up user configuration" "" 57
+    PrintOne "Setting up user configuration" ""
     arch_chroot "cp /etc/skel/.bashrc /home/${UserName}"
     arch_chroot "chown -R ${UserName}:users /home/${UserName}"
     sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers &>> feliz.log
@@ -185,12 +185,12 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  PrintOne "Adding Flash and other Multimedia Codecs" "Please be patient" 60
+  DisplayProgress "Adding Flash and other Multimedia Codecs" 30
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
-  PrintOne "Installing wireless tools" "" 65
+  PrintOne "Installing wireless tools" ""
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log
-  PrintOne "Installing X, graphics, etc" "" 70
+  DisplayProgress "Installing X, graphics, etc" 10
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
@@ -203,11 +203,11 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") PrintOne "Installing 'Cinnamon' Desktop Environment" "Please be patient" 75
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 30
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
-        "Deepin") PrintOne "Installing Deepin Desktop Environment" "Please be patient" 75
+        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             pacstrap /mnt lightdm deepin-session-ui &>> feliz.log
@@ -217,15 +217,15 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "Enlightenment") PrintOne "Installing 'Enlightenment' Desktop Environment" "Please be patient" 75
+        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 30
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
           ;;
-        "Fluxbox") PrintOne "Installing 'Fluxbox' Window Manager" "Please be patient" 75
+        "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 30
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") PrintOne "Installing 'Gnome' Desktop Environment" "Please be patient" 75
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 30
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
@@ -233,17 +233,17 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "KDE") PrintOne "Installing KDE Plasma meta package" "Please be patient" 75
+        "KDE") DisplayProgress "Installing KDE Plasma meta package" 30
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
           else
             InstallDM
           fi
-          PrintOne "Installing KDE applications package"
+          DisplayProgress "Installing KDE applications package" 10
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
-        "LXDE") PrintOne "Installing 'LXDE' Desktop Environment" "Please be patient" 75
+        "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 30
           pacstrap /mnt lxde gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
@@ -252,26 +252,26 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "LXQt") PrintOne "Installing 'LXQt' Desktop Environment" "Please be patient" 75
+        "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 30
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") PrintOne "Installing 'Mate' Desktop Environment" "Please be patient" 75
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 30
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
-        "Openbox") PrintOne "Installing 'Openbox' Window Manager" "Please be patient" 75
+        "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 30
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") PrintOne "Installing 'Xfce' Desktop Environment" "Please be patient" 75
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;
         *) continue # Ignore others on this pass
       esac
     done
-    PrintOne "Finished installing desktop environment(s)" "Nearly finished" 90
+    PrintOne "Finished installing desktop environment(s)" "Nearly done"
   # ... then install the others
     for i in ${LuxuriesList}
     do
@@ -279,21 +279,21 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "gnome-shell" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
           ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-          PrintOne "Modifying pacman.conf and installing Yaourt" "" 96
+          PrintOne "Modifying pacman.conf and installing Yaourt" "Almost there"
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system
           cp pacman.conf /etc &>> feliz.log # For installer
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" "" 97
+        "cairo-dock") PrintOne "Installing $i and cairo-dock-plug-ins" ""
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
-        "conky") PrintOne "Installing $i" "" 98
+        "conky") PrintOne "Installing $i" ""
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
         ;;
-        *) PrintOne "Installing $i" "" 99
+        *) PrintOne "Installing $i" "Finishing off"
           pacstrap /mnt $i &>> feliz.log
       esac
     done

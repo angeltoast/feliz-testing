@@ -29,6 +29,9 @@ PrintOne() {  # Arguments: "Component" "Patient" PercentProgress
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
+  if [ $Factor -lt 1 ]; then
+    Factor=1
+  fi
   local Message="$1"
   local Duration=$2
   local Sleep=$(( $Duration / 10 ))
@@ -114,7 +117,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" &>> feliz.log
   ;;
-  *) PrintOne "Preparing /root partition" "" 5
+  *) PrintOne "Preparing /root partition" ""
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
@@ -131,12 +134,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  PrintOne "Mounting /root partition"	"" 6
+  PrintOne "Mounting /root partition"	""
   mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a &>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      PrintOne "Making /swap partition" "" 7
+      PrintOne "Making /swap partition" ""
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
@@ -150,7 +153,7 @@ MountPartitions() {
   local Counter=0
   for id in ${AddPartList}
   do
-    PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}" "" 8
+    PrintOne "Mounting ${id} as ${AddPartMount[$Counter]}" ""
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log	# eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
@@ -221,7 +224,7 @@ InstallDM() { # Called from feliz when installing desktop environment
   case ${DisplayManager} in
     "") echo "Not installing a Display Manager" >> feliz.log
     ;;
-    *) PrintOne "Installing ${DisplayManager} Display Manager" "" 90
+    *) echo "Installing ${DisplayManager} Display Manager" >> feliz.log
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
