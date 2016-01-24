@@ -158,7 +158,7 @@ if [ $Kernel = "1" ]; then
 else
   arch_chroot "mkinitcpio -p linux"
 fi
-
+Progress # Check finish time and compensate if necessary
 # Set keyboard to selected language at next startup
 echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf &>> feliz.log
 
@@ -185,11 +185,9 @@ if [ $Scope != "Basic" ]; then
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
-
+  Progress # Check finish time and compensate if necessary
+  
   # Install desktop environments, window managers and display managers
-  # TestExistingDM # First clear any previously installed DM before installing DE
-  # # Code change - instead of trying to detect and clear existing DM, I am testing
-  # # the -f (force) option in systemctl enable
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
@@ -197,6 +195,7 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 95
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 25
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
@@ -207,14 +206,17 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Progress # Check finish time and compensate if necessary
           ;;
         "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 25
           InstallDM
           pacstrap /mnt enlightenment &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 15
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 95
           pacstrap /mnt gnome gedit &>> feliz.log
@@ -223,6 +225,7 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Progress # Check finish time and compensate if necessary
           ;;
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 75
           pacstrap /mnt plasma-meta &>> feliz.log
@@ -231,8 +234,10 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Progress # Check finish time and compensate if necessary
           DisplayProgress "Installing KDE applications package" 185
           pacstrap /mnt kde-applications &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 15
           pacstrap /mnt lxde gedit &>> feliz.log
@@ -242,22 +247,27 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Progress # Check finish time and compensate if necessary
           ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 15
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 95
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 15
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 35
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
+          Progress # Check finish time and compensate if necessary
           ;;
         *) continue # Ignore others on this pass
       esac

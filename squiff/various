@@ -23,9 +23,20 @@ PrintOne() {  # Arguments: "Component" "Patient"
   dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
+Progress() {
+ Timer2=$(date +%s)
+ local Diff=$(( $Timer2 - $Timer1 ))
+ if [ $Diff -lt $Estimate ]; then
+  read -p "$(( $Estimate - $Diff ))"
+  sleep $(( $Estimate - $Diff ))
+ fi
+}
+
 DisplayProgress() { # Revised code for displaying progress for longer processes
+  Estimate=$2
+  Timer1=$(date +%s)
   local Message="$1\nThis may take some time, depending on your system ..."
-  local Duration=$(( $2 + $Factor ))
+  local Duration=$(( $Estimate + $Factor ))
   local Sleep=$(( $Duration / 10 ))
   local Percent=10
 
@@ -168,20 +179,17 @@ InstallKernel() {
   StopCounter=$(date +%s)                      # Stop
   Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference - 66 ))               # Refine timing factor
-
-  DisplayProgress "Installing cli tools" 25
-  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log                   # My time to here is 89 seconds
-  StopCounter=$(date +%s)                        # Stop
-  Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds
-  Factor=$(( $Difference - 86 ))                 # Refine timing factor
-
-  DisplayProgress "Installing extra tools" 50
+  Progress # Check finish time and compensate if necessary
+  
+  DisplayProgress "Installing cli tools" 75
+  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null # My time to here is 143 seconds
   StopCounter=$(date +%s)                                # Stop
   Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
   Factor=$(( $Difference - 139 ))                        # Refine timing factor
-
+  Progress # Check finish time and compensate if necessary
+  
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 55
     pacstrap /mnt linux-lts &>> feliz.log
@@ -202,7 +210,10 @@ InstallKernel() {
   StopCounter=$(date +%s)                                # Stop
   Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
   Factor=$(( $Difference - 200 ))                        # Refine timing factor
+  Progress # Check finish time and compensate if necessary
+  
 # Factoring calculations end here (at present) ..................................................
+
   PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
