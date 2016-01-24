@@ -143,7 +143,7 @@ if [ $Scope != "Basic" ]; then
 fi
 
 if [ ${GrubDevice} ]; then
-  DisplayProgress "Installing Grub to $GrubDevice" 15
+  DisplayProgress "Installing Grub to $GrubDevice" 10
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -154,7 +154,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-DisplayProgress "Running mkinitcpio" 15
+DisplayProgress "Running mkinitcpio" 10
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -180,12 +180,10 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  DisplayProgress "Adding Flash and other Multimedia Codecs" 25
+  DisplayProgress "Adding Codecs, X, graphics, etc" 25
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
-  PrintOne "Installing wireless tools" ""
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log
-  DisplayProgress "Installing X, graphics, etc" 10
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
@@ -198,7 +196,7 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 105
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 95
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
@@ -220,7 +218,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
-        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 105
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 95
           pacstrap /mnt gnome gedit &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
@@ -228,14 +226,14 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
           ;;
-        "KDE") DisplayProgress "Installing KDE Plasma meta package" 85
+        "KDE") DisplayProgress "Installing KDE Plasma meta package" 75
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
           else
             InstallDM
           fi
-          DisplayProgress "Installing KDE applications package" 205
+          DisplayProgress "Installing KDE applications package" 185
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 15
@@ -251,7 +249,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
           ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 105
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 95
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           ;;
@@ -259,7 +257,7 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt openbox xterm &>> feliz.log
           ;;
-        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 45
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 35
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
           ;;

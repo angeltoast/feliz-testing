@@ -165,19 +165,19 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel and bash" 55
+  DisplayProgress "Installing base-devel and bash" 65
   pacstrap /mnt base-devel bash &>> feliz.log  # my time to here is 68 seconds
   StopCounter=$(date +%s)                      # Stop
   Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference - 66 ))               # Refine timing factor
 
-  DisplayProgress "Installing cli tools" 15
+  DisplayProgress "Installing cli tools" 25
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log                   # My time to here is 89 seconds
   StopCounter=$(date +%s)                        # Stop
   Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference - 86 ))                 # Refine timing factor
 
-  DisplayProgress "Installing extra tools" 45
+  DisplayProgress "Installing extra tools" 55
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null # My time to here is 143 seconds
   StopCounter=$(date +%s)                                # Stop
@@ -205,7 +205,7 @@ InstallKernel() {
   Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
   Factor=$(( $Difference - 200 ))                        # Refine timing factor
 # Factoring calculations end here (at present) ..................................................
-  PrintOne "Installing opensource video drivers" "" 25
+  PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
 
