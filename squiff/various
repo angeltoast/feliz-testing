@@ -20,23 +20,15 @@
 PrintOne() {  # Arguments: "Component" "Patient"
   Component="$1"
   Patient="$2"
+  clear
   dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
-}
-
-Progress() { # Ensure that next process does not start before gauge has finished
-  Timer2=$(date +%s)
-  Factor=$(( $Timer2 - $Timer1 - $Estimate ))
-  if [ $Factor -gt 1 ]; then # ie: next process starts before gauge finishes
-    sleep $(( $Estimate - $Actual ))
-  fi
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
-  Timer1=$(date +%s)
-  local Message="$1 Factor = $Factor\nThis may take some time, depending on your system ..."
-  local Duration=$(( $Estimate + $Factor ))
-  local Sleep=$(( $Duration / 10 ))
+  clear
+  local Message="$1\nThis may take some time, depending on your system ..."
+  local Sleep=$(( $Estimate / 10 ))
   local Percent=10
 
   (
@@ -175,13 +167,11 @@ MountPartitions() {
 InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 63
   pacstrap /mnt base-devel bash &>> feliz.log  
-  Progress # Check finish time and compensate if necessary
   
   DisplayProgress "Installing cli tools" 75
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null 
-  Progress # Check finish time and compensate if necessary
   
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 55
@@ -200,7 +190,6 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   esac                                                   
-  Progress # Check finish time and compensate if necessary
   
   PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
