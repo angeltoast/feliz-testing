@@ -26,7 +26,9 @@ PrintOne() {  # Arguments: "Component" "Patient"
 Progress() { # Ensure that next process does not start before gauge has finished
   Timer2=$(date +%s)
   local Actual=$(( $Timer2 - $Timer1 ))
-echo "Actual $Actual"
+  
+  read -p "Factor = $Factor : Actual = $Actual"
+  
 #  if [ $Actual -lt $Estimate ]; then # ie: next process starts before gauge finishes
 #    read -p "Estimate exceeds Actual by $(( $Estimate - $Actual )) seconds"
 #    sleep $(( $Estimate - $Actual ))
@@ -35,7 +37,6 @@ echo "Actual $Actual"
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
-  read -p "Factor $Factor"
   Timer1=$(date +%s)
   local Message="$1\nThis may take some time, depending on your system ..."
   local Duration=$(( $Estimate + $Factor ))
@@ -176,7 +177,7 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel and bash" 65
+  DisplayProgress "Installing base-devel and bash" 63
   pacstrap /mnt base-devel bash &>> feliz.log  # my time to here is 68 seconds
   StopCounter=$(date +%s)                      # Stop
   Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds
