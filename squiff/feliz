@@ -100,7 +100,7 @@ MountPartitions
 
 ReflectorMirrorList
 
-StopCounter=$(date +%s)                        # Stop counter for user time
+StopCounter=$(date +%s)                        # Stop counter for first user time
 Difference=$(( $StopCounter - $StartCounter )) # User time in seconds
 Factor=$(( $Difference - 7 ))                  # User time - my time = timing factor
 
@@ -111,10 +111,8 @@ InstallKernel
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
 PrintOne "Generating fstab" ""
-
 genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
 if [ ${SwapFile} ]; then
-  PrintOne "Making /swapfile" ""
   fallocate -l ${SwapFile} /mnt/swapfile >/dev/null &>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null &>> feliz.log
   mkswap /mnt/swapfile >/dev/null &>> feliz.log
@@ -154,7 +152,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-DisplayProgress "Running mkinitcpio" 10
+DisplayProgress "Running mkinitcpio" 15
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -180,7 +178,7 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  DisplayProgress "Adding Codecs, X, graphics, etc" 25
+  DisplayProgress "Adding Codecs, X, graphics, etc" 30
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin &>> feliz.log
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware &>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu &>> feliz.log

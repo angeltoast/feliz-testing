@@ -18,14 +18,12 @@
 # arch_chroot           89       SetUserPassword      224
       
 PrintOne() {  # Arguments: "Component" "Patient"
-  dialog --clear
   Component="$1"
   Patient="$2"
   dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
-  dialog --clear
   local Message="$1\nThis may take some time, depending on your system ..."
   local Duration=$(( $2 + $Factor ))
   local Sleep=$(( $Duration / 10 ))
@@ -177,7 +175,7 @@ InstallKernel() {
   Difference=$(( $StopCounter - $StartCounter )) # User total time to here in seconds
   Factor=$(( $Difference - 86 ))                 # Refine timing factor
 
-  DisplayProgress "Installing extra tools" 55
+  DisplayProgress "Installing extra tools" 50
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null # My time to here is 143 seconds
   StopCounter=$(date +%s)                                # Stop
