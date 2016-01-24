@@ -25,10 +25,12 @@ PrintOne() {  # Arguments: "Component" "Patient"
 
 Progress() {
  Timer2=$(date +%s)
- local Diff=$(( $Timer2 - $Timer1 ))
- if [ $Diff -lt $Estimate ]; then
-  read -p "$(( $Estimate - $Diff ))"
-  sleep $(( $Estimate - $Diff ))
+ local Actual=$(( $Timer2 - $Timer1 ))
+ if [ $Actual -lt $Estimate ]; then
+  read -p "Reduce estimate by $(( $Estimate - $Actual )) seconds"
+  sleep $(( $Estimate - $Actual ))
+ elif [ $Actual -gt $Estimate ]; then
+  read -p "Increase estimate by $(( $Estimate - $Actual )) seconds"
  fi
 }
 
