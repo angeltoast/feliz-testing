@@ -25,8 +25,8 @@ PrintOne() {  # Arguments: "Component" "Patient"
 
 Progress() { # Ensure that next process does not start before gauge has finished
   Timer2=$(date +%s)
-  local Actual=$(( $Timer2 - $Timer1 ))
-  if [ $Actual -lt $Estimate ]; then # ie: next process starts before gauge finishes
+  Factor=$(( $Timer2 - $Timer1 - $Estimate ))
+  if [ $Factor -gt 1 ]; then # ie: next process starts before gauge finishes
     sleep $(( $Estimate - $Actual ))
   fi
 }
@@ -174,19 +174,13 @@ MountPartitions() {
 
 InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 63
-  pacstrap /mnt base-devel bash &>> feliz.log  # my time to here is 68 seconds
-  StopCounter=$(date +%s)                      # Stop
-  Difference=$(( $StopCounter-$StartCounter )) # User total time to here in seconds
-  Factor=$(( $Difference - 66 ))               # Refine timing factor
+  pacstrap /mnt base-devel bash &>> feliz.log  
   Progress # Check finish time and compensate if necessary
   
   DisplayProgress "Installing cli tools" 75
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver &>> feliz.log
-  arch_chroot "systemctl enable sshd.service" >/dev/null # My time to here is 143 seconds
-  StopCounter=$(date +%s)                                # Stop
-  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
-  Factor=$(( $Difference - 139 ))                        # Refine timing factor
+  arch_chroot "systemctl enable sshd.service" >/dev/null 
   Progress # Check finish time and compensate if necessary
   
   case $Kernel in
@@ -205,14 +199,9 @@ InstallKernel() {
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
-  esac                                                   # My time to here is 205 seconds
-  StopCounter=$(date +%s)                                # Stop
-  Difference=$(( $StopCounter-$StartCounter ))           # User total time to here in seconds
-  Factor=$(( $Difference - 200 ))                        # Refine timing factor
+  esac                                                   
   Progress # Check finish time and compensate if necessary
   
-# Factoring calculations end here (at present) ..................................................
-
   PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
