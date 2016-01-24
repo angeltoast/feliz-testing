@@ -23,17 +23,19 @@ PrintOne() {  # Arguments: "Component" "Patient"
   dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
-Progress() {
+Progress() { # Ensure that next process does not start before gauge has finished
   Timer2=$(date +%s)
   local Actual=$(( $Timer2 - $Timer1 ))
-  if [ $Actual -lt $Estimate ]; then
-    read -p "Estimate exceeds Actual by $(( $Estimate - $Actual )) seconds"
-    sleep $(( $Estimate - $Actual ))
-  fi
+read -p "Actual $Actual"
+#  if [ $Actual -lt $Estimate ]; then # ie: next process starts before gauge finishes
+#    read -p "Estimate exceeds Actual by $(( $Estimate - $Actual )) seconds"
+#    sleep $(( $Estimate - $Actual ))
+#  fi
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
+  read -p "Factor $Factor"
   Timer1=$(date +%s)
   local Message="$1\nThis may take some time, depending on your system ..."
   local Duration=$(( $Estimate + $Factor ))
