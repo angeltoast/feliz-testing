@@ -202,7 +202,7 @@ if [ $Scope != "Basic" ]; then
           ;;
         "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 25
           InstallDM
-          pacstrap /mnt enlightenment &>> feliz.log
+          pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
           ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 15
           InstallDM

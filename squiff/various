@@ -27,7 +27,7 @@ PrintOne() {  # Arguments: "Component" "Patient"
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
   clear
-  local Message="$1\nThis may take some time, depending on your system ..."
+  local Message="$1\n"
   local Sleep=$(( $Estimate / 10 ))
   local Percent=10
 
@@ -36,14 +36,14 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "$Message"
+    echo "\n  $Message"
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
   ) |
 
-  dialog --backtitle "$Backtitle" --title " - Information - " --gauge "" 7 60 0 &
+  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "" 7 60 0 &
 }
 
 SetKernel() {
