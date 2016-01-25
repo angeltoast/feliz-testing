@@ -13,12 +13,12 @@
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
-# Internet connection   87       umount_partitions    274
-# Mirrorlist           131       MountPartitions      283
-# SetScope             159       InstallKernel        342
-# SetKernel            193       TestExistingDM       336
-# ConfirmVbox          206       SetRootPassword      365
-# MakePartitionList    229       SetUserPassword      394
+# Internet connection   87       MountPartitions      283
+# Mirrorlist           131       InstallKernel        342
+# SetScope             159       TestExistingDM       336
+# SetKernel            193       SetRootPassword      365
+# ConfirmVbox          206       SetUserPassword      394
+# MakePartitionList    229       
 
 print_heading() {
   clear

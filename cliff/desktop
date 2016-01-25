@@ -327,7 +327,8 @@ do
     if [ ${lux} = ${Result} ]; then
       read_timed "Already in your shopping list"
       AddToList="N"
-      continue
+      Result=""
+      break
     fi
   done
   # Then carry out any specific tests and add the item to the list
@@ -348,7 +349,7 @@ do
         ChooseDM
       ;;
     "Deepin") DesktopEnvironment="Deepin"
-             AddDEextras "xfce4-goodies"
+           AddDEextras "deepin-extra"
         case $Response in
           0) DDEextras="deepin-extra"
            ;;
@@ -394,6 +395,8 @@ do
            *) GoodiesXfce=""
          esac
          ChooseDM
+      ;;
+      "") continue
       ;;
      *) echo	
  		esac

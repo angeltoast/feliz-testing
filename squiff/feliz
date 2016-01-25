@@ -186,7 +186,7 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 95
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 85
           InstallDM
           pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
           ;;
