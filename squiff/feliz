@@ -186,9 +186,9 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 85
+        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 60
           InstallDM
-          pacstrap /mnt cinnamon gnome-terminal &>> feliz.log
+          pacstrap /mnt cinnamon &>> feliz.log
           ;;
         "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 25
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
@@ -209,7 +209,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt fluxbox &>> feliz.log
           ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 95
-          pacstrap /mnt gnome gedit &>> feliz.log
+          pacstrap /mnt gnome &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
           else
@@ -227,7 +227,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt kde-applications &>> feliz.log
           ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 15
-          pacstrap /mnt lxde gedit &>> feliz.log
+          pacstrap /mnt lxde &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf &>> feliz.log
@@ -237,7 +237,7 @@ if [ $Scope != "Basic" ]; then
           ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 15
           InstallDM
-          pacstrap /mnt lxqt xterm oxygen-icons &>> feliz.log
+          pacstrap /mnt lxqt oxygen-icons &>> feliz.log
           ;;
         "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 95
           InstallDM
@@ -245,7 +245,7 @@ if [ $Scope != "Basic" ]; then
           ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 15
           InstallDM
-          pacstrap /mnt openbox xterm &>> feliz.log
+          pacstrap /mnt openbox &>> feliz.log
           ;;
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 35
           InstallDM
