@@ -44,7 +44,6 @@ setlocale() {
   CountryCode=(`cat output.file | cut -c4-5`)
 }
 
-
 SetTimeZone() {
   Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
   passzones=""
