@@ -30,9 +30,10 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   local Message="$1\n"
   local Sleep=$(( $Estimate / 10 ))
   local Percent=0
+  Feedback=0
 
   (
-  until [ $Percent -eq 100 ]
+  until [ $Feedback -gt 0 ] || [ $Percent -gt 100 ]
   do
     echo "XXX"
     echo $Percent
@@ -167,11 +168,13 @@ MountPartitions() {
 InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 63
   pacstrap /mnt base-devel bash &>> feliz.log  
+  Feedback=1
   
   DisplayProgress "Installing cli tools and extras" 75
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm &>> feliz.log
-  arch_chroot "systemctl enable sshd.service" >/dev/null 
+  arch_chroot "systemctl enable sshd.service" >/dev/null
+  Feedback=1
   
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 55
@@ -190,6 +193,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   esac                                                   
+  Feedback=1
   
   PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers

@@ -43,6 +43,7 @@ Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
 Passed=$Backtitle
 StartTime=$(date +%s)
 echo $StartTime > feliz.log
+Feedback=0
 
 # Check partition table & offer options
 CheckParts
@@ -143,6 +144,7 @@ if [ ${GrubDevice} ]; then
   fi
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+  Feedback=1
 else
   echo "Not installing Grub" >> feliz.log
 fi
@@ -153,6 +155,7 @@ if [ $Kernel = "1" ]; then
 else
   arch_chroot "mkinitcpio -p linux"
 fi
+Feedback=1
 
 # Set keyboard to selected language at next startup
 echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf &>> feliz.log
@@ -180,6 +183,7 @@ if [ $Scope != "Basic" ]; then
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm &>> feliz.log
   pacstrap /mnt xf86-input-synaptics &>> feliz.log
   pacstrap /mnt gvfs gamin &>> feliz.log
+  Feedback=1
   
   # Install desktop environments, window managers and display managers
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
@@ -189,6 +193,7 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 60
           InstallDM
           pacstrap /mnt cinnamon &>> feliz.log
+          Feedback=1
           ;;
         "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 25
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
@@ -199,14 +204,17 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Feedback=1
           ;;
         "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 25
           InstallDM
           pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
+          Feedback=1
           ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 15
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
+          Feedback=1
           ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 95
           pacstrap /mnt gnome &>> feliz.log
@@ -215,6 +223,7 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Feedback=1
           ;;
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 75
           pacstrap /mnt plasma-meta &>> feliz.log
@@ -225,6 +234,7 @@ if [ $Scope != "Basic" ]; then
           fi
           DisplayProgress "Installing KDE applications package" 185
           pacstrap /mnt kde-applications &>> feliz.log
+          Feedback=1
           ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 15
           pacstrap /mnt lxde &>> feliz.log
@@ -234,22 +244,27 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
+          Feedback=1
           ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 15
           InstallDM
           pacstrap /mnt lxqt oxygen-icons &>> feliz.log
+          Feedback=1
           ;;
         "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 95
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
+          Feedback=1
           ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 15
           InstallDM
           pacstrap /mnt openbox &>> feliz.log
+          Feedback=1
           ;;
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 35
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
+          Feedback=1
           ;;
         *) continue # Ignore others on this pass
       esac
