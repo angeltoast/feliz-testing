@@ -30,21 +30,21 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   local Message="$1\n"
   local Sleep=$(( $Estimate / 10 ))
   local Percent=0
-  Feedback=0
 
   (
-  until [ $Feedback -gt 0 ] || [ $Percent -gt 100 ]
+  until [ $Percent -gt 100 ]
   do
-    echo "XXX"
     echo $Percent
-    echo "\n  $Message"
-    echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
+  echo "XXX"
+  echo "Processing may continue after the gauge\n  says 100%. Please be patient ..."
+  echo "XXX"
+  
   ) |
 
-  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "" 7 60 0 &
+  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "\n  $Message" 7 60 0 &
 }
 
 SetKernel() {
@@ -166,18 +166,16 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel and bash" 63
+  DisplayProgress "Installing base-devel and bash" 60
   pacstrap /mnt base-devel bash &>> feliz.log  
-  Feedback=1
   
-  DisplayProgress "Installing cli tools and extras" 75
+  DisplayProgress "Installing cli tools and extras" 70
   pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
   pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm &>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
-  Feedback=1
   
   case $Kernel in
-  1) DisplayProgress "Installing LTS kernel" 55
+  1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
@@ -185,7 +183,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) DisplayProgress "Installing Latest kernel" 55
+  *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
@@ -193,7 +191,6 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   esac                                                   
-  Feedback=1
   
   PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
