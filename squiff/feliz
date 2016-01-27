@@ -171,9 +171,9 @@ if [ $Scope != "Basic" ]; then
   fi
   # Various bits
   pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  Title="Adding Codecs, X, graphics, etc"
-  PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin &>> feliz.log )
-  ProgressArray # Function to use pacstrap while displaying progress
+  PassArray=()
+  PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
+  ProgressArray "Adding Codecs, X, graphics, etc" # Display gauge while inslatting with pacstrap
   
   # Install desktop environments, window managers and display managers
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
@@ -183,7 +183,7 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 60
           InstallDM
           pacstrap /mnt cinnamon &>> feliz.log
-          ;;
+        ;;
         "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
@@ -193,15 +193,15 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
-          ;;
+        ;;
         "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 30
           InstallDM
           pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
-          ;;
+        ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
           InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
-          ;;
+        ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 90
           pacstrap /mnt gnome &>> feliz.log
           if [ -z ${DisplayManager} ]; then
@@ -209,7 +209,7 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
-          ;;
+        ;;
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 70
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
@@ -219,7 +219,7 @@ if [ $Scope != "Basic" ]; then
           fi
           DisplayProgress "Installing KDE applications package" 120
           pacstrap /mnt kde-applications &>> feliz.log
-          ;;
+        ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 20
           pacstrap /mnt lxde &>> feliz.log
           if [ -z ${DisplayManager} ]; then
@@ -228,23 +228,23 @@ if [ $Scope != "Basic" ]; then
           else
             InstallDM
           fi
-          ;;
+        ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 20
           InstallDM
           pacstrap /mnt lxqt oxygen-icons &>> feliz.log
-          ;;
+        ;;
         "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 90
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
-          ;;
+        ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
           pacstrap /mnt openbox &>> feliz.log
-          ;;
+        ;;
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 40
           InstallDM
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
-          ;;
+        ;;
         *) continue # Ignore others on this pass
       esac
     done
@@ -254,7 +254,7 @@ if [ $Scope != "Basic" ]; then
     do
       case $i in
         "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
-          ;;
+        ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
           PrintOne "Adding your extra items" "Modifying pacman.conf and installing Yaourt"
           cp pacman.conf /mnt/etc &>> feliz.log # For installed system

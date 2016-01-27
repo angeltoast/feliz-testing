@@ -34,7 +34,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "\n  $Message"
+    echo "\n  $Message\n  Progress may continue after gauge shows 100%\n  Please be patient ..."
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
@@ -45,7 +45,8 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
 }
 
 ProgressArray() {
-# Trying this for installing multiple programs to be installed  by pacstrap
+# For displaying gauge when multiple programs to be installed by pacstrap
+  Title=" $1 "
   # Receives PassArray comprising all the programs
   # 1) Count items in the array
   n=${#PassArray[*]}; 
@@ -194,9 +195,9 @@ InstallKernel() {
 
 # New code test
   # 1) Create an array of all the programs to pass to function
+  PassArray=(  )
   PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm )
-  Title=" Installing cli tools and extras "
-  ProgressArray # Install each one using pacstrap
+  ProgressArray " Installing cli tools and extras " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   

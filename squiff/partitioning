@@ -368,7 +368,7 @@ AllocateRoot() {
       # Now select a filesystem
       if [ ${CurrentType} ]; then
         local Message="$Message\nYou can choose to leave it as it is, by selecting '<None>', but be aware that not reformatting the root partition may have unexpected consequences."
-        FileSystem
+        FileSystem "None"
       else
         local Message="Please now select the file system for ${Partition} ... It is not recommended to mix the btrfs file-system with others.\n"
         FileSystem "None"
@@ -486,7 +486,7 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   #  as updated by AllocateSwap()
   local Elements=0
   AddedToRemaining=0
-  for i in ${PartitionList}
+  for i in ${PartitionList} # Count items in string array
   do
     (( Elements+=1 ))
   done
@@ -509,7 +509,7 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
     do
       Partition=""
       PartitionType=""
-      if [ $Part = $Result ]; then
+      if [ $Part = $Result ]; then # Selected item
         Partition="/dev/$Part"
         MakePartition # Call complete details
         Label="${Labelled[${PassPart}]}"
@@ -543,8 +543,7 @@ MakePartition() { # Called by MorePartitions
     local Message="You can choose to leave it as it is, by selecting 'Done', but not reformatting an existing partition can have unexpected consequences."
   fi
   # 2) Select filesystem
-  TypeList="ext2 ext3 ext4 btrfs" # Set format types for the selected partition
-	FileSystem
+  FileSystem "None"
 	AddPartType[$ExtraPartitions]="${PartitionType}" 	# Add it to AddPartType list  
   # 3) Get a mountpoint
 	LoopRepeat="Y"
