@@ -34,15 +34,13 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
     do
       echo "XXX"
       echo $Percent
-      echo "\n  $Message ..."
+      echo "\n  $Message ...\n  Processing may continue after the gauge\n  reaches 100% ... Please be patient ..."
       echo "XXX"
       Percent=`expr $Percent + 10`
       sleep $Sleep
     done ) |
 
-  dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 8 60 0
-
-  dialog --backtitle "$Backtitle" --title "$Title" --gauge "\n  Processing may continue after the gauge\n  reaches 100% ... Please be patient ..." 8 60 100
+  dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 9 60 0 &
   
 }
 
@@ -190,7 +188,7 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel and bash" 60 &
+  DisplayProgress "Installing base-devel and bash" 60
   pacstrap /mnt base-devel bash &>> feliz.log  
 
 # New code test
@@ -204,7 +202,7 @@ InstallKernel() {
 # End of trial code
 
   case $Kernel in
-  1) DisplayProgress "Installing LTS kernel" 50 &
+  1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
@@ -212,7 +210,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) DisplayProgress "Installing Latest kernel" 50 &
+  *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
