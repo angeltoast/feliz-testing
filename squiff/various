@@ -26,27 +26,49 @@ PrintOne() {  # Arguments: "Component" "Patient"
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
-  clear
-  local Message="$1\n"
+  local Message="$1"
+  local Title=" This may take some time, depending on your system "
   local Sleep=$(( $Estimate / 10 ))
   local Percent=0
+  ( until [ $Percent -gt 100 ]
+    do
+      echo "XXX"
+      echo $Percent
+      echo "\n  $Message ..."
+      echo "XXX"
+      Percent=`expr $Percent + 10`
+      sleep $Sleep
+    done ) |
 
-  (
-  until [ $Percent -gt 100 ]
-  do
-    echo $Percent
-    Percent=`expr $Percent + 10`
-  echo "XXX"
-  echo "\n  $Message ..."
-  echo "XXX"
-  echo "\n  Processing may continue after the gauge\n  says 100%. Please be patient ..."
-  echo "XXX"
-    sleep $Sleep
-  done
+  dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 8 60 0
+
+  dialog --backtitle "$Backtitle" --title "$Title" --gauge "\n  Processing may continue after the gauge\n  reaches 100% ... Please be patient ..." 8 60 100
   
-  ) |
+}
 
-  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "" 8 60 0 &
+ProgressArray() {
+# Trying this for installing multiple programs to be installed  by pacstrap
+  # Receives PassArray comprising all the programs
+  # 1) Count items in the array
+  n=${#PassArray[*]}; 
+  # 2) Redirect dialog commands input using substitution
+  dialog --title "$Title" --gauge "" 8 60 < <(
+  # 3) set counter - it will increase on each parse
+   i=0
+  # 4) read each item from the array 
+  for f in "${PassArray[@]}"
+  do
+    # ... calculate progress
+    PCT=$(( 100*(++i)/n ))
+    # ... update dialog box 
+    echo "XXX"
+    echo "$PCT"
+    echo "Installing $f"
+    echo "XXX"
+    # ... install $f
+    pacstrap /mnt $f &>> feliz.log
+  done ) 
+  
 }
 
 SetKernel() {
@@ -168,16 +190,21 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  DisplayProgress "Installing base-devel and bash" 60
+  DisplayProgress "Installing base-devel and bash" 60 &
   pacstrap /mnt base-devel bash &>> feliz.log  
-  
-  DisplayProgress "Installing cli tools and extras" 70
-  pacstrap /mnt btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs &>> feliz.log 
-  pacstrap /mnt gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm &>> feliz.log
+
+# New code test
+  # 1) Create an array of all the programs to pass to function
+  PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm )
+  Title=" Installing cli tools and extras "
+  ProgressArray # Install each one using pacstrap
+  # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
+# End of trial code
+
   case $Kernel in
-  1) DisplayProgress "Installing LTS kernel" 50
+  1) DisplayProgress "Installing LTS kernel" 50 &
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
@@ -185,7 +212,7 @@ InstallKernel() {
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;  
-  *) DisplayProgress "Installing Latest kernel" 50
+  *) DisplayProgress "Installing Latest kernel" 50 &
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
