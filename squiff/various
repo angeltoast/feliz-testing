@@ -11,9 +11,9 @@
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
 # PrintOne              22       SetGrubDevice         93
-# DisplayProgress       25       MountPartitions      106
-# SetKernel             46       InstallKernel        168
-# ConfirmVbox           58       InstallDM            187
+# DisplayProgress       25       MountPartitions      110
+# SetKernel             46       InstallKernel        175
+# ConfirmVbox           58       InstallDM            190
 # MakePartitionList     76       SetRootPassword      197
 # arch_chroot           89       SetUserPassword      224
       
@@ -36,15 +36,17 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   do
     echo $Percent
     Percent=`expr $Percent + 10`
+  echo "XXX"
+  echo "\n  $Message ..."
+  echo "XXX"
+  echo "\n  Processing may continue after the gauge\n  says 100%. Please be patient ..."
+  echo "XXX"
     sleep $Sleep
   done
-  echo "XXX"
-  echo "Processing may continue after the gauge\n  says 100%. Please be patient ..."
-  echo "XXX"
   
   ) |
 
-  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "\n  $Message" 7 60 0 &
+  dialog --backtitle "$Backtitle" --title " This may take some time, depending on your system " --gauge "" 8 60 0 &
 }
 
 SetKernel() {

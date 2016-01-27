@@ -21,9 +21,7 @@
 # -----------------------      ------------------------
 
 CheckParts() { # First check of available partitions on the system
-Backtitle="If you need guidance, consult the Arch Wiki Beginners' Guide"
-Passed=$Backtitle
-# First test for existing partitions
+  # Test for existing partitions
 	ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
   local Partitions=0
   for i in $ShowPartitions
