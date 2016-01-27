@@ -30,7 +30,8 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   local Title=" This may take some time, depending on your system "
   local Sleep=$(( $Estimate / 10 ))
   local Percent=0
-  ( until [ $Percent -gt 100 ]
+  (
+   until [ $Percent -gt 100 ]
     do
       echo "XXX"
       echo $Percent
@@ -38,7 +39,8 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
       echo "XXX"
       Percent=`expr $Percent + 10`
       sleep $Sleep
-    done ) |
+    done
+  ) |
 
   dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 9 60 0 &
   
@@ -65,7 +67,7 @@ ProgressArray() {
     echo "XXX"
     # ... install $f
     pacstrap /mnt $f &>> feliz.log
-  done ) 
+  done )
   
 }
 
