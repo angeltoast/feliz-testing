@@ -27,21 +27,20 @@ PrintOne() {  # Arguments: "Component" "Patient"
 DisplayProgress() { # Revised code for displaying progress for longer processes
   Estimate=$2
   local Message="$1"
-  local Title=" This may take some time, depending on your system "
   local Sleep=$(( $Estimate / 10 ))
   local Percent=0
+  Feedback=0
   (
-   until [ $Percent -gt 100 ]
-    do
-      echo "XXX"
-      echo $Percent
-      echo "\n  $Message ...\n  Processing may continue after the gauge\n  reaches 100% ... Please be patient ..."
-      echo "XXX"
-      Percent=`expr $Percent + 10`
-      sleep $Sleep
-    done
+  until [ $Feedback -gt 0 ] || [ $Percent -gt 100 ]
+  do
+    echo "XXX"
+    echo $Percent
+    echo "\n  $Message"
+    echo "XXX"
+    Percent=`expr $Percent + 10`
+    sleep $Sleep
+  done
   ) |
-
   dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 9 60 0 &
   
 }
