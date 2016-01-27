@@ -91,9 +91,7 @@ fi
 # Allow user to change any variables
 FinalCheck
 
-#
-# No further user intervention from here
-#
+# No further user intervention from here ..................
 
 MountPartitions
 

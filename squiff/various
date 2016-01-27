@@ -25,13 +25,12 @@ PrintOne() {  # Arguments: "Component" "Patient"
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
-  Estimate=$2
-  local Message="$1"
-  local Sleep=$(( $Estimate / 10 ))
+  Estimate=$2 # Numeric value passed as multiple of 10
+  local Message="$1" # Text passed to appear above progress bar
+  local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time 
   local Percent=0
-  Feedback=0
   (
-  until [ $Feedback -gt 0 ] || [ $Percent -gt 100 ]
+  until [ $Percent -gt 100 ]
   do
     echo "XXX"
     echo $Percent
@@ -191,7 +190,7 @@ MountPartitions() {
 
 InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 60
-  pacstrap /mnt base-devel bash &>> feliz.log  
+  pacstrap /mnt base-devel bash &>> feliz.log 
 
 # New code test
   # 1) Create an array of all the programs to pass to function
