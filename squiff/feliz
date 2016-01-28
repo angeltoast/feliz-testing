@@ -184,12 +184,13 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt cinnamon &>> feliz.log
         ;;
-        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 30
+        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 60
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             pacstrap /mnt lightdm deepin-session-ui &>> feliz.log
             arch_chroot "systemctl -f enable lightdm.service" &>> feliz.log
-            sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf &>> feliz.log 
+          # Disabled lightdm-deepin-greeter code, as Deepin greeter loses user password
+          #  sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf &>> feliz.log 
           else
             InstallDM
           fi

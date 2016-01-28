@@ -10,12 +10,13 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              22       SetGrubDevice         93
-# DisplayProgress       25       MountPartitions      110
-# SetKernel             46       InstallKernel        175
-# ConfirmVbox           58       InstallDM            190
-# MakePartitionList     76       SetRootPassword      197
-# arch_chroot           89       SetUserPassword      224
+# PrintOne              22       SetGrubDevice        108
+# DisplayProgress       25       MountPartitions      125
+# ProgressArray         47
+# SetKernel             61       InstallKernel        190
+# ConfirmVbox           73       InstallDM            190
+# MakePartitionList     91       SetRootPassword      197
+# arch_chroot          104       SetUserPassword      224
       
 PrintOne() {  # Arguments: "Component" "Patient"
   Component="$1"
@@ -34,19 +35,18 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "\n  $Message\n  Progress may continue after gauge shows 100%\n  Please be patient ..."
+    echo "\n  $Message\n  Processing may continue after gauge shows 100%\n  Please be patient ..."
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
   ) |
   dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 9 60 0 &
-  
 }
 
 ProgressArray() {
 # For displaying gauge when multiple programs to be installed by pacstrap
-  Title=" $1 "
+  local Title=" $1 "
   # Receives PassArray comprising all the programs
   # 1) Count items in the array
   n=${#PassArray[*]}; 
@@ -62,13 +62,12 @@ ProgressArray() {
     # ... update dialog box 
     echo "XXX"
     echo "$PCT"
-    echo "Installing $f"
+    echo "\n  Installing $f"
     echo "XXX"
     # ... install $f
     pacstrap /mnt $f &>> feliz.log
   done
   )
-  
 }
 
 SetKernel() {
