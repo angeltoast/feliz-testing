@@ -10,13 +10,13 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              22       SetGrubDevice        108
-# DisplayProgress       25       MountPartitions      125
+# PrintOne              22       SetGrubDevice        128
+# DisplayProgress       25       MountPartitions      135
 # ProgressArray         47
 # SetKernel             61       InstallKernel        190
-# ConfirmVbox           73       InstallDM            190
-# MakePartitionList     91       SetRootPassword      197
-# arch_chroot          104       SetUserPassword      224
+# ConfirmVbox           73       InstallDM            227
+# MakePartitionList    104       SetRootPassword      244
+# arch_chroot          116       SetUserPassword      261
       
 PrintOne() {  # Arguments: "Component" "Patient"
   Component="$1"
@@ -194,7 +194,7 @@ InstallKernel() {
 
 # New code test
   # 1) Create an array of all the programs to pass to function
-  PassArray=(  )
+  PassArray=() # Ensure array is empty
   PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm )
   ProgressArray " Installing cli tools and extras " # Install each one using pacstrap
   # Enable sshd
@@ -226,9 +226,9 @@ InstallKernel() {
 
 InstallDM() { # Called from feliz when installing desktop environment
   case ${DisplayManager} in
-    "") echo "Not installing a Display Manager" >> feliz.log
+    "") echo "No Display Manager selected" >> feliz.log
     ;;
-    *) echo "Installing ${DisplayManager} Display Manager" >> feliz.log
+    *) PrintOne "Installing ${DisplayManager} Display Manager" "" &>> feliz.log
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac

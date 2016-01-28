@@ -170,40 +170,38 @@ if [ $Scope != "Basic" ]; then
     echo "User already exists" >> feliz.log
   fi
   # Various bits
-  pacstrap /mnt vrms &>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  PassArray=()
-  PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
-  ProgressArray "Adding Codecs, X, graphics, etc" # Display gauge while inslatting with pacstrap
+  PassArray=() # Ensure the array is empty
+  PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools vrms wpa_actiond wpa_supplicant dialog wifi-menu xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
+  ProgressArray "Adding Codecs, X, graphics, etc" # Display gauge while installing with pacstrap
   
   # Install desktop environments, window managers and display managers
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing 'Cinnamon' Desktop Environment" 60
-          InstallDM
+        "Cinnamon") DisplayProgress "Installing Cinnamon desktop environment" 30
           pacstrap /mnt cinnamon &>> feliz.log
+          InstallDM
         ;;
-        "Deepin") DisplayProgress "Installing Deepin Desktop Environment" 60
+        "Deepin") DisplayProgress "Installing Deepin desktop environment" 30
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             pacstrap /mnt lightdm deepin-session-ui &>> feliz.log
             arch_chroot "systemctl -f enable lightdm.service" &>> feliz.log
-          # Disabled lightdm-deepin-greeter code, as Deepin greeter loses user password
-          #  sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf &>> feliz.log 
+            sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf &>> feliz.log 
           else
             InstallDM
           fi
         ;;
-        "Enlightenment") DisplayProgress "Installing 'Enlightenment' Desktop Environment" 30
-          InstallDM
+        "Enlightenment") DisplayProgress "Installing 'Enlightenment' desktop environment" 30
           pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
+          InstallDM
         ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
-          InstallDM
           pacstrap /mnt fluxbox &>> feliz.log
+          InstallDM
         ;;
-        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 90
+        "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 30
           pacstrap /mnt gnome &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
@@ -211,14 +209,14 @@ if [ $Scope != "Basic" ]; then
             InstallDM
           fi
         ;;
-        "KDE") DisplayProgress "Installing KDE Plasma meta package" 70
+        "KDE") DisplayProgress "Installing KDE Plasma meta package" 30
           pacstrap /mnt plasma-meta &>> feliz.log
           if [ -z ${DisplayManager} ]; then
             arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
           else
             InstallDM
           fi
-          DisplayProgress "Installing KDE applications package" 120
+          DisplayProgress "Installing KDE applications package" 30
           pacstrap /mnt kde-applications &>> feliz.log
         ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 20
@@ -231,20 +229,20 @@ if [ $Scope != "Basic" ]; then
           fi
         ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 20
-          InstallDM
           pacstrap /mnt lxqt oxygen-icons &>> feliz.log
-        ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 90
           InstallDM
+        ;;
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 30
           pacstrap /mnt mate mate-extra &>> feliz.log
+          InstallDM
         ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
-          InstallDM
           pacstrap /mnt openbox &>> feliz.log
-        ;;
-        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 40
           InstallDM
+        ;;
+        "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           pacstrap /mnt xfce4 polkit-gnome ${GoodiesXfce} &>> feliz.log
+          InstallDM
         ;;
         *) continue # Ignore others on this pass
       esac
