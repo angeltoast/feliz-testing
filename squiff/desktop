@@ -92,8 +92,11 @@ SetHostname() {
 
 PickLuxuries() { # User selects any combination from a store of extras
 Category="Continue"
-LuxuriesList=""
-local Message="Now you have the option to add extras, such as a web browser, etc. If you want only a base Arch installation, exit without choosing any extras."
+case "${LuxuriesList}" in
+  "") local Message="Now you have the option to add extras, such as a web browser, etc. If you want only a base Arch installation, exit without choosing any extras."
+  ;;
+  *) local Message="You can add more items, or select items to delete."
+  esac
 until [ $Category = "Done" ]
 do
   # First select a category
@@ -117,7 +120,11 @@ fi
 ShoppingList() {
 # Called by PickLuxuries after a category has been chosen.
 local Complete=0
-local Title="Choose your first item"
+case "$LuxuriesList" in
+  "") local Title="Choose your first category"
+  ;;
+  *) local Title="Choose your next category"
+  esac
 while [ $Complete -eq 0 ]
 do
   local Message="Added so far: ${LuxuriesList}"
@@ -345,8 +352,7 @@ do
     ;;
     "Identity") ManualSettings
     ;;
-    "Extras") DisplayManager=""
-        PickLuxuries
+    "Extras") PickLuxuries
     ;;
     *) Repeat=0
   esac
