@@ -22,10 +22,11 @@ PrintOne() {  # Arguments: "Component" "Patient"
   Component="$1"
   Patient="$2"
   clear
-  dialog --backtitle "$Backtitle" --title " - Information - " --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
+  local Title=" Progress "
   Estimate=$2 # Numeric value passed as multiple of 10
   local Message="$1" # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time 
@@ -41,17 +42,17 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title "$Title" --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title "$Title" --no-shadow --gauge "" 9 60 0 &
 }
 
 ProgressArray() {
-# For displaying gauge when multiple programs to be installed by pacstrap
+# For installing multiple programs with pacstrap and displaying gauge
   local Title=" $1 "
   # Receives PassArray comprising all the programs
   # 1) Count items in the array
   n=${#PassArray[*]}; 
   # 2) Redirect dialog commands input using substitution
-  dialog --title "$Title" --gauge "" 8 60 < <(
+  dialog --title "$Title" --no-shadow --gauge "" 8 60 < <(
   # 3) set counter - it will increase on each parse
    i=0
   # 4) read each item from the array 
@@ -192,16 +193,12 @@ InstallKernel() {
   DisplayProgress "Installing base-devel and bash" 60
   pacstrap /mnt base-devel bash &>> feliz.log 
 
-# New code test
-  # 1) Create an array of all the programs to pass to function
   PassArray=() # Ensure array is empty
-  PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm )
+  PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reflector reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm ) # Create array of all the programs to pass to function
   ProgressArray " Installing cli tools and extras " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
-# End of trial code
-
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log

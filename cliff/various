@@ -33,7 +33,8 @@ invalid_option() { # (from AUI scripts)
   read_timed "Invalid option. Try again ..." 1
 }
 
-TPread() { # Aligned prompt for user-entry - returns result through $Response
+TPread() { # Aligned prompt for user-entry
+  # $1 = prompt ... Returns result through $Response
   T_COLS=`tput cols`
   lov=${#1}
   if [ ${lov} -lt ${T_COLS} ]; then

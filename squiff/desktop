@@ -117,7 +117,7 @@ fi
 ShoppingList() {
 # Called by PickLuxuries after a category has been chosen.
 local Complete=0
-Title="Choose your first item"
+local Title="Choose your first item"
 while [ $Complete -eq 0 ]
 do
   local Message="Added so far: ${LuxuriesList}"
@@ -147,15 +147,26 @@ do
     Picked=$(cat output.file)
   fi
   
-  AddToList="Y"
   # First check that chosen item is not already on the list
   for lux in $LuxuriesList
   do
     if [ ${lux} = ${Picked} ]; then
-      dialog --backtitle "$Backtitle" --title " auto-partition " \
-    --msgbox "\nAlready in your shopping list" 15 40
-      AddToList="N"
-      continue
+      Temp=""
+      dialog --yes-label "Keep" --no-label "Delete" \
+      --backtitle "$Backtitle" --title " Information " --no-shadow \
+    --yesno "\n  '$Picked' is already in your shopping list. Do you wish to delete it or keep it?" 10 60
+      case $? in
+        0) continue 2 # Keep $LuxuriesList as it is and return to top of enclosing loop
+         ;;
+        *) for lux in $LuxuriesList
+          do
+            if [ ${lux} != ${Picked} ]; then
+              Temp="$Temp $lux"
+            fi
+          done
+          LuxuriesList="$Temp"
+          continue 2 # Revise $LuxuriesList and return to top of enclosing loop
+      esac
     fi
   done
   # Then carry out any specific tests and add the item to the list
