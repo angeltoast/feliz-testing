@@ -9,13 +9,13 @@
 # ----------------     -----------------------
 # Function    Line     Function           Line
 # ----------------     -----------------------
-# getkeymap    20     Display Managers    262
-# setlocale    35     FinalCheck          272
-# settimezone  52     ManualSettings      330
-# UserName     75     ChangeRootPartition 356
-# Hostname     85     ChangeSwapPartition 364
-# Extras       101    ChangePartitions    372
-#                     AddExtras           383    
+# getkeymap     20     Display Managers    262
+# setlocale     35     FinalCheck          272
+# settimezone   52     ManualSettings      330
+# UserName      75     ChangeRootPartition 356
+# Hostname      85     ChangeSwapPartition 364
+# PickLuxuries  93     ChangePartitions    372
+# ShoppingList 120     AddExtras           383    
 
 getkeymap() {
   ListKbs=`cat keymaps.list`

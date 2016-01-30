@@ -20,7 +20,15 @@
 listgen1() {
   local Backtitle="$Passed"
   local Title="$2"
-
+  if [ $3 ]; then
+    case $3 in
+      "nocancel") CancelButton="--nocancel"
+      ;;
+      *) CancelButton="--cancel-label $3"
+    esac
+  else
+    CancelButton=""
+  fi
   local Counter=0
   declare -a Options
   if [ ! $Width ]; then
@@ -44,7 +52,15 @@ listgen1() {
 listgen2() { 
   local Backtitle="$Passed"
   local Title="$2"
-
+  if [ $3 ]; then
+    case $3 in
+      "nocancel") CancelButton="--nocancel"
+      ;;
+      *) CancelButton="--cancel-label $3"
+    esac
+  else
+    CancelButton=""
+  fi
   declare -a Options
   local Counter=0
   for item in $1; do
@@ -74,15 +90,6 @@ listgen2() {
 }
 
 Printit() {
-  if [ $3 ]; then
-    case $3 in
-      "nocancel") CancelButton="--nocancel"
-      ;;
-      *) CancelButton="--cancel-label $3"
-    esac
-  else
-    CancelButton=""
-  fi
   Counter=$((Counter/2))
   # Calculate number of lines
   echo $Message > output.file

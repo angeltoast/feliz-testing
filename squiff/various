@@ -19,14 +19,10 @@
 # arch_chroot          116       SetUserPassword      261
       
 PrintOne() {  # Arguments: "Component" "Patient"
-  Component="$1"
-  Patient="$2"
-  clear
-  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "$Component\n$Patient\n" 5 55 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes
-  local Title=" Progress "
   Estimate=$2 # Numeric value passed as multiple of 10
   local Message="$1" # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time 
@@ -42,7 +38,7 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title "$Title" --no-shadow --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title " Progress " --no-shadow --gauge "" 9 60 0 &
 }
 
 ProgressArray() {
@@ -217,7 +213,7 @@ InstallKernel() { # Kernel and some other core systems
     fi
   esac                                                   
   
-  PrintOne "Installing opensource video drivers" ""
+ # PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
 
