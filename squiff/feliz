@@ -123,7 +123,6 @@ arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 # Networking
 if [ $Scope != "Basic" ]; then
-  # PrintOne "Installing and configuring network services" ""
   arch_chroot "systemctl enable dhcpcd.service"
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
