@@ -193,7 +193,7 @@ if [ $Scope != "Basic" ]; then
           fi
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           # Copy pro-forma xinitrc file ...
-          # cp /mnt/etc/X11/xinit/xinitrc /mnt/home/${UserName}/.xinitrc
+          cp /mnt/etc/X11/xinit/xinitrc /mnt/home/${UserName}/.xinitrc
           # Then add line at end to ensure DDE is used ...
           sed -i '$ a\exec startdde' /mnt/home/${UserName}/.xinitrc &>> feliz.log
         ;;
@@ -207,31 +207,33 @@ if [ $Scope != "Basic" ]; then
         ;;
         "Gnome") DisplayProgress "Installing 'Gnome' Desktop Environment" 30
           if [ -z ${DisplayManager} ]; then
+            pacstrap /mnt gnome &>> feliz.log
             arch_chroot "systemctl -f enable gdm.service" &>> feliz.log
           else
             InstallDM
+            pacstrap /mnt gnome &>> feliz.log
           fi
-          pacstrap /mnt gnome &>> feliz.log
         ;;
         "KDE") DisplayProgress "Installing KDE Plasma meta package" 40
-
           if [ -z ${DisplayManager} ]; then
+            pacstrap /mnt plasma-meta &>> feliz.log
             arch_chroot "systemctl -f enable sddm.service" &>> feliz.log
           else
             InstallDM
+            pacstrap /mnt plasma-meta &>> feliz.log
           fi
-          pacstrap /mnt plasma-meta &>> feliz.log
           DisplayProgress "Installing KDE applications package" 40
           pacstrap /mnt kde-applications &>> feliz.log
         ;;
         "LXDE") DisplayProgress "Installing 'LXDE' Desktop Environment" 20
           if [ -z ${DisplayManager} ]; then
+            pacstrap /mnt lxde &>> feliz.log
             arch_chroot "systemctl -f enable lxdm.service" &>> feliz.log
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf &>> feliz.log
           else
             InstallDM
+            pacstrap /mnt lxde &>> feliz.log
           fi
-          pacstrap /mnt lxde &>> feliz.log
         ;;
         "LXQt") DisplayProgress "Installing 'LXQt' Desktop Environment" 20
           InstallDM
