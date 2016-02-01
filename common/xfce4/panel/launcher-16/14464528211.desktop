@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Thunar File Manager
+Name[en_GB]=Feliz Workshop
+Comment=Browse the filesystem with the file manager
+Comment[en_GB]=Development directory of the Feliz scripts
+GenericName=File Manager
+GenericName[en_GB]=File Manager
+Exec=thunar /home/elizabeth/Feliz-development(testing)/
+Icon=/home/elizabeth/Artwork/Feliz/felizHappy-Penguin-300pxbyqubodup.png
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=System;Utility;Core;GTK;FileTools;FileManager;
+X-XFCE-Source=file:///usr/share/applications/Thunar.desktop
+Path=
