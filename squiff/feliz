@@ -275,6 +275,9 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
+          cp conky.desktop /mnt/home/$UserName/.config/autostart/
+          rm -f /mnt/usr/share/backgrounds/xfce/*.*
+          cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
