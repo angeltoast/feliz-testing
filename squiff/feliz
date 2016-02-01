@@ -253,7 +253,7 @@ if [ $Scope != "Basic" ]; then
           rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
           cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
         #  cp -fr /xfce4 /mnt/home/$UserName/.config/ &>> feliz.log
-          cp -fr /Thunar /mnt/home/$UserName/.config/ &>> feliz.log
+        #  cp -fr /Thunar /mnt/home/$UserName/.config/ &>> feliz.log
         ;;
         *) continue # Ignore others on this pass
       esac
