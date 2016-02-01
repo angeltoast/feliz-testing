@@ -250,7 +250,9 @@ if [ $Scope != "Basic" ]; then
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-
+          rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
+          cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
+          cp xfce4-desktop.xml /mnt/home/$UserName/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
         ;;
         *) continue # Ignore others on this pass
       esac
@@ -268,7 +270,7 @@ if [ $Scope != "Basic" ]; then
           pacman -Sy &>> feliz.log # Update
           pacstrap /mnt yaourt &>> feliz.log
         ;;
-        "cairo-dock") PrintOne "Adding your extra items" "Installing $i and cairo-dock-plug-ins"
+        "cairo-dock") PrintOne "Adding your extra items" "Installing cairo-dock and cairo-dock-plug-ins"
           pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
         ;;
         "conky") PrintOne "Adding your extra items" "Installing $i"
@@ -276,8 +278,6 @@ if [ $Scope != "Basic" ]; then
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
           cp conky.desktop /mnt/home/$UserName/.config/autostart/
-          rm -f /mnt/usr/share/backgrounds/xfce/*.*
-          cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
