@@ -252,8 +252,8 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
           cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
-          mkdir /mnt/home/$UserName/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
-          cp xfce4-desktop.xml /mnt/home/$UserName/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
+          mkdir -p /mnt/home/$UserName/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
+          cp -f xfce4-desktop.xml /mnt/home/$UserName/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
         ;;
         *) continue # Ignore others on this pass
       esac
@@ -278,7 +278,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
         #  chown $UserName /mnt/home/$UserName/.conkyrc &>> feliz.log
-          mkdir /mnt/home/$UserName/.config/autostart/
+          mkdir -p /mnt/home/$UserName/.config/autostart/
           cp conky.desktop /mnt/home/$UserName/.config/autostart/
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
