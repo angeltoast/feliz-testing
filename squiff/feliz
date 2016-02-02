@@ -250,8 +250,8 @@ if [ $Scope != "Basic" ]; then
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-        #  rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
-        #  cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
+          rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
+          cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
         ;;
         *) continue # Ignore others on this pass
       esac
