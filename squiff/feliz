@@ -253,6 +253,7 @@ if [ $Scope != "Basic" ]; then
           rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
           cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
           # Copy xfce config file for wallpaper
+          mkdir /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/
           cp xfce4-desktop.xml /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
           # Copy xfce config file for Thunar actions
           cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log
