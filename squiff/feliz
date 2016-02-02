@@ -161,6 +161,7 @@ if [ $Scope != "Basic" ]; then
     arch_chroot "cp /etc/skel/.bashrc /home/${UserName}"
     arch_chroot "chown -R ${UserName}:users /home/${UserName}"
     sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers &>> feliz.log
+    mkdir /mnt/home/${UserName}/Documents Pictures
   else
     echo "User already exists" >> feliz.log
   fi
@@ -253,7 +254,7 @@ if [ $Scope != "Basic" ]; then
           rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
           cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
           # Copy xfce config file for wallpaper
-          mkdir /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/
+          mkdir -p /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/
           cp xfce4-desktop.xml /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
           # Copy xfce config file for Thunar actions
           cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log
