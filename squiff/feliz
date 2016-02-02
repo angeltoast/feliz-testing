@@ -252,6 +252,10 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
           cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
+          # Copy xfce config file for wallpaper
+          cp xfce4-desktop.xml /mnt/home/${UserName}/.config/xfce4/xfconf/xfce-perchannel-xml/ &>> feliz.log
+          # Copy xfce config file for Thunar actions
+          cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log
         ;;
         *) continue # Ignore others on this pass
       esac
