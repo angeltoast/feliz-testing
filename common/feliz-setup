@@ -10,6 +10,7 @@ case `whereis conky` in
   ;;
   *) mkdir -p /mnt/home/$UserName/.config/autostart/
     cp conky.desktop /mnt/home/$UserName/.config/autostart/
+    ./conky
 esac
 
 # Thunar actions
