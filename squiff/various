@@ -10,13 +10,13 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              22       SetGrubDevice        128
-# DisplayProgress       25       MountPartitions      135
-# ProgressArray         47
+# PrintOne              22       
+# DisplayProgress       25       arch_chroot          126
+# ProgressArray         47       MountPartitions      130
 # SetKernel             61       InstallKernel        190
 # ConfirmVbox           73       InstallDM            227
 # MakePartitionList    104       SetRootPassword      244
-# arch_chroot          116       SetUserPassword      261
+# SetGrubDevice        128       SetUserPassword      261
       
 PrintOne() {  # Arguments: "Component" "Patient"
   dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
@@ -110,10 +110,6 @@ MakePartitionList() {
   BuildPartitionLists # Then rebuild
 }
 
-arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
-}  
-
 SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
@@ -126,6 +122,10 @@ SetGrubDevice() {
    GrubDevice=$(cat output.file)
   fi
 }
+
+arch_chroot() {  # From Lution AIS
+  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
+}  
 
 MountPartitions() {
   case $RootType in
