@@ -4,15 +4,17 @@
 # This script changes various settings after installation of Xfce
 # Developed by Elizabeth Mills
 
+UserName=`whoami`
+
 # Conky autostart
 case `whereis conky` in
   "conky:") echo "conky not installed" > /etc/feliz-setup.log
   ;;
   *) mkdir /home/$UserName/.config/autostart/
     cp /etc/conky.desktop /home/$UserName/.config/autostart/
-    ./conky
+    conky
 esac
 
 # Thunar actions
-mkdir /home/${UserName}/.config/Thunar &>> feliz.log
-cp /etc/uca.xml /home/${UserName}/.config/Thunar/ &>> feliz.log
+mkdir /home/${UserName}/.config/Thunar
+cp /etc/uca.xml /home/${UserName}/.config/Thunar/

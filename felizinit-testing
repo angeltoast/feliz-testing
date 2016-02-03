@@ -138,8 +138,8 @@ UIselection() {
   dialog --backtitle "$Backtitle" --title " Installer Version " --nocancel \
   --menu "You can now choose between feliz's traditional, helpful, \
 command-line interface (from the Achoo project), or a new, semi-graphical, dialog system ..." 12 52 2 \
-  "cli" "Traditional command line" \
-  "s-g" "Semi-graphical interface" 2> output.file
+  "cli" "Command-line Interface" \
+  "sgi" "Semi-graphical Interface" 2> output.file
     Chosen=$(cat output.file)
     clear
 }
