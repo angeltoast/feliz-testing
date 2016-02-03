@@ -8,11 +8,11 @@
 case `whereis conky` in
   "conky:") echo "conky not installed" > /etc/feliz-setup.log
   ;;
-  *) mkdir -p /mnt/home/$UserName/.config/autostart/
-    cp conky.desktop /mnt/home/$UserName/.config/autostart/
+  *) mkdir /home/$UserName/.config/autostart/
+    cp /etc/conky.desktop /home/$UserName/.config/autostart/
     ./conky
 esac
 
 # Thunar actions
-mkdir /mnt/home/${UserName}/.config/Thunar &>> feliz.log
-cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log
+mkdir /home/${UserName}/.config/Thunar &>> feliz.log
+cp /etc/uca.xml /home/${UserName}/.config/Thunar/ &>> feliz.log
