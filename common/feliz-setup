@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Part of the Feliz Arch Linux Installation Scripts
+# This script changes various settings after installation of Xfce
+# Developed by Elizabeth Mills
+
+# Conky autostart
+case `whereis conky` in
+  "conky:") echo "conky not installed" > /etc/feliz-setup.log
+  ;;
+  *) mkdir -p /mnt/home/$UserName/.config/autostart/
+    cp conky.desktop /mnt/home/$UserName/.config/autostart/
+esac
+
+# Thunar actions
+mkdir /mnt/home/${UserName}/.config/Thunar &>> feliz.log
+cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log

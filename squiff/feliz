@@ -129,7 +129,7 @@ if [ $Scope != "Basic" ]; then
 fi
 
 if [ ${GrubDevice} ]; then
-  DisplayProgress "Installing Grub to $GrubDevice" 10 &
+  PrintOne "Installing Grub to $GrubDevice" 10 &
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -251,10 +251,7 @@ if [ $Scope != "Basic" ]; then
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-          cp -f xfce-teal.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
-          # Copy xfce config file for Thunar actions
-          mkdir /mnt/home/${UserName}/.config/Thunar &>> feliz.log
-          cp uca.xml /mnt/home/${UserName}/.config/Thunar/ &>> feliz.log
+          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log
          ;;
         *) continue # Ignore others on this pass
       esac
@@ -278,8 +275,6 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Adding your extra items" "Installing Conky"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-        #  mkdir -p /mnt/home/$UserName/.config/autostart/
-        #  cp conky.desktop /mnt/home/$UserName/.config/autostart/
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
