@@ -252,7 +252,8 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log
-          cp feliz-setup uca.xml /mnt/etc/ &>> feliz.log
+          cp uca.xml /mnt/etc/ &>> feliz.log
+          cp feliz-setup /mnt/${UserName}/ &>> feliz.log
          ;;
         *) continue # Ignore others on this pass
       esac
