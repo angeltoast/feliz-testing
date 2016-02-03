@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Part of the Feliz Arch Linux Installation Scripts
-# This script is to be run when Xfce is started
+# This script is to be run after Xfce is first started
 # Developed by Elizabeth Mills
 
 # Thunar actions
@@ -9,7 +9,7 @@ if [ ! -d ~/.config/Thunar ]; then
   mkdir ~/.config/Thunar
 fi
 cp -f /etc/uca.xml ~/.config/Thunar/
-cp -f /etc/uca.xml ~/.config/Thunar/
+cp -f /etc/uca.xml ~/.config/Thunar/ # Repeat is necessary as Xfce overwrites the first time
 
 # Conky autostart
 case `whereis conky` in

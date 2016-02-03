@@ -253,7 +253,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log
           cp uca.xml /mnt/etc/ &>> feliz.log
-          cp feliz-setup /mnt/${UserName}/ &>> feliz.log
+          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log
          ;;
         *) continue # Ignore others on this pass
       esac
@@ -277,6 +277,7 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Adding your extra items" "Installing Conky"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
+          arch_chroot "chown $UserName /mnt/home/$UserName/.conkyrc"
           cp conky.desktop /mnt/etc/ &>> feliz.log
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"

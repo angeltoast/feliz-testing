@@ -1,4 +1,3 @@
-
 # Text settings
 use_xft yes
 xftfont 123:size=8
@@ -27,8 +26,8 @@ default_shade_color red
 default_outline_color green
 
 alignment top_left
-gap_x 650
-gap_y 750
+gap_x 1100
+gap_y 150
 no_buffers yes
 uppercase no
 cpu_avg_samples 2

@@ -271,9 +271,10 @@ if [ $Scope != "Basic" ]; then
           ;;
         "Xfce") TPecho "Installing 'Xfce' Desktop Environment"
           InstallDM
-          pacstrap /mnt xfce4 ${GoodiesXfce} 2>> feliz.log
-          rm -f /mnt/usr/share/backgrounds/xfce/*.* &>> feliz.log
-          cp wallpaper.jpg /mnt/usr/share/backgrounds/xfce/ &>> feliz.log
+          pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
+          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log
+          cp uca.xml /mnt/etc/ &>> feliz.log
+          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log
           ;;
         *) continue # Ignore others on this pass
       esac
@@ -296,10 +297,10 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
         "conky") TPecho "Installing Conky"
-          pacstrap /mnt conky 2>> feliz.log
-          cp conkyrc /mnt/home/$UserName/.conkyrc 2>> feliz.log
-          mkdir -p /mnt/home/$UserName/.config/autostart/
-          cp Conky.desktop /mnt/home/$UserName/.config.autostart 2>> feliz.log
+           pacstrap /mnt conky &>> feliz.log
+          cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
+          arch_chroot "chown $UserName /mnt/home/$UserName/.conkyrc"
+          cp conky.desktop /mnt/etc/ &>> feliz.log
         ;;
         *) TPecho "Installing $i"
           pacstrap /mnt $i 2>> feliz.log
