@@ -246,9 +246,10 @@ if [ $Scope != "Basic" ]; then
           # 1) Copy the feliz wallpaper
           cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
           # 2) Reset the path for the default wallpaper (none) in Mate
-          sed -i '/<filename>(none)<\/filename>/ c <filename>\/usr\/share\/backgrounds\/mate\/desktop\/feliz.jpg<\/filename>' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
+          arch_chroot "gsettings set org.mate.background picture-filename '/usr/share/backgrounds/mate/desktop/feliz.jpg'"
+        #  sed -i '/<filename>(none)<\/filename>/ c <filename>\/usr\/share\/backgrounds\/mate\/desktop\/feliz.jpg<\/filename>' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
           # 3) Delete the three rows containing color instructions
-          sed -i '/<shade_type>\|<pcolor>\|<scolor>/ d' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
+        #  sed -i '/<shade_type>\|<pcolor>\|<scolor>/ d' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
         ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
