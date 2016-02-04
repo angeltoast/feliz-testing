@@ -176,7 +176,7 @@ if [ $Scope != "Basic" ]; then
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon") DisplayProgress "Installing Cinnamon desktop environment" 30
+        "Cinnamon") DisplayProgress "Installing Cinnamon desktop environment" 50
           InstallDM
           pacstrap /mnt cinnamon &>> feliz.log
         ;;
@@ -240,16 +240,13 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt lxqt oxygen-icons &>> feliz.log
         ;;
-        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 30
+        "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 50
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           # 1) Copy the feliz wallpaper
           cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
-          # 2) Reset the path for the default wallpaper (none) in Mate
-          arch_chroot "gsettings set org.mate.background picture-filename '/usr/share/backgrounds/mate/desktop/feliz.jpg'"
-        #  sed -i '/<filename>(none)<\/filename>/ c <filename>\/usr\/share\/backgrounds\/mate\/desktop\/feliz.jpg<\/filename>' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
-          # 3) Delete the three rows containing color instructions
-        #  sed -i '/<shade_type>\|<pcolor>\|<scolor>/ d' /mnt/usr/share/mate-background-properties/mate-desktop.xml &>> feliz.log
+          # 2) Reset in Mate
+          arch_chroot "gsettings set org.mate.background picture-filename '/usr/share/backgrounds/mate/desktop/feliz.jpg'" &>> feliz.log
         ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
@@ -284,7 +281,7 @@ if [ $Scope != "Basic" ]; then
         "conky") PrintOne "Adding your extra items" "Installing Conky"
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-          arch_chroot "chown $UserName /mnt/home/$UserName/.conkyrc"
+          arch_chroot "chown $UserName /home/$UserName/.conkyrc"
           cp conky.desktop /mnt/etc/ &>> feliz.log
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
