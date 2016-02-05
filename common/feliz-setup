@@ -9,7 +9,7 @@ if [ ! -d ~/.config/Thunar ]; then
   mkdir ~/.config/Thunar
 fi
 cp -f /etc/uca.xml ~/.config/Thunar/
-cp -f /etc/uca.xml ~/.config/Thunar/ # Repeat is necessary as Xfce overwrites the first time
+cp -f /etc/uca.xml ~/.config/Thunar/ # It is necessary to repeat it as Xfce overwrites it the first time
 
 # Conky autostart
 case `whereis conky` in
