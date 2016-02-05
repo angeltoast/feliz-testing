@@ -244,7 +244,9 @@ if [ $Scope != "Basic" ]; then
           InstallDM
           pacstrap /mnt mate mate-extra &>> feliz.log
           # 1) Copy the feliz wallpaper
-          cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/Stripes.png
+          cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
+          exit
+          arch_chroot "systemctl start dbus.service && gsettings set org.mate.background picture-filename '/usr/share/backgrounds/mate/desktop/feliz.jpg'"
         ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
