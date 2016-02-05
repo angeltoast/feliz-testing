@@ -179,6 +179,13 @@ if [ $Scope != "Basic" ]; then
         "Cinnamon") DisplayProgress "Installing Cinnamon desktop environment" 50
           InstallDM
           pacstrap /mnt cinnamon &>> feliz.log
+          # 1) Copy the feliz wallpaper
+          cp wallpaper.jpg /mnt/usr/share/backgrounds/cinnamon/desktop/feliz.jpg
+          # Create a new dconf file with background override
+          echo "[org.cinnamon.background]
+          picture-filename='/usr/share/backgrounds/cinnamon/desktop/feliz.jpg'
+          picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.override
+          arch_chroot "glib-compile-schemas /usr/share/glib-2.0/schemas"
         ;;
         "Deepin") DisplayProgress "Installing Deepin desktop environment" 30
           # If there is no defined display manager
@@ -245,8 +252,7 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt mate mate-extra &>> feliz.log
           # 1) Copy the feliz wallpaper
           cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
-          # Create a new dconf file
-         # mkdir -p /mnt/usr/share/glib-2.0/schemas/
+          # Create a new dconf file with background override
           echo "[org.mate.background]
           picture-filename='/usr/share/backgrounds/mate/desktop/feliz.jpg'
           picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.override
@@ -259,9 +265,9 @@ if [ $Scope != "Basic" ]; then
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log
-          cp uca.xml /mnt/etc/ &>> feliz.log
-          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log
+          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
+          cp uca.xml /mnt/etc/ &>> feliz.log # Extra Thunar actions
+          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log # Setup script to be run (optionally) by user
          ;;
         *) continue # Ignore others on this pass
       esac
@@ -286,7 +292,11 @@ if [ $Scope != "Basic" ]; then
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           arch_chroot "chown $UserName /home/$UserName/.conkyrc"
-          cp conky.desktop /mnt/etc/ &>> feliz.log
+          if [ ! -d /mnt/home/$UserName/.config/autostart/ ]; then
+            mkdir -p /mnt/home/$UserName/.config/autostart/
+          fi
+          cp conky.desktop /mnt/home/$UserName/.config/autostart/
+          #  cp conky.desktop /mnt/etc/ &>> feliz.log
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
