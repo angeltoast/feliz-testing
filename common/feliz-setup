@@ -21,3 +21,6 @@ case `whereis conky` in
     cp /etc/conky.desktop ~/.config/autostart/
     conky
 esac
+
+# After first use, delete this script
+rm /etc/profile.d/feliz-setup

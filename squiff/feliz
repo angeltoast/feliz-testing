@@ -267,8 +267,9 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/etc/ &>> feliz.log # Extra Thunar actions
-          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log # Copy over setup script 
-          echo "./feliz-setup" >> /mnt/home/${UserName}/.bashrc # Run it (?) on startup
+        #  cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log # Copy over setup script 
+        #  echo "./feliz-setup" >> /mnt/home/${UserName}/.bashrc # Run it (?) on startup
+        cp feliz-setup /mnt/etc/profile.d/ &>> feliz.log # Alternative location for setup script 
          ;;
         *) continue # Ignore others on this pass
       esac
