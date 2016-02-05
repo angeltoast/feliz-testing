@@ -247,6 +247,7 @@ if [ $Scope != "Basic" ]; then
           cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
           # 2) Reset in Mate
           arch_chroot "gsettings set org.mate.background picture-filename '/usr/share/backgrounds/mate/desktop/feliz.jpg'" &>> feliz.log
+          exit
         ;;
         "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
           InstallDM
