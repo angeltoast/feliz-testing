@@ -4,8 +4,6 @@
 # This script is to be run after Xfce is first started
 # Developed by Elizabeth Mills
 
-UserName=`whoami`
-
 # Thunar actions
 if [ ! -d ~/.config/Thunar ]; then
   mkdir ~/.config/Thunar
@@ -24,6 +22,5 @@ case `whereis conky` in
     conky
 esac
 
-# After first use ...
-sed -i '/feliz-setup/ d' /home/${UserName}/xinitrc # Remove line from xinitrc
-rm -f /home/${UserName}/feliz-setup                # Then delete this script
+# Delete this script after first use ...
+mv /etc/xdg/xfce4/feliz-xfce feliz-setup

@@ -265,38 +265,17 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
-          cp uca.xml /mnt/etc/ &>> feliz.log # File containing extra Thunar actions
           
-      # Experimental code to run setup script after first panel launch
-          arch_chroot "cp /etc/xdg/xfce4/xinitrc /home/${UserName}/" &>> feliz.log # Copy xinitrc to user directory 
-          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log           # Copy setup script to same place
-          # Add lines to xinitrc for Xfce startup
-          sed -i '/2/a # Part of the Feliz Arch Linux Installation Scripts
-# This script is to be run after Xfce is first started
-# Added by Elizabeth Mills
-
-UserName=`whoami`
-
-# Thunar actions
-if [ ! -d ~/.config/Thunar ]; then
-  mkdir ~/.config/Thunar
-fi
-cp -f /etc/uca.xml ~/.config/Thunar/
-cp -f /etc/uca.xml ~/.config/Thunar/ # It is necessary to repeat it as Xfce overwrites it the first time
-
-# Conky autostart
-case `whereis conky` in
-  "conky:") echo "conky not installed" > /etc/feliz-setup.log
-  ;;
-  *) if [ ! -d \~/.config/autostart ]; then
-      mkdir \~/.config/autostart/
-    fi
-    cp /etc/conky.desktop \~/.config/autostart/
-    conky
-esac
-' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log
-      # End of experimental code
+          # Experimental code to change wallpaper and run setup script after first panel launch
+          cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
+          cp uca.xml /mnt/etc/xdg/xfce4/ &>> feliz.log # File containing extra Thunar actions
+          cp feliz-xfce /mnt/etc/xdg/xfce4/ &>> feliz.log # Setup script
+          # Add lines to xinitrc to call Xfce startup script
+          sed -i '/2/a # Added by Elizabeth Mills
+          if [ -f `pwd`/feliz-xfce ]; then
+  ./feliz-xfce
+  fi' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log
+          # End of experimental code
       
          ;;
         *) continue # Ignore others on this pass
@@ -325,7 +304,7 @@ esac
         #  Tried making autostart directory, but it causes login failure
         #  mkdir -p /mnt/home/$UserName/.config/autostart/
         #  cp conky.desktop /mnt/home/$UserName/.config/autostart/
-          cp conky.desktop /mnt/etc/ &>> feliz.log # Conky autostart file for setup file to copy
+          cp conky.desktop /mnt/etc/xdg/xfce4/ &>> feliz.log # Conky autostart file for setup file to copy
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
