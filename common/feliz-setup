@@ -4,8 +4,7 @@
 # This script is to be run after Xfce is first started
 # Developed by Elizabeth Mills
 
-# Delay action
-sleep 20 &&
+UserName=`whoami`
 
 # Thunar actions
 if [ ! -d ~/.config/Thunar ]; then
@@ -26,4 +25,5 @@ case `whereis conky` in
 esac
 
 # After first use, delete this script
-rm /etc/profile.d/feliz-setup
+sed -i '/feliz-setup/ d' /home/${UserName}/.xinitrc
+rm -f /home/${UserName}/feliz-setup
