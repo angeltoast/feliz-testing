@@ -24,6 +24,6 @@ case `whereis conky` in
     conky
 esac
 
-# After first use, delete this script
-sed -i '/feliz-setup/ d' /home/${UserName}/.xinitrc
-rm -f /home/${UserName}/feliz-setup
+# After first use ...
+sed -i '/feliz-setup/ d' /home/${UserName}/xinitrc # Remove line from xinitrc
+rm -f /home/${UserName}/feliz-setup                # Then delete this script
