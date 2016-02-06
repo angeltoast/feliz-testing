@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Part of the Feliz Arch Linux Installation Scripts
+# This script is to be run after Xfce is first started
+# Developed by Elizabeth Mills
+
+# Thunar actions
+if [ ! -d /home/UserName/.config/Thunar ]; then
+  mkdir /home/UserName/.config/Thunar
+fi
+cp -f /etc/xdg/xfce4/uca.xml /home/UserName/.config/Thunar/
+cp -f /etc/xdg/xfce4/uca.xml /home/UserName/.config/Thunar/ # It is necessary to repeat it as Xfce overwrites it the first time
+
+# Conky autostart
+case `whereis conky` in
+  "conky:") echo "conky not installed" > /etc/feliz-setup.log
+  ;;
+  *) if [ ! -d /home/UserName/.config/autostart ]; then
+      mkdir /home/UserName/.config/autostart/
+    fi
+    cp /etc/xdg/xfce4/conky.desktop /home/UserName/.config/autostart/
+esac
+
+# Delete this script after first use ...
+mv /etc/xdg/xfce4/feliz-xfce feliz-setup

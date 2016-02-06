@@ -266,16 +266,17 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
           
-          # Experimental code to change wallpaper and run setup script after first panel launch
+  #    #    # Experimental code to change wallpaper and run setup script after first panel launch
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
-          cp uca.xml /mnt/etc/xdg/xfce4/ &>> feliz.log # File containing extra Thunar actions
-          cp feliz-xfce /mnt/etc/xdg/xfce4/ &>> feliz.log # Setup script
-          # Add lines to xinitrc to call Xfce startup script
+          cp uca.xml /mnt/etc/xdg/xfce4/ &>> feliz.log # Copy over the file containing extra Thunar actions
+          cp feliz-xfce-setup feliz-xfce # Prepare a working copy of setup script
+          sed -i "s/UserName/$UserName/g" feliz-xfce &>> feliz.log # Replace placeholder with $UserName in setup script
+          cp feliz-xfce /mnt/etc/xdg/xfce4/ &>> feliz.log # Then copy setup script to installed system
           sed -i '2a # Added by Elizabeth Mills
           if [ -f `pwd`/feliz-xfce ]; then
   \./feliz-xfce
-  fi' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log
-          # End of experimental code
+  fi' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log # Add lines to xinitrc to call setup script
+  #    #    # End of experimental code
       
          ;;
         *) continue # Ignore others on this pass
