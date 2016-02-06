@@ -270,8 +270,9 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           
       # Experimental code to run setup script after first panel launch
           arch_chroot "cp /etc/xdg/xfce4/xinitrc /home/${UserName}/" &>> feliz.log # Copy xinitrc to user directory 
-          echo "./feliz-setup" >> /mnt/home/${UserName}/.xinitrc # Add line to xinitrc so it runs on Xfce startup
-          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log # Location for setup script 
+          cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log           # Copy setup script to same place
+          # Add line to xinitrc to run feliz-setup on Xfce startup
+          sed -i '/start xfce4-session normally/a \./feliz-setup' /mnt/home/${UserName}/xinitrc &>> feliz.log
       # End of experimental code
       
          ;;
