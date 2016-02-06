@@ -272,7 +272,7 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           arch_chroot "cp /etc/xdg/xfce4/xinitrc /home/${UserName}/" &>> feliz.log # Copy xinitrc to user directory 
           cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log           # Copy setup script to same place
           # Add lines to xinitrc for Xfce startup
-          sed -i '/start xfce4-session normally/a # Part of the Feliz Arch Linux Installation Scripts
+          sed -i '/2/a # Part of the Feliz Arch Linux Installation Scripts
 # This script is to be run after Xfce is first started
 # Added by Elizabeth Mills
 
@@ -294,7 +294,8 @@ case `whereis conky` in
     fi
     cp /etc/conky.desktop \~/.config/autostart/
     conky
-esac' /mnt/home/${UserName}/xinitrc &>> feliz.log
+esac
+' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log
       # End of experimental code
       
          ;;
