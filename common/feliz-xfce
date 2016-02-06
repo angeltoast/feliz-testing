@@ -19,7 +19,6 @@ case `whereis conky` in
       mkdir ~/.config/autostart/
     fi
     cp /etc/conky.desktop ~/.config/autostart/
-    conky
 esac
 
 # Delete this script after first use ...
