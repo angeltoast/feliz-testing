@@ -271,9 +271,9 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           cp uca.xml /mnt/etc/xdg/xfce4/ &>> feliz.log # File containing extra Thunar actions
           cp feliz-xfce /mnt/etc/xdg/xfce4/ &>> feliz.log # Setup script
           # Add lines to xinitrc to call Xfce startup script
-          sed -i '/2/a # Added by Elizabeth Mills
+          sed -i '2a # Added by Elizabeth Mills
           if [ -f `pwd`/feliz-xfce ]; then
-  ./feliz-xfce
+  \./feliz-xfce
   fi' /mnt/etc/xdg/xfce4/xinitrc &>> feliz.log
           # End of experimental code
       
