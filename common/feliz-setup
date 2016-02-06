@@ -4,6 +4,9 @@
 # This script is to be run after Xfce is first started
 # Developed by Elizabeth Mills
 
+# Delay action
+sleep 20 &&
+
 # Thunar actions
 if [ ! -d ~/.config/Thunar ]; then
   mkdir ~/.config/Thunar
