@@ -271,8 +271,30 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
       # Experimental code to run setup script after first panel launch
           arch_chroot "cp /etc/xdg/xfce4/xinitrc /home/${UserName}/" &>> feliz.log # Copy xinitrc to user directory 
           cp feliz-setup /mnt/home/${UserName}/ &>> feliz.log           # Copy setup script to same place
-          # Add line to xinitrc to run feliz-setup on Xfce startup
-          sed -i '/start xfce4-session normally/a \./feliz-setup' /mnt/home/${UserName}/xinitrc &>> feliz.log
+          # Add lines to xinitrc for Xfce startup
+          sed -i '/start xfce4-session normally/a # Part of the Feliz Arch Linux Installation Scripts
+# This script is to be run after Xfce is first started
+# Added by Elizabeth Mills
+
+UserName=`whoami`
+
+# Thunar actions
+if [ ! -d ~/.config/Thunar ]; then
+  mkdir ~/.config/Thunar
+fi
+cp -f /etc/uca.xml ~/.config/Thunar/
+cp -f /etc/uca.xml ~/.config/Thunar/ # It is necessary to repeat it as Xfce overwrites it the first time
+
+# Conky autostart
+case `whereis conky` in
+  "conky:") echo "conky not installed" > /etc/feliz-setup.log
+  ;;
+  *) if [ ! -d \~/.config/autostart ]; then
+      mkdir \~/.config/autostart/
+    fi
+    cp /etc/conky.desktop \~/.config/autostart/
+    conky
+esac' /mnt/home/${UserName}/xinitrc &>> feliz.log
       # End of experimental code
       
          ;;
@@ -299,11 +321,10 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           arch_chroot "chown $UserName /home/$UserName/.conkyrc"
-        #  if [ ! -d /mnt/home/$UserName/.config/autostart/ ]; then
-        #    mkdir -p /mnt/home/$UserName/.config/autostart/
-        #  fi
+        #  Tried making autostart directory, but it causes login failure
+        #  mkdir -p /mnt/home/$UserName/.config/autostart/
         #  cp conky.desktop /mnt/home/$UserName/.config/autostart/
-          cp conky.desktop /mnt/etc/ &>> feliz.log # For the setup script to use
+          cp conky.desktop /mnt/etc/ &>> feliz.log # Conky autostart file for setup file to copy
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
