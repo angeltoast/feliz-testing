@@ -1,5 +1,5 @@
 # Part of the Feliz Arch Linux Installation Scripts
-# This is to be run as .bash_profile on first Xfce login
+# This is copied into .bash_profile to be on first Xfce login
 # Developed by Elizabeth Mills
 
 # Thunar actions
@@ -13,7 +13,8 @@ case `whereis conky` in
   "conky:") echo "Conky not installed" >> feliz-setup.log
   ;;
   *) echo "Conky installed" >> feliz-setup.log
-  #  cp conky.desktop ~/.config/autostart/ &>> feliz-setup.log
+    mkdir ~/.config/autostart/
+    cp conky.desktop ~/.config/autostart/ &>> feliz-setup.log
 esac
 
 # Delete this script after first use ...
