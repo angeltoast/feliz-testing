@@ -1,5 +1,5 @@
 # Part of the Feliz Arch Linux Installation Scripts
-# Copied by Feliz into .bash_profile to be run on first Xfce login
+# Copied by Feliz into .profile to be run on first Xfce login
 # Developed by Elizabeth Mills
 
 # Thunar actions
@@ -19,5 +19,6 @@ esac
 
 # Copy this file for reference
 # Delete this text after first run ...
-sed -i '/Developed by Elizabeth Mills/,/sed -i/ d' /home/UserName/.bashrc &>> /home/UserName/feliz-setup.log
+rm /home/UserName/.profile
+# sed -i '/Developed by Elizabeth Mills/,/sed -i/ d' /home/UserName/.profile &>> /home/UserName/feliz-setup.log
 

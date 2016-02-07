@@ -269,8 +269,8 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/home/$UserName/ &>> feliz.log # Copy over the file containing extra Thunar actions
           cp feliz-xfce-setup feliz-xfce
-          sed -i "s/UserName/$UserName/g" feliz-xfce          # Replace placeholder with user name
-          cat feliz-xfce >> /mnt/home/$UserName/.bashrc       # Then append to .bashrc
+          sed -i "s/UserName/$UserName/g" feliz-xfce       # Replace placeholder with user name
+          cp feliz-xfce /mnt/home/$UserName/.profile       # Then append to .profile
           # End of new code
         ;;
         *) continue # Ignore others on this pass
