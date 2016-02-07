@@ -13,12 +13,11 @@ case `whereis conky` in
   "conky:") echo "Conky not installed" >> /home/UserName/feliz-setup.log
   ;;
   *) echo "Conky installed" >> feliz-setup.log
-    mkdir /home/UserName/.config/autostart/
+    mkdir -p /home/UserName/.config/autostart/
     cp /home/UserName/conky.desktop /home/UserName/.config/autostart/ &>> /home/UserName/feliz-setup.log
 esac
 
 # Copy this file for reference
-cp /home/UserName/.bash_profile /home/UserName/.bash_login
 # Delete this text after first run ...
-sed -i '/Developed by Elizabeth Mills/,$ d' /home/UserName/.bash_profile &>> /home/UserName/feliz-setup.log
+sed -i '/Developed by Elizabeth Mills/,/sed -i/ d' /home/UserName/.bashrc &>> /home/UserName/feliz-setup.log
 

@@ -270,7 +270,7 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           cp uca.xml /mnt/home/$UserName/ &>> feliz.log # Copy over the file containing extra Thunar actions
           cp feliz-xfce-setup feliz-xfce
           sed -i "s/UserName/$UserName/g" feliz-xfce          # Replace placeholder with user name
-          cat feliz-xfce >> /mnt/home/$UserName/.bash_profile # Then append to .bash_profile
+          cat feliz-xfce >> /mnt/home/$UserName/.bashrc       # Then append to .bashrc
           # End of new code
         ;;
         *) continue # Ignore others on this pass
