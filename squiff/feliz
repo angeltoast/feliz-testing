@@ -269,10 +269,8 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
   #    #    # Experimental code to change wallpaper and run setup script after first panel launch
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/home/$UserName/ &>> feliz.log # Copy over the file containing extra Thunar actions
-          cp feliz-xfce /mnt/home/$UserName/.bash_login &>> feliz.log # Then copy setup script to installed system
-          sed -i '/2/a source feliz-xfce
-          FelizActions' /mnt/home/$UserName/.bash_profile &>> feliz.log # Add lines to .bash_profile to call setup script
-  #    #    # End of experimental code
+          cat feliz-xfce >> /mnt/home/$UserName/.bash_profile &>> feliz.log # Then copy setup script into .bash_profile
+   #    #    # End of experimental code
       
          ;;
         *) continue # Ignore others on this pass

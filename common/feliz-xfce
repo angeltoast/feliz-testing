@@ -1,7 +1,5 @@
-#!/bin/bash
-
 # Part of the Feliz Arch Linux Installation Scripts
-# This script is to be run after Xfce is first started
+# This is to be run as .bash_profile on first Xfce login
 # Developed by Elizabeth Mills
 
 # Thunar actions
