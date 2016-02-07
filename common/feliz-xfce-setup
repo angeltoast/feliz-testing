@@ -19,6 +19,6 @@ esac
 
 # Copy this file for reference
 # Delete this text after first run ...
-rm /home/UserName/.profile
-# sed -i '/Developed by Elizabeth Mills/,/sed -i/ d' /home/UserName/.profile &>> /home/UserName/feliz-setup.log
+
+# sed -i '/Developed by Elizabeth Mills/,/sed -i/ d' /home/UserName/.bashrc &>> /home/UserName/feliz-setup.log
 
