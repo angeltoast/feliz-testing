@@ -1,22 +1,24 @@
 # Part of the Feliz Arch Linux Installation Scripts
-# Copied into .bash_profile to be on first Xfce login
+# Copied by Feliz into .bash_profile to be run on first Xfce login
 # Developed by Elizabeth Mills
 
 # Thunar actions
-echo "Copying Thunar actions" > /mnt/home/UserName/feliz-setup.log
-cp -f /mnt/home/UserName/uca.xml /mnt/home/UserName/.config/Thunar/ &>> /mnt/home/UserName/feliz-setup.log # Copy of my xfce actions
-cp -f /mnt/home/UserName/uca.xml /mnt/home/UserName/.config/Thunar/ # It is necessary to repeat it as Xfce overwrites it the first time
+echo "Copying Thunar actions" > /home/UserName/feliz-setup.log
+cp -f /home/UserName/uca.xml /home/UserName/.config/Thunar/ &>> /home/UserName/feliz-setup.log 
+# cp -f /home/UserName/uca.xml /home/UserName/.config/Thunar/ # It is necessary to repeat this as Xfce overwrites it the first time
 
 # Conky autostart
-echo "Testing for Conky" >> /mnt/home/UserName/feliz-setup.log
+echo "Testing for Conky" >> /home/UserName/feliz-setup.log
 case `whereis conky` in
-  "conky:") echo "Conky not installed" >> /mnt/home/UserName/feliz-setup.log
+  "conky:") echo "Conky not installed" >> /home/UserName/feliz-setup.log
   ;;
   *) echo "Conky installed" >> feliz-setup.log
-    mkdir /mnt/home/UserName/.config/autostart/
-    cp /mnt/home/UserName/conky.desktop /mnt/home/UserName/.config/autostart/ &>> /mnt/home/UserName/feliz-setup.log
+    mkdir /home/UserName/.config/autostart/
+    cp /home/UserName/conky.desktop /home/UserName/.config/autostart/ &>> /home/UserName/feliz-setup.log
 esac
 
-# Delete this text after first use ...
-sed '/Part of the Feliz Arch Linux Installation Scripts/,$ d' /mnt/home/UserName/.bash_profile &>> /mnt/home/UserName/feliz-setup.log
+# Copy this file for reference
+cp /home/UserName/.bash_profile /home/UserName/.bash_login
+# Delete this text after first run ...
+sed -i '/Developed by Elizabeth Mills/,$ d' /home/UserName/.bash_profile &>> /home/UserName/feliz-setup.log
 
