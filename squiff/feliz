@@ -265,14 +265,14 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
         "Xfce") DisplayProgress "Installing 'Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-          
-  #    #    # Experimental code to change wallpaper and run setup script after first panel launch
+          # New code to change wallpaper and run setup script after first panel launch
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/home/$UserName/ &>> feliz.log # Copy over the file containing extra Thunar actions
-          cat feliz-xfce >> /mnt/home/$UserName/.bash_profile &>> feliz.log # Copy setup script into .bash_profile
-   #    #    # End of experimental code
-      
-         ;;
+          cp feliz-xfce-setup feliz-xfce
+          sed -i "s/UserName/$UserName/g" feliz-xfce                        # Replace placeholder with user name
+          cat feliz-xfce >> /mnt/home/$UserName/.bash_profile &>> feliz.log # Then append to .bash_profile
+          # End of new code
+        ;;
         *) continue # Ignore others on this pass
       esac
     done
@@ -296,10 +296,7 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           pacstrap /mnt conky &>> feliz.log
           cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
           arch_chroot "chown $UserName /home/$UserName/.conkyrc"
-        #  Tried making autostart directory, but it causes login failure
-        #  mkdir -p /mnt/home/$UserName/.config/autostart/
-        #  cp conky.desktop /mnt/home/$UserName/.config/autostart/
-          cp conky.desktop /mnt/etc/xdg/xfce4/ &>> feliz.log # Conky autostart file for setup file to copy
+          cp conky.desktop /mnt/home/$UserName/ &>> feliz.log # Conky autostart file for setup file to copy
         ;;
         *) PrintOne "Adding your extra items" "Installing $i"
           pacstrap /mnt $i &>> feliz.log
