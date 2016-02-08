@@ -259,7 +259,6 @@ RunAutoPart() {
 }
 
 # Shared function to install desktops and other extras
-
 InstallLuxuries() {
   if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
@@ -304,7 +303,7 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
           # New code to change wallpaper and run setup script after first panel launch
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/etc/xdg/Thunar/ &>> feliz.log    # Copy over the file containing extra Thunar actions
-          cp /xml/keyboard-layout.xml /xml/thunar.xml /xml/xfce4-desktop.xml /xml/xfce4-keyboard-shortcuts.xml /xml/xfce4-session.xml /xml/xfwm4.xml /xml/xsettings.xml /xml/xfce4-panel.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ &>> feliz.log # Xfce configuration files
+          cp keyboard-layout.xml thunar.xml xfce4-desktop.xml xfce4-keyboard-shortcuts.xml xfce4-session.xml xfwm4.xml xsettings.xml xfce4-panel.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ &>> feliz.log # Xfce configuration files
         ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
           InstallDM
