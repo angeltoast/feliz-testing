@@ -10,13 +10,12 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              22       
+# PrintOne              22       SetGrubDevice        128
 # DisplayProgress       25       arch_chroot          126
 # ProgressArray         47       MountPartitions      130
 # SetKernel             61       InstallKernel        190
-# ConfirmVbox           73       InstallDM            227
-# MakePartitionList    104       SetRootPassword      244
-# SetGrubDevice        128       SetUserPassword      261
+# ConfirmVbox           73       SetRootPassword      244
+# MakePartitionList    104       SetUserPassword      261
       
 PrintOne() {  # Arguments: "Component" "Patient"
   dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
@@ -215,16 +214,6 @@ InstallKernel() { # Kernel and some other core systems
   
  # PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
-}
-
-InstallDM() { # Called from feliz when installing desktop environment
-  case ${DisplayManager} in
-    "") echo "No Display Manager selected" >> feliz.log
-    ;;
-    *) PrintOne "Installing ${DisplayManager} Display Manager" "" &>> feliz.log
-      pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
-      arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
-  esac
 }
 
 SetRootPassword() {

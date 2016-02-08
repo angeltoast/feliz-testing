@@ -159,9 +159,15 @@ else
   exit 1
 fi
 
-#
-# Common cli functions
-#
+# -------------------------
+# Functions           Line 
+# -------------------------
+# ReflectorMirrorList  172       
+# LocalMirrorList      182
+# MakePartitionList    197
+# RunAutoPart          210
+# InstallDM            268
+# InstallLuxuries      279
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
   PrintOne "Generating mirrorlist"
@@ -259,7 +265,18 @@ RunAutoPart() {
   AutoPart=1 # Set flag to 'on' for mounting 
 }
 
-# Shared function to install desktops and other extras
+# Install display manager
+InstallDM() { # Called from feliz when installing desktop environment
+  case ${DisplayManager} in
+    "") echo "No Display Manager selected" >> feliz.log
+    ;;
+    *) PrintOne "Installing ${DisplayManager} Display Manager" "" &>> feliz.log
+      pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
+      arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
+  esac
+}
+
+# Install desktops and other extras
 InstallLuxuries() {
   if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
