@@ -478,16 +478,6 @@ ChooseDM() { # Choose a display manager unless already fixed by certain DEs
     done
   fi
 }
-    
-InstallDM() { # Called from feliz when installing desktop environment
-  case ${DisplayManager} in
-    "") TPecho "Not installing a Display Manager"
-    ;;
-    *) TPecho "Installing ${DisplayManager} Display Manager"
-      pacstrap /mnt ${DisplayManager} ${Greeter} 2>> feliz.log
-      arch_chroot "systemctl enable ${DisplayManager}.service" >/dev/null
-  esac
-}
 
 GnomeOptions() {
 Redo="Y"
