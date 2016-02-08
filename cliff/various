@@ -48,6 +48,10 @@ TPread() { # Aligned prompt for user-entry
   read -p "$EMPTY $1" Response
 }
 
+DisplayProgress() { # For compatibility with Squiff
+  TPecho
+}
+
 TPecho() { # For displaying status while running on auto
   echo
   CurrentTime=$(date +%s)
