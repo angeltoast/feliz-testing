@@ -77,15 +77,16 @@ LongAccs[5]="Tool to make/delete/resize partitions"
 LongAccs[6]="The file-manager from Gnome"
 LongAccs[7]="The Gnome terminal emulator"
 LongAccs[8]="Easy to use AUR package installer"
-Desktops="Cinnamon Gnome Feliz KDE LXDE LXQt Mate Xfce"
-LongDesk[1]="Slick DE from the Mint team  "
-LongDesk[2]="Full-featured, modern DE"
+Desktops="Cinnamon Deepin Feliz Gnome KDE LXDE LXQt Mate Xfce"
+LongDesk[1]="Slick DE from the Mint team      "
+LongDesk[2]="The Deepin Desktop Environment"
 LongDesk[3]="Exclusive Customized Xfce desktop"
-LongDesk[4]="Plasma 5 and accessories pack"
-LongDesk[5]="Traditional, lightweight DE"
-LongDesk[6]="Lightweight and modern Qt DE"
-LongDesk[7]="Traditional DE from the Mint team"
-LongDesk[8]="Lightweight, highly configurable DE"
+LongDesk[4]="Full-featured, modern DE"
+LongDesk[5]="Plasma 5 and accessories pack"
+LongDesk[6]="Traditional, lightweight DE"
+LongDesk[7]="Lightweight and modern Qt DE"
+LongDesk[8]="Traditional DE from the Mint team"
+LongDesk[9]="Lightweight, highly configurable DE"
 Graphical="evince gimp imagemagick gthumb simple-scan xsane"
 LongGraph[1]="Reader for PDF & other document formats"
 LongGraph[2]="Advanced image editing suite"
@@ -260,7 +261,7 @@ RunAutoPart() {
 
 # Shared function to install desktops and other extras
 InstallLuxuries() {
-  if [ -n "${LuxuriesList}" ]; then   # Then parse through LuxuriesList checking for DEs
+  if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
       case $i in
@@ -300,10 +301,13 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
         "Feliz") DisplayProgress "Installing 'Feliz-Xfce' Desktop Environment" 30
           InstallDM
           pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-          # New code to change wallpaper and run setup script after first panel launch
+          # Change wallpaper, copy config files
           cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
           cp uca.xml /mnt/etc/xdg/Thunar/ &>> feliz.log    # Copy over the file containing extra Thunar actions
           cp keyboard-layout.xml thunar.xml xfce4-desktop.xml xfce4-keyboard-shortcuts.xml xfce4-session.xml xfwm4.xml xsettings.xml xfce4-panel.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ &>> feliz.log # Xfce configuration files
+        # cp feliz-xfce-setup feliz-xfce  # Copy feliz-xfce-setup as feliz-xfce
+        # sed -i "s/UserName/$UserName/g" # Replace placeholder with user name in feliz-xfce
+        # cp ....................... # Then append or copy as .bashrc (or whichever)
         ;;
         "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
           InstallDM
@@ -369,7 +373,7 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
     for i in ${LuxuriesList}
     do
       case $i in
-        "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
+        "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
         ;;
         "yaourt") # Copy modified pacman.conf to new system and install Yaourt
           PrintOne "Adding your extra items" "Modifying pacman.conf and installing Yaourt"
