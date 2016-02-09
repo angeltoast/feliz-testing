@@ -52,10 +52,6 @@ DisplayProgress() { # For compatibility with Squiff
   TPecho
 }
 
-PrintOne() { # For compatibility with Squiff
-  TPecho
-}
-
 TPecho() { # For displaying status while running on auto
   echo
   CurrentTime=$(date +%s)
