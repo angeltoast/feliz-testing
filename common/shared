@@ -314,6 +314,8 @@ InstallLuxuries() {
         # Change wallpaper, copy config files
         cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg &>> feliz.log # Overwrite default wallpaper
         cp uca.xml /mnt/etc/xdg/Thunar/ &>> feliz.log            # Copy over the file containing extra Thunar actions
+        mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ &>> feliz.log # User configs
+        cp xfce4-panel.xml xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ &>> feliz.log # User configs
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM

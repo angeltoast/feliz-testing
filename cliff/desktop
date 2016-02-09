@@ -392,6 +392,7 @@ do
         ChooseDM
       ;;
     "Feliz") DesktopEnvironment=$SaveResult
+        GoodiesXfce="xfce4-goodies"
         ChooseDM
       ;;
     "Fluxbox") DesktopEnvironment=$SaveResult

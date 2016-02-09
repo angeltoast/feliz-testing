@@ -93,7 +93,7 @@ FinalCheck
 # No further user intervention from here
 #
 
-InstallationMode
+# InstallationMode # WHAT IS THIS?
 
 MountPartitions # cliff/various
 
@@ -205,7 +205,8 @@ if [ $Scope != "Basic" ]; then
   SetUserPassword
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
-Message="Congratulations, installation is finished."
+print_heading
+PrintOne="Congratulations, installation is finished."
 echo
 listgen1 "Reboot Shutdown" "" "nodone"
 case $Response in
