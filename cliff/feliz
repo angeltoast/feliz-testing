@@ -95,7 +95,7 @@ FinalCheck
 
 InstallationMode
 
-MountPartitions
+MountPartitions # cliff/various
 
 # Set mirrorlist
 ReflectorMirrorList
@@ -191,7 +191,7 @@ if [ $Scope != "Basic" ]; then
   pacstrap /mnt gvfs gamin &>> feliz.log
 
   # Install desktop environments, window managers and display managers
-  InstallLuxuries
+  InstallLuxuries # common/shared
   #
 fi
 

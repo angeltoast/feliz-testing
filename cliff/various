@@ -13,11 +13,11 @@
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
-# Internet connection   87       MountPartitions      283
-# Mirrorlist           131       InstallKernel        342
-# SetScope             159       TestExistingDM       336
-# SetKernel            193       SetRootPassword      365
-# ConfirmVbox          206       SetUserPassword      394
+# Internet connection   87       MountPartitions      174
+# Mirrorlist           131       InstallKernel        232
+# SetScope             159       TestExistingDM       264
+# SetKernel            193       SetRootPassword      293
+# ConfirmVbox          206       SetUserPassword      335
 # MakePartitionList    229       
 
 print_heading() {
@@ -49,7 +49,7 @@ TPread() { # Aligned prompt for user-entry
 }
 
 DisplayProgress() { # For compatibility with Squiff
-  TPecho
+  TPecho "$1"
 }
 
 TPecho() { # For displaying status while running on auto
@@ -309,6 +309,9 @@ SetRootPassword() {
   echo
   PrintOne "Finally we need to set passwords ..."
   echo
+  PrintOne "Note that you will not be able to "
+  PrintOne "see passwords as you enter them ..."
+  echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
@@ -322,7 +325,7 @@ SetRootPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-     arch_chroot "passwd root" < /tmp/.passwd >/dev/null
+     arch_chroot "passwd root" < /tmp/.passwd >/dev/null &>> feliz.log
      rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
@@ -350,7 +353,7 @@ SetUserPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
       echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
+      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null &>> feliz.log
       rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else

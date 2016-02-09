@@ -285,13 +285,6 @@ InstallLuxuries() {
       "Cinnamon") DisplayProgress "Installing Cinnamon desktop environment" 50
         InstallDM
         pacstrap /mnt cinnamon &>> feliz.log
-        # 1) Copy the feliz wallpaper
-        cp wallpaper.jpg /mnt/usr/share/backgrounds/cinnamon/desktop/feliz.jpg
-        # Create a new dconf file with background override
-        echo "[org.cinnamon.background]
-picture-filename='/usr/share/backgrounds/cinnamon/desktop/feliz.jpg'
-picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.override
-        arch_chroot "glib-compile-schemas /usr/share/glib-2.0/schemas"
       ;;
       "Deepin") DisplayProgress "Installing Deepin desktop environment" 30
         # If there is no defined display manager
@@ -363,13 +356,6 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
       "Mate") DisplayProgress "Installing 'Mate' Desktop Environment" 50
         InstallDM
         pacstrap /mnt mate mate-extra &>> feliz.log
-        # 1) Copy the feliz wallpaper
-        cp wallpaper.jpg /mnt/usr/share/backgrounds/mate/desktop/feliz.jpg
-        # Create a new dconf file with background override
-        echo "[org.mate.background]
-picture-filename='/usr/share/backgrounds/mate/desktop/feliz.jpg'
-picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.override
-        arch_chroot "glib-compile-schemas /usr/share/glib-2.0/schemas"
       ;;
       "Openbox") DisplayProgress "Installing 'Openbox' Window Manager" 20
         InstallDM
@@ -400,9 +386,11 @@ picture-options='zoom'" > /mnt/usr/share/glib-2.0/schemas/user-pref.gschema.over
       ;;
       "conky") PrintOne "Adding your extra items" "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
-        cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
-        arch_chroot "chown $UserName /home/$UserName/.conkyrc"
-        cp conky.desktop /mnt/etc/xdg/autostart/ &>> feliz.log
+        if [ $DesktopEnvironment = "Feliz" ]; then
+          cp conkyrc /mnt/home/$UserName/.conkyrc &>> feliz.log
+          arch_chroot "chown $UserName /home/$UserName/.conkyrc"
+          cp conky.desktop /mnt/etc/xdg/autostart/ &>> feliz.log
+        fi
       ;;
       *) PrintOne "Adding your extra items" "Installing $i"
         pacstrap /mnt $i &>> feliz.log

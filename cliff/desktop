@@ -391,6 +391,9 @@ do
     "Enlightenment") DesktopEnvironment=$SaveResult
         ChooseDM
       ;;
+    "Feliz") DesktopEnvironment=$SaveResult
+        ChooseDM
+      ;;
     "Fluxbox") DesktopEnvironment=$SaveResult
         ChooseDM
       ;;
