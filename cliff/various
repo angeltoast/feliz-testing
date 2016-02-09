@@ -324,8 +324,8 @@ SetRootPassword() {
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-     arch_chroot "passwd root" < /tmp/.passwd >/dev/null &>> feliz.log
+     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+     arch_chroot "passwd root" < /tmp/.passwd >/dev/null
      rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
@@ -352,8 +352,8 @@ SetUserPassword() {
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd &>> feliz.log
-      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null &>> feliz.log
+      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
       rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else
