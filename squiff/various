@@ -22,7 +22,7 @@ PrintOne() {  # Arguments: "Component" "Patient"
 }
 
 TPecho() { # For compatibility with Cliff
-    PrintOne "$1"
+    PrintOne "$1" "$2"
 }
 
 DisplayProgress() { # Revised code for displaying progress for longer processes

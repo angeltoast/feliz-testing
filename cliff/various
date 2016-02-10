@@ -49,7 +49,7 @@ TPread() { # Aligned prompt for user-entry
 }
 
 DisplayProgress() { # For compatibility with Squiff
-  TPecho "$1"
+  TPecho "$1" "$2"
 }
 
 TPecho() { # For displaying status while running on auto

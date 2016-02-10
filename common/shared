@@ -361,17 +361,17 @@ InstallLuxuries() {
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         # Overwrite default wallpaper
         cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
-        # Copy Thunar config files
+      # Copy Thunar config files
       #  cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
-        # Prepare global config files
-        mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-        cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
-        cp -r launcher* /mnt/etc/xdg/xfce4/panel/ 2>> feliz.log # Panel launchers
-        cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+      # Prepare global config files
+      #  mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+      #  cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
+      #  cp -r launcher* /mnt/etc/xdg/xfce4/panel/ 2>> feliz.log # Panel launchers
+      #  cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
         # Copy both config folders to xdg
         cp -r Thunar xfce4 /mnt/etc/xdg/ 2>> feliz.log
         # And to skel (for new users)
-        cp -r /mnt/etc/xdg/ /mnt/etc/skel/.config/
+        cp -r Thunar xfce4 /mnt/etc/skel/.config/
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
@@ -434,23 +434,23 @@ InstallLuxuries() {
       "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
       ;;
       "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-        PrintOne "Adding your extra items" "Modifying pacman.conf and installing Yaourt"
+        TPecho "Adding your extra items" "Modifying pacman.conf and installing Yaourt"
         cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
         cp pacman.conf /etc 2>> feliz.log # For installer
         pacman -Sy &>> feliz.log # Update
         pacstrap /mnt yaourt &>> feliz.log
       ;;
-      "cairo-dock") PrintOne "Adding your extra items" "Installing cairo-dock and cairo-dock-plug-ins"
+      "cairo-dock") TPecho "Adding your extra items" "Installing cairo-dock and cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
       ;;
-      "conky") PrintOne "Adding your extra items" "Installing Conky"
+      "conky") TPecho "Adding your extra items" "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
         if [ $Feliz-Xfce = "Yes" ]; then
           cp conkyrc /mnt/etc/skel/.conkyrc 2>> feliz.log
           cp conky.desktop /mnt/etc/xdg/autostart/ 2>> feliz.log
         fi
       ;;
-      *) PrintOne "Adding your extra items" "Installing $i"
+      *) TPecho "Adding your extra items" "Installing $i"
         pacstrap /mnt $i &>> feliz.log
         if [ $i = "firefox" ]; then
           FirefoxIncluded="Yes"
