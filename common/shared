@@ -371,7 +371,7 @@ InstallLuxuries() {
         # Copy both config folders to xdg
         cp -r Thunar xfce4 /mnt/etc/xdg/ 2>> feliz.log
         # And to skel (for new users)
-        cp -r Thunar xfce4 /mnt/etc/skel/.config/
+        cp -r Thunar xfce4 /mnt/etc/skel/
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM

@@ -164,7 +164,7 @@ CheckInternet
 # Download and unzip the complete testing archive from Github
 wget -N https://github.com/angeltoast/feliz-testing/archive/master.zip &>> feliz.log
 unzip -o master.zip &>> feliz.log
-cp feliz-testing-master/common/* . &>> feliz.log
+cp -r feliz-testing-master/common/* . &>> feliz.log
 
 # Copy the appropriate files to working directory
   case $Chosen in
