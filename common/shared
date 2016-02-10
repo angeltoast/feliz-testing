@@ -358,11 +358,12 @@ InstallLuxuries() {
       "Feliz") DisplayProgress "Installing 'Feliz-Xfce' Desktop Environment" 30
         InstallDM
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-        # Change wallpaper, copy config files
-        cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log # Overwrite default wallpaper
+        # Overwrite default wallpaper, copy config files
+        cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
+        # Overwrite default wallpaper, copy config files
         cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
-        mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log # User configs
-        cp xfce4-panel.xml xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log # User configs
+        mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        cp xfce4-panel.xml xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log # User configs
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
