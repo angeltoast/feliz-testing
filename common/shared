@@ -361,17 +361,16 @@ InstallLuxuries() {
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         # Overwrite default wallpaper
         cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
-      # Copy Thunar config files
-      #  cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
-      # Prepare global config files
-      #  mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-      #  cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
-      #  cp -r launcher* /mnt/etc/xdg/xfce4/panel/ 2>> feliz.log # Panel launchers
-      #  cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        Copy Thunar config files
+        cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
+        # Prepare global config files
+        mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
+        cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
         # Copy both config folders to xdg
-        cp -r Thunar xfce4 /mnt/etc/xdg/ 2>> feliz.log
+        cp -r xfce4 /mnt/etc/xdg/ 2>> feliz.log
         # And to skel (for new users)
-        cp -r Thunar xfce4 /mnt/etc/skel/
+        # cp -r xfce4 /mnt/etc/skel/
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
