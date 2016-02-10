@@ -392,6 +392,7 @@ do
         ChooseDM
       ;;
     "Feliz") DesktopEnvironment=$SaveResult
+          Feliz-Xfce="Yes"
         GoodiesXfce="xfce4-goodies"
         ChooseDM
       ;;

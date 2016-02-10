@@ -53,6 +53,7 @@ GoodiesGnome=""
 GoodiesOpenbox=""
 DisplayManager=""      # eg: lightdm
 Greeter=""             # eg: lightdm-gtk-greeter (Not required for some DMs)
+Feliz-Xfce="No"
 #
 # Root and user variables
 #
@@ -170,7 +171,7 @@ fi
 # InstallLuxuries      279
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
-  PrintOne "Generating mirrorlist"
+  TPecho "Generating mirrorlist"
   reflector --verbose -l 5 --sort rate --save /etc/pacman.d/mirrorlist &>> feliz.log
   if [ $? -gt 0 ]; then
     LocalMirrorList
@@ -364,6 +365,7 @@ InstallLuxuries() {
         cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
         mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
         cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
+        cp -r launcher-9 launcher-10 launcher-11 /mnt/etc/xdg/xfce4/panel/ 2>> feliz.log # Panel launchers
         cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log # User configs
         cp 
       ;;
@@ -421,6 +423,7 @@ InstallLuxuries() {
       esac
     done
   # ... then install the others
+    FirefoxIncluded="No"
     for i in ${LuxuriesList}
     do
       case $i in
@@ -439,14 +442,20 @@ InstallLuxuries() {
       "conky") PrintOne "Adding your extra items" "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
         if [ $DesktopEnvironment = "Feliz" ]; then
-          cp conkyrc /mnt/etc/.conkyrc 2>> feliz.log
+          cp conkyrc /mnt/etc/skel/.conkyrc 2>> feliz.log
           cp conky.desktop /mnt/etc/xdg/autostart/ 2>> feliz.log
         fi
       ;;
       *) PrintOne "Adding your extra items" "Installing $i"
         pacstrap /mnt $i &>> feliz.log
+        if [ $i = "firefox" ]; then
+          FirefoxIncluded="Yes"
+        fi
       esac
     done
+  fi
+  if [ Feliz-Xfce = "Yes" ] && [ FirefoxIncluded="No" ]; then
+    pacstrap /mnt firefox &>> feliz.log
   fi
 }
 
