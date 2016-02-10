@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Opne the Build folder
+Comment=To compile launcher iso
+Exec=gksu thunar /home/elizabeth/Build
+Icon=/home/elizabeth/Artwork/Feliz/splash.png
+Path=
+Terminal=false
+StartupNotify=true

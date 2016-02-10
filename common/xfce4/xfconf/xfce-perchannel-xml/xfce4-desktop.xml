@@ -7,12 +7,12 @@
         <property name="workspace0" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-teal.jpg"/>
+          <property name="last-image" type="string" value="/home/elizabeth/Pictures/wallpaper.png"/>
         </property>
         <property name="workspace1" type="empty">
           <property name="color-style" type="int" value="0"/>
           <property name="image-style" type="int" value="5"/>
-          <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xfce-teal.jpg"/>
+          <property name="last-image" type="string" value=""/>
         </property>
         <property name="workspace2" type="empty">
           <property name="color-style" type="int" value="0"/>
@@ -34,9 +34,10 @@
       <property name="show-trash" type="bool" value="false"/>
       <property name="show-removable" type="bool" value="false"/>
     </property>
+    <property name="single-click" type="bool" value="true"/>
   </property>
   <property name="last" type="empty">
-    <property name="window-width" type="int" value="638"/>
-    <property name="window-height" type="int" value="508"/>
+    <property name="window-width" type="int" value="693"/>
+    <property name="window-height" type="int" value="509"/>
   </property>
 </channel>
