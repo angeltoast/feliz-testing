@@ -201,7 +201,7 @@ do
         ChooseDM
       ;;
     "Feliz") DesktopEnvironment="Xfce"
-          Feliz-Xfce="Yes"
+          FelizXfce="Yes"
         GoodiesXfce="xfce4-goodies"
         ChooseDM
       ;;

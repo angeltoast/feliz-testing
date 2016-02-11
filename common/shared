@@ -53,7 +53,7 @@ GoodiesGnome=""
 GoodiesOpenbox=""
 DisplayManager=""      # eg: lightdm
 Greeter=""             # eg: lightdm-gtk-greeter (Not required for some DMs)
-Feliz-Xfce="No"
+FelizXfce="No"
 #
 # Root and user variables
 #
@@ -356,7 +356,7 @@ InstallLuxuries() {
         InstallDM
         pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
       ;;
-      "Feliz") DisplayProgress "Installing 'Feliz-Xfce' Desktop Environment" 30
+      "Feliz") DisplayProgress "Installing 'FelizXfce' Desktop Environment" 30
         InstallDM
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         # Overwrite default wallpaper
@@ -444,7 +444,7 @@ InstallLuxuries() {
       ;;
       "conky") TPecho "Adding your extra items" "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
-        if [ $Feliz-Xfce = "Yes" ]; then
+        if [ $FelizXfce = "Yes" ]; then
           cp conkyrc /mnt/etc/skel/.conkyrc 2>> feliz.log
           cp conky.desktop /mnt/etc/xdg/autostart/ 2>> feliz.log
         fi
@@ -457,7 +457,7 @@ InstallLuxuries() {
       esac
     done
   fi
-  if [ Feliz-Xfce = "Yes" ] && [ FirefoxIncluded="No" ]; then
+  if [ FelizXfce = "Yes" ] && [ FirefoxIncluded="No" ]; then
     pacstrap /mnt firefox &>> feliz.log
   fi
 }
