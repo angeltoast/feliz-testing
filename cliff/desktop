@@ -9,13 +9,13 @@
 # ---------------     -----------------------
 # Function   Line     Function           Line
 # ---------------     -----------------------
-# Keymap      20      Display Managers    428
-# Locale      59      FinalCheck          549
-# Timezone   122      ManualSettings      640
-# Subzone    161      ChangeRootPartition 666
-# Username   235      ChangeSwapPartition 674
-# Hostname   251      ChangePartitions    682
-# Extras     216      AddExtras           694    
+# Keymap        20      Display Managers    428
+# Locale        59      FinalCheck          549
+# Timezone     122      ManualSettings      640
+# Subzone      161      ChangeRootPartition 666
+# Username     235      ChangeSwapPartition 674
+# Hostname     251      ChangePartitions    682
+# PickLuxuries 216      AddExtras           694    
 
 getkeymap() {
 print_heading
@@ -392,7 +392,7 @@ do
         ChooseDM
       ;;
     "Feliz") DesktopEnvironment=$SaveResult
-          Feliz-Xfce="Yes"
+          FelizXfce="Yes"
         GoodiesXfce="xfce4-goodies"
         ChooseDM
       ;;
