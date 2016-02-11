@@ -248,7 +248,7 @@ done
 ChooseDM() { # Choose a display manager unless already fixed by certain DEs
   if [ -z $DisplayManager ]; then
     Greeter=""
-    local Message="\nYou can choose one of the following display managers. Not all display managers work well with all desktop environments. If in doubt, choose LightDM.\nIf you do not install a display manager, you will have to launch your desktop environment manually."
+    local Message="\nYou can choose one of the following display managers. Not all display managers work well with all desktop environments. If in doubt, choose LightDM. If you do not install a display manager, you will have to launch your desktop environment manually."
     listgen1 "GDM LightDM LXDM sddm SLIM XDM" " Display Manager/Greeter " "Done"
     Response=$(cat output.file)
     if [ $? -eq 0 ]; then
