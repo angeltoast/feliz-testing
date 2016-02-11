@@ -54,6 +54,7 @@ GoodiesOpenbox=""
 DisplayManager=""      # eg: lightdm
 Greeter=""             # eg: lightdm-gtk-greeter (Not required for some DMs)
 FelizXfce="No"
+FirefoxIncluded="No"
 #
 # Root and user variables
 #
@@ -356,26 +357,24 @@ InstallLuxuries() {
         InstallDM
         pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
       ;;
-      "Feliz") DisplayProgress "Installing 'FelizXfce' Desktop Environment" 30
+      "Feliz") DisplayProgress "Installing 'Feliz-Xfce' Desktop Environment" 30
         InstallDM
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         # Overwrite default wallpaper
         cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
         # Copy Thunar config files
         cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
-        # Prepare global config files
-        #  mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-        #  cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
-        #  cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-    # Prepare skel files (for new users)
-    mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-    cp -f xfce4-panel.xml /mnt/etc/skel/.config/xfce4/panel/default.xml 2>> feliz.log # User configs
-    cp xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-    # Copy Thunar config files
-    mkdir -p /mnt/etc/skel/.config/Thunar/ 2>> feliz.log
-    cp uca.xml /mnt/etc/skel/.config/Thunar/ 2>> feliz.log # Extra Thunar actions
-    # Copy panel launcher files
-    cp -r panel/ /mnt/etc/skel/.config/ 2>> feliz.log # Panel launchers
+        # Prepare skel files (for new users)
+        mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        cp -f xfce4-panel.xml /mnt/etc/skel/.config/xfce4/panel/default.xml 2>> feliz.log # User configs
+        cp xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        # Copy Thunar config files
+        mkdir -p /mnt/etc/skel/.config/Thunar/ 2>> feliz.log
+        cp uca.xml /mnt/etc/skel/.config/Thunar/ 2>> feliz.log # Extra Thunar actions
+        # Copy panel launcher files
+        cp -r panel/ /mnt/etc/skel/.config/ 2>> feliz.log # Panel launchers
+        # Edit (empty) desktop icon list
+
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
