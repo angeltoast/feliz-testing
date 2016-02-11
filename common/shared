@@ -374,19 +374,19 @@ InstallLuxuries() {
       #  mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log 2>> feliz.log # Panel in skel
       #  cp -f xfce4-panel.xml /mnt/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/ 2>> feliz.log # Panel in skel
       #  cp xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/ 2>> feliz.log  # Panel in skel
-        # 4) Copy panel launcher files individually
-        mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-9/  2>> feliz.log               # Panel launcher in xdg
-        cp 14551956411.desktop /mnt/etc/xdg/xfce4/panel/launcher-9/ 2>> feliz.log  # Panel launcher in xdg
-        mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-11/  2>> feliz.log              # Panel launcher in xdg
-        cp 14551956532.desktop /mnt/etc/xdg/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in xdg
-        mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in xdg
-        cp 14551957903.desktop /mnt/etc/xdg/xfce4/panel/launcher-14/ 2>> feliz.log # launcher in xdg
-      #  mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-9/  2>> feliz.log               # Panel launcher in skel
-      #  cp 14551956411.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-9/ 2>> feliz.log  # Panel launcher in skel
-      #  mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-11/  2>> feliz.log              # Panel launcher in skel
-      #  cp 14551956532.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in skel
-      #  mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in skel
-      #  cp 14551957903.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-14/ 2>> feliz.log # launcher in skel
+        # 4) Copy panel launcher files explicitly (tied to xfce4-panel.xml)
+      #  mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-9/  2>> feliz.log               # Panel launcher in xdg
+      #  cp 14551956411.desktop /mnt/etc/xdg/xfce4/panel/launcher-9/ 2>> feliz.log  # Panel launcher in xdg
+      #  mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-11/  2>> feliz.log              # Panel launcher in xdg
+      #  cp 14551956532.desktop /mnt/etc/xdg/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in xdg
+      #  mkdir -p /mnt/etc/xdg/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in xdg
+      #  cp 14551957903.desktop /mnt/etc/xdg/xfce4/panel/launcher-14/ 2>> feliz.log # launcher in xdg
+        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-9/  2>> feliz.log               # Panel launcher in skel
+        cp 14551956411.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-9/ 2>> feliz.log  # Panel launcher in skel
+        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-11/  2>> feliz.log              # Panel launcher in skel
+        cp 14551956532.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in skel
+        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in skel
+        cp 14551957903.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-14/ 2>> feliz.log # launcher in skel
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
