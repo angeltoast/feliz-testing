@@ -39,13 +39,4 @@
 	<patterns>*</patterns>
 	<text-files/>
 </action>
-<action>
-	<icon>accessories-text-editor</icon>
-	<name>Open with Mousepad</name>
-	<unique-id>1455119850479604-8</unique-id>
-	<command>/usr/bin/mousepad %f</command>
-	<description>Open with text editor</description>
-	<patterns>*</patterns>
-	<text-files/>
-</action>
 </actions>

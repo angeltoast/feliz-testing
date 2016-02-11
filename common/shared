@@ -35,7 +35,7 @@ Kernel="1"        # Default 1 = LTS
 IsInVbox=""       # Result of test to see if installation is in Virtualbox
 DualBoot="N"      # Ready for dual-booting option
 EFIPartition=""   # Will hold EFI partition mountpoint in format "/dev/sda1"
-OSprober="Y"
+OSprober="N"
 #
 # Location variables
 #
@@ -361,16 +361,21 @@ InstallLuxuries() {
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         # Overwrite default wallpaper
         cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
-        Copy Thunar config files
+        # Copy Thunar config files
         cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions
         # Prepare global config files
-        mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-        cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
-        cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
-        # Copy both config folders to xdg
-        cp -r xfce4 /mnt/etc/xdg/ 2>> feliz.log
-        # And to skel (for new users)
-        # cp -r xfce4 /mnt/etc/skel/
+        #  mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+        #  cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/panel/default.xml 2>> feliz.log # User configs
+        #  cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+    # Prepare skel files (for new users)
+    mkdir -p /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+    cp -f xfce4-panel.xml /mnt/etc/skel/.config/xfce4/panel/default.xml 2>> feliz.log # User configs
+    cp xfce4-desktop.xml /mnt/etc/skel/.config/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log
+    # Copy Thunar config files
+    mkdir -p /mnt/etc/skel/.config/Thunar/ 2>> feliz.log
+    cp uca.xml /mnt/etc/skel/.config/Thunar/ 2>> feliz.log # Extra Thunar actions
+    # Copy panel launcher files
+    cp -r panel/ /mnt/etc/skel/.config/ 2>> feliz.log # Panel launchers
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
