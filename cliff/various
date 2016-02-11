@@ -60,12 +60,13 @@ TPecho() { # For displaying status while running on auto
   DIFFSEC=$(( $Difference % 60 ))
   T_COLS=`tput cols`
   EMPTY=" "
-  tput bold
   lov=${#1}
   if [ ${lov} -lt ${T_COLS} ]; then
     stpt=$(( ($T_COLS - $lov) / 3 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
+  tput bold
+  echo -e "$EMPTY $1 \n"
   tput sgr0
   echo -e "$EMPTY $2 \n"
   echo

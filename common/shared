@@ -375,8 +375,9 @@ InstallLuxuries() {
         cp 14551956532.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in skel
         mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in skel
         cp 14551957903.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-14/ 2>> feliz.log # Panel launcher in skel
-        # 3) Copy Whisker menu config file
+        # 5) Copy Whisker menu config file
         cp whiskermenu-4.rc /mnt/etc/skel/.config/xfce4/panel/ 2>> feliz.log           # Whisker menu config in skel
+        mkdir /mnt/etc/skel/Documents /mnt/etc/skel/Downloads /mnt/etc/skel/Pictures /mnt/etc/skel/Public  
       ;;
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' Window Manager" 20
         InstallDM
@@ -463,7 +464,7 @@ InstallLuxuries() {
       esac
     done
   fi
-  if [ FelizXfce = "Yes" ] && [ FirefoxIncluded = "No" ]; then
+  if [ $FelizXfce = "Yes" ] && [ $FirefoxIncluded = "No" ]; then
     pacstrap /mnt firefox &>> feliz.log
   fi
 }
