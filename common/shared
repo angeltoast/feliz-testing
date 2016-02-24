@@ -234,7 +234,7 @@ RunAutoPart() {
     AddPartType[0]="ext4"
     Home="Y"
   elif [ $DiskSize -ge 30 ]; then
-    # Device is large enough for a separate /home partition
+    # Device is just large enough for a separate /home partition
     # Swap 4GiB 
     Parted "mkpart primary linux-swap 1MiB 4GiB"
     SwapPartition="${GrubDevice}1"
