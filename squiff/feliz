@@ -42,7 +42,7 @@ fi
 Backtitle=" If you need guidance, consult the Arch Wiki - https://wiki.archlinux.org/"
 Passed=$Backtitle
 StartTime=$(date +%s)
-echo "Begin" > feliz.log
+echo "Begin" >> feliz.log
 
 # Check partition table & offer options
 CheckParts

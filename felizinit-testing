@@ -147,6 +147,7 @@ command-line interface (from the Achoo project), or a new, semi-graphical, dialo
 #
 # Execute
 #
+echo "Begin" > feliz.log
 clear
 Backtitle="Welcome to the Feliz Arch Linux installation script"
 # Offer user alternative UI

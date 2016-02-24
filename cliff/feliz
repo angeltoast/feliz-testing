@@ -39,10 +39,10 @@ else
   exit 1
 fi
 
-Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
-Passed=$Backtitle
+# Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
+# Passed=$Backtitle
 StartTime=$(date +%s)
-echo "Begin" > feliz.log
+echo "Begin" >> feliz.log
 
 # Check partition table & offer options
 CheckParts
