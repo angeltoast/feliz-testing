@@ -346,18 +346,18 @@ do
   fi
   Settings[11]="${_Hostname} = '$HostName' :  ${_User} = '$UserName'"
   Settings[12]="${LuxuriesList}"
-  listgen2 "$Options" " Final Check " "Continue" "Settings"
+  listgen2 "$Options" "${_Final_Check}" "${_Continue}" "Settings"
   RetVal=$?
   Response=$(cat output.file)
-  Count=1
-  for i in ${Options[@]} # Convert selection into item number in list
-  do
-    if [ $i = $Response ]; then
-      break
-    fi
-    Count=$((Count+1))
-  done
   if [ $RetVal -eq 0 ]; then
+    Count=1
+    for i in ${Options[@]} # Convert selection into item number in list
+    do
+      if [ $i = $Response ]; then
+        break
+      fi
+      Count=$((Count+1))
+    done
   case $Count in
     1) ChangeRootPartition
         AllocateRoot

@@ -263,6 +263,8 @@ _ChooseDM_Message5="to launch your desktop environment manually."
 _ChooseDM_Greeter="Display Manager/Greeter"
 
 # FinalCheck()
+_Final_Check="Final Check"
+_Continue="Continue"
 _FinalCheck_Message1="These are the settings you have entered. Please check them"
 _FinalCheck_Message2="Press <Continue> to install with these settings, or choose an item if you wish to change it"
 _FinalCheck_Message3="Press [Enter] to install with these settings, or"
