@@ -148,8 +148,7 @@ done
 AutoWarning() {
 while :
 do
-  dialog --backtitle "$Backtitle" --title " auto-partition " --yes-label "${_Yes}" --no-label "${_No}"
-    --yesno "\n${_AutoWarning1} '${UseDisk}'\n${_AutoWarning2}\n" 10 40
+  dialog --backtitle "$Backtitle" --title " auto-partition " --yes-label "${_Yes}" --no-label "${_No}" --yesno "\n${_AutoWarning1} '${UseDisk}'\n${_AutoWarning2}\n" 10 40
   case $? in
     0) RunAutoPart
       if [ ${Home} = "Y" ]; then
