@@ -6,43 +6,18 @@
 # excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 #
-# Include files
+# Include source files
 #
-if [[ -f `pwd`/shared ]]; then
-  source shared
-else
-  echo "missing file: shared"
-  exit 1
-fi
-if [[ -f `pwd`/various ]]; then
-  source various
-else
-  echo "missing file: various"
-  exit 1
-fi
-if [[ -f `pwd`/partitioning ]]; then
-  source partitioning
-else
-  echo "missing file: partitioning"
-  exit 1
-fi
-if [[ -f `pwd`/desktop ]]; then
-  source desktop
-else
-  echo "missing file: desktop"
-  exit 1
-fi
-if [[ -f `pwd`/listgen ]]; then
-  source listgen
-else
-  echo "missing file: listgen"
-  exit 1
-fi
+source shared
+source various
+source partitioning
+source desktop
+source listgen
 
-Backtitle=" If you need guidance, consult the Arch Wiki - https://wiki.archlinux.org/"
-Passed=$Backtitle
 StartTime=$(date +%s)
 echo "Begin" >> feliz.log
+
+SetLanguage # Set language before all else
 
 # Check partition table & offer options
 CheckParts
@@ -99,7 +74,7 @@ ReflectorMirrorList
 
 InstallKernel
 
-PrintOne "Preparing local services" ""
+PrintOne "${_Local_Services}" ""
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 # Generate fstab
@@ -129,7 +104,7 @@ if [ $Scope != "Basic" ]; then
 fi
 
 if [ ${GrubDevice} ]; then
-  PrintOne "Installing Grub to $GrubDevice" ""
+  PrintOne "${_Installing} ${_Grub} to $GrubDevice" ""
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -140,7 +115,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-DisplayProgress "Running mkinitcpio" 10
+DisplayProgress "${_Running_mkinitcpio}" 10
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -155,8 +130,8 @@ if [ $Scope != "Basic" ]; then
   # Various bits
   PassArray=() # Ensure the array is empty
   PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond wpa_supplicant dialog xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
-  ProgressArray "Adding Codecs, X, graphics, etc" # Display gauge while installing with pacstrap
-  
+  ProgressArray "${_Adding_Codecs}" # Display gauge while installing with pacstrap
+
   # Install desktop environments, window managers and display managers
   InstallLuxuries # common/shared
   #
@@ -174,6 +149,6 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log /mnt/etc # Copy installation log for reference
-dialog --msgbox "\nCongratulations, installation is finished. It's time to exit the Feliz installer and start your new Arch Linux system. Don't forget to remove the installation media before restarting." 12 40
+dialog --msgbox "\n${_Finished}" 12 40
 
 shutdown -h now

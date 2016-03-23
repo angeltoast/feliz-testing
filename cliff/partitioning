@@ -22,32 +22,32 @@
 
 CheckParts() {
 # First test for existing partitions
-	ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
+  ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
   local Counter=0
   for i in $ShowPartitions
   do
     Counter=$((Counter+1))
   done
   PARTITIONS=${Counter}
-	# If no partitions exist, offer cfdisk to create (or exit)
+  # If no partitions exist, offer cfdisk to create (or exit)
   if [ $PARTITIONS -eq 0 ]
   then
-  	print_heading
+    print_heading
     while [ $PARTITIONS -eq 0 ]
     do
       echo
-      PrintOne "There are no partitions on the device, and at least one"
-      PrintOne "partition is needed for the root directory. If you are"
-      PrintOne "uncertain about partitioning, you should read the Arch Wiki."
+      PrintOne "${_No_Parts_Text1}"
+      PrintOne "${_No_Parts_Text2}"
+      PrintOne "${_No_Parts_Text3}"
       echo
-      PrintOne "You can use 'cfdisk' to create a partition table, or "
-      PrintOne "feliz can create partitions for you, if you wish."
-      PrintOne "If you choose 'Leave it as it is' the script will"
-      PrintOne "terminate to allow you to partition in some other way."
+      PrintOne "${_No_Parts_Text4}"
+      PrintOne "${_No_Parts_Text5}"
+      PrintOne "${_Do_Nothing}"
+      PrintOne "${_No_Parts_Text7}"
       echo
       Partitioning # Partitioning options
       if [ $Response = "3" ]; then
-        read_timed "Exiting feliz! Hurry back, y'hear?"
+        read_timed "${_Exiting}"
         exit
       fi
       # Check that partitions have been created
@@ -60,14 +60,14 @@ CheckParts() {
       PARTITIONS=${Counter}
     done
     # Call function to generate an array of partitions
-		BuildPartitionLists # This is a first call
+    BuildPartitionLists # This is a first call
   else
     # Alternatively, offer cfdisk to edit existing partitions
     print_heading
-		PrintOne "Here is a list of available partitions on all connected devices ..."
+    PrintOne "${_CheckParts_Available} ..."
     echo
     # Call function to generate an array of partitions
-		BuildPartitionLists # This is a first call
+    BuildPartitionLists # This is a first call
     Counter=0
     for part in ${PartitionList}
     do
@@ -78,16 +78,16 @@ CheckParts() {
       fi
       Counter=$((Counter+1))
     done
-		echo
-    PrintOne "'cfdisk' is available for you to edit them, or feliz can"
-    PrintOne "overwrite them with a new partition table if you wish."
-    PrintOne "If you choose 'Leave it as it is' the script will"
-    PrintOne "enable you to allocate the existing partitions."
+    echo
+    PrintOne "${_CheckParts_Options1}"
+    PrintOne "${_CheckParts_Options2}"
+    PrintOne "${_Do_Nothing}"
+    PrintOne "${_CheckParts_Options3}"
     echo
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
-	fi
+  fi
 }
 
 Partitioning() {
@@ -95,11 +95,11 @@ Partitioning() {
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    PrintOne "1) Open cfdisk so I can partition manually"
-    PrintMany "2) Allow feliz to partition the whole device"
-    PrintMany "3) Leave it as it is"
+    PrintOne "1) ${_CheckParts_Menu1}"
+    PrintMany "2) ${_CheckParts_Menu2}"
+    PrintMany "3) ${_CheckParts_Menu3}"
     echo
-    TPread "Enter the number of your selection : "
+    TPread "${_Number_of_selection} : "
     Proceed=$Response
     echo
     case $Proceed in
@@ -145,10 +145,10 @@ do
     while [ -z $UseDisk ]
     do
       print_heading
-      PrintOne "There are $Counter devices available"
-      PrintOne "Which do you wish to use for installation?"
-      PrintOne "(Remember, this is auto-partition, and any data"
-      PrintOne "on the chosen device will be lost)"
+      PrintOne "${_Available_devices0} $Counter ${_Available_devices1}"
+      PrintOne "${_Available_devices2}"
+      PrintOne "${_Available_devices3}"
+      PrintOne "${_Available_devices4}"
       echo
       Counter=0
       for i in $DiskDetails
@@ -157,7 +157,7 @@ do
         PrintOne "$Counter) $i"
       done
       echo
-      TPread "Enter the number of your selection: "
+      TPread "${_Number_of_selection}: "
       UseDisk="${Drives[$Response]}"
       AutoWarning
     done
@@ -170,50 +170,51 @@ done
 AutoWarning() {
 while :
 do
-  PrintOne "This will erase any data on ${UseDisk}"
-  TPread "Are you sure you wish to continue? (y/n): "
+  PrintOne "${_AutoWarning1} ${UseDisk}"
+  Message="${_<confirmation_message>}: "
+  listgen1 "${_Yes} ${_No}" "${_AutoWarning2}" "nodone"
   case $Response in
-    "Y" | "y") RunAutoPart
+    1) RunAutoPart
       print_heading
-      PrintOne "Partitioning of ${GrubDevice} successful"
+      PrintOne "${_AutoWarning_Message0} ${GrubDevice} ${_successful}"
       PrintOne "-------------------------------------"
-      PrintMany "Swap: ${SwapPartition}${SwapFile} $ShowPart1"
-      PrintMany "Root partition: ${RootPartition} ${RootType} $ShowPart2"
+      PrintMany "${_Swap}: ${SwapPartition}${SwapFile} $ShowPart1"
+      PrintMany "${_Root}: ${RootPartition} ${RootType} $ShowPart2"
       if [ ${Home} = "Y" ]; then
         ShowPart3=`lsblk -l | grep "${UseDisk}3" | awk '{print $4}'` >/dev/null
-        PrintMany "Home partition: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
+        PrintMany "${_Home}: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
       fi
       echo
-     PrintOne "You will have the opportunity to review these later."
+     PrintOne "${_AutoWarning_Message1}"
       echo
-      PrintOne "Press any key to continue"
+      PrintOne "${_Press_Any_Key}"
       read -n1
       break
       ;;
-    "N" | "n") UseDisk=""
+    2) UseDisk=""
       break 2
       ;;
     *) invalid_option
   esac
-done  
+done
 }
 
 
-select_filesystem() { #	$1 = list passed as string by caller
-	local Counter=0
-	PrintOne "Please now select the file system for ${Partition}"
-	PrintOne "It is not recommended to mix the btrfs file-system with others."
+select_filesystem() { # $1 = list passed as string by caller
+  local Counter=0
+  PrintOne "${_select_filesystem1} ${Partition}"
+  PrintOne "${_select_filesystem2}"
   echo
-	listgen1 "${TypeList}" "Filesystems"
+  listgen1 "${TypeList}" "Filesystems"
   for i in ${TypeList}
-	do
+  do
     Counter=$((Counter+1))
-		if [ $Counter -eq $Response ]
-		then
-			PartitionType=$i
+    if [ $Counter -eq $Response ]
+    then
+      PartitionType=$i
       break
-		fi
-	done
+    fi
+  done
 }
 
 SetLabel() { # Called from the root, swap and extra partitions routines
@@ -244,13 +245,13 @@ if [ -n ${Label} ]; then
   # Inform the user and accept input
   print_heading
   echo
-  PrintOne "The partition you have chosen is labelled '${Label}'"
+  PrintOne "${_EditLabel0} '${Label}'"
   echo
-  PrintOne "If you wish to keep that label, enter 1            "
-  PrintMany "If you wish to delete the label, enter 2"
-  PrintMany "If you wish to enter a new label, type it at the prompt"
+  PrintOne "${_EditLabel1}            "
+  PrintMany "${_EditLabel2}"
+  PrintMany "${_EditLabel3}"
   echo
-  TPread "Enter 1, 2 or a new label: "
+  TPread "${_Enter} 1, 2 ${_EditLabel4}: "
   # Save to the -A array
   case $Response in
     1) LabellingArray[$PartitionID]=$Label
@@ -263,13 +264,13 @@ fi
 }
 
 BuildPartitionLists() {
-  # 1) First get a list of all partitions up to sda99 | select first field | remove /dev/ | remove colon 
+  # 1) First get a list of all partitions up to sda99 | select first field | remove /dev/ | remove colon
   ListTypeIDs=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $1}' | cut -c 6- | sed s/://g`
-  # Then get matching list of types, removing unwanted text (TYPE=) and quotes 
-  ListTypes=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g` 
+  # Then get matching list of types, removing unwanted text (TYPE=) and quotes
+  ListTypes=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g`
   # Add records from those two indexed arrays into the associative array
   local Counter=0
-  for i in ${ListTypeIDs} 
+  for i in ${ListTypeIDs}
   do
     x=0
     for l in ${ListTypes}
@@ -315,7 +316,7 @@ BuildPartitionLists() {
   done
   local HowManyFlagged="${#Flagged[@]}"
   # 4) Prepare list of short identifiers (sda1 sda2 ...)
-  PartitionList="" 
+  PartitionList=""
   ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
   # 5) Run through short identifiers, checking the three arrays for a match
   Counter=0 # For count of partitions
@@ -352,7 +353,7 @@ BuildPartitionLists() {
 }
 
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
-	local Counter=0
+  local Counter=0
   # Empty NewArray
   local HowMany="${#NewArray[@]}"
   local x=0
@@ -381,57 +382,57 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
 }
 
 AllocateRoot() {
-  # Display partitions for user-selection	
-	# Uses list of all available partitions in PartitionList
-	print_heading
-	Remaining=""
-	local Counter=0
+  # Display partitions for user-selection
+  # Uses list of all available partitions in PartitionList
+  print_heading
+  Remaining=""
+  local Counter=0
   Partition=""
-	PartitionType=""
-	PrintOne "Please now select a partition to use for root."
+  PartitionType=""
+  PrintOne "${_AllocateRoot0}"
   echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response
-  if [ $Result != "Done" ]; then
+  if [ $Result != "${_Done}" ]; then
     PassPart=$Result
     SetLabel "$Result"
     UpdateArray # Remove the selected partition from $PartitionArray[]
   fi
-  Counter=0  
+  Counter=0
   for i in ${PartitionList}
   do
-		Counter=$((Counter+1))
+    Counter=$((Counter+1))
     if [ $Counter -eq $Reply ]; then
-			Partition="/dev/$i"
-			RootPartition="${Partition}"
+      Partition="/dev/$i"
+      RootPartition="${Partition}"
       # Before going to select_filesystem, check the partition
       CheckPartition
       if [ ${CurrentType} ]; then
-        PrintOne "You can choose to leave it as it is, by selecting 'Done', but"
-        PrintOne "be aware that not reformatting the root partition can have"
-        PrintOne "unexpected consequences."
+        PrintOne "${_AllocateRoot1}"
+        PrintOne "${_AllocateRoot2}"
+        PrintOne "${_AllocateRoot3}"
         echo
-        TypeList="ext2 ext3 ext4 btrfs"	
+        TypeList="ext2 ext3 ext4 btrfs"
       else
-      	TypeList="ext2 ext3 ext4 btrfs"	
+        TypeList="ext2 ext3 ext4 btrfs"
       fi
       # Now select a filesystem
- 			select_filesystem
-			if [ -z ${PartitionType} ]
-			then
-				RootType="ext4"
-			else
+      select_filesystem
+      if [ -z ${PartitionType} ]
+      then
+        RootType="ext4"
+      else
         RootType="${PartitionType}"
       Label="${Labelled[${PassPart}]}"
       if [ -n "${Label}" ]; then
         EditLabel $PassPart
       fi
       fi
-		else
-			Remaining="$Remaining $i"	# Add next available partition
-		fi
-	done
-  PartitionList=$Remaining			# Replace original PartitionList with remaining options
+    else
+      Remaining="$Remaining $i" # Add next available partition
+    fi
+  done
+  PartitionList=$Remaining      # Replace original PartitionList with remaining options
 }
 
 CheckPartition() {
@@ -439,8 +440,8 @@ CheckPartition() {
 print_heading
 CurrentType=`file -sL ${Partition} | grep "ext" | cut -c26-30`
 if [ ${CurrentType} ]; then
-  PrintOne "The selected partition ${Partition} is currently formatted to ${CurrentType}"
-  PrintOne "Reformatting it will remove all data currently on it."
+  PrintOne "${_CheckPartition0} ${Partition} ${_CheckPartition1} ${CurrentType}"
+  PrintOne "${_CheckPartition2}"
 fi
 }
 
@@ -449,9 +450,9 @@ AllocateSwap() {
 print_heading
 if [ -n "${PartitionList}" ]
 then
-  PrintOne "Select a partition for /swap from the ones that remain,"
-  PrintOne "or you can allocate a swap file."
-  PrintOne "Warning: Btrfs does not support swap files."
+  PrintOne "${_AllocateSwap1}"
+  PrintOne "${_AllocateSwap2}"
+  PrintOne "${_AllocateSwap3}"
   echo
   Remaining=""
   local Counter=0
@@ -465,12 +466,12 @@ then
     CopyArray[${Counter}]=${PartitionArray[$Counter]}
     Counter=$((Counter+1))
   done
-  CopyArray[${Counter}]="Swapfile"
-  PrintOne "If you select the 'Done' option, no swap will be allocated:"
+  CopyArray[${Counter}]="${_Swapfile}"
+  PrintOne "${_AllocateSwap4}:"
   echo
   listgen2 "$PickFrom" "Partitions" "" "CopyArray"
   Reply=$Response # Number of selected item
-  if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
+  if [ $Result != "${_Swapfile}" ] && [ $Result != "${_Done}" ]; then # Short ID of selected item
     PassPart=$Result
   fi
   echo
@@ -481,10 +482,10 @@ then
     if [ $Counter -eq $Reply ]
     then
       case $i in
-        "Done") SwapPartition=""
+        "${_Done}") SwapPartition=""
               break
         ;;
-        "Swapfile") SetSwapFile
+        "${_Swapfile}") SetSwapFile
             SwapPartition=""
             break
         ;;
@@ -492,12 +493,13 @@ then
          # IsSwap=`lsblk -l | grep $i | grep SWAP | awk '{print $7}'`
           IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
           if [ -n "$IsSwap" ]; then
-            PrintOne "$i is already formatted as a swap partition"
-            TPread "Do you wish to reformat it? (Y/n) : "
+            PrintOne "$i ${_AllocateSwap5}"
+            Message="${_<confirmation_message>}: "
+            listgen1 "${_Yes} ${_No}" "${_AllocateSwap6}" "nodone"
             case $Response in
-              "y" | "n") MakeSwap="${Response^^}"
+              1) MakeSwap="Y"
               ;;
-              "Y" | "N") MakeSwap=${Response}
+              2) MakeSwap="N"
               ;;
               *) MakeSwap="Y"
             esac
@@ -508,23 +510,23 @@ then
             SetLabel "$PassPart"
           fi
           UpdateArray # Remove the selected partition from $PartitionArray[]
-      esac          
+      esac
     else
-      if [ $i != "Done" ] && [ $i != Swapfile ]; then
-        Remaining="$Remaining $i"	# Add next available partition
+      if [ $i != "${_Done}" ] && [ $i != Swapfile ]; then
+        Remaining="$Remaining $i" # Add next available partition
       fi
     fi
   done
   echo
   if [ $SwapPartition ]; then
-    read_timed "$SwapPartition will be used for swap" 1
+    read_timed "$SwapPartition ${_AllocateSwap7}" 1
   elif [ $SwapFile ]; then
-    read_timed "A swap file of ${SwapFile} will be allocated." 1
+    read_timed "${_AllocateSwap8} ${SwapFile} ${_AllocateSwap9}" 1
   else
-    read_timed "No swap option has been allocated." 1
+    read_timed "${_AllocateSwap0}" 1
   fi
   echo
-  PartitionList=$Remaining	# Replace original PartitionList with remaining options
+  PartitionList=$Remaining  # Replace original PartitionList with remaining options
 fi
 }
 
@@ -532,24 +534,24 @@ SetSwapFile() {
 LoopRepeat="Y"
 while [ ${LoopRepeat} = "Y" ]
 do
-	PrintOne "Allocate the size of your swap file (M = Megabytes, G = Gigabytes)"
-  TPread "Size of swap file [eg: 512M or 2G]: "
+  PrintOne "${_SetSwapFile1}"
+  TPread "${_SetSwapFile2}: "
   RESPONSE="${Response^^}"
-	# Check that entry includes 'M or G'
-	CheckInput=(`echo $RESPONSE | grep "G\|M"`)
+  # Check that entry includes 'M or G'
+  CheckInput=(`echo $RESPONSE | grep "G\|M"`)
   echo
-	if [ -z ${CheckInput} ]; then
-    PrintOne "You must include M or G"
-		SwapFile=""
-	else
+  if [ -z ${CheckInput} ]; then
+    PrintOne "${_SetSwapFile3}"
+    SwapFile=""
+  else
     SwapFile=$RESPONSE
     LoopRepeat="N"
   fi
-  if [ ${LoopRepeat} = "N" ]  
+  if [ ${LoopRepeat} = "N" ]
   then
     break
-  fi 
-done 
+  fi
+done
 }
 
 MorePartitions() {
@@ -559,16 +561,16 @@ MorePartitions() {
   do
     Elements=$((Elements+1))
   done
-  while [ $Elements -gt 0 ]  
+  while [ $Elements -gt 0 ]
   do
     print_heading
     Remaining=""
-    PrintOne "The following partitions remain unallocated."
-    PrintOne "If you wish to use one, select it from the list,"
-    PrintOne "or choose 'Done' to finish partitioning."
+    PrintOne "${_MorePartitions1}"
+    PrintOne "${_MorePartitions2}"
+    PrintOne "${_MorePartitions3}"
     echo
     listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
-    if [ $Result != "Done" ]; then
+    if [ $Result != "${_Done}" ]; then
       PassPart=$Result
       SetLabel "$Result"
       UpdateArray # Remove the selected partition from $PartitionArray[]
@@ -578,20 +580,20 @@ MorePartitions() {
     do
       Partition=""
       PartitionType=""
-      if [ $Part = $Result ] && [ $Result != "Done" ]; then
+      if [ $Part = $Result ] && [ $Result != "${_Done}" ]; then
         Partition="/dev/$Part"
         MakePartition # Call complete details
         Label="${Labelled[${PassPart}]}"
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      elif [ $Part != "Done" ]; then   # Part is not selected and not 'Done'
+      elif [ $Part != "${_Done}" ]; then   # Part is not selected and not 'Done'
         Remaining="$Remaining $Part" # Add unused partition to temp list
         AddedToRemaining=$(($AddedToRemaining+1))
       fi
     done
-    PartitionList=$Remaining	# Replace original PartitionList with temp list
-    if [ $Result = "Done" ]; then
+    PartitionList=$Remaining  # Replace original PartitionList with temp list
+    if [ $Result = "${_Done}" ]; then
       Elements=0
       break
     else
@@ -610,58 +612,58 @@ MorePartitions() {
 MakePartition() { # Called by MorePartitions
   # Add the selected partition to the array for extra partitions
   # 1) Save to AddPartList (eg: /dev/sda5)
-	ExtraPartitions=${#AddPartList[@]}
-	AddPartList[$ExtraPartitions]="${Partition}"
+  ExtraPartitions=${#AddPartList[@]}
+  AddPartList[$ExtraPartitions]="${Partition}"
   CheckPartition   # Before going to select_filesystem, check the partition
   if [ ${CurrentType} ]; then
-    PrintOne "You can choose to leave it as it is, by selecting 'Done', but not"
-    PrintOne "reformatting an existing partition can have unexpected consequences."
+    PrintOne "${_MakePartition1}"
+    PrintOne "${_MakePartition2}"
     echo
   fi
   # 2) Select filesystem
   TypeList="ext2 ext3 ext4 btrfs" # Set format types for the selected partition
-	select_filesystem
-	AddPartType[$ExtraPartitions]="${PartitionType}" 	# Add it to AddPartType list  
+  select_filesystem
+  AddPartType[$ExtraPartitions]="${PartitionType}"  # Add it to AddPartType list
   # 3) Get a mountpoint
-	LoopRepeat="Y"
-	while [ ${LoopRepeat} = "Y" ]
-	do
+  LoopRepeat="Y"
+  while [ ${LoopRepeat} = "Y" ]
+  do
     echo
-		PrintOne "Enter a mountpoint for ${Partition} ..."
-    TPread "eg: '/home' ... /"
- 		# Check that entry includes '/'
-		CheckInput=(`echo $Response | cut -c1`)
-		case ${CheckInput} in
-      "") PrintOne "You must enter a valid name"
-					PartMount=""
+    PrintOne "${_MakePartition3} ${Partition} ..."
+    TPread "${_MakePartition4} ... /"
+    # Check that entry includes '/'
+    CheckInput=(`echo $Response | cut -c1`)
+    case ${CheckInput} in
+      "") PrintOne "${_MakePartition5}"
+          PartMount=""
           ;;
-			*) if [ ${CheckInput} != "/" ]; then
-						PartMount="/${Response}"
-				else
-						PartMount="${Response}"
-				fi
+      *) if [ ${CheckInput} != "/" ]; then
+            PartMount="/${Response}"
+        else
+            PartMount="${Response}"
+        fi
     esac
     # Check that the mountpoint has not already been used
-		MountPointCounter=0
-		if [ -z ${AddPartMount} ]; then
-			LoopRepeat="N"
-		else
+    MountPointCounter=0
+    if [ -z ${AddPartMount} ]; then
+      LoopRepeat="N"
+    else
       # Go through AddPartMount checking each item against PartMount
-			for MountPoint in ${AddPartMount}
-			do 
-				MountPointCounter=$((MountPointCounter+1))
-				if [ $MountPoint = $PartMount ]; then
-					read_timed "Mountpoint ${PartMount} has already been used. Please use a different mountpoint."
-				else
-					LoopRepeat="N"
-					break
-				fi
-			done 
-		fi 
-		if [ ${LoopRepeat} = "N" ]  
-		then
-			break
-		fi 
-	done 
-	AddPartMount[$ExtraPartitions]="${PartMount}"
+      for MountPoint in ${AddPartMount}
+      do
+        MountPointCounter=$((MountPointCounter+1))
+        if [ $MountPoint = $PartMount ]; then
+          read_timed "${_Mountpoint} ${PartMount} ${_MakePartition6}"
+        else
+          LoopRepeat="N"
+          break
+        fi
+      done
+    fi
+    if [ ${LoopRepeat} = "N" ]
+    then
+      break
+    fi
+  done
+  AddPartMount[$ExtraPartitions]="${PartMount}"
 }

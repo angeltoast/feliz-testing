@@ -6,43 +6,18 @@
 # excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 #
-# Include files
+# Include source files
 #
-if [[ -f `pwd`/shared ]]; then
-  source shared
-else
-  echo "missing file: shared"
-  exit 1
-fi
-if [[ -f `pwd`/various ]]; then
-  source various
-else
-  echo "missing file: various"
-  exit 1
-fi
-if [[ -f `pwd`/partitioning ]]; then
-  source partitioning
-else
-  echo "missing file: partitioning"
-  exit 1
-fi
-if [[ -f `pwd`/desktop ]]; then
-  source desktop
-else
-  echo "missing file: desktop"
-  exit 1
-fi
-if [[ -f `pwd`/listgen ]]; then
-  source listgen
-else
-  echo "missing file: listgen"
-  exit 1
-fi
+source shared
+source various
+source partitioning
+source desktop
+source listgen
 
-# Backtitle=" If you need guidance, consult the Arch Wiki Beginner's Guide"
-# Passed=$Backtitle
 StartTime=$(date +%s)
 echo "Begin" >> feliz.log
+
+SetLanguage # Set language before all else
 
 # Check partition table & offer options
 CheckParts
@@ -106,10 +81,10 @@ InstallKernel
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
-TPecho "Generating fstab"
+TPecho "${_Generating} fstab"
 genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
 if [ ${SwapFile} ]; then
-  TPecho "Making /swapfile"
+  TPecho "${_Making} /swapfile"
   fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log
   mkswap /mnt/swapfile >/dev/null 2>> feliz.log
@@ -117,32 +92,32 @@ if [ ${SwapFile} ]; then
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab
 fi
 
-TPecho "Setting hostname"
+TPecho "${_Setting} hostname"
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
 # Set up locale, etc
-TPecho "Preparing locale.gen"
+TPecho "${_Preparing} locale.gen"
 echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen 2>> feliz.log # eg: en_US.UTF-8 UTF-8
 arch_chroot "locale-gen"
-TPecho "Preparing locale.conf"
+TPecho "${_Preparing} locale.conf"
 echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf 2>> feliz.log # eg: LANG=en_US.UTF-8
 export "LANG=${CountryLocale}" 2>> feliz.log # eg: LANG=en_US.UTF-8
-TPecho "Setting clock"
+TPecho "${_Setting} clock"
 arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 
 if [ $Scope != "Basic" ]; then
-  TPecho "Enabling dhcpcd"
+  TPecho "${_Enabling_dhcpcd}"
   arch_chroot "systemctl enable dhcpcd.service"
-  TPecho "Installing and configuring network services"
+  TPecho "${_Network_Services}"
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
-  TPecho "Installing Grub to $GrubDevice"
+  TPecho "${_Installing_Grub} $GrubDevice"
   pacstrap /mnt grub 2>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober 2>> feliz.log
@@ -150,10 +125,10 @@ if [ ${GrubDevice} ]; then
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 else
-  TPecho "Not installing Grub"
+  TPecho "Not installing Grub" >> feliz.log
 fi
 
-TPecho "Running mkinitcpio"
+TPecho "${_Running_mkinitcpio}"
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -167,12 +142,12 @@ echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 if [ $Scope != "Basic" ]; then
   # Various bits
   pacstrap /mnt vrms 2>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  TPecho "Adding Flash and other Multimedia Codecs"
+  TPecho "${_Adding_Codecs}"
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
-  TPecho "Installing wireless tools"
+  TPecho "${_Installing} ${_Wireless_Tools}"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu 2>> feliz.log
-  TPecho "Installing X, graphics, etc"
+  TPecho "${_Installing} X, ${_Graphics}, etc"
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm 2>> feliz.log
   pacstrap /mnt xf86-input-synaptics 2>> feliz.log
   pacstrap /mnt gvfs gamin 2>> feliz.log
@@ -194,9 +169,9 @@ if [ $Scope != "Basic" ]; then
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
 print_heading
-PrintOne="Congratulations, installation is finished."
+PrintOne="${_Congratulations}."
 echo
-listgen1 "Reboot Shutdown" "" "nodone"
+listgen1 "${_Reboot} $_{Shutdown}" "" "nodone"
 case $Response in
   1) systemctl reboot
   ;;

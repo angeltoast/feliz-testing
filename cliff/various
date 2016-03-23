@@ -10,6 +10,7 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
+# SetLanguage
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
@@ -18,19 +19,41 @@
 # SetScope             159       TestExistingDM       264
 # SetKernel            193       SetRootPassword      293
 # ConfirmVbox          206       SetUserPassword      335
-# MakePartitionList    229       
+# MakePartitionList    229
+
+SetLanguage() { # User selects language, which is then fixed
+  LanguageList="English French Polish Portuguese Romanian Spanish Serbian"
+  LanguageArray[1]="English"
+  LanguageArray[2]="Francais"
+  LanguageArray[3]="Polski"
+  LanguageArray[4]="Português"
+  LanguageArray[5]="Română"
+  LanguageArray[6]="Espanhol"
+  LanguageArray[7]="Srpski"
+  Response=""
+  listgen2 "$LanguageList" "Languages" "nodone" "LanguageArray"
+  if [ -n $Response ]; then
+    Language=$Result
+    Language="${Language,,}"        # Make lower case
+    LanguageFile="feliz.${Language}"
+    cp $LanguageFile feliz.language # Set for future use
+  else
+    cp feliz.english feliz.language # Set default language to English
+  fi
+  source feliz.language
+}
 
 print_heading() {
   clear
   T_COLS=`tput cols`
   tput cup 1 $((($T_COLS/2)-20))
-  printf "~ Feliz - The Arch Linux Installation Script ~\n"
+  printf "~ ${_Backtitle} ~\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
 invalid_option() { # (from AUI scripts)
-  echo 
-  read_timed "Invalid option. Try again ..." 1
+  echo
+  read_timed "${_Invalid_entry} ${_Try_again} ..." 1
 }
 
 TPread() { # Aligned prompt for user-entry
@@ -93,13 +116,13 @@ read_timed() { # $1 = text to display; $2 = duration
 SetKernel() {
   print_heading
   echo
-  PrintOne "Choose your kernel"
-  PrintOne "The Long-Term-Support kernel (LTS) offers stabilty,"
-  PrintOne "while the Latest kernel has all the new features."
-  PrintOne "If in doubt, choose LTS."
+  PrintOne "${_Choose_kernel}"
+  PrintOne "${_SetKernel1}"
+  PrintOne "${_SetKernel2}"
+  PrintOne "${_SetKernel3}"
   echo
   local Counter=0
-  listgen1 "LTS Latest" "Kernels" "nodone"
+  listgen1 "${_LTS_kernel} ${_Latest_kernel}" "${_Kernels}" "nodone"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
@@ -108,14 +131,17 @@ ConfirmVbox() {
   until [ $Retry = "N" ]
   do
     print_heading
-    PrintOne "It appears that feliz is running in Virtualbox."
-    PrintOne "If it is, feliz can install Virtualbox guest"
-    PrintOne "utilities and make appropriate settings for you."
+    PrintOne "${_ConfirmVbox1}"
+    PrintOne "${_ConfirmVbox2}"
+    PrintOne "${_ConfirmVbox3}"
     echo
-    TPread "Install Virtualbox guest utilities? (y/n): "
+
+    Message="${_ConfirmVbox4}: "
+    listgen1 "${_Yes} ${_No}" "Virtualbox" "nodone"
+
     echo
     case $Response in
-      "y" | "Y") IsInVbox="VirtualBox"
+      1) IsInVbox="VirtualBox"
         Retry="N"
       ;;
       "") invalid_option
@@ -129,7 +155,7 @@ ConfirmVbox() {
 MakePartitionList() {
 # Call BuildPartitionLists function to generate an array of partitions
 # This is not a first call, so first empty the existing array
- 	local x=0
+  local x=0
   local HowMany="${#PartitionArray[@]}"
   until [ ${x} -eq ${HowMany} ]
   do
@@ -141,23 +167,23 @@ MakePartitionList() {
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
-}  
+}
 
 SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
-	print_heading
+  print_heading
   GrubDevice=""
-	Counter=0
-	PrintOne "Select the device where Grub is to be installed."
-  PrintOne "Note that if you select the 'None' option, Grub will"
-  PrintOne "not be installed, and you will have to make"
-  PrintOne "alternative arrangements for booting your new system."
+  Counter=0
+  PrintOne "${_SetGrubDevice1}"
+  PrintOne "${_SetGrubDevice1}"
+  PrintOne "${_SetGrubDevice1}"
+  PrintOne "${_SetGrubDevice1}"
   echo
-	listgen1 "${DevicesList}" "Devices" "None"
+  listgen1 "${DevicesList}" "${_Devices}" "${_None}"
   Reply=$Response
   for i in ${DevicesList}
-	do
+  do
     Item=$i
     Counter=$((Counter+1))
     if [ $Counter -eq $Reply ]; then
@@ -167,15 +193,15 @@ SetGrubDevice() {
         GrubDevice=$Item
       fi
       break
-  	fi
-	done
+    fi
+  done
 }
 
 MountPartitions() {
   case $RootType in
-    "") TPecho "Not formatting root partition"
+    "") TPecho "${_Not_formatting_root}"
     ;;
-    *) TPecho "Formatting /root partition"
+    *) TPecho "${_Formatting_root}"
       umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
@@ -192,12 +218,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition}
     fi
   esac
-  TPecho "Mounting /root partition"	
+  TPecho "${_Mounting_root}"
   mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      TPecho "Making /swap partition"
+      TPecho "${_Making_swap}"
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
@@ -212,9 +238,9 @@ MountPartitions() {
   local Counter=0
   for id in ${AddPartList}
   do
-    TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
+    TPecho "${_Mounting} ${id} ${_as} ${AddPartMount[$Counter]}"
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mkdir -p /mnt/home
+    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
@@ -229,35 +255,35 @@ MountPartitions() {
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log	# eg: mount /dev/sda3 /mnt/home
-		Counter=$((Counter+1))
-	done
+    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    Counter=$((Counter+1))
+  done
 }
 
 InstallKernel() {
-  TPecho "Installing cli tools and extras"
+  TPecho "${_Installing} ${_cli_tools}"
   pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-    1) TPecho "Installing LTS kernel"
+    1) TPecho "${_Installing} ${_LTS} ${_kernel}"
         pacstrap /mnt linux-lts
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-          TPecho "Installing virtualbox guest modules"
+          TPecho "${_Installing} virtualbox guest modules"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi
-      ;;  
-    *) TPecho "Installing Latest kernel"
+      ;;
+    *) TPecho "${_Installing} ${_Latest} ${_kernel}"
         pacstrap /mnt linux
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-          TPecho "Installing virtualbox guest modules"
+          TPecho "${_Installing} ${_VBox_guest_modules}"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi
   esac
-  TPecho "Installing opensource video drivers"
+  TPecho "${_Installing} ${_video_drivers}"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
 }
 
@@ -268,7 +294,7 @@ TestExistingDM() {
   DMLine=`cat /mnt/etc/output.log`
   local Counter=1
   case ${DMLine} in
-    "") TPecho "No previous DM discovered"
+    "") echo "No previous DM discovered" >> feliz.log
     ;;
     *) local Continue="Y"
       while [ ${Continue} = "Y" ]
@@ -283,7 +309,7 @@ TestExistingDM() {
         case ${ExDMStatus} in
           "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
           ;;
-          *) TPecho "${ExDM} already disabled"
+          *) echo "${ExDM} already disabled" >> feliz.log
         esac
         Counter=$((Counter+1))
       done
@@ -293,34 +319,26 @@ TestExistingDM() {
 SetRootPassword() {
   print_heading
   echo
-  PrintOne "Success!"
+  PrintOne "${_Success}"
   echo
-  if [ $Scope = "Basic" ]; then
-    PrintOne "Finished installing basic Arch in $DIFFMIN minutes and $DIFFSEC seconds"
-  else
-    PrintOne "Finished installing Arch with ..."
-    echo
-    PrintOne "${LuxuriesList}"
-    echo
-    PrintOne "... in $DIFFMIN minutes and $DIFFSEC seconds"
-  fi
+  PrintOne "${_Finished} $DIFFMIN ${_minutes} $DIFFSEC ${_seconds}"
   echo
- 	PrintOne "-----------------------"
+  PrintOne "-----------------------"
   echo
-  PrintOne "Finally we need to set passwords ..."
+  PrintOne "${_passwords} ..."
   echo
-  PrintOne "Note that you will not be able to "
-  PrintOne "see passwords as you enter them ..."
+  PrintOne "${_Note1}"
+  PrintOne "${_Note2} ..."
   echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for root: " Pass1
+    read -s -p "${_enter_password} ${_root}: " Pass1
     echo
-    read -s -p "Re-enter root password: " Pass2
+    read -s -p "${_enter_again} ${_root}: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      read_timed "${_no_blank} ${_Try_again} ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -330,7 +348,7 @@ SetRootPassword() {
      Repeat="N"
     else
       print_heading
-      PrintOne "Passwords don't match. Try again"
+      PrintOne "${_no_match} ${_Try_again}"
     fi
   done
 }
@@ -338,17 +356,15 @@ SetRootPassword() {
 SetUserPassword() {
   print_heading
   echo
-	PrintOne   "And now a password for $UserName: "
-  echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for $UserName: " Pass1
+    read -s -p "${_enter_password} $UserName: " Pass1
     echo
-    read -s -p "Re-enter password for $UserName: " Pass2
+    read -s -p "${_enter_again} $UserName: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      read_timed "${_no_blank} ${_Try_again} ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -357,7 +373,7 @@ SetUserPassword() {
       rm /tmp/.passwd 2>> feliz.log
       Repeat="N"
     else
-      echo "Passwords don't match. Try again"
+      echo "${_no_match} ${_Try_again}"
     fi
   done
 }
