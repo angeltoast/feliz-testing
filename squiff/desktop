@@ -250,7 +250,7 @@ ShoppingList() {
         ChooseDM
       ;;
     "Xfce") DesktopEnvironment="Xfce"
-        dialog --backtitle "$Backtitle" --title " Xfce desktop environment " \
+        dialog --backtitle "$Backtitle" --title " - Xfce ${_Desktop_Environment} - " \
     --yesno "\n${_Xfce4_Goodies0}\n${_Xfce4_Goodies1}\n${_Xfce4_Goodies2}\n" 10 40
         case $? in
           0) GoodiesXfce="xfce4-goodies"
@@ -259,7 +259,7 @@ ShoppingList() {
         esac
         ChooseDM
       ;;
-     *) echo "Error at $LINENO" >> feliz.log
+     *) echo "Error in desktop at $LINENO" >> feliz.log
     esac
     LuxuriesList="${LuxuriesList} ${Picked}"
 done
@@ -358,37 +358,39 @@ do
       fi
       Count=$((Count+1))
     done
-  case $Count in
-    1) ChangeRootPartition
-        AllocateRoot
+    case $Count in
+      1) ChangeRootPartition
+          AllocateRoot
+      ;;
+      2) ChangeSwapPartition
+          AllocateSwap
+      ;;
+      3) ChangePartitions
+          MorePartitions
+      ;;
+      4) SetKernel
+      ;;
+      5) SetGrubDevice
     ;;
-    2) ChangeSwapPartition
-        AllocateSwap
-    ;;
-    3) ChangePartitions
-        MorePartitions
-    ;;
-    4) SetKernel
-    ;;
-    5) SetGrubDevice
-    ;;
-    6) getkeymap
-    ;;
-    7) setlocale
-    ;;
-    8) SetTimeZone
-    ;;
-    9) ConfirmVbox
-    ;;
-    10) DisplayManager=""
+      6) getkeymap
+      ;;
+      7) setlocale
+      ;;
+      8) SetTimeZone
+      ;;
+      9) ConfirmVbox
+      ;;
+      10) DisplayManager=""
       ChooseDM
-    ;;
-    11) ManualSettings
-    ;;
-    12) PickLuxuries
-    ;;
-    *) Repeat=0
-  esac
+      ;;
+      11) ManualSettings
+      ;;
+      12) PickLuxuries
+      ;;
+      *) Repeat=0
+    esac
+  else
+    Repeat=0
   fi
 done
 }

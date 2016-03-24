@@ -167,8 +167,8 @@ _Latest="Latest"
 # SetGrubDevice()
 _Devices="Devices"
 _SetGrubDevice1="Select the device where Grub is to be installed."
-_SetGrubDevice2="Note that if you select the 'None' option, Grub will"
-_SetGrubDevice3="not be installed, and you will have to make"
+_SetGrubDevice2="Note that if you do not select a device, Grub"
+_SetGrubDevice3="will not be installed, and you will have to make"
 _SetGrubDevice4="alternative arrangements for booting your new system."
 
 # ConfirmVbox()

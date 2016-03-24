@@ -98,9 +98,9 @@ SetKernel() {
   local Message="${_SetKernel1} ${_SetKernel2} ${_SetKernel3}"
   listgen1 "${_LTS} ${_Latest}" " - ${_Choose_kernel} - " "nocancel"
   case $(cat output.file) in
-    "${_LTS_kernel}") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    "${_LTS}") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
-    "${_Latest_kernel}") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    "${_Latest}") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
     *) echo "${_Failure}" >> feliz.log
   esac

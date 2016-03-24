@@ -415,7 +415,7 @@ then
   CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
   PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
   Width=50                           # Set window minimum width for listgen2
-  local Message="${_AllocateSwap1}\n${_AllocateSwap2}\n${_AllocateSwap3}" # Passed to listgen2
+  local Message="${_AllocateSwap1} ${_AllocateSwap2} ${_AllocateSwap3}" # Passed to listgen2
   listgen2 "$PickFrom" "${_Partitions}" "${_None}" "CopyArray" # listgen2 builds complex dialog menu
   if [ $? -ne 0 ]; then              # If <Cancel> selected
     Result="Done"                    # Prepare reporting variable before exiting
