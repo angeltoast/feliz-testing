@@ -149,6 +149,6 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log /mnt/etc # Copy installation log for reference
-dialog --msgbox "\n${_Finished}" 12 40
+dialog --no-shadow --msgbox "\n${_Restart1}\n${_Restart2}\n${_Restart3}" 10 40
 
 shutdown -h now

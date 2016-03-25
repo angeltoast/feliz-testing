@@ -82,7 +82,7 @@ CheckParts() {
     PrintOne "${_CheckParts_Options1}"
     PrintOne "${_CheckParts_Options2}"
     PrintOne "${_Do_Nothing}"
-    PrintOne "${_CheckParts_Options3}"
+    PrintOne "${_CheckParts_Options4}"
     echo
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
@@ -389,7 +389,7 @@ AllocateRoot() {
   local Counter=0
   Partition=""
   PartitionType=""
-  PrintOne "${_AllocateRoot0}"
+  PrintOne "${_AllocateRoot0} ${_root}"
   echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response

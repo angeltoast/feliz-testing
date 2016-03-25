@@ -1,12 +1,14 @@
 #
+# Translators: In your translated copy, please replace the word 'English'
+# with your language, and replace my name with yours.
+#
 # English Translation File
 # ------------------------
 # Written by Elizabeth Mills
 # 22 March 2016
 
-# Translators: Please replace the word 'English' with your language and replace my name with yours.
-# Then, from here down, please translate only text between quotation marks
-# Do not change anything else, or add/delete lines
+# Translators: From here down, please translate only text between
+# quotation marks. Do not change anything else, or add/delete lines
 
 #
 # Global
@@ -299,7 +301,7 @@ _No_Parts_Text2="partition is needed for the root directory."
 _No_Parts_Text3=" If you are uncertain about partitioning, you should read the Arch Wiki."
 _No_Parts_Text4="You can use 'cfdisk' to create a partition table, or "
 _No_Parts_Text5="feliz can create partitions for you, if you wish."
-_Do_Nothing="If you choose to do nothing, the script will"
+_Do_Nothing="If you choose to do nothing now, the script will"
 _No_Parts_Text7="terminate to allow you to partition in some other way."
 _CheckParts_Available="Here is a list of available partitions on all connected devices"
 _CheckParts_Options1="'cfdisk' is available for you to edit them, or feliz can"
@@ -416,4 +418,6 @@ _enter_again="Re-enter password for"
 _no_blank="Passwords cannot be blank."
 _Try_again="Try again"
 _no_match="Passwords don't match."
-
+_Restart1="Congratulations, installation is complete."
+_Restart2="It is time to restart the computer into"
+_Restart3="your new system. Have fun with Arch."
