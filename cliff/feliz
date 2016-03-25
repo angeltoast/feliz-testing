@@ -171,11 +171,7 @@ if [ $Scope != "Basic" ]; then
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
 print_heading
-PrintOne="${_Congratulations}."
-echo
-listgen1 "${_Reboot} $_{Shutdown}" "" "nodone"
-case $Response in
-  1) systemctl reboot
-  ;;
-  *) shutdown now
-esac
+read_timed "${_Restart1}"
+read_timed "${_Restart2}"
+read_timed "${_Restart3}"
+shutdown now

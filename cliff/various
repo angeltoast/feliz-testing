@@ -82,7 +82,7 @@ TPecho() { # For displaying status while running on auto
   DIFFMIN=$(( $Difference/60 ))
   DIFFSEC=$(( $Difference % 60 ))
   T_COLS=`tput cols`
-  EMPTY=" "
+  EMPTY="     "
   lov=${#1}
   if [ ${lov} -lt ${T_COLS} ]; then
     stpt=$(( ($T_COLS - $lov) / 3 ))
@@ -176,9 +176,9 @@ SetGrubDevice() {
   GrubDevice=""
   Counter=0
   PrintOne "${_SetGrubDevice1}"
-  PrintOne "${_SetGrubDevice1}"
-  PrintOne "${_SetGrubDevice1}"
-  PrintOne "${_SetGrubDevice1}"
+  PrintOne "${_SetGrubDevice2}"
+  PrintOne "${_SetGrubDevice3}"
+  PrintOne "${_SetGrubDevice4}"
   echo
   listgen1 "${DevicesList}" "${_Devices}" "${_None}"
   Reply=$Response

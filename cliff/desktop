@@ -484,25 +484,28 @@ ChooseDM() { # Choose a display manager unless already fixed by certain DEs
 }
 
 AddDEextras() {
- local Extras="$1"
- print_heading
- echo
- case $DesktopEnvironment in
-  "Deepin") PrintOne "${_Deepin1}"
-    PrintOne "${_Deepin2}"
-    echo
-    ;;
-  "Openbox") PrintOne "${_Tint1}"
-    PrintOne "${_Tint2}"
-    echo
-    ;;
-  "Xfce") PrintOne "${_Xfce4_Goodies0}"
-    PrintOne "${_Xfce4_Goodies1}"
-    echo
-    ;;
-  *) echo
+  local Extras="$1"
+  print_heading
+  echo
+  case $DesktopEnvironment in
+    "Deepin") PrintOne "${_Deepin1}"
+      PrintOne "${_Deepin2}"
+      echo
+      ;;
+    "Openbox") PrintOne "${_Tint1}"
+      PrintOne "${_Tint2}"
+      echo
+      ;;
+    "Xfce") PrintOne "${_Xfce4_Goodies0}"
+      PrintOne "${_Xfce4_Goodies1}"
+      echo
+      ;;
+    *) echo
  esac
- TPread "${_ShoppingList_Extras}: "
+ 
+  Message="${_ShoppingList_Extras}"
+  listgen1 "${_Yes} ${_No}" "${_Extras}" "nodone"
+ 
 }
 
 FinalCheck() {

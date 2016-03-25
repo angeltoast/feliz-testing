@@ -1,14 +1,8 @@
 #
-# Translators: In your translated copy, please replace the word 'English'
-# with your language, and replace my name with yours.
-#
-# English Translation File
-# ------------------------
+# Feliz English Translation File
+# ------------------------------
 # Written by Elizabeth Mills
 # 22 March 2016
-
-# Translators: From here down, please translate only text between
-# quotation marks. Do not change anything else, or add/delete lines
 
 #
 # Global
@@ -16,7 +10,6 @@
 _as="as"
 _Backtitle="Feliz : Arch Installation Script"
 _Bootable="Bootable"
-_Congratulations="Congratulations, installation is finished"
 _Desktop_Environment="desktop environment"
 _Display_Manager="display manager"
 _Done="Done"
@@ -69,20 +62,20 @@ _Gauge="Processing may continue after gauge shows 100%"
 _Patient="Please be patient"
 _Progress="Progress"
 
-# -------------------------------------------------------
-# Note To Translators: Please do not translate this block
-# -------------------------------------------------------
-Categories[1]="Accessories"
-Categories[2]="Desktop_Environments"
-Categories[3]="Graphical"
-Categories[4]="Internet"
-Categories[5]="Multimedia"
-Categories[6]="Office"
-Categories[7]="Programming"
-Categories[8]="Window_Managers"
-# -------------------------------------------------------
-# End of Note To Translators
-# -------------------------------------------------------
+# ---------------------------------------------------------------- #
+# Note To Translators: Please do not translate the following block #
+# ---------------------------------------------------------------- #
+Categories[1]="Accessories"                                        #
+Categories[2]="Desktop_Environments"                               #
+Categories[3]="Graphical"                                          #
+Categories[4]="Internet"                                           #
+Categories[5]="Multimedia"                                         #
+Categories[6]="Office"                                             #
+Categories[7]="Programming"                                        #
+Categories[8]="Window_Managers"                                    #
+# ---------------------------------------------------------------- #
+#                 End of Note To Translators                       #
+# ---------------------------------------------------------------- #
 
 # Accessories
 LongAccs[1]="Disc burning application from Gnome"
@@ -206,7 +199,7 @@ _Locales="Locales"
 _SetTimeZone_Message1="To set the system clock, please first"
 _SetTimeZone_Message2="choose the World Zone of your location"
 _World_Zone="World zone"
-_World_Zones="World zones"
+_World_Zones="World_Zones"
 _City1="Please enter the first letter"
 _City2="of your nearest major city"
 _Set_City_Message="Now select your nearest city from this list."
@@ -250,7 +243,8 @@ _Deepin1="The deepin-extras pack includes the Deepin game center, media"
 _Deepin2="players, terminal and screenshot tools."
 _Tint1="tint2 is a system panel/taskbar that can be configured"
 _Tint2="to include a system tray, task list, battery monitor, clock, etc."
-_ShoppingList_Extras="Enter 1 to include the extras pack, or 0 to exclude it"
+_Extras="Extras"
+_ShoppingList_Extras="Include the extras pack?"
 _Enlightenment_Extras="It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability. Include them?"
 _Xfce4_Goodies0="The xfce4-goodies pack includes includes the Whisker menu, extra"
 _Xfce4_Goodies1="plugins and a number of utilities such as the mousepad editor"
@@ -262,7 +256,7 @@ _ChooseDM_Message2="Not all display managers work well with all desktop environm
 _ChooseDM_Message3="If in doubt, choose LightDM."
 _ChooseDM_Message4="If you do not install a display manager, you will have"
 _ChooseDM_Message5="to launch your desktop environment manually."
-_ChooseDM_Greeter="Display Manager/Greeter"
+_ChooseDM_Greeter="Display_Manager/Greeter"
 
 # FinalCheck()
 _Final_Check="Final Check"
@@ -361,7 +355,7 @@ _CheckPartition1="is currently formatted to"
 _CheckPartition2="Reformatting it will remove all data currently on it."
 
 # AllocateSwap()
-_AllocateSwap1="Select a partition for /swap from the ones that remain,"
+_AllocateSwap1="Select a partition for swap from the ones that remain,"
 _AllocateSwap2="or you can allocate a swap file."
 _AllocateSwap3="Warning: Btrfs does not support swap files."
 _AllocateSwap4="If you select the 'Done' option, no swap will be allocated:"
