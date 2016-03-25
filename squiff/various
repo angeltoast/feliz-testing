@@ -18,29 +18,6 @@
 # ConfirmVbox           95       SetRootPassword      266
 # MakePartitionList    126       SetUserPassword      285
 
-SetLanguage() { # User selects language, which is then fixed
-  dialog --clear --backtitle "$_Backtitle" --title " - Language - " --menu "Choose your language" 15 40 7 \
-        "English" "English" \
-        "French" "Francais" \
-        "Polish" "Polski" \
-        "Portuguese" "Português" \
-        "Romanian" "Română" \
-        "Spanish" "Espanhol" \
-        "Serbian" "Srpski" 2> feliz.output
-    RetVal=$?
-    case $RetVal in
-      0) # ie: Language selected
-        Language=`cat feliz.output`
-        Language="${Language,,}" # Make lower case
-        LanguageFile="feliz.${Language}"
-        cp $LanguageFile feliz.language # Set for future use
-      ;;
-      *) # Catchall for <Cancel> button (1) selected (no action) or Esc
-        cp feliz.english feliz.language # Set default language to English
-    esac
-  source feliz.language
-}
-
 PrintOne() {  # Arguments: "Component" "Patient"
   dialog --backtitle "$Backtitle" --title " - ${_Information} - " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
 }

@@ -21,28 +21,6 @@
 # ConfirmVbox          206       SetUserPassword      335
 # MakePartitionList    229
 
-SetLanguage() { # User selects language, which is then fixed
-  LanguageList="English French Polish Portuguese Romanian Spanish Serbian"
-  LanguageArray[1]="English"
-  LanguageArray[2]="Francais"
-  LanguageArray[3]="Polski"
-  LanguageArray[4]="Português"
-  LanguageArray[5]="Română"
-  LanguageArray[6]="Espanhol"
-  LanguageArray[7]="Srpski"
-  Response=""
-  listgen2 "$LanguageList" "Languages" "nodone" "LanguageArray"
-  if [ -n $Response ]; then
-    Language=$Result
-    Language="${Language,,}"        # Make lower case
-    LanguageFile="feliz.${Language}"
-    cp $LanguageFile feliz.language # Set for future use
-  else
-    cp feliz.english feliz.language # Set default language to English
-  fi
-  source feliz.language
-}
-
 print_heading() {
   clear
   T_COLS=`tput cols`

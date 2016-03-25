@@ -13,6 +13,7 @@ source various
 source partitioning
 source desktop
 source listgen
+source feliz.language
 
 StartTime=$(date +%s)
 echo "Begin" >> feliz.log

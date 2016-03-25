@@ -283,13 +283,13 @@ do
   print_heading
   PrintOne "${_Addedsofar}: ${LuxuriesList}"
   echo
-
   # $Category passed here is number of item in _Categories_List
   local Count=1
   for i in ${_Categories_List[@]}
   do
     if [ $Count -eq $Category ]; then
-      break # Get the category name by item number
+      Headline="$i" # Get the category name by item number
+      break
       (( Count+=1 ))
     fi
   done
