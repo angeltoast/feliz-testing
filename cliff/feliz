@@ -20,7 +20,6 @@ echo "Begin" >> feliz.log
 
 # Set language
 clear
-SetLanguage
 
 # Check partition table & offer options
 CheckParts

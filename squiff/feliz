@@ -16,9 +16,7 @@ source listgen
 source feliz.language
 
 StartTime=$(date +%s)
-echo "Begin" >> feliz.log
-
-SetLanguage # Set language before all else
+echo "Begin feliz" >> feliz.log
 
 # Check partition table & offer options
 CheckParts

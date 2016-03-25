@@ -17,7 +17,7 @@
 # Functions
 #
 SetLanguage() { # User selects language, which is then fixed
-  dialog --clear --backtitle "$_Backtitle" --menu "${_Language}" 15 40 7 \
+  dialog --clear --backtitle "$_Backtitle" --menu "Choose your language\nElige tu idioma\nChoisissez votre langue\nВыберите ваш язык\nwähle deine Sprache" 18 50 7 \
         "English" "English" \
         "French" "Francais" \
         "Polish" "Polski" \
@@ -25,15 +25,19 @@ SetLanguage() { # User selects language, which is then fixed
         "Romanian" "Română" \
         "Spanish" "Espanhol" \
         "Serbian" "Srpski" 2> feliz.output
-    RetVal=$?
-    case $RetVal in
-      0) # ie: Language selected
-        Language=`cat feliz.output`
-        Language="${Language,,}" # Make lower case
-      ;;
-      *) # Catchall for <Cancel> button (1) selected (no action) or Esc
-        Language="english" # Set default language to English
-    esac
+  RetVal=$?
+  case $RetVal in
+    0) # ie: Language selected
+      Language=`cat feliz.output`
+      Language="${Language,,}"    # Make lower case
+    ;;
+    *) # Catchall for <Cancel> button (1) selected (no action) or Esc
+      Language="english"          # Set default language to English
+  esac
+  LanguageFile="init.${Language}" # Translation files shipped in iso
+  cp $LanguageFile feliz.language # Save required file
+  rm init.*                       # Remove all shipped translation files
+  source feliz.language
   Backtitle="${Welcome}"
 }
 
@@ -41,15 +45,15 @@ CheckInternet() {
   Service="N"
   while [ $Service = "N" ]
   do
-  dialog --backtitle "$Backtitle" --title "$Title" --infobox "$Needed\n\n$Checking" 8 50
-      CheckConnection
-      case $Service in
-        "N") dialog --backtitle"$Backtitle" --title "$Title" --infobox "$Sorry" 5 40
-          exit
-        ;;
-        *) dialog --backtitle "$Backtitle" --title "$Title" --infobox "$Downloading" 5 30
+    dialog --backtitle "$Backtitle" --title "$Title" --infobox "$Needed\n\n$Checking" 8 50
+    CheckConnection
+    case $Service in
+      "N") dialog --backtitle"$Backtitle" --title "$Title" --infobox "$Sorry" 5 40
+        exit
+      ;;
+      *) dialog --backtitle "$Backtitle" --title "$Title" --infobox "$Downloading" 5 30
         break
-      esac
+    esac
   done
 }
 
@@ -62,8 +66,7 @@ CheckConnection() {
         dialog --backtitle "$Backtitle" --title "$Title" --nocancel --yesno "$Unable\n$Ensure\nTry again?" 10 50
         RetVal=$?
         if [ $RetVal -eq 1 ]; then
-          exit
-          break
+          shutdown -h now
         fi
       else
         dialog --backtitle "$Backtitle" --title "$Title" --infobox "$Connection" 5 30
@@ -88,15 +91,16 @@ UIselection() {
 #
 # Execute
 #
-Backtitle="Welcome to the Feliz Arch Linux installation script"
+Backtitle="Feliz Arch Linux installation script"
 
-source feliz.language # Translation file for this script. Shipped in iso
 SetLanguage
 
+CheckInternet
+
 # Download and unzip the complete testing archive from Github
-wget -N https://github.com/angeltoast/feliz-testing/archive/master.zip
-unzip -o master.zip
-cp -r feliz-testing-master/common/* .
+wget -N https://github.com/angeltoast/feliz-testing/archive/master.zip &>> feliz.log 
+unzip -o master.zip &>> feliz.log 
+cp -r feliz-testing-master/common/* . &>> feliz.log 
 
 # Set user language
 LanguageFile="feliz.${Language}"
