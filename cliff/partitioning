@@ -12,7 +12,7 @@
 # -----------------------      ------------------------
 # CheckParts          24       BuildPartitionLists 298
 # Partitioning        94       UpdateArray         322
-# Parted             124       AllocateRoot        411
+# Parted             124       AllocateRoot        384
 # AutoPartition      128       CheckPartition      440
 # AutoWarning        171       AllocateSwap        494
 # select_filesystem  188       SetSwapFile         504
@@ -171,8 +171,8 @@ AutoWarning() {
 while :
 do
   PrintOne "${_AutoWarning1} ${UseDisk}"
-  Message="${_<confirmation_message>}: "
-  listgen1 "${_Yes} ${_No}" "${_AutoWarning2}" "nodone"
+  Message="${_AutoWarning2}: "
+  listgen1 "${_Yes} ${_No}" "${_Autopartition}" "nodone"
   case $Response in
     1) RunAutoPart
       print_heading
@@ -185,7 +185,7 @@ do
         PrintMany "${_Home}: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
       fi
       echo
-     PrintOne "${_AutoWarning_Message1}"
+      PrintOne "${_AutoWarning_Message1}"
       echo
       PrintOne "${_Press_Any_Key}"
       read -n1

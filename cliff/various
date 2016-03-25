@@ -338,6 +338,7 @@ SetRootPassword() {
     read -s -p "${_enter_again} ${_root}: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
+      print_heading
       read_timed "${_no_blank} ${_Try_again} ..." 1
       continue
     fi
@@ -354,7 +355,6 @@ SetRootPassword() {
 }
 
 SetUserPassword() {
-  print_heading
   echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
@@ -364,6 +364,7 @@ SetUserPassword() {
     read -s -p "${_enter_again} $UserName: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
+      print_heading
       read_timed "${_no_blank} ${_Try_again} ..." 1
       continue
     fi
@@ -373,7 +374,9 @@ SetUserPassword() {
       rm /tmp/.passwd 2>> feliz.log
       Repeat="N"
     else
+      print_heading
       echo "${_no_match} ${_Try_again}"
+      continue
     fi
   done
 }
