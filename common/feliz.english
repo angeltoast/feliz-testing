@@ -2,24 +2,7 @@
 # Feliz English Translation File
 # ------------------------------
 # Written by Elizabeth Mills
-# 22 March 2016
-
-#
-# Initialiser
-#
-Welcome="Welcome to the Feliz Arch Linux installation script"
-Information="Information"
-Title=" Internet Connection "
-Needed="A working internet connection is needed for installation."
-Checking="Checking your connection now ..."
-Connection="Connection detected"
-Downloading="Downloading the latest scripts - please wait ..."
-Unable="Unable to establish a connection."
-Ensure="Ensure that your computer is able to access the internet."
-Sorry="Sorry, installation cannot continue without an internet connection."
-Try_Again="Try again"
-Installer_Version="Installer Version"
-Choose_Version="You can now choose between a command-line interface or a semi-graphical interface"
+# 25 March 2016
 
 #
 # Global

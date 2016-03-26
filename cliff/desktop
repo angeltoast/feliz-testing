@@ -285,7 +285,7 @@ do
   echo
   # $Category passed here is number of item in _Categories_List
   local Count=1
-  for i in ${_Categories_List[@]}
+  for i in ${Categories[@]}
   do
     if [ $Count -eq $Category ]; then
       Headline="$i" # Get the category name by item number

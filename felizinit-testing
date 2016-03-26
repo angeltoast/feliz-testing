@@ -17,7 +17,7 @@
 # Functions
 #
 SetLanguage() { # User selects language, which is then fixed
-  dialog --clear --backtitle "$_Backtitle" --menu "Choose your language\nElige tu idioma\nChoisissez votre langue\nВыберите ваш язык\nwähle deine Sprache" 18 50 7 \
+  dialog --clear --backtitle "$_Backtitle" --menu "Choose your language - wähle deine Sprache\nWybierz swój język - Choisissez votre langue\nAlegeți limba - Elige tu idioma\nВыберите ваш язык" 18 55 7 \
         "English" "English" \
         "French" "Francais" \
         "Polish" "Polski" \
