@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# various - Various functions - Dialog version
+# Various functions - Dialog version
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
@@ -10,7 +10,6 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# SetLanguage           21
 # PrintOne              44       SetGrubDevice        150
 # DisplayProgress       47       arch_chroot          155
 # ProgressArray         64       MountPartitions      160

@@ -2,8 +2,8 @@
 
 # feliz (formerly Achoo!) Arch Linux Installation Script
 # squiff edition - Semi-graphical User Interface Functions
-# Developed by Elizabeth Mills, incorporating some code adapted from the
-# excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+
+# Developed by Elizabeth Mills with acknowledgement to Carl Duff
 
 #
 # Include source files

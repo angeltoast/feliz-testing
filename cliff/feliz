@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # feliz (formerly Achoo!) Arch Linux Installation Script
+# cliff edition - Command Line Interface Functions
 
-# Developed by Elizabeth Mills, incorporating some code adapted from the
-# excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+# Developed by Elizabeth Mills with acknowledgement to Carl Duff
 
 #
 # Include source files
@@ -17,8 +17,6 @@ source feliz.language
 
 StartTime=$(date +%s)
 echo "Begin" >> feliz.log
-
-# Set language
 clear
 
 # Check partition table & offer options

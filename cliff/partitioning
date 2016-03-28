@@ -170,6 +170,7 @@ done
 AutoWarning() {
 while :
 do
+  print_heading
   PrintOne "${_AutoWarning1} ${UseDisk}"
   Message="${_AutoWarning2}: "
   listgen1 "${_Yes} ${_No}" "${_Autopartition}" "nodone"

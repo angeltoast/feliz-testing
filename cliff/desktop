@@ -284,16 +284,7 @@ do
   PrintOne "${_Addedsofar}: ${LuxuriesList}"
   echo
   # $Category passed here is number of item in _Categories_List
-  local Count=1
-  for i in ${Categories[@]}
-  do
-    if [ $Count -eq $Category ]; then
-      Headline="$i" # Get the category name by item number
-      break
-      (( Count+=1 ))
-    fi
-  done
-  Headline=${i}
+  Headline=${Categories[$Category]}
   # Pass category to listgen2 for user to choose one item;
   local Counter=1
   case $Category in

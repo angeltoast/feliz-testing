@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# felizfuncs - Various functions
+# Various functions - cli version
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
@@ -10,7 +10,6 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# SetLanguage
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
