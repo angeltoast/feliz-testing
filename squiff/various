@@ -83,11 +83,8 @@ SetKernel() {
 }
 
 ConfirmVbox() {
-  Retry="Y"
-  until [ $Retry = "N" ]
-  do
-    local Message="${_ConfirmVbox1}\n${_ConfirmVbox2} ${_ConfirmVbox3}\n\n${_ConfirmVbox4}"
-    dialog --backtitle "$Backtitle" --title " auto-partition " --yes-label "${_Yes}" --no-label "${_No}" --no-shadow --yesno "\n$Message\n" 10 40
+  local Message="${_ConfirmVbox1}\n${_ConfirmVbox2} ${_ConfirmVbox3}\n\n${_ConfirmVbox4}"
+    dialog --backtitle "$Backtitle" --title " auto-partition " --yes-label "${_Yes}" --no-label "${_No}" --no-shadow --yesno "\n$Message\n" 10 45
     RetVal=$?
     case $RetVal in
       0) IsInVbox="VirtualBox"
@@ -96,7 +93,6 @@ ConfirmVbox() {
       *) IsInVbox=""
         Retry="N"
     esac
-  done
 }
 
 MakePartitionList() {

@@ -15,7 +15,7 @@
 # UserName      75     ChangeRootPartition 356
 # Hostname      85     ChangeSwapPartition 364
 # PickLuxuries  93     ChangePartitions    372
-# ShoppingList 120     AddExtras           383
+# ShoppingList 142     AddExtras           383
 
 getkeymap() {
   ListKbs=`cat keymaps.list`
@@ -99,7 +99,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   Category="Continue"
 until [ $Category = "${_Done}" ]
 do
- # First select a category
+ # First select a category. _Categories_List is a string variable in same order as the Categories array
   HowMany=`echo ${_Categories_List} | wc -w` # Count words
   echo ${_Categories_List} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
   Counter=1
