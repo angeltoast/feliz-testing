@@ -41,6 +41,9 @@ setlocale() {
       --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to find the best mirrors for downloading your system\n" 18 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
+  
+  read -p "$CountryLocale $CountryCode"
+  
 }
 
 SetTimeZone() {
@@ -265,8 +268,8 @@ done
 ChooseDM() { # Choose a display manager unless already fixed by certain DEs
   if [ -z $DisplayManager ]; then
     Greeter=""
-    local Message="\nYou can choose one of the following display managers.\n Not all display managers work well with all desktop environments.\n If in doubt, choose LightDM.\n If you do not install a display manager, you will have\n to launch your desktop environment manually."
-    listgen1 "GDM LightDM LXDM sddm SLIM XDM" "${_ChooseDM_Greeter}" "${_Done}"
+    local Message="\nYou can choose one of the following display managers:\n Not all display managers work well with all desktop environments.\n If in doubt, choose LightDM.\n If you do not install a display manager, you will have to launch your desktop environment manually."
+    listgen1 "GDM LightDM LXDM sddm SLIM XDM" "ChooseDM/Greeter}" "Done"
     Response=$(cat output.file)
     if [ $? -eq 0 ]; then
       Reply=$Response
