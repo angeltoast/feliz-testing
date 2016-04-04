@@ -24,7 +24,7 @@ getkeymap() {
     keyboards="$keyboards $k"
   done
   local Message="Scroll through this list, or type a letter, to find your keyboard."
-  listgen1 "Keyboards" "Keyboards" "nocancel"
+  listgen1 "$keyboards" "Keyboards" "nocancel"
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
 }
@@ -113,7 +113,7 @@ PickLuxuries() { # User selects any combination from a store of extras
       ItemCounter=$((ItemCounter+1))
     done
     # Use $ItemCounter and ${Options[@]} array in menu dialog
-    dialog --backtitle "$_Backtitle" --title " - Categories - " --no-shadow --ok-button "Select" --menu "$Message\n" 18 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
+    dialog --backtitle "$_Backtitle" --title " - Categories - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 18 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
     RetVal=$?
     if [ $RetVal -gt 0 ]; then # <Cancel> selected
       break

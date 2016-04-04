@@ -149,6 +149,6 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log /mnt/etc # Copy installation log for reference
-dialog --no-shadow --msgbox "\nCongratulations, installation is complete.\nIt is time to restart the computer into\nyour new system. Have fun with Arch." 10 40
+dialog --no-shadow --msgbox "\nCongratulations, installation is complete.\nIt is time to restart the computer into your new system.\nHave fun with Arch." 10 40
 
 shutdown -h now

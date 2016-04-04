@@ -164,7 +164,7 @@ arch_chroot() {  # From Lution AIS
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
-  TPecho "$_Generating mirrorlist"
+  TPecho "Generating mirrorlist"
   reflector --verbose -l 5 --sort rate --save /etc/pacman.d/mirrorlist &>> feliz.log
   if [ $? -gt 0 ]; then
     LocalMirrorList
@@ -467,9 +467,9 @@ AddExtras() {
 # Install display manager
 InstallDM() { # Called from feliz when installing desktop environment
   case ${DisplayManager} in
-    "") echo "${_InstallDM_text0}" >> feliz.log
+    "") echo "No Display Manager selected" >> feliz.log
     ;;
-    *) TPecho "${_Installing} ${DisplayManager} ${_Display_Manager}" "" 2>> feliz.log
+    *) TPecho "Installing ${DisplayManager} display manager" "" 2>> feliz.log
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
@@ -481,11 +481,11 @@ InstallLuxuries() {
     for i in ${LuxuriesList}
     do
       case $i in
-      "Cinnamon") DisplayProgress "${_Installing} Cinnamon ${Desktop_Environment}" 50
+      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 50
         InstallDM
         pacstrap /mnt cinnamon &>> feliz.log
       ;;
-      "Deepin") DisplayProgress "${_Installing} Deepin ${Desktop_Environment}" 30
+      "Deepin") DisplayProgress "Installing Deepin desktop Environment" 30
         # If there is no defined display manager
         if [ -z ${DisplayManager} ]; then
           # Install LightDM and Deepin greeter
@@ -503,37 +503,15 @@ InstallLuxuries() {
         # Then add line at end to ensure DDE is used ...
         sed -i '$ a\exec startdde' /mnt/home/${UserName}/.xinitrc 2>> feliz.log
       ;;
-      "Enlightenment") DisplayProgress "${_Installing} 'Enlightenment' ${Desktop_Environment}" 30
+      "Enlightenment") DisplayProgress "Installing 'Enlightenment' desktop Environment" 30
         InstallDM
         pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
       ;;
-      "Feliz") DisplayProgress "${_Installing} 'Feliz-Xfce' ${Desktop_Environment}" 30
-        InstallDM
-        pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
-        # 1) Overwrite default wallpaper
-        cp -f wallpaper.jpg /mnt/usr/share/backgrounds/xfce/xfce-teal.jpg 2>> feliz.log
-        # 2) Copy global Thunar action files
-        cp uca.xml /mnt/etc/xdg/Thunar/ 2>> feliz.log # Extra Thunar actions in xdg
-        # 3) Copy global panel and desktop files
-        mkdir -p /mnt/etc/xdg/xfce4/xconf/xfce-perchannel-xml/ 2>> feliz.log 2>> feliz.log # Panel in xdg
-        cp -f xfce4-panel.xml /mnt/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/ 2>> feliz.log # Panel in xdg
-        cp xfce4-desktop.xml /mnt/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/ 2>> feliz.log  # Panel in xdg
-        # 4) Copy users' panel launcher files explicitly (tied to xfce4-panel.xml)
-        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-9/  2>> feliz.log               # Panel launcher in skel
-        cp 14551956411.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-9/ 2>> feliz.log  # Panel launcher in skel
-        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-11/  2>> feliz.log              # Panel launcher in skel
-        cp 14551956532.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-11/ 2>> feliz.log # Panel launcher in skel
-        mkdir -p /mnt/etc/skel/.config/xfce4/panel/launcher-14/  2>> feliz.log              # Panel launcher in skel
-        cp 14551957903.desktop /mnt/etc/skel/.config/xfce4/panel/launcher-14/ 2>> feliz.log # Panel launcher in skel
-        # 5) Copy Whisker menu config file
-        cp whiskermenu-4.rc /mnt/etc/skel/.config/xfce4/panel/ 2>> feliz.log           # Whisker menu config in skel
-        mkdir /mnt/etc/skel/Documents /mnt/etc/skel/Downloads /mnt/etc/skel/Pictures /mnt/etc/skel/Public
-      ;;
-      "Fluxbox") DisplayProgress "${_Installing} 'Fluxbox' ${_Window_Manager}" 20
+      "Fluxbox") DisplayProgress "Installing 'Fluxbox' window manager" 20
         InstallDM
         pacstrap /mnt fluxbox &>> feliz.log
       ;;
-      "Gnome") DisplayProgress "${_Installing} 'Gnome' ${Desktop_Environment}" 30
+      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 30
         if [ -z ${DisplayManager} ]; then
           pacstrap /mnt gnome &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
@@ -542,7 +520,7 @@ InstallLuxuries() {
           pacstrap /mnt gnome &>> feliz.log
         fi
       ;;
-      "KDE") DisplayProgress "${_Installing} KDE Plasma meta package" 40
+      "KDE") DisplayProgress "Installing KDE Plasma meta package" 40
         if [ -z ${DisplayManager} ]; then
           pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
@@ -550,10 +528,10 @@ InstallLuxuries() {
           InstallDM
           pacstrap /mnt plasma-meta &>> feliz.log
         fi
-        DisplayProgress "${_Installing} KDE applications package" 40
+        DisplayProgress "Installing KDE applications package" 40
         pacstrap /mnt kde-applications &>> feliz.log
       ;;
-      "LXDE") DisplayProgress "${_Installing} 'LXDE' ${Desktop_Environment}" 20
+      "LXDE") DisplayProgress "Installing 'LXDE' desktop Environment" 20
         if [ -z ${DisplayManager} ]; then
           pacstrap /mnt lxde &>> feliz.log
           arch_chroot "systemctl -f enable lxdm.service"
@@ -563,19 +541,19 @@ InstallLuxuries() {
           pacstrap /mnt lxde &>> feliz.log
         fi
       ;;
-      "LXQt") DisplayProgress "${_Installing} 'LXQt' ${Desktop_Environment}" 20
+      "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 20
         InstallDM
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
       ;;
-      "Mate") DisplayProgress "${_Installing} 'Mate' ${Desktop_Environment}" 50
+      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 50
         InstallDM
         pacstrap /mnt mate mate-extra &>> feliz.log
       ;;
-      "Openbox") DisplayProgress "Installing 'Openbox' ${_Window_Manager}" 20
+      "Openbox") DisplayProgress "Installing 'Openbox' window manager" 20
         InstallDM
         pacstrap /mnt openbox &>> feliz.log
       ;;
-      "Xfce") DisplayProgress "${_Installing} 'Xfce' ${Desktop_Environment}" 30
+      "Xfce") DisplayProgress "Installing 'Xfce' desktop Environment" 30
         InstallDM
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
       ;;
@@ -590,23 +568,23 @@ InstallLuxuries() {
       "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
       ;;
       "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-        TPecho "${_Installing} ${_Extra_Items}" "Modifying pacman.conf and installing Yaourt"
+        TPecho "Installing extra items" "Modifying pacman.conf and installing Yaourt"
         cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
         cp pacman.conf /etc 2>> feliz.log # For installer
         pacman -Sy &>> feliz.log # Update
         pacstrap /mnt yaourt &>> feliz.log
       ;;
-      "cairo-dock") TPecho "${_Installing} ${_Extra_Items}" "${_Installing} cairo-dock & cairo-dock-plug-ins"
+      "cairo-dock") TPecho "Installing extra items" "Installing cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
       ;;
-      "conky") TPecho "${_Installing} ${_Extra_Items}" "${_Installing} Conky"
+      "conky") TPecho "Installing extra items" "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
         if [ $FelizXfce = "Yes" ]; then
           cp conkyrc /mnt/etc/skel/.conkyrc 2>> feliz.log
           cp conky.desktop /mnt/etc/xdg/autostart/ 2>> feliz.log # Conky in xdg
         fi
       ;;
-      *) TPecho "${_Installing} ${_Extra_Items}" "${_Installing} $i"
+      *) TPecho "Installing extra items" "Installing $i"
         pacstrap /mnt $i &>> feliz.log
         if [ $i = "firefox" ]; then
           FirefoxIncluded="Yes"
@@ -623,15 +601,15 @@ UserAdd() {
   CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
   # If not already exist, create user
   if [ -z ${CheckUsers} ]; then
-    TPecho "{$_UserAdd1} ${UserName} ... "
+    TPecho "Adding user ${UserName} ... "
     arch_chroot "useradd ${UserName} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user
-    TPecho "{$_UserAdd2}"
+    TPecho "Setting up user configuration"
     arch_chroot "cp /etc/skel/.bashrc /home/${UserName}"
     arch_chroot "chown -R ${UserName}:users /home/${UserName}"
     sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers 2>> feliz.log
   else
-    TPecho "{$_UserAdd3}"
+    TPecho "User already exists"
   fi
 }
 
