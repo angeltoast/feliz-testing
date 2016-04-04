@@ -90,10 +90,10 @@ echo ${HostName} > /mnt/etc/hostname &>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
 # Set up locale, etc
-echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen &>> feliz.log # eg: en_US.UTF-8 UTF-8
+echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen 2>> feliz.log # eg: en_US.UTF-8 UTF-8
 arch_chroot "locale-gen"
-echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf &>> feliz.log # eg: LANG=en_US.UTF-8
-export "LANG=${CountryLocale}" &>> feliz.log # eg: LANG=en_US.UTF-8
+echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf 2>> feliz.log # eg: LANG=en_US.UTF-8
+export "LANG=${CountryLocale}" 2>> feliz.log # eg: LANG=en_US.UTF-8
 arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 # Networking

@@ -41,9 +41,6 @@ setlocale() {
       --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to find the best mirrors for downloading your system\n" 18 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
-  
-  read -p "$CountryLocale $CountryCode"
-  
 }
 
 SetTimeZone() {
