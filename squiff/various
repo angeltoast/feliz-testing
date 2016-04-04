@@ -18,7 +18,7 @@
 # MakePartitionList    126       SetUserPassword      285
 
 PrintOne() {  # Arguments: "Component" "Patient"
-  dialog --backtitle "$Backtitle" --title " - ${_Information} - " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "$1\n$2\n" 5 55 ; sleep 1 &
 }
 
 TPecho() { # For compatibility with Cliff
@@ -35,13 +35,13 @@ DisplayProgress() { # Revised code for displaying progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "\n  $Message\n  ${_Gauge}\n  ${_Patient} ..."
+    echo "\n  $Message\n  Processing may continue after gauge shows 100%\n  Please be patient ..."
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title " - ${_Progress} - " --no-shadow --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 9 60 0 &
 }
 
 ProgressArray() {
@@ -62,7 +62,7 @@ ProgressArray() {
     # ... update dialog box
     echo "XXX"
     echo "$PCT"
-    echo "\n  ${_Installing} $f"
+    echo "\n  Installing $f"
     echo "XXX"
     # ... install $f
     pacstrap /mnt $f &>> feliz.log
@@ -71,20 +71,20 @@ ProgressArray() {
 }
 
 SetKernel() {
-  local Message="${_SetKernel1} ${_SetKernel2} ${_SetKernel3}"
-  listgen1 "${_LTS} ${_Latest}" " - ${_Choose_kernel} - " "nocancel"
+  local Message="The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS."
+  listgen1 "LTS Latest" " - Choose your kernel - " "nocancel"
   case $(cat output.file) in
-    "${_LTS}") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
-    "${_Latest}") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
+    "Latest") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
-    *) echo "${_Failure}" >> feliz.log
+    *) echo "${Debug}" >> feliz.log
   esac
 }
 
 ConfirmVbox() {
-  local Message="${_ConfirmVbox1}\n${_ConfirmVbox2} ${_ConfirmVbox3}\n\n${_ConfirmVbox4}"
-    dialog --backtitle "$Backtitle" --title " auto-partition " --yes-label "${_Yes}" --no-label "${_No}" --no-shadow --yesno "\n$Message\n" 10 45
+  local Message="It appears that feliz is running in Virtualbox.\nIf it is, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities?"
+    dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "\n$Message\n" 10 45
     RetVal=$?
     case $RetVal in
       0) IsInVbox="VirtualBox"
@@ -95,25 +95,12 @@ ConfirmVbox() {
     esac
 }
 
-MakePartitionList() {
-# Call BuildPartitionLists function to generate an array of partitions
-# This is not a first call, so first empty the existing array
-  local x=0
-  local HowMany="${#PartitionArray[@]}"
-  until [ ${x} -eq ${HowMany} ]
-  do
-    unset PartitionArray[$x]
-    x=$((x+1))
-  done
-  BuildPartitionLists # Then rebuild
-}
-
 SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   GrubDevice=""
-  local Message="${_SetGrubDevice1}\n${_SetGrubDevice2} ${_SetGrubDevice3} ${_SetGrubDevice4}"
-  listgen1 "${DevicesList}" "${_Devices}" ""
+  local Message="Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system."
+  listgen1 "${DevicesList}" "Devices" ""
   if [ $? -gt 0 ]; then # <Cancel> selected
    GrubDevice=""
   else
@@ -121,15 +108,11 @@ SetGrubDevice() {
   fi
 }
 
-arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
-}
-
 MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
   ;;
-  *) PrintOne "${_Preparing_and_mounting}" ""
+  *) PrintOne "Preparing and mounting partitions" ""
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
@@ -184,17 +167,17 @@ MountPartitions() {
 }
 
 InstallKernel() { # Kernel and some other core systems
-  DisplayProgress "${_Installing} bash" 40
+  DisplayProgress "Installing bash" 40
   pacstrap /mnt base-devel bash &>> feliz.log
   # Create array of all the programs to pass to installing function
   PassArray=() # Ensure array is empty
   PassArray=( btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils glibc inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux wget which xfsprogs gawk gcc-libs gettext gksu grep zip nano openssh pacman perl reiserfsprogs screenfetch sed unrar unzip vi vim xarchiver xorg-xedit xterm )
-  ProgressArray " ${_Installing} ${_cli_tools} " # Install each one using pacstrap
+  ProgressArray " Installing cli tools " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
 
   case $Kernel in
-  1) DisplayProgress "${_Installing} ${_LTS} ${_kernel}" 50
+  1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
@@ -202,7 +185,7 @@ InstallKernel() { # Kernel and some other core systems
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
   ;;
-  *) DisplayProgress "${_Installing} ${_Latest} ${_kernel}" 50
+  *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
       pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
@@ -216,19 +199,18 @@ InstallKernel() { # Kernel and some other core systems
 }
 
 SetRootPassword() {
-  Backtitle="${_Success} ${_Finished} $DIFFMIN ${_minutes} $DIFFSEC ${_seconds}"
-  Title="${_Passwords}"
+  Backtitle="Success! Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    dialog --backtitle "$Backtitle" --title " - $Title - " --nocancel \
-     --insecure --passwordbox "${_enter_password} ${_root}" 8 40 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
+     --insecure --passwordbox "Enter a password for root" 8 40 2> output.file
     Pass1=`cat output.file`
-    dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
-      --insecure --passwordbox "${_enter_again} ${_root}" 8 40 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
+      --insecure --passwordbox "Re-enter password for root" 8 40 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      PrintOne "${_no_blank} ${_Try_again} ..."
+      PrintOne "Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -237,7 +219,7 @@ SetRootPassword() {
      rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
-      PrintOne "${_no_match} ${_Try_again}"
+      PrintOne "Passwords don't match. Try again"
     fi
   done
 }
@@ -246,14 +228,14 @@ SetUserPassword() {
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    dialog --backtitle "$Backtitle" --title " - $Title - " --nocancel\
-      --insecure --passwordbox "${_enter_password} $UserName" 8 40 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel\
+      --insecure --passwordbox "Enter a password for $UserName" 8 40 2> output.file
     Pass1=`cat output.file`
-    dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
-      --insecure --passwordbox "${_enter_again} ${UserName}" 8 40 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
+      --insecure --passwordbox "Re-enter password for ${UserName}" 8 40 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      PrintOne "${_no_blank} ${_Try_again}"
+      PrintOne "Passwords cannot be blank. Try again"
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -262,7 +244,7 @@ SetUserPassword() {
       rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else
-      PrintOne "${_no_match} ${_Try_again}"
+      PrintOne "Passwords don't match. Try again"
     fi
   done
 }

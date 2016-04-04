@@ -24,13 +24,13 @@ print_heading() {
   clear
   T_COLS=`tput cols`
   tput cup 1 $((($T_COLS/2)-20))
-  printf "~ ${_Backtitle} ~\n"
+  printf "~ Feliz : Arch Installation Script ~\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
 invalid_option() { # (from AUI scripts)
   echo
-  read_timed "${_Invalid_entry} ${_Try_again} ..." 1
+  read_timed "Invalid entry. Try again ..." 1
 }
 
 TPread() { # Aligned prompt for user-entry
@@ -93,13 +93,13 @@ read_timed() { # $1 = text to display; $2 = duration
 SetKernel() {
   print_heading
   echo
-  PrintOne "${_Choose_kernel}"
-  PrintOne "${_SetKernel1}"
-  PrintOne "${_SetKernel2}"
-  PrintOne "${_SetKernel3}"
+  PrintOne "Choose your kernel"
+  PrintOne "The Long-Term-Support kernel (LTS) offers stabilty,"
+  PrintOne "while the Latest kernel has all the new features."
+  PrintOne "If in doubt, choose LTS."
   echo
   local Counter=0
-  listgen1 "${_LTS} ${_Latest}" "${_Kernels}" "nodone"
+  listgen1 "LTS Latest" "Kernels" "nodone"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
@@ -108,14 +108,12 @@ ConfirmVbox() {
   until [ $Retry = "N" ]
   do
     print_heading
-    PrintOne "${_ConfirmVbox1}"
-    PrintOne "${_ConfirmVbox2}"
-    PrintOne "${_ConfirmVbox3}"
+    PrintOne "It appears that feliz is running in Virtualbox."
+    PrintOne "If it is, feliz can install Virtualbox guest"
+    PrintOne "utilities and make appropriate settings for you."
     echo
-
-    Message="${_ConfirmVbox4}: "
-    listgen1 "${_Yes} ${_No}" "Virtualbox" "nodone"
-
+    Message="Install Virtualbox guest utilities?: "
+    listgen1 "Yes No" "Virtualbox" "nodone"
     echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -129,35 +127,18 @@ ConfirmVbox() {
   done
 }
 
-MakePartitionList() {
-# Call BuildPartitionLists function to generate an array of partitions
-# This is not a first call, so first empty the existing array
-  local x=0
-  local HowMany="${#PartitionArray[@]}"
-  until [ ${x} -eq ${HowMany} ]
-  do
-    unset PartitionArray[$x]
-    x=$((x+1))
-  done
-  BuildPartitionLists # Then rebuild
-}
-
-arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
-}
-
 SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   print_heading
   GrubDevice=""
   Counter=0
-  PrintOne "${_SetGrubDevice1}"
-  PrintOne "${_SetGrubDevice2}"
-  PrintOne "${_SetGrubDevice3}"
-  PrintOne "${_SetGrubDevice4}"
+  PrintOne "Select the device where Grub is to be installed."
+  PrintOne "Note that if you do not select a device, Grub"
+  PrintOne "will not be installed, and you will have to make"
+  PrintOne "alternative arrangements for booting your new system."
   echo
-  listgen1 "${DevicesList}" "${_Devices}" "${_None}"
+  listgen1 "${DevicesList}" "Devices" "None"
   Reply=$Response
   for i in ${DevicesList}
   do
@@ -176,9 +157,9 @@ SetGrubDevice() {
 
 MountPartitions() {
   case $RootType in
-    "") TPecho "${_Not_formatting_root}"
+    "") TPecho "Not formatting root partition"
     ;;
-    *) TPecho "${_Formatting_root}"
+    *) TPecho "Formatting root partition"
       umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
@@ -195,12 +176,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition}
     fi
   esac
-  TPecho "${_Mounting_root}"
+  TPecho "Mounting root partition"
   mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      TPecho "${_Making_swap}"
+      TPecho "Making swap partition"
       Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
@@ -211,11 +192,10 @@ MountPartitions() {
     TPecho "Activating /swap"
     swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
   fi
-
   local Counter=0
   for id in ${AddPartList}
   do
-    TPecho "${_Mounting} ${id} ${_as} ${AddPartMount[$Counter]}"
+    TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
@@ -238,85 +218,56 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  TPecho "${_Installing} ${_cli_tools}"
+  TPecho "Installing cli tools"
   pacstrap /mnt  base-devel bash  btrfs-progs bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext gksu glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pacman pciutils pcmciautils perl procps-ng psmisc reflector reiserfsprogs s-nail screenfetch sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo unrar unzip usbutils util-linux vi vim wget which xfsprogs xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
-    1) TPecho "${_Installing} ${_LTS} ${_kernel}"
+    1) TPecho "Installing LTS kernel"
         pacstrap /mnt linux-lts
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-          TPecho "${_Installing} virtualbox guest modules"
+          TPecho "Installing virtualbox guest modules"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi
       ;;
-    *) TPecho "${_Installing} ${_Latest} ${_kernel}"
+    *) TPecho "Installing Latest kernel"
         pacstrap /mnt linux
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-          TPecho "${_Installing} ${_VBox_guest_modules}"
+          TPecho "Installing virtualbox guest modules"
           pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi
   esac
-  TPecho "${_Installing} ${_video_drivers}"
+  TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
-}
-
-TestExistingDM() {
-  # Test for existing display manager and disable if necessary
-  arch-chroot /mnt touch etc/output.log # Create empty file
-  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > mnt/etc/output.log
-  DMLine=`cat /mnt/etc/output.log`
-  local Counter=1
-  case ${DMLine} in
-    "") echo "No previous DM discovered" >> feliz.log
-    ;;
-    *) local Continue="Y"
-      while [ ${Continue} = "Y" ]
-      do
-        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
-        if [ -z ${ExDM} ]; then
-          Continue="N" # Quit if no further entries
-          break
-        fi
-        Counter=$((Counter+1))
-        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
-        case ${ExDMStatus} in
-          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
-          ;;
-          *) echo "${ExDM} already disabled" >> feliz.log
-        esac
-        Counter=$((Counter+1))
-      done
-  esac
 }
 
 SetRootPassword() {
   print_heading
   echo
-  PrintOne "${_Success}"
+  PrintOne "Success!"
   echo
-  PrintOne "${_Finished} $DIFFMIN ${_minutes} $DIFFSEC ${_seconds}"
+  PrintOne "Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   echo
   PrintOne "-----------------------"
   echo
-  PrintOne "${_passwords} ..."
+  PrintOne "Finally we need to set passwords ..."
   echo
-  PrintOne "${_Note1}"
-  PrintOne "${_Note2} ..."
+  PrintOne "Note that you will not be able to "
+  PrintOne "see passwords as you enter them ..."
   echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "${_enter_password} ${_root}: " Pass1
+    read -s -p "Enter a password for root: " Pass1
     echo
-    read -s -p "${_enter_again} ${_root}: " Pass2
+    read -s -p "Re-enter password for root: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      read_timed "${_no_blank} ${_Try_again} ..." 1
+      read_timed "Passwords cannot be blank. Try again ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -326,7 +277,7 @@ SetRootPassword() {
      Repeat="N"
     else
       print_heading
-      PrintOne "${_no_match} ${_Try_again}"
+      PrintOne "Passwords don't match. Try again"
     fi
   done
 }
@@ -336,13 +287,13 @@ SetUserPassword() {
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "${_enter_password} $UserName: " Pass1
+    read -s -p "Enter a password for $UserName: " Pass1
     echo
-    read -s -p "${_enter_again} $UserName: " Pass2
+    read -s -p "Re-enter password for $UserName: " Pass2
     echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      read_timed "${_no_blank} ${_Try_again} ..." 1
+      read_timed "Passwords cannot be blank. Try again ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -352,7 +303,7 @@ SetUserPassword() {
       Repeat="N"
     else
       print_heading
-      echo "${_no_match} ${_Try_again}"
+      echo "Passwords don't match. Try again"
       continue
     fi
   done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# listgen - Dialog menu functions used throughout Feliz
+# listgen - Dialog version of menu functions used throughout Feliz
 # Adapted by Elizabeth Mills from the cli version to use Dialog
 
 # Both functions return the selected item as text using global variable $Result
@@ -103,6 +103,6 @@ Printit() {
     fi
   fi
   # Use $Counter and ${Options[@]} array in dialog
-  dialog --backtitle "$Backtitle" --title " $Title " --no-shadow --ok-button "${_Select}" $CancelButton \
+  dialog --backtitle "$Backtitle" --title " $Title " --no-shadow --ok-button "Select" $CancelButton \
       --menu "$Message\n" $Height $Width $Counter "${Options[@]}" 2> output.file
 }

@@ -35,7 +35,7 @@ Kernel="1"        # Default 1 = LTS
 IsInVbox=""       # Result of test to see if installation is in Virtualbox
 DualBoot="N"      # Ready for dual-booting option
 EFIPartition=""   # Will hold EFI partition mountpoint in format "/dev/sda1"
-OSprober="N"
+OSprober="Y"
 #
 # Location variables
 #
@@ -67,27 +67,101 @@ Scope=""     # Installation scope ... 'Full' or 'Basic'
 Response=""
 Result=""
 #
-# ---- Extras ----
+# ---- Extra Applications ----
 #
-# Categories - Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers
+_Categories_List="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+Categories[1]="Accessories"                                        #
+Categories[2]="Desktop_Environments"                               #
+Categories[3]="Graphical"                                          #
+Categories[4]="Internet"                                           #
+Categories[5]="Multimedia"                                         #
+Categories[6]="Office"                                             #
+Categories[7]="Programming"                                        #
+Categories[8]="Window_Managers"                                    #
+# Accessories
 Accessories="brasero conky gnome-calculator gedit gparted nautilus gnome-terminal yaourt"
-Desktops="Cinnamon Deepin Feliz Gnome KDE LXDE LXQt Mate Xfce"
+LongAccs[1]="Disc burning application from Gnome"
+LongAccs[2]="Desktop time and system information"
+LongAccs[3]="Calculator for your taskbar"
+LongAccs[4]="The text editor from Gnome"
+LongAccs[5]="Tool to make/delete/resize partitions"
+LongAccs[6]="The file-manager from Gnome"
+LongAccs[7]="The Gnome terminal emulator"
+LongAccs[8]="Easy to use AUR package installer"
+# Desktops
+Desktops="Cinnamon Deepin Gnome KDE LXDE LXQt Mate Xfce"
+LongDesk[1]="Slick DE from the Mint team      "
+LongDesk[2]="The Deepin Desktop Environment"
+LongDesk[3]="Full-featured, modern DE"
+LongDesk[4]="Plasma 5 and accessories pack"
+LongDesk[5]="Traditional, lightweight DE"
+LongDesk[6]="Lightweight and modern Qt DE"
+LongDesk[7]="Traditional DE from the Mint team"
+LongDesk[8]="Lightweight, highly configurable DE"
+# Graphical
 Graphical="evince gimp imagemagick gthumb simple-scan xsane"
+LongGraph[1]="Reader for PDF & other document formats"
+LongGraph[2]="Advanced image editing suite"
+LongGraph[3]="Command-line image manipulation"
+LongGraph[4]="Image viewer & basic editor"
+LongGraph[5]="A simple scanner GUI"
+LongGraph[6]="Full-featured GTK-based sane frontend"
+# Internet
 Internet="chromium epiphany filezilla firefox qbittorrent thunderbird transmission-gtk"
+LongNet[1]="Open source web browser from Google     "
+LongNet[2]="Gnome WebKitGTK+ browser (aka Web)"
+LongNet[3]="Fast & reliable FTP, FTPS & SFTP client"
+LongNet[4]="Extensible browser from Mozilla"
+LongNet[5]="Open source BitTorrent client"
+LongNet[6]="Feature-rich email client from Mozilla"
+LongNet[7]="Easy-to-use BitTorrent client"
+# Multimedia
 Multimedia="avidemux-gtk banshee handbrake openshot vlc xfburn"
+LongMulti[1]="Easy-to-use video editor               "
+LongMulti[2]="Feature-rich audio player"
+LongMulti[3]="Simple yet powerful video transcoder"
+LongMulti[4]="Easy-to-use non-linear video editor"
+LongMulti[5]="Middleweight video player"
+LongMulti[6]="GUI CD burner"
+# Office
 Office="abiword gnumeric libreoffice orage scribus"
+LongOffice[1]="Full-featured word processor        "
+LongOffice[2]="Spreadsheet program from GNOME"
+LongOffice[3]="Open-source office software suite"
+LongOffice[4]="Calendar & task manager (incl with Xfce)"
+LongOffice[5]="Desktop publishing program"
+# Programming
 Programming="bluefish codeblocks emacs geany git netbeans"
+LongProg[1]="GTK+ IDE with support for Python plugins  "
+LongProg[2]="Open source & cross-platform C/C++ IDE"
+LongProg[3]="Extensible, customizable text editor"
+LongProg[4]="Advanced text editor & IDE"
+LongProg[5]="Open source distributed version control system"
+LongProg[6]="Integrated development environment (IDE)"
+# WindowManagers
 WindowManagers="Enlightenment Fluxbox JWM Openbox cairo-dock docky fbpanel tint2"
+LongWMs[1]="Window manager and toolkit"
+LongWMs[2]="Light, fast and versatile WM"
+LongWMs[3]="(Joe's Window Manager) Featherweight WM"
+LongWMs[4]="Lightweight, powerful & configurable stacking WM"
+LongWMs[5]="Customizable dock & launcher application"
+LongWMs[6]="For opening applications & managing windows"
+LongWMs[7]="Desktop panel"
+LongWMs[8]="Desktop panel"
 
 # -------------------------
 # Functions           Line
 # -------------------------
-# ReflectorMirrorList  144
-# LocalMirrorList      154
-# MakePartitionList    167
-# RunAutoPart          180
-# InstallDM            238
-# InstallLuxuries      249
+# arch_chroot          164
+# ReflectorMirrorList  168
+# LocalMirrorList      178
+# Partitioning         193
+# Review Stage         282
+# Install Stage        326
+
+arch_chroot() {  # From Lution AIS
+  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
+}
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
   TPecho "$_Generating mirrorlist"
@@ -114,6 +188,10 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   chmod +r /etc/pacman.d/mirrorlist &>> feliz.log
 }
 
+Parted() {
+  parted --script /dev/${UseDisk} "$1" &>> feliz.log
+}
+
 MakePartitionList() {
   # Call BuildPartitionLists function to generate an array of partitions
   # This is not a first call, so first empty the existing array
@@ -125,6 +203,121 @@ MakePartitionList() {
     x=$((x+1))
   done
   BuildPartitionLists # Then rebuild
+}
+
+BuildPartitionLists() { # First called by CheckParts to generate details of partitions
+  # for display, then by feliz to prepare partition arrays for selection for root, swap and others
+  # 1) First get a list of all partitions up to sda99 | select first field | remove /dev/ | remove colon
+  ListTypeIDs=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $1}' | cut -c 6- | sed s/://g`
+  # Then get matching list of types, removing unwanted text (TYPE=) and quotes
+  ListTypes=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g`
+  # Add records from those two indexed arrays into the associative array
+  local Counter=0
+  for i in ${ListTypeIDs}
+  do
+    x=0
+    for l in ${ListTypes}
+    do
+      if [ $x -eq $Counter ]; then
+        FileSystem[$i]=$l # ... get the matching type
+      break
+      fi
+      x=$((x+1))
+    done
+    Counter=$((Counter+1))
+  done
+  # 2) Find all up to sd*99 with LABEL | select 1st field | remove /dev/ | remove colon
+  ListLabelledIDs=`sudo blkid /dev/sd* | grep LABEL | awk '{print $1}' | cut -c 6- | sed s/://g`
+  # If at least one labelled partition found, get a matching list of labels (remove quotes)
+  if [ -n "$ListLabelledIDs" ]; then
+    ListLabelledLabels=`sudo blkid /dev/sd* | grep LABEL | awk '{print $2}' | cut -c 7- | sed s/\"//g`
+  fi
+  # Add records from those two indexed arrays into associative array
+  Counter=0
+  for i in ${ListLabelledIDs}
+  do
+    x=0
+    for l in ${ListLabelledLabels}
+    do
+      if [ $x -eq $Counter ]; then
+        Labelled[$i]=$l # ... get the matching label
+      break
+      fi
+      x=$((x+1))
+    done
+    Counter=$((Counter+1))
+  done
+  local HowManyLabelled="${#Labelled[@]}"
+  # 3) Find any partitions flagged as bootable
+  ListAll=`sudo sfdisk -l | grep /dev | grep '*' | awk '{print $1}' | cut -c 6-`
+  declare -a Flagged
+  Counter=0
+  for i in $ListAll
+  do
+    Flagged[${Counter}]="$i"
+    Counter=$((Counter+1))
+  done
+  local HowManyFlagged="${#Flagged[@]}"
+  # 4) Prepare list of short identifiers (sda1 sda2 ...)
+  PartitionList=""
+  ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
+  # 5) Run through short identifiers, checking the three arrays for a match
+  Counter=0 # For count of partitions
+  Label=""
+  for part in ${ShowPartitions}
+  do
+  # First test Flagged
+    local x=0
+    until [ ${x} -eq ${HowManyFlagged} ]
+    do
+      if [ $part = "${Flagged[$x]}" ]; then
+        Bootable="(Bootable)"
+        break
+      else
+        Bootable=""
+      fi
+      x=$((x+1))
+    done
+    # Next test Labelled
+    ThisPart=${Labelled[${part}]} # Find the record in Labelled that matches the current iteration
+    if [ -n "${ThisPart}" ]; then
+      Label="${ThisPart}"
+    fi
+    # Finally get the filesystem type
+    ThisPart=${FileSystem[${part}]} # Find the record in FileSystem that matches the current iteration
+    LongID=`lsblk -l | grep ${part} | awk '{print $1 " " $4 " " $7}'`
+    PartitionArray[${Counter}]="$LongID $ThisPart ${Label} ${Bootable}"
+    Label=""
+    # Save the short ID for later functions
+    PartitionList="${PartitionList} ${part}"
+    (( Counter+=1 ))
+  done
+  PARTITIONS=${Counter}
+}
+
+UpdateArray() { # Remove the selected partition from $PartitionArray[]
+  # Called by AllocateRoot, AllocateSwap and MorePartitions
+  local Counter=0
+  declare -a NewArray  # Empty NewArray
+  # Build NewArray excluding the partition selected in the calling function
+  for p in "${PartitionArray[@]}"
+  do
+    First=`echo $p | cut -c 1-5`
+    if [ $First ]; then
+      if [ ${PassPart} != ${First} ]; then
+        NewArray[${Counter}]="$p"
+        (( Counter+=1 ))
+      fi
+    fi
+  done
+  # Then copy NewArray into PartitionArray
+  Counter=0
+  for p in "${NewArray[@]}"
+  do
+    PartitionArray[${Counter}]=${NewArray[$Counter]}
+    Counter=$((Counter+1))
+  done
+  unset PartitionArray[$Counter] # Delete the last element
 }
 
 RunAutoPart() {
@@ -202,8 +395,30 @@ RunAutoPart() {
   AutoPart=1 # Set flag to 'on' for mounting
 }
 
+SetLabel() { # Called from the root, swap and extra partitions routines
+# ... each passing a single argument containing the partition ID
+# Build an associative array of partitions (LabellingArray[]) as
+# declared in felizrunning with other arrays
+PartitionID=$1
+local HowMany="${#PartitionArray[@]}"
+local x=0
+until [ ${x} -eq ${HowMany} ]
+do
+  CompareID=`echo ${PartitionArray[${x}]} | awk '{print $1}'`
+  if [ -z ${CompareID} ]; then
+    x=$((x+1))
+    continue
+  fi
+  if [ ${CompareID} = ${PartitionID} ]; then # If the partition is in the array, it has a label
+  #  Label=`echo ${PartitionArray[${x}]} | awk '{print $4}'` # Save the label
+  Label=`echo ${PartitionArray[${x}]}`
+  fi
+  x=$((x+1))
+done
+}
+
 #
-# Review stage
+# Review stage ---------------------------------------------------------
 #
 
 ChangeRootPartition() {
@@ -246,7 +461,7 @@ AddExtras() {
 }
 
 #
-# Install stage
+# Install stage --------------------------------------------------------
 #
 
 # Install display manager
@@ -418,4 +633,33 @@ UserAdd() {
   else
     TPecho "{$_UserAdd3}"
   fi
+}
+
+TestExistingDM() {
+  # Test for existing display manager and disable if necessary
+  arch-chroot /mnt touch etc/output.log # Create empty file
+  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > mnt/etc/output.log
+  DMLine=`cat /mnt/etc/output.log`
+  local Counter=1
+  case ${DMLine} in
+    "") echo "No previous DM discovered" >> feliz.log
+    ;;
+    *) local Continue="Y"
+      while [ ${Continue} = "Y" ]
+      do
+        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
+        if [ -z ${ExDM} ]; then
+          Continue="N" # Quit if no further entries
+          break
+        fi
+        Counter=$((Counter+1))
+        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
+        case ${ExDMStatus} in
+          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
+          ;;
+          *) echo "${ExDM} already disabled" >> feliz.log
+        esac
+        Counter=$((Counter+1))
+      done
+  esac
 }

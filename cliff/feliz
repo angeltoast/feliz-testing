@@ -13,7 +13,6 @@ source various
 source partitioning
 source desktop
 source listgen
-source feliz.language
 
 StartTime=$(date +%s)
 echo "Begin" >> feliz.log
@@ -68,8 +67,6 @@ FinalCheck
 # No further user intervention from here
 #
 
-# InstallationMode # WHAT IS THIS?
-
 MountPartitions # cliff/various
 
 # Set mirrorlist
@@ -81,10 +78,10 @@ InstallKernel
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
-TPecho "${_Generating} fstab"
+TPecho "Generating fstab"
 genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
 if [ ${SwapFile} ]; then
-  TPecho "${_Making} /swapfile"
+  TPecho "Making /swapfile"
   fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log
   mkswap /mnt/swapfile >/dev/null 2>> feliz.log
@@ -92,32 +89,32 @@ if [ ${SwapFile} ]; then
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab
 fi
 
-TPecho "${_Setting} hostname"
+TPecho "Setting hostname"
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
 # Set up locale, etc
-TPecho "${_Preparing} locale.gen"
+TPecho "Preparing locale.gen"
 echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen 2>> feliz.log # eg: en_US.UTF-8 UTF-8
 arch_chroot "locale-gen"
-TPecho "${_Preparing} locale.conf"
+TPecho "Preparing locale.conf"
 echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf 2>> feliz.log # eg: LANG=en_US.UTF-8
 export "LANG=${CountryLocale}" 2>> feliz.log # eg: LANG=en_US.UTF-8
-TPecho "${_Setting} clock"
+TPecho "Setting clock"
 arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 
 if [ $Scope != "Basic" ]; then
-  TPecho "${_Enabling_dhcpcd}"
+  TPecho "Enabling dhcpcd"
   arch_chroot "systemctl enable dhcpcd.service"
-  TPecho "${_Network_Services}"
+  TPecho "Installing and configuring network services"
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
-  TPecho "${_Installing_Grub} $GrubDevice"
+  TPecho "Installing Grub to $GrubDevice"
   pacstrap /mnt grub 2>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober 2>> feliz.log
@@ -128,7 +125,7 @@ else
   TPecho "Not installing Grub" >> feliz.log
 fi
 
-TPecho "${_Running_mkinitcpio}"
+TPecho "Running mkinitcpio}"
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -142,12 +139,12 @@ echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 if [ $Scope != "Basic" ]; then
   # Various bits
   pacstrap /mnt vrms 2>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
-  TPecho "${_Adding_Codecs}"
+  TPecho "Adding codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
-  TPecho "${_Installing} ${_Wireless_Tools}"
+  TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu 2>> feliz.log
-  TPecho "${_Installing} X, ${_Graphics}, etc"
+  TPecho "Installing X, Graphics, etc"
   pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm 2>> feliz.log
   pacstrap /mnt xf86-input-synaptics 2>> feliz.log
   pacstrap /mnt gvfs gamin 2>> feliz.log
@@ -169,7 +166,7 @@ if [ $Scope != "Basic" ]; then
 fi
 cp feliz.log /mnt/etc # Copy installation log for reference
 print_heading
-read_timed "${_Restart1}"
-read_timed "${_Restart2}"
-read_timed "${_Restart3}"
+read_timed "Congratulations, installation is complete."
+read_timed "It is time to restart the computer into"
+read_timed "your new system. Have fun with Arch."
 shutdown now

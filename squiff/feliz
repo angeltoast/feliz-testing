@@ -13,10 +13,9 @@ source various
 source partitioning
 source desktop
 source listgen
-source feliz.language
 
 StartTime=$(date +%s)
-echo "Begin feliz" >> feliz.log
+echo "${StartTime}" >> feliz.log
 
 # Check partition table & offer options
 CheckParts
@@ -73,9 +72,11 @@ ReflectorMirrorList
 
 InstallKernel
 
-PrintOne "${_Local_Services}" ""
+PrintOne "Preparing local services" ""
+
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
+
 # Generate fstab
 genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
 if [ ${SwapFile} ]; then
@@ -103,7 +104,7 @@ if [ $Scope != "Basic" ]; then
 fi
 
 if [ ${GrubDevice} ]; then
-  PrintOne "${_Installing} ${_Grub} to $GrubDevice" ""
+  PrintOne "Installing Grub2 to $GrubDevice" ""
   pacstrap /mnt grub &>> feliz.log
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober &>> feliz.log
@@ -114,7 +115,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
-DisplayProgress "${_Running_mkinitcpio}" 10
+DisplayProgress "Running mkinitcpio" 10
 if [ $Kernel = "1" ]; then
   arch_chroot "mkinitcpio -p linux-lts"
 else
@@ -129,7 +130,7 @@ if [ $Scope != "Basic" ]; then
   # Various bits
   PassArray=() # Ensure the array is empty
   PassArray=( a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond wpa_supplicant dialog xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
-  ProgressArray "${_Adding_Codecs}" # Display gauge while installing with pacstrap
+  ProgressArray "Adding Codecs, etc" # Display gauge while installing with pacstrap
 
   # Install desktop environments, window managers and display managers
   InstallLuxuries # common/shared
@@ -148,6 +149,6 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log /mnt/etc # Copy installation log for reference
-dialog --no-shadow --msgbox "\n${_Restart1}\n${_Restart2}\n${_Restart3}" 10 40
+dialog --no-shadow --msgbox "\nCongratulations, installation is complete.\nIt is time to restart the computer into\nyour new system. Have fun with Arch." 10 40
 
 shutdown -h now
