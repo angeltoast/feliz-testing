@@ -226,7 +226,7 @@ InstallKernel() {
         pacstrap /mnt linux-lts
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
           TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms
+          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi

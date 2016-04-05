@@ -58,9 +58,9 @@ done
 setlocale() {
 SearchPrompt=" (for example: GB or en): "
 print_heading
-PrintOne "Next we will try to find your locale."
-PrintOne "This will be used to set fonts and find the"
-PrintOne " best mirrors for downloading your system"
+PrintOne "Next we will try to find your locale. This will"
+PrintOne "be used to set fonts and language, and to find"
+PrintOne "the best mirrors for downloading your system"
 InvalidEntry=1
 while [ $InvalidEntry -eq 1 ]
 do
@@ -105,7 +105,7 @@ do
   fi
   print_heading
 done
-echo
+print_heading
 read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
 }
 
@@ -128,10 +128,12 @@ do
   echo
   case $Result in
     "UTC") SUBZONE=""
+        print_heading
         read_timed "Zone set to: '$ZONE'" 1
         Complete=1
     ;;
     *) SetSubZone
+    print_heading
     read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
   esac
 done

@@ -12,9 +12,9 @@
 # -----------------------      ------------------------
 # CheckParts          24       BuildPartitionLists 298
 # Partitioning        94       UpdateArray         322
-# Parted             124       AllocateRoot        384
-# AutoPartition      128       CheckPartition      440
-# AutoWarning        171       AllocateSwap        494
+# Parted             124       AllocateRoot        304
+# AutoPartition      128       CheckPartition      340
+# AutoWarning        171       AllocateSwap        305
 # select_filesystem  188       SetSwapFile         504
 # SetLabel           259       MorePartitions      588
 # EditLabel          276       MakePartition       612
@@ -375,9 +375,9 @@ then
       fi
     fi
   done
-  echo
+  print_heading
   if [ $SwapPartition ]; then
-    read_timed "$SwapPartition ${_AllocateSwap7}" 1
+    read_timed "$SwapPartition will be used for swap" 1
   elif [ $SwapFile ]; then
     read_timed "A swap file of ${SwapFile} will be allocated." 1
   else

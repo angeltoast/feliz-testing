@@ -64,10 +64,14 @@ fi
 FinalCheck
 
 #
-# No further user intervention from here
+# No further user intervention from here -------------------------------
 #
 
-clear
+print_heading
+read_timed "Entering the automatic phase of installation." 1
+read_timed "No further user intervention is necessary." 1
+read_timed "Go make yourself a cup of tea; you deserve it." 1
+
 MountPartitions # cliff/various
 
 # Set mirrorlist
