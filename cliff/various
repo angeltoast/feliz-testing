@@ -13,7 +13,7 @@
 # Various input/output  22       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
-# Internet connection   87       MountPartitions      174
+# Internet connection   87       MountPartitions      154
 # Mirrorlist           131       InstallKernel        232
 # SetScope             159       TestExistingDM       264
 # SetKernel            193       SetRootPassword      293
@@ -166,14 +166,14 @@ MountPartitions() {
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${RootPartition}
     elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} 2>> feliz.log
+      mkfs.btrfs -f ${RootPartition} &>> feliz.log
     else
       Partition=`echo $RootPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition}
+      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
   TPecho "Mounting root partition"
@@ -197,20 +197,20 @@ MountPartitions() {
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
+    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id}
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} 2>> feliz.log
+      mkfs.btrfs -f ${id} &>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=`echo ${id} | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))

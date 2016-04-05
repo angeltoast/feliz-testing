@@ -12,7 +12,7 @@
 # -------------------------      -------------------------
 # PrintOne              44       SetGrubDevice        150
 # DisplayProgress       47       arch_chroot          155
-# ProgressArray         64       MountPartitions      160
+# ProgressArray         64       MountPartitions      150
 # SetKernel             83       InstallKernel        222
 # ConfirmVbox           95       SetRootPassword      266
 # MakePartitionList    126       SetUserPassword      285

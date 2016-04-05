@@ -171,7 +171,7 @@ do
   Message="Are you sure you wish to continue?: "
   listgen1 "Yes No" "Autopartition" "nodone"
   case $Response in
-    1) RunAutoPart
+    "1" | "Y" | "y") RunAutoPart
       print_heading
       PrintOne "Partitioning of ${GrubDevice} successful"
       PrintOne "-------------------------------------"
@@ -188,7 +188,7 @@ do
       read -n1
       break
       ;;
-    2) UseDisk=""
+    "2" | "N" | "n") UseDisk=""
       break 2
       ;;
     *) invalid_option
@@ -246,7 +246,7 @@ AllocateRoot() {
   local Counter=0
   Partition=""
   PartitionType=""
-  PrintOne "Please now select a partition to use for ${_root}"
+  PrintOne "Please now select a partition to use for root"
   echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response
@@ -297,8 +297,8 @@ CheckPartition() {
 print_heading
 CurrentType=`file -sL ${Partition} | grep "ext" | cut -c26-30`
 if [ ${CurrentType} ]; then
-  PrintOne "${_CheckPartition0} ${Partition} ${_CheckPartition1} ${CurrentType}"
-  PrintOne "${_CheckPartition2}"
+  PrintOne "The selected partition ${Partition} is currently formatted to ${CurrentType}"
+  PrintOne "Reformatting it will remove all data currently on it."
 fi
 }
 
@@ -323,7 +323,7 @@ then
     CopyArray[${Counter}]=${PartitionArray[$Counter]}
     Counter=$((Counter+1))
   done
-  CopyArray[${Counter}]="${_Swapfile}"
+  CopyArray[${Counter}]="Swapfile"
   PrintOne "If you skip this step, no swap will be allocated."
   echo
   listgen2 "$PickFrom" "Partitions" "" "CopyArray"
@@ -350,13 +350,14 @@ then
          # IsSwap=`lsblk -l | grep $i | grep SWAP | awk '{print $7}'`
           IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
           if [ -n "$IsSwap" ]; then
+            print_heading
             PrintOne "$i is already formatted as a swap partition,"
             PrintOne "Do you wish to reformat it?"
             listgen1 "Yes No" "" "nodone"
             case $Response in
-              1) MakeSwap="Y"
+              "1" | "Y" | "y") MakeSwap="Y"
               ;;
-              2) MakeSwap="N"
+              "2" | "N" | "n") MakeSwap="N"
               ;;
               *) MakeSwap="Y"
             esac
