@@ -351,8 +351,8 @@ then
           IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
           if [ -n "$IsSwap" ]; then
             PrintOne "$i is already formatted as a swap partition,"
-            Message="Do you wish to reformat it?"
-            listgen1 "Yes No" "Allocate_Swap" "nodone"
+            PrintOne "Do you wish to reformat it?"
+            listgen1 "Yes No" "" "nodone"
             case $Response in
               1) MakeSwap="Y"
               ;;

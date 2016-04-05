@@ -112,8 +112,8 @@ ConfirmVbox() {
     PrintOne "If it is, feliz can install Virtualbox guest"
     PrintOne "utilities and make appropriate settings for you."
     echo
-    Message="Install Virtualbox guest utilities?: "
-    listgen1 "Yes No" "Virtualbox" "nodone"
+    PrintOne "Install Virtualbox guest utilities?: "
+    listgen1 "Yes No" "" "nodone"
     echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -160,7 +160,7 @@ MountPartitions() {
     "") TPecho "Not formatting root partition"
     ;;
     *) TPecho "Formatting root partition"
-      umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
+      umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
@@ -177,7 +177,7 @@ MountPartitions() {
     fi
   esac
   TPecho "Mounting root partition"
-  mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
@@ -196,7 +196,7 @@ MountPartitions() {
   for id in ${AddPartList}
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
@@ -212,7 +212,7 @@ MountPartitions() {
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
 }

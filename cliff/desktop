@@ -492,8 +492,8 @@ AddDEextras() {
       ;;
     *) echo
   esac
-  Message="Include the extras pack?"
-  listgen1 "Yes No" "Extras" "nodone"
+  PrintOne "Include the extras pack?"
+  listgen1 "Yes No" "" "nodone"
 }
 
 FinalCheck() {
