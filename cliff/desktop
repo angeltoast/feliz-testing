@@ -18,41 +18,41 @@
 # PickLuxuries 216      AddExtras           694
 
 getkeymap() {
-print_heading
-echo
-PrintOne "Now let's try to find your keyboard"
-Repeat=1
-while [ $Repeat -eq 1 ]
-do
+  print_heading
   echo
-  PrintOne "If you know the code for your keyboard layout, enter"
-  PrintOne "it now. If not, try entering an abbreviation for your"
-  PrintOne "country or language and a list will be displayed ..."
-  echo
-  TPread "(eg: 'atari' or 'us'): "
-  local Term="${Response,,}"
-  echo
-  ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
-  case ${ListKbs} in
-    "") print_heading
-      echo
-      PrintOne "No keyboards found containing '$Term'"
-      PrintOne "Try again"
-      continue
-      ;;
-    *) listgen1 "$ListKbs" "Keyboards" "Retry"
-  esac
-  case ${Result} in
-    "Retry") print_heading
+  PrintOne "Now let's try to find your keyboard"
+  Repeat=1
+  while [ $Repeat -eq 1 ]
+  do
+    echo
+    PrintOne "If you know the code for your keyboard layout, enter"
+    PrintOne "it now. If not, try entering an abbreviation for your"
+    PrintOne "country or language and a list will be displayed ..."
+    echo
+    TPread "(eg: 'atari' or 'us'): "
+    local Term="${Response,,}"
+    echo
+    ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
+    case ${ListKbs} in
+      "") print_heading
+        echo
+        PrintOne "No keyboards found containing '$Term'"
+        PrintOne "Try again"
         continue
+        ;;
+      *) listgen1 "$ListKbs" "Keyboards" "Retry"
+    esac
+    case ${Result} in
+    "Retry") print_heading
+      continue
       ;;
     *) Repeat=0
       Countrykbd="${Result}"
-    loadkeys ${Countrykbd} 2>> feliz.log
-    echo
-    read_timed "The keyboard is now set to: '$Countrykbd'" 1
-  esac
-done
+      loadkeys ${Countrykbd} 2>> feliz.log
+    esac
+  done
+  print_heading
+  read_timed "The keyboard is now set to: '$Countrykbd'" 1
 }
 
 setlocale() {

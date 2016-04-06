@@ -14,11 +14,10 @@
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
 # Internet connection   87       MountPartitions      154
-# Mirrorlist           131       InstallKernel        232
-# SetScope             159       TestExistingDM       264
-# SetKernel            193       SetRootPassword      293
-# ConfirmVbox          206       SetUserPassword      335
-# MakePartitionList    229
+# SetScope             159       InstallKernel        220
+# SetKernel            193       TestExistingDM       264
+# ConfirmVbox          206       SetRootPassword      293
+# MakePartitionList    229       SetUserPassword      335
 
 print_heading() {
   clear
@@ -53,7 +52,6 @@ DisplayProgress() { # For compatibility with Squiff
 }
 
 TPecho() { # For displaying status while running on auto
-  echo
   CurrentTime=$(date +%s)
   Difference=$(( $CurrentTime-$StartTime ))
   DIFFMIN=$(( $Difference/60 ))
@@ -68,8 +66,9 @@ TPecho() { # For displaying status while running on auto
   tput bold
   echo -e "$EMPTY $1 \n"
   tput sgr0
-  echo -e "$EMPTY $2 \n"
-  echo
+  if [ $2 ]; then
+    echo -e "$EMPTY $2 \n"
+  fi
 }
 
 read_timed() { # $1 = text to display; $2 = duration
@@ -226,7 +225,7 @@ InstallKernel() {
         pacstrap /mnt linux-lts
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
           TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts virtualbox-guest-dkms
+          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts # virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi
@@ -235,7 +234,7 @@ InstallKernel() {
         pacstrap /mnt linux
         if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
           TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms
+          pacstrap /mnt virtualbox-guest-utils # virtualbox-guest-dkms
           echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
           cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
         fi

@@ -103,7 +103,7 @@ Partitioning() {
     Proceed=$Response
     echo
     case $Proceed in
-      1) cfdisk &>> feliz.log
+      1) cfdisk 2>> feliz.log
         tput setf 0 # Change foreground colour to black temporarily to hide error message
         partprobe &>> feliz.log #Inform kernel of changes to partitions
         tput sgr0 # Reset colour

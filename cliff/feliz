@@ -75,10 +75,10 @@ read_timed "Go make yourself a cup of tea; you deserve it." 1
 MountPartitions # cliff/various
 
 # Set mirrorlist
-ReflectorMirrorList
+ReflectorMirrorList # common/shared
 
 # Install kernel
-InstallKernel
+InstallKernel # cliff/various
 
 # Set the default PATH variable
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"

@@ -13,7 +13,7 @@
 # PrintOne              44       SetGrubDevice        150
 # DisplayProgress       47       arch_chroot          155
 # ProgressArray         64       MountPartitions      150
-# SetKernel             83       InstallKernel        222
+# SetKernel             83       InstallKernel        169
 # ConfirmVbox           95       SetRootPassword      266
 # MakePartitionList    126       SetUserPassword      285
 
@@ -180,7 +180,7 @@ InstallKernel() { # Kernel and some other core systems
   1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-      pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts  virtualbox-guest-dkms &>> feliz.log
+      pacstrap /mnt virtualbox-guest-utils virtualbox-guest-modules-lts &>> feliz.log # virtualbox-guest-dkms - commented out as installed as dependency by virtualbox-guest-utils
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
@@ -188,7 +188,7 @@ InstallKernel() { # Kernel and some other core systems
   *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
     if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-      pacstrap /mnt virtualbox-guest-utils virtualbox-guest-dkms &>> feliz.log
+      pacstrap /mnt virtualbox-guest-utils &>> feliz.log # virtualbox-guest-dkms - see LTS
       echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
       cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
     fi
