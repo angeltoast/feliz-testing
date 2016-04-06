@@ -52,6 +52,7 @@ DisplayProgress() { # For compatibility with Squiff
 }
 
 TPecho() { # For displaying status while running on auto
+  echo
   CurrentTime=$(date +%s)
   Difference=$(( $CurrentTime-$StartTime ))
   DIFFMIN=$(( $Difference/60 ))
@@ -66,9 +67,6 @@ TPecho() { # For displaying status while running on auto
   tput bold
   echo -e "$EMPTY $1 \n"
   tput sgr0
-  if [ $2 ]; then
-    echo -e "$EMPTY $2 \n"
-  fi
 }
 
 read_timed() { # $1 = text to display; $2 = duration
@@ -223,22 +221,16 @@ InstallKernel() {
   case $Kernel in
     1) TPecho "Installing LTS kernel"
         pacstrap /mnt linux-lts
-        if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-          TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils # virtualbox-guest-modules-lts # virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
-        fi
       ;;
     *) TPecho "Installing Latest kernel"
         pacstrap /mnt linux
-        if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-          TPecho "Installing virtualbox guest modules"
-          pacstrap /mnt virtualbox-guest-utils # virtualbox-guest-dkms
-          echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-          cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
-        fi
   esac
+  if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
+    TPecho "Installing virtualbox guest modules"
+    pacstrap /mnt virtualbox-guest-utils
+    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
+    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
+  fi
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
 }

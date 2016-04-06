@@ -217,11 +217,6 @@ ShoppingList() {
         esac
         ChooseDM
       ;;
-    "Feliz") DesktopEnvironment="Xfce"
-          FelizXfce="Yes"
-        GoodiesXfce="xfce4-goodies"
-        ChooseDM
-      ;;
     "Fluxbox") DesktopEnvironment="Fluxbox"
         ChooseDM
       ;;

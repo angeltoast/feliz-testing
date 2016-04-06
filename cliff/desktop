@@ -374,17 +374,12 @@ do
     "Deepin") DesktopEnvironment="Deepin"
            AddDEextras "deepin-extra"
         case $Response in
-          0) DDEextras="deepin-extra"
+          1) DDEextras="deepin-extra"
            ;;
           *) DDEextras=""
         esac
       ;;
     "Enlightenment") DesktopEnvironment=$SaveResult
-        ChooseDM
-      ;;
-    "Feliz") DesktopEnvironment=$SaveResult
-          FelizXfce="Yes"
-        GoodiesXfce="xfce4-goodies"
         ChooseDM
       ;;
     "Fluxbox") DesktopEnvironment=$SaveResult
@@ -409,7 +404,7 @@ do
     "Openbox") DesktopEnvironment=$SaveResult
         AddDEextras "tint2"
         case $Response in
-          "Y" | "y") GoodiesOpenbox="tint2"
+          1) GoodiesOpenbox="tint2"
           ;;
          *) GoodiesOpenbox=""
         esac
@@ -418,7 +413,7 @@ do
     "Xfce") DesktopEnvironment=$SaveResult
          AddDEextras "xfce4-goodies"
          case $Response in
-            "Y" | "y") GoodiesXfce="xfce4-goodies"
+            1) GoodiesXfce="xfce4-goodies"
            ;;
            *) GoodiesXfce=""
          esac

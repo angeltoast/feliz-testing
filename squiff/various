@@ -179,21 +179,15 @@ InstallKernel() { # Kernel and some other core systems
   case $Kernel in
   1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
-    if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-      pacstrap /mnt virtualbox-guest-utils &>> feliz.log # virtualbox-guest-modules-lts # virtualbox-guest-dkms - commented out as installed as dependency by virtualbox-guest-utils
-      echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
-      cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
-    fi
   ;;
   *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
-    if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-      pacstrap /mnt virtualbox-guest-utils &>> feliz.log # virtualbox-guest-dkms - see LTS
-      echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
-      cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
-    fi
   esac
-
+  if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
+    pacstrap /mnt virtualbox-guest-utils &>> feliz.log 
+    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
+    cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
+  fi
  # PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
 }
@@ -201,16 +195,17 @@ InstallKernel() { # Kernel and some other core systems
 SetRootPassword() {
   Backtitle="Success! Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   Repeat="Y"
+  ExtraMessage=""
   while [ $Repeat = "Y" ]
   do
     dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
-     --insecure --passwordbox "Enter a password for root" 8 40 2> output.file
+     --insecure --passwordbox "$ExtraMessage\nEnter a password for root" 10 40 2> output.file
     Pass1=`cat output.file`
     dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
       --insecure --passwordbox "Re-enter password for root" 8 40 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      PrintOne "Passwords cannot be blank. Try again ..."
+      ExtraMessage="Passwords cannot be blank. Try again ..."
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -219,23 +214,24 @@ SetRootPassword() {
      rm /tmp/.passwd &>> feliz.log
      Repeat="N"
     else
-      PrintOne "Passwords don't match. Try again"
+      ExtraMessage="Passwords don't match. Try again"
     fi
   done
 }
 
 SetUserPassword() {
   Repeat="Y"
+  ExtraMessage=""
   while [ $Repeat = "Y" ]
   do
     dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel\
-      --insecure --passwordbox "Enter a password for $UserName" 8 40 2> output.file
+      --insecure --passwordbox "$ExtraMessage\nEnter a password for $UserName" 10 40 2> output.file
     Pass1=`cat output.file`
     dialog --backtitle "$Backtitle" --title " - Passwords - " --nocancel \
       --insecure --passwordbox "Re-enter password for ${UserName}" 8 40 2> output.file
     Pass2=`cat output.file`
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      PrintOne "Passwords cannot be blank. Try again"
+      ExtraMessage="Passwords cannot be blank. Try again"
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -244,7 +240,7 @@ SetUserPassword() {
       rm /tmp/.passwd &>> feliz.log
       Repeat="N"
     else
-      PrintOne "Passwords don't match. Try again"
+      ExtraMessage="Passwords don't match. Try again"
     fi
   done
 }
