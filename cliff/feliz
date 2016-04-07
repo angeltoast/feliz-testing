@@ -15,7 +15,7 @@ source desktop
 source listgen
 
 StartTime=$(date +%s)
-echo "Begin" >> feliz.log
+echo "$StartTime" >> feliz.log
 clear
 
 # Check partition table & offer options

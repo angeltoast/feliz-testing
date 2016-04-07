@@ -171,7 +171,7 @@ InstallKernel() { # Kernel and some other core systems
   pacstrap /mnt base-devel bash &>> feliz.log
   # Create array of all the programs to pass to installing function
   PassArray=() # Ensure array is empty
-  PassArray=( btrfs-progs cryptsetup dhcpcd gksu grep inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail systemd-sysvcompat usbutils wget xfsprogs zip nano openssh reiserfsprogs screenfetch unrar unzip vi vim xarchiver xorg-xedit xterm )
+  PassArray=( btrfs-progs cryptsetup dhcpcd gksu inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail systemd-sysvcompat usbutils wget xfsprogs zip nano openssh reiserfsprogs screenfetch unrar unzip vi vim xarchiver xorg-xedit xterm )
   ProgressArray " Installing cli tools " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
