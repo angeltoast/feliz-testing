@@ -145,12 +145,12 @@ if [ $Scope != "Basic" ]; then
   # Various bits
   pacstrap /mnt vrms 2>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
   TPecho "Adding codecs"
-  pacstrap /mnt a52dec autofs faac faad2 flac jasper lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 xvidcore gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
+  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
-  pacstrap /mnt iw wireless_tools wpa_actiond wpa_supplicant dialog wifi-menu 2>> feliz.log
+  pacstrap /mnt iw wireless_tools wpa_actiond dialog wifi-menu 2>> feliz.log
   TPecho "Installing X, Graphics, etc"
-  pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm 2>> feliz.log
+  pacstrap /mnt xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
   pacstrap /mnt xf86-input-synaptics 2>> feliz.log
   pacstrap /mnt gvfs gamin 2>> feliz.log
 

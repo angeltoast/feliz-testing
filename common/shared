@@ -570,6 +570,10 @@ InstallLuxuries() {
         TPecho "Installing extra items" "Modifying pacman.conf and installing Yaourt"
         cp pacman.conf /mnt/etc &>> feliz.log # For installed system # Check result - this line changed to &>> from 2>> 
         cp pacman.conf /etc &>> feliz.log # For installer # Check result - this line changed to &>> from 2>> 
+        
+        pacman-key --init
+        pacman-key --populate archlinux
+        
         pacman -Sy &>> feliz.log # Update
         pacstrap /mnt yaourt &>> feliz.log
       ;;

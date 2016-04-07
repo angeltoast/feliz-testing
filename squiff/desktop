@@ -251,7 +251,7 @@ ShoppingList() {
         esac
         ChooseDM
       ;;
-     *) echo "Error in desktop at $LINENO" >> feliz.log
+     *) echo "${Picked} added in desktop at $LINENO" >> feliz.log
     esac
     LuxuriesList="${LuxuriesList} ${Picked}"
 done
