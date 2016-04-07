@@ -38,7 +38,7 @@ setlocale() {
     Options[${Counter}]="UTF-8"
   done
   dialog --backtitle "$Backtitle" --title " - Locales - " --nocancel \
-      --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language, and to find the best mirrors for downloading your system\n" 18 55 $Counter "${Options[@]}" 2> output.file
+      --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 18 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
 }
@@ -64,7 +64,7 @@ SetTimeZone() {
 
 UserName() {
   dialog --backtitle "$Backtitle" --title " - User Name - " --nocancel\
-      --inputbox "\nEnter a name for the primary user of the new system\n If you don't create a username here, a default user\n called 'archie' will be set up\n" 18 50 2> output.file
+      --inputbox "Enter a name for the primary user of the new system.\nIf you don't create a username here, a default user called 'archie' will be set up\n" 18 50 2> output.file
   Response=$(cat output.file)
   Entered=${Response,,}
   case $Entered in
@@ -77,7 +77,8 @@ UserName() {
 SetHostname() {
   Entered=""
   dialog --backtitle "$Backtitle" --title " - Hostname - " --nocancel\
-      --inputbox "\nA hostname is needed. This will be a unique name to identify\n your device on a network. If you do not enter one, the\n default hostname of 'arch-linux' will be used\n" 16 40 2> output.file
+      --inputbox "A hostname is needed. This will be a unique name to identify your device on a network.
+      If you do not enter one, the default hostname of 'arch-linux' will be used\n" 18 50 2> output.file
   Response=$(cat output.file)
   Entered=${Response,,}
   case $Entered in
@@ -260,7 +261,7 @@ done
 ChooseDM() { # Choose a display manager unless already fixed by certain DEs
   if [ -z $DisplayManager ]; then
     Greeter=""
-    local Message="\nYou can choose one of the following display managers:\n Not all display managers work well with all desktop environments.\n If in doubt, choose LightDM.\n If you do not install a display manager, you will have to launch your desktop environment manually."
+    local Message="You can choose one of the following display managers.\nNot all display managers work well with all desktop environments. If in doubt, choose LightDM.\n If you do not install a display manager, you will have to launch your desktop environment manually."
     listgen1 "GDM LightDM LXDM sddm SLIM XDM" "ChooseDM/Greeter}" "Done"
     Response=$(cat output.file)
     if [ $? -eq 0 ]; then

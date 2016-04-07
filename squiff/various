@@ -83,8 +83,8 @@ SetKernel() {
 }
 
 ConfirmVbox() {
-  local Message="It appears that feliz is running in Virtualbox.\nIf it is, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities?"
-    dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "\n$Message\n" 10 45
+  local Message="It appears that feliz is running in Virtualbox.\nIf you wish, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities?"
+    dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "$Message\n" 13 50
     RetVal=$?
     case $RetVal in
       0) IsInVbox="VirtualBox"

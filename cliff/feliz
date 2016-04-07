@@ -173,5 +173,5 @@ cp feliz.log /mnt/etc # Copy installation log for reference
 print_heading
 read_timed "Congratulations, installation is complete."
 read_timed "It is time to restart the computer into"
-read_timed "your new system. Have fun with Arch."
+read_timed "your new system. Have fun with Arch Linux."
 shutdown now
