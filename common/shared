@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # shared - Part of the Feliz Arch Linux Installation Script
+# Version: 2016-04-07
 
 # Developed by Elizabeth Mills, incorporating some code adapted from the
 # excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.

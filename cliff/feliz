@@ -4,6 +4,7 @@
 # cliff edition - Command Line Interface Functions
 
 # Developed by Elizabeth Mills with acknowledgement to Carl Duff
+# Version: 2016-04-07
 
 #
 # Include source files
@@ -143,7 +144,6 @@ echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 # Extra processes for desktop installation
 if [ $Scope != "Basic" ]; then
   # Various bits
-  pacstrap /mnt vrms 2>> feliz.log # Virtual Richard Michael Stallman to detect non-free software
   TPecho "Adding codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
   TPecho "Installing Wireless Tools"
