@@ -45,7 +45,6 @@ listgen1() {
       Width=$((Length+20))
     fi
   done
-  Printit
 }
 
 listgen2() {
@@ -84,7 +83,6 @@ listgen2() {
       Width=$((Length+30))
     fi
   done
-  Printit # The final frontier
 }
 
 Printit() {

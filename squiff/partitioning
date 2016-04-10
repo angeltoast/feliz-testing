@@ -59,10 +59,10 @@ CheckParts() { # First check of available partitions on the system
     ExistingPartitions=""
     for part in ${PartitionList}
     do
-      ExistingPartitions="$ExistingPartitions ${PartitionArray[$Partitions]}\n"
+      ExistingPartitions="$ExistingPartitions \n ${PartitionArray[$Partitions]}"
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices ...\n $ExistingPartitions\nIf you choose to do nothing now, the script will next enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices:\n $ExistingPartitions\nIf you choose to do nothing now, the script will next enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -211,6 +211,7 @@ AllocateRoot() {
   PartitionType=""
   local Message="Please now select a partition to use for /root\n"
   listgen2 "$PartitionList" "Partitions" "nocancel" "PartitionArray"
+  Printit
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
@@ -277,7 +278,9 @@ then
   Width=50                           # Set window minimum width for listgen2
   local Message="Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." # Passed to listgen2
   listgen2 "$PickFrom" "Partitions" "None" "CopyArray" # listgen2 builds complex dialog menu
-  if [ $? -ne 0 ]; then              # If <Cancel> selected
+  Printit
+  RetVal=$?
+  if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
     Result="Done"                    # Prepare reporting variable before exiting
     SwapPartition=""
     break
@@ -353,7 +356,8 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   do
     Remaining=""
     local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning."
-    listgen2 "$PartitionList" "${_Partitions}" "${_Done}" "PartitionArray"
+    listgen2 "$PartitionList" "Partitions" "Done" "PartitionArray"
+    Printit
     Response=$?
     if [ $Response -gt 0 ]; then # ie: <Done>
       Elements=0
