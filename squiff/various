@@ -10,7 +10,7 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# PrintOne              44       SetGrubDevice        150
+# PrintOne              44       SetGrubDevice        101
 # DisplayProgress       47       arch_chroot          155
 # ProgressArray         64       MountPartitions      150
 # SetKernel             83       InstallKernel        169
@@ -103,9 +103,7 @@ SetGrubDevice() {
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   GrubDevice=""
   listgen1 "${DevicesList}"
-  # Note to self: Ongoing revision to use listgen to only format a list ready for own dialog ...............
-  dialog --backtitle "$Backtitle" --title " - Devices - " --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 12 60 6 "${Options[@]}" 2> output.file
-  # If this test is successful, the squiff version of listgen can be cut down significantly ................
+  dialog --backtitle "$Backtitle" --title " - Devices - " --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 14 60 6 "${Options[@]}" 2> output.file
   RetVal=$?
   if [ $RetVal -gt 0 ]; then # <Cancel> selected
    GrubDevice=""

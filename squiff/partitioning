@@ -62,7 +62,7 @@ CheckParts() { # First check of available partitions on the system
       ExistingPartitions="$ExistingPartitions \n ${PartitionArray[$Partitions]}"
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices:\n $ExistingPartitions\nIf you choose to do nothing now, the script will next enable you to allocate the existing partitions."
+    local Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, the script will next enable you to allocate the existing partitions."
     Partitioning # Partitioning options
     # Call function to regenerate the array of partitions
     MakePartitionList
@@ -168,7 +168,7 @@ FileSystem() {
   *) local Cancel="--cancel-label $1"
   esac
   dialog --backtitle "$Backtitle" --title " - Partitioning - " ${Cancel} \
-      --menu "\n$Message\n" 18 50 4 \
+      --menu "\n$Message\n" 16 50 4 \
         "ext2" "-" \
         "ext3" "-" \
         "ext4" "-" \
@@ -210,7 +210,7 @@ AllocateRoot() {
   Partition=""
   PartitionType=""
   listgen2 "$PartitionList" "PartitionArray"
-  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 18 60 $Counter "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 14 60 $Counter "${Options[@]}" 2> output.file
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
@@ -275,7 +275,7 @@ then
   CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
   PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
   listgen2 "$PickFrom" "CopyArray"
-  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 18 60 $Counter "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
   RetVal=$?
   if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
     Result="Done"                    # Prepare reporting variable before exiting
@@ -291,7 +291,7 @@ then
     SwapPartition="/dev/$Result"     # All other options are a partition in form 'sd*n'
     IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
     if [ -n "$IsSwap" ]; then                                     # If it is, offer yes/no ...
-      dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 10 40
+      dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
       RetVal=$?
       case $RetVal in                # ... and use $? (exit status) to set variable
       0) MakeSwap="Y"                # used during installation
