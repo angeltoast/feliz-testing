@@ -61,6 +61,9 @@ SetTimeZone() {
   listgen1 "$passzones"
   dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
   SUBZONE=$(cat output.file)
+  
+  read -p "$SUBZONE"
+  
 }
 
 UserName() {
