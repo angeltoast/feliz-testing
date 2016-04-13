@@ -10,8 +10,8 @@
 # Function    Line     Function           Line
 # ----------------     -----------------------
 # getkeymap     20     Display Managers    262
-# setlocale     35     FinalCheck          272
-# settimezone   52     ManualSettings      330
+# setlocale     35     FinalCheck          285
+# settimezone   46     ManualSettings      330
 # UserName      75     ChangeRootPartition 356
 # Hostname      85     ChangeSwapPartition 364
 # PickLuxuries  93     ChangePartitions    372
@@ -24,12 +24,13 @@ getkeymap() {
     keyboards="$keyboards $k"
   done
   listgen1 "$keyboards"
-  dialog --backtitle "$Backtitle" --title " - Keyboards - " --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list, or type a letter, to find your keyboard.\n" 18 60 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Keyboards - " --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list, or type a letter, to find your keyboard.\n" 20 50 10 "${Options[@]}" 2> output.file
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
 }
 
 setlocale() {
+  Counter=0 # Added EAM 2016-04-13 searching for "unary operator" error
   LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
   for item in ${LocaleList[@]}; do
     Counter=$((Counter+1))
@@ -50,7 +51,7 @@ SetTimeZone() {
     passzones="$passzones $z"
   done
   listgen1 "$passzones"
-  dialog --backtitle "$Backtitle" --title " - World_Zones - " --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n" 18 60 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - World_Zones - " --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n" 20 50 11 "${Options[@]}" 2> output.file
   ZONE=$(cat output.file)
   SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
   passzones=""
@@ -58,7 +59,7 @@ SetTimeZone() {
     passzones="$passzones $z"
   done
   listgen1 "$passzones"
-  dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 18 60 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
   SUBZONE=$(cat output.file)
 }
 
@@ -71,6 +72,9 @@ UserName() {
     ;;
     *) UserName=${Entered}
   esac
+  
+  read -p "$UserName"
+  
 }
 
 SetHostname() {
@@ -83,6 +87,9 @@ SetHostname() {
     ;;
     *) HostName=${Entered}
   esac
+    
+  read -p "$HostName"
+  
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
@@ -93,11 +100,17 @@ PickLuxuries() { # User selects any combination from a store of extras
   *) local Message="You can add more items, or select items to delete."
   esac
   Category="Continue"
+  
+  read -p "$Category $LuxuriesList"
+  
   until [ $Category = "Done" ]
   do
   # First select a category. _Categories_List is a string variable in same order as the Categories array
     HowMany=`echo ${_Categories_List} | wc -w` # Count words
     echo ${_Categories_List} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
+    
+    read -p "$HowMany"
+    
     Counter=1
     ItemCounter=1
     Width=50
@@ -118,11 +131,11 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       Selected=`cat feliz.output`
       # Use selected number to get category for script use
-      Category=${Categories[${Selected}]} # English
+      Category=${Categories[${Selected}]}
     fi
     # Then shop in that category
     ShoppingList
-    local Message="Added so far: ${LuxuriesList}\n You can now choose from any of the other lists, or choose <Done> to finish this part of the setup"
+    Message="Added so far: ${LuxuriesList}\nYou can now choose from any of the other lists, or choose <Done> to finish this part of the setup"
   done
   if [ -n "${LuxuriesList}" ]; then
     Scope="Full"
@@ -162,7 +175,7 @@ ShoppingList() {
       ;;
       *) break
     esac
-    dialog --backtitle "$Backtitle" --title " - ${Category} - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 18 60 $Counter "${Options[@]}" 2> output.file
+    dialog --backtitle "$Backtitle" --title " - ${Category} - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     if [ $RetVal -gt 0 ]; then # <Cancel> selected
       break
@@ -335,10 +348,13 @@ do
   Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
   Settings[12]="${LuxuriesList}"
   listgen2 "Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras" "Settings"
-  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them ...\n Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 20 60 6 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them ...\nPress <Continue> to install with these settings, or choose an item if you wish to change it\n" 20 60 10 "${Options[@]}" 2> output.file
   RetVal=$?
   Response=$(cat output.file)
-  if [ $RetVal -eq 0 ]; then
+  
+  read -p "$RetVal $Response"
+  
+  if [ $RetVal -eq 0 ]; then # Item selected for change
     Count=1
     for i in ${Options[@]} # Convert selection into item number in list
     do
@@ -378,7 +394,7 @@ do
       ;;
       *) Repeat=0
     esac
-  else
+  else # Continue, Cancel or Esc
     Repeat=0
   fi
 done
