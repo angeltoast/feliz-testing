@@ -67,7 +67,7 @@ SetTimeZone() {
 }
 
 UserName() {
-  dialog --backtitle "$Backtitle" --title --no-shadow " - User Name - " --nocancel --inputbox "Enter a name for the primary user of the new system.\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
+  dialog --backtitle "$Backtitle" --title " - User Name - " --no-shadow --nocancel --inputbox "Enter a name for the primary user of the new system.\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
   Response=$(cat output.file)
   Entered=${Response,,}
   case $Entered in
@@ -82,7 +82,7 @@ UserName() {
 
 SetHostname() {
   Entered=""
-  dialog --backtitle "$Backtitle" --title --no-shadow " - Hostname - " --nocancel --inputbox "A hostname is needed. This will be a unique name to identify your device on a network.\nIf you do not enter one, the default hostname of 'arch-linux' will be used\n" 12 50 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Hostname - " --no-shadow --nocancel --inputbox "A hostname is needed. This will be a unique name to identify your device on a network.\nIf you do not enter one, the default hostname of 'arch-linux' will be used\n" 12 50 2> output.file
   Response=$(cat output.file)
   Entered=${Response,,}
   case $Entered in
