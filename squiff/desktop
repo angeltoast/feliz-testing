@@ -24,7 +24,7 @@ getkeymap() {
     keyboards="$keyboards $k"
   done
   listgen1 "$keyboards"
-  dialog --backtitle "$Backtitle" --title " - Keyboards - " --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list, or type a letter, to find your keyboard.\n" 20 50 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Keyboards - " --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list, or type a letter, to find your keyboard.\n" 20 50 12 "${Options[@]}" 2> output.file
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
 }
@@ -340,47 +340,36 @@ do
   RetVal=$?
   Response=$(cat output.file)
   if [ $RetVal -eq 0 ]; then # An item has been selected for change
-    Count=1
-    for i in ${Options[@]}   # Convert selection into item number in list
-    do
-      if [ $i = $Response ]; then
-        break
-      fi
-      Count=$((Count+1))
-    done
-  
-  read -p "/squiff/desktop $LINENO $RetVal $Response $Count" # 
-  
-    case $Count in
-      1) ChangeRootPartition
+    case $Response in
+      "Root") ChangeRootPartition
           AllocateRoot
       ;;
-      2) ChangeSwapPartition
+      "Swap") ChangeSwapPartition
           AllocateSwap
       ;;
-      3) ChangePartitions
+      "Additional") ChangePartitions
           MorePartitions
       ;;
-      4) SetKernel
+      "Kernel") SetKernel
       ;;
-      5) SetGrubDevice
+      "Grub") SetGrubDevice
       ;;
-      6) getkeymap
+      "Keyboard") getkeymap
       ;;
-      7) setlocale
+      "Locale") setlocale
       ;;
-      8) SetTimeZone
+      "Timezone") SetTimeZone
       ;;
-      9) ConfirmVbox
+      "Virtualbox") ConfirmVbox
       ;;
-      10) DisplayManager=""
+      "Display_Manager") DisplayManager=""
       ChooseDM
       ;;
-      11) ManualSettings
+      "Identity") ManualSettings
       ;;
-      12) PickLuxuries
+      "Extras") PickLuxuries
       ;;
-      *) Repeat=0
+      *) continue # Any error, restart the while loop
     esac
   else # Continue, Cancel or Esc
     Repeat=0
