@@ -39,9 +39,6 @@ setlocale() {
     Options[${Counter}]="UTF-8"
   done
   Counter=$((Counter/2))
-  
-  read -p "$Counter"
-  
   dialog --backtitle "$Backtitle" --title " - Locales - " --no-shadow --nocancel --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
@@ -75,9 +72,6 @@ UserName() {
     ;;
     *) UserName=${Entered}
   esac
-  
-  read -p "$UserName"
-  
 }
 
 SetHostname() {
@@ -90,9 +84,6 @@ SetHostname() {
     ;;
     *) HostName=${Entered}
   esac
-    
-  read -p "$HostName"
-  
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
@@ -103,17 +94,11 @@ PickLuxuries() { # User selects any combination from a store of extras
   *) local Message="You can add more items, or select items to delete."
   esac
   Category="Continue"
-  
-  read -p "$Category $LuxuriesList"
-  
   until [ $Category = "Done" ]
   do
   # First select a category. _Categories_List is a string variable in same order as the Categories array
     HowMany=`echo ${_Categories_List} | wc -w` # Count words
     echo ${_Categories_List} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
-    
-    read -p "$HowMany"
-    
     Counter=1
     ItemCounter=1
     Width=50
@@ -351,11 +336,11 @@ do
   Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
   Settings[12]="${LuxuriesList}"
   listgen2 "Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras" "Settings"
-  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them ...\nPress <Continue> to install with these settings, or choose an item if you wish to change it\n" 20 60 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them. Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 20 60 10 "${Options[@]}" 2> output.file
   RetVal=$?
   Response=$(cat output.file)
   
-  read -p "$RetVal $Response"
+  read -p "/squiff/desktop $LINENO $RetVal $Response"
   
   if [ $RetVal -eq 0 ]; then # Item selected for change
     Count=1
