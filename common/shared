@@ -52,8 +52,8 @@ DesktopEnvironment="None"  # eg: xfce4
 GoodiesXfce=""
 GoodiesGnome=""
 GoodiesOpenbox=""
-DisplayManager=""      # eg: lightdm
-Greeter=""             # eg: lightdm-gtk-greeter (Not required for some DMs)
+DisplayManager=""          # eg: lightdm
+Greeter=""                 # eg: lightdm-gtk-greeter (Not required for some DMs)
 FirefoxIncluded="No"
 #
 # Root and user variables

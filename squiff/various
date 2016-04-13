@@ -72,8 +72,10 @@ ProgressArray() {
 
 SetKernel() {
   local Message="The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS."
-  listgen1 "LTS Latest" "Choose your kernel" "nocancel"
-  Printit
+  listgen1 "LTS Latest"
+  # Note to self: Ongoing revision to use listgen to only format a list ready for own dialog ...............
+  dialog --backtitle "$Backtitle" --title " - Choose your kernel - " --no-shadow --ok-button "Select" --nocancel --menu "The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS.\n" 12 60 6 "${Options[@]}" 2> output.file
+  # If this test is successful, the squiff version of listgen can be cut down significantly ................
   case $(cat output.file) in
     "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
     ;;
@@ -100,10 +102,12 @@ SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   GrubDevice=""
-  local Message="Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system."
-  listgen1 "${DevicesList}" "Devices" ""
-  Printit
-  if [ $? -gt 0 ]; then # <Cancel> selected
+  listgen1 "${DevicesList}"
+  # Note to self: Ongoing revision to use listgen to only format a list ready for own dialog ...............
+  dialog --backtitle "$Backtitle" --title " - Devices - " --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 12 60 6 "${Options[@]}" 2> output.file
+  # If this test is successful, the squiff version of listgen can be cut down significantly ................
+  RetVal=$?
+  if [ $RetVal -gt 0 ]; then # <Cancel> selected
    GrubDevice=""
   else
    GrubDevice=$(cat output.file)

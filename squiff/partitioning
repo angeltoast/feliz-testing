@@ -209,9 +209,8 @@ AllocateRoot() {
   Remaining=""
   Partition=""
   PartitionType=""
-  local Message="Please now select a partition to use for /root\n"
-  listgen2 "$PartitionList" "Partitions" "nocancel" "PartitionArray"
-  Printit
+  listgen2 "$PartitionList" "PartitionArray"
+  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 18 60 $Counter "${Options[@]}" 2> output.file
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
@@ -275,10 +274,8 @@ then
                                      # Prepare for passing to listgen2
   CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
   PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
-  Width=50                           # Set window minimum width for listgen2
-  local Message="Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." # Passed to listgen2
-  listgen2 "$PickFrom" "Partitions" "None" "CopyArray" # listgen2 builds complex dialog menu
-  Printit
+  listgen2 "$PickFrom" "CopyArray"
+  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 18 60 $Counter "${Options[@]}" 2> output.file
   RetVal=$?
   if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
     Result="Done"                    # Prepare reporting variable before exiting
@@ -355,9 +352,8 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   while [ $Elements -gt 0 ]
   do
     Remaining=""
-    local Message="The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning."
-    listgen2 "$PartitionList" "Partitions" "Done" "PartitionArray"
-    Printit
+    listgen2 "$PartitionList" "PartitionArray"
+    dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning." 18 60 $Counter "${Options[@]}" 2> output.file
     Response=$?
     if [ $Response -gt 0 ]; then # ie: <Done>
       Elements=0
