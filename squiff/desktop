@@ -30,18 +30,24 @@ getkeymap() {
 }
 
 setlocale() {
-  Counter=0 # Added EAM 2016-04-13 searching for "unary operator" error
+  Counter=0 # Added 2016-04-13 debugging "unary operator" error
   LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
   for item in ${LocaleList[@]}; do
     Counter=$((Counter+1))
     Options[${Counter}]="$item"
+    
+    read -p "${Options[${Counter}]}"
+    
     Counter=$((Counter+1))
     Options[${Counter}]="UTF-8"
   done
-  dialog --backtitle "$Backtitle" --title --no-shadow " - Locales - " --nocancel \
-      --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
+  Counter=$((Counter/2))
+  dialog --backtitle "$Backtitle" --title --no-shadow " - Locales - " --nocancel --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
+  
+  read -p "$LINENO"
+  
 }
 
 SetTimeZone() {
@@ -61,9 +67,6 @@ SetTimeZone() {
   listgen1 "$passzones"
   dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
   SUBZONE=$(cat output.file)
-  
-  read -p "$SUBZONE"
-  
 }
 
 UserName() {
