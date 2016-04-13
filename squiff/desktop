@@ -35,19 +35,16 @@ setlocale() {
   for item in ${LocaleList[@]}; do
     Counter=$((Counter+1))
     Options[${Counter}]="$item"
-    
-    read -p "${Options[${Counter}]}"
-    
     Counter=$((Counter+1))
     Options[${Counter}]="UTF-8"
   done
   Counter=$((Counter/2))
-  dialog --backtitle "$Backtitle" --title --no-shadow " - Locales - " --nocancel --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
+  
+  read -p "$Counter"
+  
+  dialog --backtitle "$Backtitle" --title " - Locales - " --no-shadow --nocancel --menu "\nScroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
-  
-  read -p "$LINENO"
-  
 }
 
 SetTimeZone() {
