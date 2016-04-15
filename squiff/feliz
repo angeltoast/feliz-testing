@@ -136,7 +136,7 @@ if [ $Scope != "Basic" ]; then
   # Install desktop environments, window managers and display managers
   InstallLuxuries # common/shared
   #
-  UserAdd
+  UserAdd # common/shared
 fi
 
 EndTime=$(date +%s)
