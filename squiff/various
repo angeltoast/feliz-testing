@@ -158,7 +158,7 @@ MountPartitions() {
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
       mkfs.btrfs -f ${id} &>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
-      Partition=`echo ${id} | cut -c 6-` &>> feliz.log
+      Partition=`echo ${id} | cut -c 6-` # Removed '&>> feliz.log' as possble cause of /home failure
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
@@ -188,7 +188,7 @@ InstallKernel() { # Kernel and some other core systems
     pacstrap /mnt linux &>> feliz.log
   esac
   if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing latest kernel in Virtualbox
-    pacstrap /mnt virtualbox-guest-utils &>> feliz.log 
+    pacstrap /mnt virtualbox-guest-utils &>> feliz.log
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf &>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ &>> feliz.log
   fi
