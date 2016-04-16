@@ -31,7 +31,7 @@ getkeymap() {
 
 setlocale() {
   Counter=0 # Added 2016-04-13 debugging "unary operator" error
-  LocaleList=(`cat /etc/locale.gen | grep UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
+  LocaleList=(`grep 'UTF-8' /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | sed 's/#//g'`)
   for item in ${LocaleList[@]}; do
     Counter=$((Counter+1))
     Options[${Counter}]="$item"
