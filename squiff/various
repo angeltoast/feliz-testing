@@ -158,7 +158,7 @@ MountPartitions() {
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
       mkfs.btrfs -f ${id} &>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
-      Partition=`echo ${id} | cut -c 6-` # Removed '&>> feliz.log' as possble cause of /home failure
+      Partition=`echo ${id} | cut -c 6-` &>> feliz.log
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
@@ -221,6 +221,7 @@ SetRootPassword() {
       ExtraMessage="Passwords don't match. Try again"
     fi
   done
+  rm output.file
 }
 
 SetUserPassword() {
@@ -247,4 +248,5 @@ SetUserPassword() {
       ExtraMessage="Passwords don't match. Try again"
     fi
   done
+  rm output.file
 }
