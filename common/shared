@@ -601,9 +601,8 @@ UserAdd() {
     # Set up basic configuration files and permissions for user
     TPecho "Setting up user configuration"
     arch_chroot "cp /etc/skel/.bashrc /home/${UserName}"
-    arch_chroot "mkdir /home/${UserName}/Desktop"
     arch_chroot "chown -R ${UserName}:users /home/${UserName}"
-    sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers &>> feliz.log
+    sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers 2>> feliz.log
   else
     TPecho "User already exists"
   fi
