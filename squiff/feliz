@@ -78,12 +78,12 @@ PrintOne "Preparing local services" ""
 arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
 
 # Generate fstab
-genfstab -U -p /mnt > /mnt/etc/fstab &>> feliz.log
+genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log # Auto-replaced in search of lost /home
 if [ ${SwapFile} ]; then
-  fallocate -l ${SwapFile} /mnt/swapfile >/dev/null &>> feliz.log
-  chmod 600 /mnt/swapfile >/dev/null &>> feliz.log
-  mkswap /mnt/swapfile >/dev/null &>> feliz.log
-  swapon /mnt/swapfile >/dev/null &>> feliz.log
+  fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log # Auto-replaced in search of lost /home
+  chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log # Auto-replaced in search of lost /home
+  mkswap /mnt/swapfile >/dev/null 2>> feliz.log # Auto-replaced in search of lost /home
+  swapon /mnt/swapfile >/dev/null 2>> feliz.log # Auto-replaced in search of lost /home
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
 fi
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
@@ -99,15 +99,15 @@ arch_chroot "hwclock --systohc --utc"
 # Networking
 if [ $Scope != "Basic" ]; then
   arch_chroot "systemctl enable dhcpcd.service"
-  pacstrap /mnt networkmanager network-manager-applet rp-pppoe &>> feliz.log
+  pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log # Auto-replaced in search of lost /home
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 if [ ${GrubDevice} ]; then
   PrintOne "Installing Grub2 to $GrubDevice" ""
-  pacstrap /mnt grub &>> feliz.log
+  pacstrap /mnt grub 2>> feliz.log # Auto-replaced in search of lost /home
   if [ $OSprober = "Y" ]; then
-    pacstrap /mnt os-prober &>> feliz.log
+    pacstrap /mnt os-prober 2>> feliz.log # Auto-replaced in search of lost /home
   fi
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -123,7 +123,7 @@ else
 fi
 
 # Set keyboard to selected language at next startup
-echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf &>> feliz.log
+echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log # Auto-replaced in search of lost /home
 
 # Extra processes for desktop installation
 if [ $Scope != "Basic" ]; then
