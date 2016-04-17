@@ -168,7 +168,7 @@ MountPartitions() {
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
 
 echo $Counter    
-read -p "common/shared/line:$LINENO mount ${id} /mnt${AddPartMount[$Counter]}" 
+read -p "squiff/various/line:$LINENO mount ${id} /mnt${AddPartMount[$Counter]}" 
     
     Counter=$((Counter+1))
   done
