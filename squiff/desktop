@@ -400,17 +400,17 @@ ManualSettings() {
     if [ $RetVal -eq 0 ]; then
       case $Response in
         1) dialog --backtitle "$Backtitle" --title " Data Review " --nocancel \
-         --inputbox "\n${_Enter_new} ${_Hostname} (${_currently} $HostName)\n" 18 50 2> output.file
+         --inputbox "\nEnter new hostname (currently: $HostName)\n" 18 50 2> output.file
          Response=$(cat output.file)
          if [ $Response ]; then
-          HostName=$Response
+          HostName=${Response,,}
          fi
         ;;
         2) dialog --backtitle "$Backtitle" --title " Data Review " --nocancel \
       --inputbox "\nEnter new name for user (currently $UserName)\n" 18 50 2> output.file
          Response=$(cat output.file)
         if [ $Response ]; then
-          UserName=${Response}
+          UserName=${Response,,}
         fi
         ;;
         *) Retry="N"

@@ -166,10 +166,6 @@ MountPartitions() {
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
-
-echo $Counter    
-read -p "squiff/various/line:$LINENO mount ${id} /mnt${AddPartMount[$Counter]}" 
-    
     Counter=$((Counter+1))
   done
 }
