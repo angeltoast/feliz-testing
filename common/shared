@@ -535,7 +535,7 @@ InstallLuxuries() {
         if [ -z ${DisplayManager} ]; then
           pacstrap /mnt lxde &>> feliz.log
           arch_chroot "systemctl -f enable lxdm.service"
-          echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf &>> feliz.log # Check result - this line changed to &>> from 2>>
+          echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         else
           InstallDM
           pacstrap /mnt lxde &>> feliz.log
