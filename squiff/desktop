@@ -112,7 +112,7 @@ PickLuxuries() { # User selects any combination from a store of extras
       ItemCounter=$((ItemCounter+1))
     done
     # Use $ItemCounter and ${Options[@]} array in menu dialog
-    dialog --backtitle "$_Backtitle" --title " - Categories - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 18 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
+    dialog --backtitle "$Backtitle" --title " - Categories - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
     RetVal=$?
     if [ $RetVal -gt 0 ]; then # <Cancel> selected
       break
@@ -336,7 +336,7 @@ do
   Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
   Settings[12]="${LuxuriesList}"
   listgen2 "Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras" "Settings"
-  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them. Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 20 60 10 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them. Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 21 65 12 "${Options[@]}" 2> output.file
   RetVal=$?
   Response=$(cat output.file)
   if [ $RetVal -eq 0 ]; then # An item has been selected for change
