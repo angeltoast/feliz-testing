@@ -159,7 +159,7 @@ LongWMs[8]="Desktop panel"
 # Install Stage        326
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
+  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
@@ -469,9 +469,6 @@ InstallDM() { # Called from InstallLuxuries for each desktop environment
     "") echo "No Display Manager selected" >> feliz.log
     ;;
     *) TPecho "Installing ${DisplayManager} display manager" ""
-
-    read -p "$DisplayManager"
-
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
