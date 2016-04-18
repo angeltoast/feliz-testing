@@ -54,7 +54,6 @@ GoodiesGnome=""
 GoodiesOpenbox=""
 DisplayManager=""          # eg: lightdm
 Greeter=""                 # eg: lightdm-gtk-greeter (Not required for some DMs)
-FirefoxIncluded="No"
 #
 # Root and user variables
 #
@@ -561,14 +560,13 @@ InstallLuxuries() {
       esac
     done
   # ... then install the others
-    FirefoxIncluded="No"
     for i in ${LuxuriesList}
     do
       case $i in
       "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
       ;;
       "yaourt") # Copy modified pacman.conf to new system and install Yaourt
-        TPecho "Installing extra items" "Modifying pacman.conf and installing Yaourt"
+        TPecho "Installing extra items ..." "Modifying pacman.conf and installing Yaourt"
         cp pacman.conf /mnt/etc &>> feliz.log # For installed system # Check result - this line changed to &>> from 2>>
         cp pacman.conf /etc &>> feliz.log # For installer # Check result - this line changed to &>> from 2>>
         pacman-key --init &>> feliz.log
@@ -576,17 +574,14 @@ InstallLuxuries() {
         pacman -Sy &>> feliz.log # Update
         pacstrap /mnt yaourt &>> feliz.log
       ;;
-      "cairo-dock") TPecho "Installing extra items" "Installing cairo-dock & cairo-dock-plug-ins"
+      "cairo-dock") TPecho "Installing extra items ..." " ... cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
       ;;
-      "conky") TPecho "Installing extra items" "Installing Conky"
+      "conky") TPecho "Installing extra items ..." " ... Conky"
         pacstrap /mnt conky &>> feliz.log
       ;;
-      *) TPecho "Installing extra items" "Installing $i"
+      *) TPecho "Installing extra items ..." " ... $i"
         pacstrap /mnt $i &>> feliz.log
-        if [ $i = "firefox" ]; then
-          FirefoxIncluded="Yes"
-        fi
       esac
     done
   fi
