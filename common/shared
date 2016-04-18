@@ -469,7 +469,7 @@ InstallDM() { # Called from feliz when installing desktop environment
   case ${DisplayManager} in
     "") echo "No Display Manager selected" >> feliz.log
     ;;
-    *) TPecho "Installing ${DisplayManager} display manager" "" &>> feliz.log
+    *) TPecho "Installing ${DisplayManager} display manager" ""
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
