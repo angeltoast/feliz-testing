@@ -201,7 +201,7 @@ ShoppingList() {
         ChooseDM
       ;;
     "Deepin") DesktopEnvironment="Deepin"
-        dialog --backtitle "$Backtitle" --title " - Deepin Extras - " --no-shadow --yesno "The deepin-extras pack includes the Deepin game center, media players, terminal & screenshot tools. Include the extras pack?\n" 10 40
+        dialog --backtitle "$Backtitle" --title " - Deepin Extras - " --no-shadow --yesno "The deepin-extras pack includes the Deepin game center, media players, terminal & screenshot tools.\nInclude the extras pack?\n" 10 40
         case $? in
           0) DDEextras="deepin-extra"
            ;;
@@ -209,7 +209,7 @@ ShoppingList() {
         esac
       ;;
     "Enlightenment") DesktopEnvironment="Enlightenment"
-        dialog --backtitle "$Backtitle" --title " - Enlightenment - " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability. Include them?" 10 40
+        dialog --backtitle "$Backtitle" --title " - Enlightenment - " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability.\nInclude them?\n" 10 40
         case $? in
           0) EnExtras="connman terminology"
            ;;
@@ -221,7 +221,7 @@ ShoppingList() {
         ChooseDM
       ;;
     "Gnome") DesktopEnvironment="Gnome"
-        dialog --backtitle "$Backtitle" --title " - Gnome Goodies - " --no-shadow --yesno "The Gnome Goodies pack includes games, text editor and some utilities. Include the extras pack?\n" 10 40
+        dialog --backtitle "$Backtitle" --title " - Gnome Goodies - " --no-shadow --yesno "The gnome-extras pack includes games, text editor and some utilities.\nInclude the extras pack?\n" 10 40
         case $? in
           0) GoodiesGnome="gnome-extra"
            ;;
