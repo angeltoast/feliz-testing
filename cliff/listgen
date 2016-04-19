@@ -22,8 +22,6 @@
 # listgen2 has extended descriptions using the name of the complex array
 # Passed as 4th parameter:
 
-# Global variable $Passed may be used
-
 PrintOne() { # Aligned text according to screen size
   width=`tput cols`
   EMPTY=" "
@@ -44,7 +42,6 @@ listgen1() { # Simple listing alternative to the bash 'select' function
 local Complete=0
 while [ $Complete -eq 0 ]
 do
-  PrintOne "$Backtitle"
   local Done=$3
   if [ $2 ]; then
     PrintOne $2
@@ -110,7 +107,6 @@ do
   name=$4[@]
   LongDescription=("${!name}")
   local Counter=0
-  PrintOne "$Backtitle"
   echo
   if [ -n $2 ]; then
     PrintOne $2

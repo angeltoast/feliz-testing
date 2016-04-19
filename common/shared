@@ -163,7 +163,7 @@ LongWMs[8]="Desktop panel"
 # Install Stage        326
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
+  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log # Check to see if this is verbose in squiff
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
@@ -517,6 +517,7 @@ InstallLuxuries() {
              DisplayProgress "Installing 'Gnome' desktop Environment" 50
            pacstrap /mnt gnome &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
+read -p "/common/shared Line $LINENO"
         else
           InstallDM
           DisplayProgress "Installing 'Gnome' desktop Environment" 50

@@ -27,7 +27,7 @@ print_heading() {
   clear
   T_COLS=`tput cols`
   tput cup 1 $((($T_COLS/2)-20))
-  printf "~ Feliz : Arch Installation Script ~\n"
+  printf "~ $Backtitle ~\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
@@ -220,20 +220,20 @@ MountPartitions() {
 
 InstallKernel() {
   TPecho "Installing shell"
-  pacstrap /mnt base-devel bash &>> feliz.log
+  pacstrap /mnt base-devel bash 2>> feliz.log
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs cryptsetup dhcpcd gksu inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pciutils pcmciautils procps-ng psmisc reflector reiserfsprogs s-nail screenfetch systemd-sysvcompat unrar unzip usbutils vi vim wget xfsprogs xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
   case $Kernel in
     1) TPecho "Installing LTS kernel"
-        pacstrap /mnt linux-lts
+        pacstrap /mnt linux-lts 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel"
-        pacstrap /mnt linux
+        pacstrap /mnt linux 2>> feliz.log
   esac
   if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
     TPecho "Installing virtualbox guest modules"
-    pacstrap /mnt virtualbox-guest-utils
+    pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
