@@ -204,6 +204,15 @@ AddCodecs() {
   ProgressArray "Adding Codecs, etc" # Display gauge while installing with pacstrap
 }
 
+McInitCPIO() { # Squiff version must be &>>
+  DisplayProgress "Running mkinitcpio" 10
+  if [ $Kernel = "1" ]; then
+    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux-lts &>> feliz.log
+  else
+    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux &>> feliz.log
+  fi
+}
+
 SetRootPassword() {
   Backtitle="Success! Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   Repeat="Y"

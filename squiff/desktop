@@ -226,7 +226,7 @@ ShoppingList() {
           0) GoodiesGnome="gnome-extra"
            ;;
           *) GoodiesGnome=""
-        esac       
+        esac 
       ;;
     "JWM") DesktopEnvironment="JWM"
         ChooseDM

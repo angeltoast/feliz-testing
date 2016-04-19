@@ -163,7 +163,7 @@ LongWMs[8]="Desktop panel"
 # Install Stage        326
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log # Check to see if this is verbose in squiff
+  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
@@ -514,17 +514,13 @@ InstallLuxuries() {
         pacstrap /mnt fluxbox &>> feliz.log
       ;;
       "Gnome") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-      
-  DisplayManager="gdm"
-  InstallDM
-  
-           DisplayProgress "Installing 'Gnome' desktop Environment" 50
-           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
-         # arch_chroot "systemctl -f enable gdm.service"
+          DisplayProgress "Installing 'Gnome' desktop Environment" 50
+          pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
+          arch_chroot "systemctl -f enable gdm.service"
         else
           InstallDM
           DisplayProgress "Installing 'Gnome' desktop Environment" 50
-          pacstrap /mnt gnome &>> feliz.log
+          pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
         fi
       ;;
       "KDE") 

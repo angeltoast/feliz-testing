@@ -253,6 +253,15 @@ AddCodecs() {
   pacstrap /mnt gvfs gamin 2>> feliz.log
 }
 
+McInitCPIO() { # Cliff version can be 2>>
+  DisplayProgress "Running mkinitcpio" 10
+  if [ $Kernel = "1" ]; then
+    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux-lts 2>> feliz.log
+  else
+    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux 2>> feliz.log
+  fi
+}
+
 SetRootPassword() {
   print_heading
   echo
