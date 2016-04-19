@@ -155,16 +155,11 @@ LongWMs[8]="Desktop panel"
 # -------------------------
 # Functions           Line
 # -------------------------
-# arch_chroot          164
-# ReflectorMirrorList  168
-# LocalMirrorList      178
-# Partitioning         193
+# ReflectorMirrorList  164
+# LocalMirrorList      174
+# Partitioning         189
 # Review Stage         282
 # Install Stage        326
-
-arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
-}
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
   TPecho "Generating mirrorlist"

@@ -14,7 +14,8 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# Various input/output  22       arch_chroot          242
+# arch_chroot           27
+# Various input/output  31       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
 # Internet connection   87       MountPartitions      154
@@ -22,6 +23,10 @@
 # SetKernel            193       TestExistingDM       264
 # ConfirmVbox          206       SetRootPassword      293
 # MakePartitionList    229       SetUserPassword      335
+
+arch_chroot() {  # From Lution AIS
+  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
+}
 
 print_heading() {
   clear
