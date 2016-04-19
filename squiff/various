@@ -17,7 +17,7 @@
 # PrintOne              44       SetGrubDevice        101
 # DisplayProgress       47       arch_chroot          155
 # ProgressArray         64       MountPartitions      150
-# SetKernel             83       InstallKernel        169
+# SetKernel             83       InstallKernel        175
 # ConfirmVbox           95       SetRootPassword      266
 # MakePartitionList    126       SetUserPassword      285
 
@@ -173,7 +173,7 @@ MountPartitions() {
 }
 
 InstallKernel() { # Kernel and some other core systems
-  DisplayProgress "Installing bash" 40
+  DisplayProgress "Installing shell" 40
   pacstrap /mnt base-devel bash &>> feliz.log
   # Create array of all the programs to pass to installing function
   PassArray=() # Ensure array is empty
@@ -196,6 +196,12 @@ InstallKernel() { # Kernel and some other core systems
   fi
  # PrintOne "Installing opensource video drivers" ""
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
+}
+
+AddCodecs() {
+  PassArray=() # Ensure the array is empty
+  PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond dialog xorg-server-utils xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
+  ProgressArray "Adding Codecs, etc" # Display gauge while installing with pacstrap
 }
 
 SetRootPassword() {
@@ -251,4 +257,8 @@ SetUserPassword() {
     fi
   done
   rm output.file
+}
+
+DisplayFinished() {
+  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time to restart the computer into your new system.\nHave fun with Arch Linux." 10 40
 }

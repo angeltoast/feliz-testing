@@ -514,12 +514,12 @@ InstallLuxuries() {
         pacstrap /mnt fluxbox &>> feliz.log
       ;;
       "Gnome") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-             DisplayProgress "Installing 'Gnome' desktop Environment" 30
+             DisplayProgress "Installing 'Gnome' desktop Environment" 50
            pacstrap /mnt gnome &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         else
           InstallDM
-          DisplayProgress "Installing 'Gnome' desktop Environment" 30
+          DisplayProgress "Installing 'Gnome' desktop Environment" 50
           pacstrap /mnt gnome &>> feliz.log
         fi
       ;;

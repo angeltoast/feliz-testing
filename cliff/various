@@ -219,7 +219,7 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  TPecho "Installing bash"
+  TPecho "Installing shell"
   pacstrap /mnt base-devel bash &>> feliz.log
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs cryptsetup dhcpcd gksu inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pciutils pcmciautils procps-ng psmisc reflector reiserfsprogs s-nail screenfetch systemd-sysvcompat unrar unzip usbutils vi vim wget xfsprogs xarchiver xorg-xedit xterm 2>> feliz.log
@@ -239,6 +239,18 @@ InstallKernel() {
   fi
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
+}
+
+AddCodecs() {
+  TPecho "Adding codecs"
+  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
+  TPecho "Installing Wireless Tools"
+  pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
+  pacstrap /mnt iw wireless_tools wpa_actiond dialog wifi-menu 2>> feliz.log
+  TPecho "Installing X, Graphics, etc"
+  pacstrap /mnt xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
+  pacstrap /mnt xf86-input-synaptics 2>> feliz.log
+  pacstrap /mnt gvfs gamin 2>> feliz.log
 }
 
 SetRootPassword() {
@@ -305,3 +317,11 @@ SetUserPassword() {
     fi
   done
 }
+
+DisplayFinished() {
+  print_heading
+  read_timed "Congratulations, installation is complete."
+  read_timed "It is time to restart the computer into"
+  read_timed "your new system. Have fun with Arch Linux."
+}
+
