@@ -1,10 +1,15 @@
 #!/bin/bash
 
-# felizdesktop - Functions relevant to users, locations, desktop
-# settings and data review called by the main feliz script
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
+
+# /cliff/desktop - Command-line interface
+# Functions relevant to users, locations, settings, extra applications and review
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+
+# Please read the introduction in the README file
 
 # ---------------     -----------------------
 # Function   Line     Function           Line

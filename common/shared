@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# shared - Part of the Feliz Arch Linux Installation Script
-# Version: 2016-04-07
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
 
-# Developed by Elizabeth Mills, incorporating some code adapted from the
-# excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+# /common/shared - Variables and functions used by both sqiff and cliff
+
+# Developed by Elizabeth Mills, incorporating some code adapted from
+# the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+
+# Please read the introduction in the README file
 
 #
 # Partition variables and arrays
@@ -159,7 +163,7 @@ LongWMs[8]="Desktop panel"
 # Install Stage        326
 
 arch_chroot() {  # From Lution AIS
-  arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
+  arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list

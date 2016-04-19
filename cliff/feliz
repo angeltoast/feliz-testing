@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# feliz (formerly Achoo!) Arch Linux Installation Script
-# cliff edition - Command Line Interface Functions
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
+
+# /cliff/feliz - Command-line interface - Main module
 
 # Developed by Elizabeth Mills with acknowledgement to Carl Duff
-# Version: 2016-04-07
+
+# Please read the introduction in the README file
 
 #
 # Include source files

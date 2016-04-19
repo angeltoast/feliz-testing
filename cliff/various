@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# Various functions - cli version
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
+
+# /cliff/various - Command-line interface
+# Various functions for input/output, processing and installing
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
-# the excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+# the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 # Please read the introduction in the README file
 

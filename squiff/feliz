@@ -1,10 +1,15 @@
 #!/bin/bash
 
-# feliz (formerly Achoo!) Arch Linux Installation Script
-# squiff edition - Semi-graphical User Interface Functions
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
 
-# Developed by Elizabeth Mills with acknowledgement to Carl Duff
-# Version: 2016-04-07
+# /squiff/feliz - Semi-graphical Dialog interface
+# Main module
+
+# Developed by Elizabeth Mills, incorporating some code adapted from
+# the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
+
+# Please read the introduction in the README file
 
 #
 # Include source files

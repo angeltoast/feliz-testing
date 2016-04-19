@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# partitioning - Partitioning functions - Dialog version
+# The Feliz installation scripts for Arch Linux
+# 19 April 2016
+
+# /squiff/partitioning - Semi-graphical Dialog interface
+# Partitioning functions (user settings)
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
-# the excellent Lution scripts by Carl Duff and AUI scripts by HelmuthDU
+# the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 # Please read the introduction in the README file
+
 
 # -----------------------      ------------------------
 # Functions         Line       Functions           Line
