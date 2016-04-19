@@ -36,7 +36,6 @@ TPecho() { # For compatibility with Cliff
 }
 
 DisplayProgress() {  # Revised code for displaying progress for longer processes
-  dialog --clear # Clear any overlapping dialog
   Estimate=$2           # Numeric argument = multiple of 10
   local Message="$1"        # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time
@@ -56,13 +55,12 @@ DisplayProgress() {  # Revised code for displaying progress for longer processes
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
-  dialog --clear # Clear any overlapping dialog
-  local Title=" $1 "
+  local Title="$1"
   # Receives PassArray comprising all the programs
   # 1) Count items in the array
   n=${#PassArray[*]};
   # 2) Redirect dialog commands input using substitution
-  dialog --title "$Title" --no-shadow --gauge "" 8 60 < <(
+  dialog --title " - $Title - " --no-shadow --gauge "" 8 60 < <(
   # 3) set counter - it will increase on each parse
    i=0
   # 4) read each item from the array
@@ -85,11 +83,11 @@ SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
   listgen1 "LTS Latest"
   dialog --backtitle "$Backtitle" --title " - Choose your kernel - " --no-shadow --ok-button "Select" --nocancel --menu "The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS.\n" 12 60 6 "${Options[@]}" 2> output.file
   case $(cat output.file) in
-    "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
-    ;;
-    "Latest") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
-    ;;
-    *) echo "${Debug}" >> feliz.log
+   "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
+   ;;
+   "Latest") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
+   ;;
+   *) echo "${Debug}" >> feliz.log
   esac
 }
 
