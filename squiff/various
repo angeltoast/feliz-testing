@@ -28,14 +28,14 @@ arch_chroot() {  # From Lution AIS
 }
 
 PrintOne() {  # Arguments: "Component" "Patient"
-  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "\n$1\n$2" 5 50 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
 TPecho() { # For compatibility with Cliff
     PrintOne "$1" "$2"
 }
 
-DisplayProgress() {  # Revised code for displaying progress for longer processes
+DisplayProgress() {  # Displays progress for longer processes
   Estimate=$2           # Numeric argument = multiple of 10
   local Message="$1"        # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time
@@ -45,13 +45,13 @@ DisplayProgress() {  # Revised code for displaying progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
+    echo "\n$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 10 60 0 &
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
@@ -60,7 +60,7 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
   # 1) Count items in the array
   n=${#PassArray[*]};
   # 2) Redirect dialog commands input using substitution
-  dialog --title " - $Title - " --no-shadow --gauge "" 8 60 < <(
+  dialog --backtitle "$Backtitle" --title " - $Title - " --no-shadow --gauge "" 8 60 < <(
   # 3) set counter - it will increase on each parse
    i=0
   # 4) read each item from the array
