@@ -518,8 +518,7 @@ InstallLuxuries() {
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
         fi
       ;;
-      "KDE") 
-        if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
+      "KDE") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
              DisplayProgress "Installing KDE Plasma meta package" 40
             pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
@@ -531,9 +530,9 @@ InstallLuxuries() {
         DisplayProgress "Installing KDE applications package" 30
         pacstrap /mnt kde-applications &>> feliz.log
       ;;
-      "LXDE") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-             pacstrap /mnt lxde &>> feliz.log
-            DisplayProgress "Installing 'LXDE' desktop Environment" 20
+      "LXDE") if [ -z ${DisplayManager} ]; then   # If there is no defined display manager
+              DisplayProgress "Installing 'LXDE' desktop Environment" 20
+            pacstrap /mnt lxde &>> feliz.log
            arch_chroot "systemctl -f enable lxdm.service"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         else

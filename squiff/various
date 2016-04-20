@@ -3,7 +3,8 @@
 # The Feliz installation scripts for Arch Linux
 # 19 April 2016
 
-# /squiff/various - Semi-graphical interface
+# Semi-graphical interface
+# /squiff/various
 # Various functions for input/output, processing and installing
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
@@ -35,7 +36,7 @@ TPecho() { # For compatibility with Cliff
     PrintOne "$1" "$2"
 }
 
-DisplayProgress() {  # Displays progress for longer processes
+DisplayProgress() {  # Displays timed progress bar for longer processes
   Estimate=$2           # Numeric argument = multiple of 10
   local Message="$1"        # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time
@@ -45,13 +46,13 @@ DisplayProgress() {  # Displays progress for longer processes
   do
     echo "XXX"
     echo $Percent
-    echo "\n$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
+    echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
     Percent=`expr $Percent + 10`
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 10 60 0 &
+  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 9 60 0 &
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
