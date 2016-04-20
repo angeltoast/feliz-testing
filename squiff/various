@@ -211,9 +211,9 @@ AddCodecs() {
 McInitCPIO() { # Squiff version must be &>>
   DisplayProgress "Running mkinitcpio" 10
   if [ $Kernel = "1" ]; then
-    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux-lts &>> feliz.log
+    arch_chroot "mkinitcpio -p linux-lts"
   else
-    arch-chroot /mnt /bin/bash -c mkinitcpio -p linux &>> feliz.log
+    arch_chroot "mkinitcpio -p linux"
   fi
 }
 
