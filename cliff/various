@@ -144,7 +144,7 @@ ConfirmReview() {
     PrintOne "Are you sure?"
     listgen1 "Yes No" "" "nodone"
     echo
-    if [ $Response -ne 1 ]; then
+    if [ $Response -eq 2 ]; then
       FinalCheck
     fi
   done
