@@ -14,15 +14,15 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           27
+# arch_chroot           27       ConfirmVbox          206
 # Various input/output  31       arch_chroot          242
 # Internet connection   87       SetGrubDevice        246
 # Various input/output  22       SetGrubDevice        246
 # Internet connection   87       MountPartitions      154
-# SetScope             159       InstallKernel        220
-# SetKernel            193       TestExistingDM       264
-# ConfirmVbox          206       SetRootPassword      293
-# MakePartitionList    229       SetUserPassword      335
+# ConfirmReview        136       InstallKernel        220
+# SetScope             159       TestExistingDM       264
+# SetKernel            193       SetRootPassword      293
+#                                SetUserPassword      335
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
@@ -130,6 +130,23 @@ ConfirmVbox() {
       *) IsInVbox=""
         Retry="N"
     esac
+  done
+}
+
+ConfirmReview() {
+  Retry="Y"
+  until [ $Retry = "N" ]
+  do
+    print_heading
+    PrintOne "You have chosen to edit your choices for"
+    PrintOne "  $Change"
+    echo
+    PrintOne "Are you sure?"
+    listgen1 "Yes No" "" "nodone"
+    echo
+    if [ $Response -ne 1 ]; then
+      FinalCheck
+    fi
   done
 }
 

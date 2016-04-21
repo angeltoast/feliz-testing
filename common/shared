@@ -546,7 +546,7 @@ InstallLuxuries() {
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
       ;;
       "Mate") InstallDM
-          DisplayProgress "Installing 'Mate' desktop Environment" 60
+          DisplayProgress "Installing 'Mate' desktop Environment" 80
         pacstrap /mnt mate mate-extra &>> feliz.log
       ;;
       "Openbox") InstallDM

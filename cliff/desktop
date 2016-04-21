@@ -566,6 +566,7 @@ do
   PrintOne "Press [Enter] to install with these settings, or"
   TPread "enter an item number if you wish to change it: "
   Change=$Response
+  ConfirmReview
   case $Change in
     1) ChangeRootPartition
         AllocateRoot

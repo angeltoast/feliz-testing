@@ -22,7 +22,7 @@
 # ProgressArray         52       InstallKernel        175
 # SetKernel             78       AddCodecs            201
 # ConfirmVbox           90       Passwords            207
-# ConfirmReview        126       Finish               235
+# ConfirmReview        100       Finish               235
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
@@ -106,7 +106,7 @@ ConfirmVbox() {
 }
 
 ConfirmReview() {
-  dialog --backtitle "$Backtitle" --title " - Review - " --no-shadow --yesno "You have chosen to edit your choices for $Response\nAre you sure?\n" 10 50
+  dialog --backtitle "$Backtitle" --title " - Review - " --no-shadow --yesno "You have chosen to edit your choices for\n  $Response\n\nAre you sure?\n" 8 50
     RetVal=$?
     if [ $RetVal -ne 0 ]; then
       FinalCheck
