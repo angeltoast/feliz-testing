@@ -514,6 +514,7 @@ FinalCheck() {
 Repeat=1
 while [ $Repeat -gt 0 ]
 do
+  Change=""
   print_heading
   PrintOne "These are the settings you have entered. Please check them ..."
   echo
@@ -564,6 +565,7 @@ do
   PrintOne "${LuxuriesList}"
   echo
   PrintOne "Press [Enter] to install with these settings, or"
+  Response=""
   TPread "enter an item number if you wish to change it: "
   Change=$Response
   case $Change in
