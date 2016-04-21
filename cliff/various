@@ -134,23 +134,15 @@ ConfirmVbox() {
 }
 
 ConfirmReview() {
-  Retry="Y"
-  until [ $Retry = "N" ]
-  do
     print_heading
-    PrintOne "You have chosen to edit your choices for"
+    PrintOne "This is a bug"
     echo
-    PrintOne "$Selected"
+    PrintOne " =Ộ= "
     echo
-    PrintOne "Are you sure?"
-    listgen1 "Yes No" "" "nodone"
+    PrintOne "It's probably harmless"
     echo
-    if [ $Response -eq 2 ]; then
-      FinalCheck
-    else
-      Retry="N"
-    fi
-  done
+    PrintOne "Press any key to continue"
+    read
 }
 
 SetGrubDevice() {

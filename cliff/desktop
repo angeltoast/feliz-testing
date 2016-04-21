@@ -514,7 +514,6 @@ FinalCheck() {
 Repeat=1
 while [ $Repeat -gt 0 ]
 do
-  Change=""
   print_heading
   PrintOne "These are the settings you have entered. Please check them ..."
   echo
@@ -565,61 +564,37 @@ do
   PrintOne "${LuxuriesList}"
   echo
   PrintOne "Press [Enter] to install with these settings, or"
-  Response=""
+  Response=0
   TPread "enter an item number if you wish to change it: "
   Change=$Response
   case $Change in
-    1) Selected="Root partition"
-      ConfirmReview
-      ChangeRootPartition
+    1) ChangeRootPartition
       AllocateRoot
     ;;
-    2) Selected="Swap"
-      ConfirmReview
-      ChangeSwapPartition
+    2) ChangeSwapPartition
       AllocateSwap
     ;;
-    3) Selected="Extra partitions"
-      ConfirmReview
-      ChangePartitions
+    3) ChangePartitions
       MorePartitions
     ;;
-    4) Selected="Kernel"
-      ConfirmReview
-      SetKernel
+    4) SetKernel
     ;;
-    5) Selected="Grub"
-      ConfirmReview
-      SetGrubDevice
+    5) SetGrubDevice
     ;;
-    6) Selected="Keyboard"
-      ConfirmReview
-      getkeymap
+    6) getkeymap
     ;;
-    7) Selected="Locale"
-      ConfirmReview
-    setlocale
+    7) setlocale
     ;;
-    8) Selected="Zone/Subzone"
-      ConfirmReview
-      SetTimeZone
+    8) SetTimeZone
     ;;
-    9) Selected="Virtualbox"
-      ConfirmReview
-      ConfirmVbox
+    9) ConfirmVbox
     ;;
-    10) Selected="Display manager/greeter"
-      ConfirmReview
-      DisplayManager=""
+    10) DisplayManager=""
       ChooseDM
     ;;
-    11) Selected="Root and user settings"
-      ConfirmReview
-    ManualSettings
+    11) ManualSettings
     ;;
-    12) Selected="Shopping list"
-      ConfirmReview
-      PickLuxuries
+    12) PickLuxuries
     ;;
     *) Repeat=0
   esac

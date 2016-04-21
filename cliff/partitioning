@@ -173,7 +173,7 @@ do
   print_heading
   PrintOne "This will erase any data on ${UseDisk}"
   Message="Are you sure you wish to continue?: "
-  listgen1 "Yes No" "Autopartition" "nodone"
+  listgen1 "Yes No" "" "nodone"
   case $Response in
     "1" | "Y" | "y") RunAutoPart
       print_heading
