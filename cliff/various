@@ -139,7 +139,7 @@ ConfirmReview() {
   do
     print_heading
     PrintOne "You have chosen to edit your choices for"
-    PrintOne "  $Change"
+    PrintOne "  $Selected"
     echo
     PrintOne "Are you sure?"
     listgen1 "Yes No" "" "nodone"

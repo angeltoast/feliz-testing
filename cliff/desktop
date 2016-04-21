@@ -566,35 +566,58 @@ do
   PrintOne "Press [Enter] to install with these settings, or"
   TPread "enter an item number if you wish to change it: "
   Change=$Response
-  ConfirmReview
   case $Change in
-    1) ChangeRootPartition
-        AllocateRoot
+    1) Selected="Root partition"
+      ConfirmReview
+      ChangeRootPartition
+      AllocateRoot
     ;;
-    2) ChangeSwapPartition
-        AllocateSwap
+    2) Selected="Swap"
+      ConfirmReview
+      ChangeSwapPartition
+      AllocateSwap
     ;;
-    3) ChangePartitions
-        MorePartitions
+    3) Selected="Extra partitions"
+      ConfirmReview
+      ChangePartitions
+      MorePartitions
     ;;
-    4) SetKernel
+    4) Selected="Kernel"
+      ConfirmReview
+      SetKernel
     ;;
-    5) SetGrubDevice
+    5) Selected="Grub"
+      ConfirmReview
+      SetGrubDevice
     ;;
-    6) getkeymap
+    6) Selected="Keyboard"
+      ConfirmReview
+      getkeymap
     ;;
-    7) setlocale
+    7) Selected="Locale"
+      ConfirmReview
+    setlocale
     ;;
-    8) SetTimeZone
+    8) Selected="Zone/Subzone"
+      ConfirmReview
+      SetTimeZone
     ;;
-    9) ConfirmVbox
+    9) Selected="Virtualbox"
+      ConfirmReview
+      ConfirmVbox
     ;;
-    10) DisplayManager=""
+    10) Selected="Display manager/greeter"
+      ConfirmReview
+      DisplayManager=""
       ChooseDM
     ;;
-    11) ManualSettings
+    11) Selected="Root and user settings"
+      ConfirmReview
+    ManualSettings
     ;;
-    12) PickLuxuries
+    12) Selected="Shopping list"
+      ConfirmReview
+      PickLuxuries
     ;;
     *) Repeat=0
   esac
