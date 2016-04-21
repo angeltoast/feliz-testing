@@ -139,13 +139,16 @@ ConfirmReview() {
   do
     print_heading
     PrintOne "You have chosen to edit your choices for"
-    PrintOne "  $Selected"
+    echo
+    PrintOne "$Selected"
     echo
     PrintOne "Are you sure?"
     listgen1 "Yes No" "" "nodone"
     echo
     if [ $Response -eq 2 ]; then
       FinalCheck
+    else
+      Retry="N"
     fi
   done
 }
