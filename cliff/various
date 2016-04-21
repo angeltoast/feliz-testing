@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 19 April 2016
+# 21 April 2016
 
-# /cliff/various - Command-line interface
-# Various functions for input/output, processing and installing
+# /cliff/various
+# Various CLI functions for input/output, processing and installing
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
@@ -14,15 +14,15 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           27       ConfirmVbox          206
-# Various input/output  31       arch_chroot          242
-# Internet connection   87       SetGrubDevice        246
-# Various input/output  22       SetGrubDevice        246
-# Internet connection   87       MountPartitions      154
-# ConfirmReview        136       InstallKernel        220
-# SetScope             159       TestExistingDM       264
-# SetKernel            193       SetRootPassword      293
-#                                SetUserPassword      335
+# arch_chroot           27       Bugger               136
+# print_heading         31       SetGrubDevice        148
+# invalid_option        39       MountPartitions      176
+# TPread                44       InstallKernel        238
+# DisplayProgress       59       AddCodecs            261
+# TPecho                63       McInitCPIO           273
+# read_timed            81       SetRootPassword      282
+# SetKernel             99       SetUserPassword      320
+# ConfirmVbox          112       DisplayFinished      347
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
@@ -133,7 +133,7 @@ ConfirmVbox() {
   done
 }
 
-ConfirmReview() {
+Bugger() {
     print_heading
     PrintOne "This is a bug"
     echo

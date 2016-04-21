@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 19 April 2016
+# 21 April 2016
 
-# /cliff/partitioning - Command-line interface
-# Partitioning functions (user settings)
+# /cliff/partitioning
+# CLI partitioning functions (user settings)
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the excellent Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.

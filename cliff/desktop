@@ -1,31 +1,31 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 19 April 2016
+# 21 April 2016
 
-# /cliff/desktop - Command-line interface
-# Functions relevant to users, locations, settings, extra applications and review
+# /cliff/desktop
+# CLI functions relevant to users, settings, extra applications and review
 
 # Developed by Elizabeth Mills, incorporating some code adapted from
 # the Evo/Lution script by Carl Duff and AUI scripts by HelmuthDU.
 
 # Please read the introduction in the README file
 
-# ---------------     -----------------------
-# Function   Line     Function           Line
-# ---------------     -----------------------
-# Keymap        20      Display Managers    428
-# Locale        59      FinalCheck          549
-# Timezone     122      ManualSettings      640
-# Subzone      161      ChangeRootPartition 666
-# Username     235      ChangeSwapPartition 674
-# Hostname     251      ChangePartitions    682
-# PickLuxuries 216      AddExtras           694
+# -----------------   -----------------------
+# Function     Line   Function           Line
+# -----------------   -----------------------
+# getkeymap      25
+# setocale       63    KeepOrDelete       255
+# SetTimeZone   117    ShoppingList       283
+# SetSubZone    148    ChooseDM           441
+# Username      188    AddDEextras        483
+# Hostname      204    FinalCheck         513
+# PickLuxuries  220    ManualSettings     604
 
 getkeymap() {
   print_heading
   echo
-  PrintOne "Now let's try to find your keyboard"
+  PrintOne "Let's try to find your keyboard"
   Repeat=1
   while [ $Repeat -eq 1 ]
   do
@@ -61,57 +61,57 @@ getkeymap() {
 }
 
 setlocale() {
-SearchPrompt=" (for example: GB or en): "
-print_heading
-PrintOne "Next we will try to find your locale. This will"
-PrintOne "be used to set fonts and language, and to find"
-PrintOne "the best mirrors for downloading your system"
-InvalidEntry=1
-while [ $InvalidEntry -eq 1 ]
-do
-  echo
-  PrintOne "Please enter a two-letter code for your country or language."
-  echo
-  TPread "$SearchPrompt"
+  SearchPrompt=" (for example: GB or en): "
   print_heading
-  if [ -z ${Response} ]
-  then
-    invalid_option
-  else
+  PrintOne "Next we will try to find your locale. This will"
+  PrintOne "be used to set fonts and language, and to find"
+  PrintOne "the best mirrors for downloading your system"
+  InvalidEntry=1
+  while [ $InvalidEntry -eq 1 ]
+  do
     echo
-    searchterm="${Response,,}"
-    LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
-    if [ ${#LocaleList[@]} -eq 0 ]
+    PrintOne "Please enter a two-letter code for your country or language."
+    echo
+    TPread "$SearchPrompt"
+    print_heading
+    if [ -z ${Response} ]
     then
-      SEARCHTERM="${Response^^}"
-      LocaleList=(`cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
-    fi
-    local Counter=0
-    localelist=""
-    for l in ${LocaleList[@]}
-    do
-      localelist="${localelist} $l"
-      Counter=$((Counter+1))
-    done
-    if [ $Counter -eq 0 ]; then
       invalid_option
-      continue
+    else
+      echo
+      searchterm="${Response,,}"
+      LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
+      if [ ${#LocaleList[@]} -eq 0 ]
+      then
+        SEARCHTERM="${Response^^}"
+        LocaleList=(`cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
+      fi
+      local Counter=0
+      localelist=""
+      for l in ${LocaleList[@]}
+      do
+        localelist="${localelist} $l"
+        Counter=$((Counter+1))
+      done
+      if [ $Counter -eq 0 ]; then
+        invalid_option
+        continue
+      fi
+      PrintOne "Choose your locale from this list, or 'Try_Again': "
+      echo
+      listgen1 "${localelist}" "" "Try_again}"
+      case $Result in
+        "Try_again") continue
+        ;;
+        *) CountryLocale="${Result}.UTF-8"
+        CountryCode=(`echo ${Result} | cut -c4-6`)
+        break
+      esac
     fi
-    PrintOne "Choose your locale from this list, or 'Try_Again': "
-    echo
-    listgen1 "${localelist}" "" "Try_again}"
-    case $Result in
-      "Try_again") continue
-      ;;
-      *) CountryLocale="${Result}.UTF-8"
-      CountryCode=(`echo ${Result} | cut -c4-6`)
-      break
-    esac
-  fi
+    print_heading
+  done
   print_heading
-done
-print_heading
-read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
+  read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
 }
 
 SetTimeZone() {
@@ -189,7 +189,7 @@ UserName() {
   print_heading
   PrintOne "Enter a name for the primary user of the new system."
   PrintOne "If you don't create a username here, a default user"
-  PrintOne "calle 'archie' will be set up"
+  PrintOne "called 'archie' will be set up"
   echo
   TPread "User Name: "
   Entered=${Response,,}
@@ -599,9 +599,6 @@ FinalCheck() {
       *) Repeat=0
     esac
   done
-
-  read -p "$Repeat $Change $Response"
-
 }
 
 ManualSettings() {
