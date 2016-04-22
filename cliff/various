@@ -119,6 +119,7 @@ ConfirmVbox() {
     PrintOne "utilities and make appropriate settings for you."
     echo
     PrintOne "Install Virtualbox guest utilities?: "
+    echo
     listgen1 "Yes No" "" "nodone"
     echo
     case $Response in

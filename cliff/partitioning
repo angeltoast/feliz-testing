@@ -173,6 +173,7 @@ do
   print_heading
   PrintOne "This will erase any data on ${UseDisk}"
   Message="Are you sure you wish to continue?: "
+  echo
   listgen1 "Yes No" "" "nodone"
   case $Response in
     "1" | "Y" | "y") RunAutoPart
@@ -357,6 +358,7 @@ then
             print_heading
             PrintOne "$i is already formatted as a swap partition,"
             PrintOne "Do you wish to reformat it?"
+            echo
             listgen1 "Yes No" "" "nodone"
             case $Response in
               "1" | "Y" | "y") MakeSwap="Y"
