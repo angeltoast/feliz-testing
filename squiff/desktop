@@ -92,7 +92,7 @@ SetHostname() {
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  _Categories_List="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
   case "${LuxuriesList}" in
   "") local Message="Now you have the option to add extras, such as a web browser, etc.\nIf you want only a base Arch installation, you can exit without choosing any extras"
   ;;
@@ -101,9 +101,9 @@ PickLuxuries() { # User selects any combination from a store of extras
   Category="Continue"
   until [ $Category = "Done" ]
   do
-  # First select a category. _Categories_List is a string variable in same order as the Categories array
-    HowMany=`echo ${_Categories_List} | wc -w` # Count words
-    echo ${_Categories_List} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
+  # First select a category. CategoriesList is a string variable in same order as the Categories array
+    HowMany=`echo ${CategoriesList} | wc -w` # Count words
+    echo ${CategoriesList} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
     Counter=1
     ItemCounter=1
     Width=50

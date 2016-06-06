@@ -15,19 +15,16 @@
 # -----------------------      ------------------------
 # Functions         Line       Functions           Line
 # -----------------------      ------------------------
-# CheckParts          24       BuildPartitionLists 269
-# Partitioning        75       UpdateArray         293
-# Parted              99       AllocateRoot        382
-# AutoPartition      103       CheckPartition      404
-# AutoWarning        152       AllocateSwap        460
-# FileSystem         167       SetSwapFile         476
-# SetLabel           232       MorePartitions      520
-# EditLabel          247       MakePartition       560
+# CheckParts           28      AllocateRoot        204
+# Partitioning         76      CheckPartition      249
+# AutoPartition        99      AllocateSwap        259
+# AutoWarning         146      SetSwapFile         318 
+# FileSystem          165      MorePartitions      342 
+# EditLabel           183      MakePartition       393
 # -----------------------      ------------------------
 
 CheckParts() { # First check of available partitions on the system
-  # Test for existing partitions
-  ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
+  ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'` # Test for existing partitions
   local Partitions=0
   for i in $ShowPartitions
   do
@@ -58,7 +55,7 @@ CheckParts() { # First check of available partitions on the system
     BuildPartitionLists # This is a first call
   else
     # Generate an array of partitions
-    BuildPartitionLists # This is a first call
+    BuildPartitionLists # /common/shared/ - This is a first call
     Partitions=0
     # Copy array to variable for display
     ExistingPartitions=""

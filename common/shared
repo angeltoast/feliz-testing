@@ -21,49 +21,49 @@ declare -a NewArray       # For copying any array
 declare -A LabellingArray # Associative array of user labels for partitions
 declare -A Labelled       # Associative array of labelled partitions
 declare -A FileSystem     # Associative array of filesystem types (ext* swap)
-SwapPartition=""  # eg: /dev/sda3
-FormatSwap="N"    # User selects whether to reuse swap
+SwapPartition=""          # eg: /dev/sda3
+FormatSwap="N"            # User selects whether to reuse swap
 MakeSwap="Y"
-SwapFile=""       # eg: 2G
-IsSwap=""         # Result of lsblk test
-RootPartition=""  # eg: /dev/sda2
-RootType=""       # eg: ext4
-Partition=""      # eg: sda1
-AutoPart=0        # Flag - changes to 1 if auto-partition is chosen
-UseDisk="sda"     # Used if more than one disk
-DiskDetails=0     # Size of selected disk
+SwapFile=""               # eg: 2G
+IsSwap=""                 # Result of lsblk test
+RootPartition=""          # eg: /dev/sda2
+RootType=""               # eg: ext4
+Partition=""              # eg: sda1
+AutoPart=0                # Flag - changes to 1 if auto-partition is chosen
+UseDisk="sda"             # Used if more than one disk
+DiskDetails=0             # Size of selected disk
 #
 # Grub, kernel & EFI variables
 #
-GrubDevice=""     # eg: /dev/sda
-Kernel="1"        # Default 1 = LTS
-IsInVbox=""       # Result of test to see if installation is in Virtualbox
-DualBoot="N"      # Ready for dual-booting option
-EFIPartition=""   # Will hold EFI partition mountpoint in format "/dev/sda1"
+GrubDevice=""             # eg: /dev/sda
+Kernel="1"                # Default 1 = LTS
+IsInVbox=""               # Result of test to see if installation is in Virtualbox
+DualBoot="N"              # Ready for dual-booting option
+EFIPartition=""           # Will hold EFI partition mountpoint in format "/dev/sda1"
 OSprober="Y"
 #
 # Location variables
 #
-CountryCode=""    # eg: GB ... for mirrorlist
-CountryLocale=""  # eg: en_GB.UTF-8
-Countrykbd=""     # eg: uk
-ZONE=""           # eg: Europe For time
-SUBZONE=""        # eg: London
+CountryCode=""            # eg: GB ... for mirrorlist
+CountryLocale=""          # eg: en_GB.UTF-8
+Countrykbd=""             # eg: uk
+ZONE=""                   # eg: Europe For time
+SUBZONE=""                # eg: London
 #
 # Desktop environment, display manager and greeter variables
 #
-DesktopEnvironment="None"  # eg: xfce4
+DesktopEnvironment="None" # eg: xfce4
 GoodiesXfce=""
 GoodiesGnome=""
 GoodiesOpenbox=""
-DisplayManager=""          # eg: lightdm
-Greeter=""                 # eg: lightdm-gtk-greeter (Not required for some DMs)
+DisplayManager=""         # eg: lightdm
+Greeter=""                # eg: lightdm-gtk-greeter (Not required for some DMs)
 #
 # Root and user variables
 #
-HostName=""  # eg: arch-linux
-UserName=""  # eg: archie
-Scope=""     # Installation scope ... 'Full' or 'Basic'
+HostName=""               # eg: arch-linux
+UserName=""               # eg: archie
+Scope=""                  # Installation scope ... 'Full' or 'Basic'
 #
 # Global user input variables
 #
@@ -72,15 +72,15 @@ Result=""
 #
 # ---- Extra Applications ----
 #
-_Categories_List="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
-Categories[1]="Accessories"                                        #
-Categories[2]="Desktop_Environments"                               #
-Categories[3]="Graphical"                                          #
-Categories[4]="Internet"                                           #
-Categories[5]="Multimedia"                                         #
-Categories[6]="Office"                                             #
-Categories[7]="Programming"                                        #
-Categories[8]="Window_Managers"                                    #
+CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+Categories[1]="Accessories"
+Categories[2]="Desktop_Environments"
+Categories[3]="Graphical"
+Categories[4]="Internet"
+Categories[5]="Multimedia"
+Categories[6]="Office"
+Categories[7]="Programming"
+Categories[8]="Window_Managers"
 # Accessories
 Accessories="brasero conky gnome-calculator gedit gparted nautilus gnome-terminal"
 LongAccs[1]="Disc burning application from Gnome"
@@ -151,14 +151,18 @@ LongWMs[6]="For opening applications & managing windows"
 LongWMs[7]="Desktop panel"
 LongWMs[8]="Desktop panel"
 
-# -------------------------
-# Functions           Line
-# -------------------------
-# ReflectorMirrorList  164
-# LocalMirrorList      174
-# Partitioning         189
-# Review Stage         282
-# Install Stage        326
+# -------------------------   -------------------------
+# Functions           Line    Functions           Line
+# -------------------------   -------------------------
+# ReflectorMirrorList  164    ChangeRootPartition  427
+# LocalMirrorList      174    ChangeSwapPartition  435
+# Parted               189    ChangePartitions     443
+# MakePartitionList    194    AddExtras            455
+# BuildPartitionLists  208    TestExistingDM       468
+# UpdateArray          299    InstallDM            497
+# RunAutoPart          325    InstallLuxuries      507
+# SetLabel             401    UserAdd              621
+# -------------------------   -------------------------
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
   TPecho "Generating mirrorlist"
@@ -461,12 +465,41 @@ AddExtras() {
 # Install stage --------------------------------------------------------
 #
 
+TestExistingDM() {   # Test for existing display manager and disable if necessary
+  arch-chroot /mnt touch etc/output.log          # Create an empty file for output of next line
+  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > mnt/etc/output.log
+  DMLine=`cat /mnt/etc/output.log`               # Read contents of file
+  local Counter=1
+  case ${DMLine} in
+    "") echo "No previous DM discovered" >> feliz.log
+    ;;
+    *) local Continue="Y"
+      while [ ${Continue} = "Y" ]
+      do
+        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
+        if [ -z ${ExDM} ]; then
+          Continue="N" # Quit if no further entries
+          break
+        fi
+        Counter=$((Counter+1))
+        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
+        case ${ExDMStatus} in
+          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
+          ;;
+          *) echo "${ExDM} already disabled" >> feliz.log
+        esac
+        Counter=$((Counter+1))
+      done
+  esac
+}
+
 # Install display manager
-InstallDM() { # Called from InstallLuxuries for each desktop environment
+InstallDM() { # Called from /common/shared/InstallLuxuries for each desktop environment
   case ${DisplayManager} in
     "") echo "No Display Manager selected" >> feliz.log
     ;;
     *) TPecho "Installing ${DisplayManager} display manager" ""
+      TestExistingDM #
       pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
       arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   esac
@@ -601,31 +634,3 @@ UserAdd() {
   fi
 }
 
-TestExistingDM() {
-  # Test for existing display manager and disable if necessary
-  arch-chroot /mnt touch etc/output.log # Create empty file
-  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > mnt/etc/output.log
-  DMLine=`cat /mnt/etc/output.log`
-  local Counter=1
-  case ${DMLine} in
-    "") echo "No previous DM discovered" >> feliz.log
-    ;;
-    *) local Continue="Y"
-      while [ ${Continue} = "Y" ]
-      do
-        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
-        if [ -z ${ExDM} ]; then
-          Continue="N" # Quit if no further entries
-          break
-        fi
-        Counter=$((Counter+1))
-        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
-        case ${ExDMStatus} in
-          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
-          ;;
-          *) echo "${ExDM} already disabled" >> feliz.log
-        esac
-        Counter=$((Counter+1))
-      done
-  esac
-}

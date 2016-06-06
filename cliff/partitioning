@@ -14,13 +14,11 @@
 # -----------------------      ------------------------
 # Functions         Line       Functions           Line
 # -----------------------      ------------------------
-# CheckParts          24       BuildPartitionLists 298
-# Partitioning        94       UpdateArray         322
-# Parted             124       AllocateRoot        304
-# AutoPartition      128       CheckPartition      340
-# AutoWarning        171       AllocateSwap        305
-# select_filesystem  188       SetSwapFile         504
-# SetLabel           259       MorePartitions      588
+# CheckParts          24       AllocateRoot       304
+# Partitioning        94       CheckPartition      299
+# AutoPartition      128       AllocateSwap        309
+# AutoWarning        171       SetSwapFile         504
+# select_filesystem  204       MorePartitions      588
 # EditLabel          276       MakePartition       612
 # -----------------------      ------------------------
 
@@ -200,7 +198,6 @@ do
   esac
 done
 }
-
 
 select_filesystem() { # $1 = list passed as string by caller
   local Counter=0

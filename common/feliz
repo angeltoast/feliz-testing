@@ -24,19 +24,18 @@ Backtitle="The Feliz install scripts for Arch Linux"
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
-# Check partition table & offer options
-CheckParts
+CheckParts # /cliff/partitioning /squiff/partitioning - Check partition table & offer options
 
 if [ $AutoPart -eq 0 ]; then
-  BuildPartitionLists # Display information about the available partitions
-  AllocateRoot
+  BuildPartitionLists # /common/shared - Display information about the available partitions
+  AllocateRoot # /cliff/partitioning /squiff
   if [ -n "${PartitionList}" ]
   then
-    AllocateSwap  # Display remaining partitions and allocate swap
+    AllocateSwap  # /cliff/partitioning /squiff/partitioning - Display remaining partitions and allocate swap
   fi
   if [ -n "${PartitionList}" ]  # Check contents of PartitionList again
   then
-    MorePartitions
+    MorePartitions #  /cliff/partitioning /squiff/partitioning
   fi
 fi
 

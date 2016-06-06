@@ -221,7 +221,7 @@ SetHostname() {
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  _Categories_List="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
   local Complete=0
   print_heading
   case "$LuxuriesList" in
@@ -234,7 +234,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   echo
   while [ $Complete -eq 0 ]
   do
-    listgen1 "${_Categories_List}" "Categories" "Done"
+    listgen1 "${CategoriesList}" "Categories" "Done"
     Category=$Response
     if [ $Result = "Done" ]; then
       break
@@ -290,7 +290,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
     echo
-     # $Category passed here is number of item in _Categories_List
+     # $Category passed here is number of item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
