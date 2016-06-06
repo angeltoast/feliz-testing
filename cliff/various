@@ -254,10 +254,10 @@ InstallKernel() {
   
   # Now the selected kernel
   case $Kernel in
-    1) TPecho "Installing LTS kernel"
+    1) TPecho "Installing LTS kernel - this may take some time"
         pacstrap /mnt linux-lts 2>> feliz.log
       ;;
-    *) TPecho "Installing Latest kernel"
+    *) TPecho "Installing Latest kernel - this may take some time"
         pacstrap /mnt linux 2>> feliz.log
   esac
   # Virtualbox code (if selected
@@ -272,6 +272,7 @@ InstallKernel() {
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
   # And finally the man pages
   TPecho "Installing man-db & man-pages"
+  TPecho "This may take some time - please be patient"
   pacstrap /mnt man-db man-pages &>> feliz.log
 }
 

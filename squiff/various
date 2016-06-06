@@ -212,10 +212,10 @@ InstallKernel() { # Kernel and some other core systems
   
   # Now the selected kernel
   case $Kernel in 
-  1) DisplayProgress "Installing LTS kernel" 50
+  1) DisplayProgress " Installing LTS kernel " 50
     pacstrap /mnt linux-lts &>> feliz.log
   ;;
-  *) DisplayProgress "Installing Latest kernel" 50
+  *) DisplayProgress " Installing Latest kernel " 50
     pacstrap /mnt linux &>> feliz.log
   esac
   
@@ -230,7 +230,7 @@ InstallKernel() { # Kernel and some other core systems
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log
   
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages" 120
+  DisplayProgress "Installing man-db & man-pages" 150
   pacstrap /mnt man-db man-pages &>> feliz.log
 }
 
