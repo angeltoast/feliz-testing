@@ -98,23 +98,23 @@ SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
 
 ConfirmVbox() {
   local Message="It appears that feliz is running in Virtualbox. If you wish, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities?"
-    dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "$Message\n" 10 50
-    RetVal=$?
-    case $RetVal in
-      0) IsInVbox="VirtualBox"
-        Retry="N"
-      ;;
-      *) IsInVbox=""
-        Retry="N"
-    esac
+  dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "$Message\n" 10 50
+  RetVal=$?
+  case $RetVal in
+    0) IsInVbox="VirtualBox"
+      Retry="N"
+    ;;
+    *) IsInVbox=""
+      Retry="N"
+  esac
 }
 
 ConfirmReview() {
   dialog --backtitle "$Backtitle" --title " - Review - " --no-shadow --yesno "You have chosen to edit your choices for\n  $Response\n\nAre you sure?\n" 8 50
-    RetVal=$?
-    if [ $RetVal -ne 0 ]; then
-      FinalCheck
-    fi
+  RetVal=$?
+  if [ $RetVal -ne 0 ]; then
+    FinalCheck
+  fi
 }
 
 SetGrubDevice() {
@@ -190,29 +190,48 @@ MountPartitions() {
 }
 
 InstallKernel() { # Kernel and some other core systems
-  DisplayProgress "Installing shell" 40
-  pacstrap /mnt base-devel bash &>> feliz.log
-  # Create array of all the programs to pass to installing function
+  # --------------------------------------------------------------------
+  # This block commented out, to be replaced by the block following
+  # angeltoast 2016-06-06
+  # DisplayProgress "Installing shell" 40
+  # LANG=C # Temporary addition to overcome bug in pacstrap 2016-06-06
+  # pacstrap /mnt base-devel bash &>> feliz.log
+  # --------------------------------------------------------------------
+  # Create array of all the programs in the 'base' group with the exception
+  # of the man pages and the selected kernel (added afterwards)
   PassArray=() # Ensure array is empty
-  PassArray=( btrfs-progs cryptsetup dhcpcd gksu inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm netctl ntp pciutils pcmciautils procps-ng psmisc s-nail systemd-sysvcompat usbutils wget xfsprogs zip nano openssh reiserfsprogs screenfetch unrar unzip vi vim xarchiver xorg-xedit xterm )
+  PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+  ProgressArray " Installing base & base-devel " # Install each one using pacstrap
+  
+  # Create array of additional cli programs to pass to installing function
+  PassArray=() # Ensure array is empty
+  PassArray=( btrfs-progs gksu mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
   ProgressArray " Installing cli tools " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-
-  case $Kernel in
+  
+  # Now the selected kernel
+  case $Kernel in 
   1) DisplayProgress "Installing LTS kernel" 50
     pacstrap /mnt linux-lts &>> feliz.log
   ;;
   *) DisplayProgress "Installing Latest kernel" 50
     pacstrap /mnt linux &>> feliz.log
   esac
-  if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
+  
+  # Virtualbox code (if selected
+  if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then
     pacstrap /mnt virtualbox-guest-utils &>> feliz.log
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
- # PrintOne "Installing opensource video drivers" ""
-  pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log # Install opensource video drivers
+  
+  # Opensource video drivers
+  pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log
+  
+  # And finally the man pages
+  DisplayProgress "Installing man-db & man-pages" 120
+  pacstrap /mnt man-db man-pages &>> feliz.log
 }
 
 AddCodecs() {

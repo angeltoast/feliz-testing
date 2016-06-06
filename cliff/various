@@ -237,11 +237,22 @@ MountPartitions() {
 }
 
 InstallKernel() {
-  TPecho "Installing shell"
-  pacstrap /mnt base-devel bash 2>> feliz.log
+  # --------------------------------------------------------------------
+  # This block commented out and replaced by the code following
+  # angeltoast 2016-06-06
+  # TPecho "Installing shell"
+  # LANG=C # Temporary addition to overcome bug in pacstrap 2016-06-06
+  # pacstrap /mnt base-devel bash 2>> feliz.log
+  # --------------------------------------------------------------------
+  TPecho "Installing base & base-devel"
+  pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+   
   TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs cryptsetup dhcpcd gksu inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-db man-pages mdadm nano netctl ntp openssh pciutils pcmciautils procps-ng psmisc reflector reiserfsprogs s-nail screenfetch systemd-sysvcompat unrar unzip usbutils vi vim wget xfsprogs xarchiver xorg-xedit xterm 2>> feliz.log
+  pacstrap /mnt btrfs-progs gksu mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
+  
+  # Now the selected kernel
   case $Kernel in
     1) TPecho "Installing LTS kernel"
         pacstrap /mnt linux-lts 2>> feliz.log
@@ -249,14 +260,19 @@ InstallKernel() {
     *) TPecho "Installing Latest kernel"
         pacstrap /mnt linux 2>> feliz.log
   esac
+  # Virtualbox code (if selected
   if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
     TPecho "Installing virtualbox guest modules"
     pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
+  # Opensource video drivers
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
+  # And finally the man pages
+  TPecho "Installing man-db & man-pages"
+  pacstrap /mnt man-db man-pages &>> feliz.log
 }
 
 AddCodecs() {
