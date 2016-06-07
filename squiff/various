@@ -191,11 +191,11 @@ MountPartitions() {
 
 InstallKernel() { # Kernel and some other core systems
   # --------------------------------------------------------------------
-  # This block commented out, to be replaced by the block following
-  # angeltoast 2016-06-06
+  # This block commented out - angeltoast 2016-06-06
   # DisplayProgress "Installing shell" 40
   # LANG=C # Temporary addition to overcome bug in pacstrap 2016-06-06
   # pacstrap /mnt base-devel bash &>> feliz.log
+  # Replaced by the following block
   # --------------------------------------------------------------------
   # Create array of all the programs in the 'base' group with the exception
   # of the man pages and the selected kernel (added afterwards)
@@ -203,8 +203,7 @@ InstallKernel() { # Kernel and some other core systems
   PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
   ProgressArray " Installing base & base-devel " # Install each one using pacstrap
   
-  # Create array of additional cli programs to pass to installing function
-  PassArray=() # Ensure array is empty
+  PassArray=()  # Prepare array of additional cli programs
   PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
   ProgressArray " Installing cli tools " # Install each one using pacstrap
   # Enable sshd
