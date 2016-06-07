@@ -39,7 +39,7 @@ TPecho() { # For compatibility with Cliff
 DisplayProgress() {  # Displays timed progress bar for longer processes
   Estimate=$2           # Numeric argument = multiple of 10
   local Message="$1"        # Text passed to appear above progress bar
-  local Sleep=$(( $Estimate / 10 )) # Set sleep period to one tenth of total time
+  local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -48,7 +48,7 @@ DisplayProgress() {  # Displays timed progress bar for longer processes
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
-    Percent=`expr $Percent + 10`
+    Percent=`expr $Percent + 5`
     sleep $Sleep
   done
   ) |
@@ -226,7 +226,7 @@ InstallKernel() { # Kernel and some other core systems
   fi
 
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages" 150
+  DisplayProgress "Installing man-db & man-pages" 240
   pacstrap /mnt man-db man-pages &>> feliz.log
 }
 

@@ -179,24 +179,24 @@ MountPartitions() {
     "") TPecho "Not formatting root partition"
     ;;
     *) TPecho "Formatting root partition"
-      umount ${RootPartition} /mnt >/dev/null &>> feliz.log
+      umount ${RootPartition} /mnt >/dev/null 2>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${RootPartition}
     elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} &>> feliz.log
+      mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
       Partition=`echo $RootPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
+      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
     fi
   esac
   TPecho "Mounting root partition"
-  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
@@ -215,23 +215,23 @@ MountPartitions() {
   for id in ${AddPartList}
   do
     TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log  # eg: mkdir -p /mnt/home
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id}
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} &>> feliz.log
+      mkfs.btrfs -f ${id} 2>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=`echo ${id} | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} 2>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
 }
@@ -261,6 +261,7 @@ InstallKernel() {
     *) TPecho "Installing Latest kernel - this may take some time"
         pacstrap /mnt linux 2>> feliz.log
   esac
+  
   # Virtualbox code (if selected
   if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
     TPecho "Installing virtualbox guest modules"
@@ -272,7 +273,7 @@ InstallKernel() {
   # And finally the man pages
   TPecho "Installing man-db & man-pages"
   TPecho "This may take some time - please be patient"
-  pacstrap /mnt man-db man-pages &>> feliz.log
+  pacstrap /mnt man-db man-pages 2>> feliz.log
 }
 
 AddCodecs() {

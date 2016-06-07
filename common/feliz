@@ -154,5 +154,6 @@ cp feliz.log /mnt/etc # Copy installation log for reference
 
 DisplayFinished
 
+exit
 
 shutdown -h now
