@@ -191,54 +191,47 @@ MountPartitions() {
 
 InstallKernel() { # Kernel and some other core systems
 
-  # --------------------------------------------------------------------
-  # This block commented out - angeltoast 2016-06-06
-  # DisplayProgress "Installing shell" 40
-  # pacstrap /mnt base-devel bash &>> feliz.log
-  # Replaced by the following block
-  # --------------------------------------------------------------------
-  # Create array of all the programs in the 'base' group with the exception
-  # of the man pages and the selected kernel (added afterwards)
-  PassArray=() # Ensure array is empty
-  PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
-  ProgressArray " Installing base & base-devel " # Install each one using pacstrap
+  LANG=C # Temporary addition to overcome bug in Arch man pages
+  
+  case $Kernel in # Selected kernel
+    1) DisplayProgress "Installing LTS kernel" 50
+      pacstrap /mnt linux-lts &>> feliz.log
+      PassArray=() # Ensure array is empty
+      PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+      ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
+      # And finally the man pages
+      DisplayProgress "Installing man-db & man-pages" 240
+      pacstrap /mnt man-db man-pages &>> feliz.log
+    ;;
+    *) DisplayProgress "Installing Latest kernel" 300
+      pacstrap /mnt base base-devel &>> feliz.log
+  esac
   
   PassArray=()  # Prepare array of additional cli programs
   PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
-  ProgressArray " Installing cli tools " # Install each one using pacstrap
+  ProgressArray "Installing cli tools" # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
-  # Now the selected kernel
-  case $Kernel in 
-  1) DisplayProgress " Installing LTS kernel " 50
-    pacstrap /mnt linux-lts &>> feliz.log
-  ;;
-  *) DisplayProgress " Installing Latest kernel " 50
-    pacstrap /mnt linux &>> feliz.log
-  esac
-  
   # Virtualbox code (if selected
-  if [ -n ${IsInVbox} ] && [ $Scope != "Basic" ]; then
+  if [ ${IsInVbox} = "VirtualBox" ] && [ $Scope != "Basic" ]; then
     pacstrap /mnt virtualbox-guest-utils &>> feliz.log
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
 
-  # And finally the man pages
-  LANG=C # Temporary addition to overcome bug in Arch man pages
-  DisplayProgress "Installing man-db & man-pages" 240
-  pacstrap /mnt man-db man-pages &>> feliz.log
 }
 
 AddCodecs() { # Various codecs and graphical environment
+  
   PassArray=() # Prepare for codecs
   PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond )
-  ProgressArray "Adding Codecs, graphics, etc" # Display gauge while installing with pacstrap
+  ProgressArray "Adding Codecs, graphics, etc" # Install each one using pacstrap
   
   PassArray=() # Prepare for graphics
   PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm )
-  ProgressArray "Adding open-source video drivers & graphical environment" # Display gauge while installing with pacstrap    
+  ProgressArray "Adding open-source video drivers & graphical environment" # Install each one using pacstrap
+
 }
 
 McInitCPIO() { # Squiff version must be &>>
