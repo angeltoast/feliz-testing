@@ -367,8 +367,10 @@ SetUserPassword() {
 }
 
 DisplayFinished() {
+  
   print_heading
   read_timed "Congratulations, installation is complete."
-  read_timed "It is time to restart the computer into"
-  read_timed "your new system. Have fun with Arch Linux."
+  read_timed "It is time for Feliz to shut down the computer to allow you to"
+  read_timed "remove the installation media before booting into your new system."
+  read_timed "Have fun!"
 }

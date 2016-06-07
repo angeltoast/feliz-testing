@@ -234,16 +234,19 @@ AddCodecs() { # Various codecs and graphical environment
 
 }
 
-McInitCPIO() { # Squiff version must be &>>
+McInitCPIO() { 
+  
   DisplayProgress "Running mkinitcpio" 10
-  if [ $Kernel = "1" ]; then
-    arch_chroot "mkinitcpio -p linux-lts"
-  else
-    arch_chroot "mkinitcpio -p linux"
-  fi
+  case $Kernel in
+    1) arch_chroot "mkinitcpio -p linux-lts"
+    ;;
+    *) arch_chroot "mkinitcpio -p linux"
+  esac
+  
 }
 
 SetRootPassword() {
+  
   Backtitle="Success! Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   Repeat="Y"
   ExtraMessage=""
@@ -269,9 +272,11 @@ SetRootPassword() {
     fi
   done
   rm output.file
+  
 }
 
 SetUserPassword() {
+  
   Repeat="Y"
   ExtraMessage=""
   while [ $Repeat = "Y" ]
@@ -296,8 +301,11 @@ SetUserPassword() {
     fi
   done
   rm output.file
+  
 }
 
 DisplayFinished() {
-  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time to restart the computer into your new system.\nHave fun with Arch Linux." 10 40
+  
+  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer so you can remove the installation media before booting into your new system.\nHave fun!" 10 40
+  
 }
