@@ -84,6 +84,7 @@ arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/u
 
 # Generate fstab
 genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
+
 if [ ${SwapFile} ]; then
   fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null &>> feliz.log 
@@ -91,9 +92,11 @@ if [ ${SwapFile} ]; then
   swapon /mnt/swapfile >/dev/null &>> feliz.log
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
 fi
+
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts &>> feliz.log
+
 # Set up locale, etc
 echo "${CountryLocale} UTF-8" > /mnt/etc/locale.gen 2>> feliz.log # eg: en_US.UTF-8 UTF-8
 arch_chroot "locale-gen"
@@ -101,6 +104,7 @@ echo "LANG=${CountryLocale}" > /mnt/etc/locale.conf 2>> feliz.log # eg: LANG=en_
 export "LANG=${CountryLocale}" &>> feliz.log                      # eg: LANG=en_US.UTF-8
 arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
+
 # Networking
 if [ $Scope != "Basic" ]; then
   arch_chroot "systemctl enable dhcpcd.service"
@@ -108,6 +112,7 @@ if [ $Scope != "Basic" ]; then
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
+# Grub
 if [ ${GrubDevice} ]; then
   TPecho "Installing Grub2 to $GrubDevice" ""
   pacstrap /mnt grub &>> feliz.log
@@ -120,6 +125,7 @@ else
   echo "Not installing Grub" >> feliz.log
 fi
 
+# mkinicpio
 McInitCPIO
 
 # Set keyboard to selected language at next startup

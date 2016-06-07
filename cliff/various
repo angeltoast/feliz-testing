@@ -245,10 +245,11 @@ InstallKernel() {
   # pacstrap /mnt base-devel bash 2>> feliz.log
   # --------------------------------------------------------------------
   TPecho "Installing base & base-devel"
-  pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+  pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
    
   TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs gksu mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
@@ -267,9 +268,7 @@ InstallKernel() {
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
-  # Opensource video drivers
-  TPecho "Installing  opensource video drivers"
-  pacstrap /mnt xf86-video-vesa xf86-video-nouveau 2>> feliz.log # Install opensource video drivers
+
   # And finally the man pages
   TPecho "Installing man-db & man-pages"
   TPecho "This may take some time - please be patient"
@@ -279,13 +278,16 @@ InstallKernel() {
 AddCodecs() {
   TPecho "Adding codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
+  
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
-  pacstrap /mnt iw wireless_tools wpa_actiond dialog wifi-menu 2>> feliz.log
+  pacstrap /mnt iw wireless_tools wpa_actiond wifi-menu 2>> feliz.log
+  
   TPecho "Installing X, Graphics, etc"
-  pacstrap /mnt xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
-  pacstrap /mnt xf86-input-synaptics 2>> feliz.log
-  pacstrap /mnt gvfs gamin 2>> feliz.log
+  pacstrap /mnt xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm 2>> feliz.log
+  
+  TPecho "Installing  opensource video drivers"
+  pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log # Install opensource video drivers
 }
 
 McInitCPIO() { # Cliff version can be 2>>

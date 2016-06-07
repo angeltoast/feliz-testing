@@ -200,12 +200,12 @@ InstallKernel() { # Kernel and some other core systems
   # Create array of all the programs in the 'base' group with the exception
   # of the man pages and the selected kernel (added afterwards)
   PassArray=() # Ensure array is empty
-  PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+  PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
   ProgressArray " Installing base & base-devel " # Install each one using pacstrap
   
   # Create array of additional cli programs to pass to installing function
   PassArray=() # Ensure array is empty
-  PassArray=( btrfs-progs gksu mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
+  PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
   ProgressArray " Installing cli tools " # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
@@ -225,19 +225,20 @@ InstallKernel() { # Kernel and some other core systems
     echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
     cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
   fi
-  
-  # Opensource video drivers
-  pacstrap /mnt xf86-video-vesa xf86-video-nouveau &>> feliz.log
-  
+
   # And finally the man pages
   DisplayProgress "Installing man-db & man-pages" 150
   pacstrap /mnt man-db man-pages &>> feliz.log
 }
 
-AddCodecs() {
-  PassArray=() # Ensure the array is empty
-  PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond dialog xorg-server-utils xorg-xinit xorg-twm xf86-input-synaptics gvfs gamin )
-  ProgressArray "Adding Codecs, etc" # Display gauge while installing with pacstrap
+AddCodecs() { # Various codecs and graphical environment
+  PassArray=() # Prepare for codecs
+  PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond )
+  ProgressArray "Adding Codecs, graphics, etc" # Display gauge while installing with pacstrap
+  
+  PassArray=() # Prepare for graphics
+  PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm )
+  ProgressArray "Adding open-source video drivers & graphical environment" # Display gauge while installing with pacstrap    
 }
 
 McInitCPIO() { # Squiff version must be &>>
