@@ -271,6 +271,7 @@ InstallKernel() {
   fi
 
   # And finally the man pages
+  LANG=C # Temporary addition to overcome bug in Arch man pages
   TPecho "Installing man-db & man-pages"
   TPecho "This may take some time - please be patient"
   pacstrap /mnt man-db man-pages 2>> feliz.log

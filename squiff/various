@@ -190,10 +190,10 @@ MountPartitions() {
 }
 
 InstallKernel() { # Kernel and some other core systems
+
   # --------------------------------------------------------------------
   # This block commented out - angeltoast 2016-06-06
   # DisplayProgress "Installing shell" 40
-  # LANG=C # Temporary addition to overcome bug in pacstrap 2016-06-06
   # pacstrap /mnt base-devel bash &>> feliz.log
   # Replaced by the following block
   # --------------------------------------------------------------------
@@ -226,6 +226,7 @@ InstallKernel() { # Kernel and some other core systems
   fi
 
   # And finally the man pages
+  LANG=C # Temporary addition to overcome bug in Arch man pages
   DisplayProgress "Installing man-db & man-pages" 240
   pacstrap /mnt man-db man-pages &>> feliz.log
 }
