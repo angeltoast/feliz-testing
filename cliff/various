@@ -264,14 +264,6 @@ InstallKernel() {
   pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-    
-  # Virtualbox code if selected
-  if [ ${IsInVbox} = "VirtualBox" ] && [ $Scope != "Basic" ]; then # Installing in Virtualbox
-    TPecho "Installing virtualbox guest modules"
-    pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
-    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
-  fi
 
 }
 

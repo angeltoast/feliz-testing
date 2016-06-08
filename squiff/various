@@ -61,7 +61,7 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
   # 1) Count items in the array
   n=${#PassArray[*]};
   # 2) Redirect dialog commands input using substitution
-  dialog --backtitle "$Backtitle" --title " - $Title - " --no-shadow --gauge "" 8 60 < <(
+  dialog --backtitle "$Backtitle" --title " $Title " --no-shadow --gauge "" 8 60 < <(
   # 3) set counter - it will increase on each parse
    i=0
   # 4) read each item from the array
@@ -88,11 +88,11 @@ SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
   listgen1 "LTS Latest"
   dialog --backtitle "$Backtitle" --title " - Choose your kernel - " --no-shadow --ok-button "Select" --nocancel --menu "The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS.\n" 12 60 6 "${Options[@]}" 2> output.file
   case $(cat output.file) in
-   "LTS") Kernel=1 # Set the Kernel variable (1 = LTS; 2 = Latest)
+   "LTS") Kernel=1
    ;;
-   "Latest") Kernel=2 # Set the Kernel variable (1 = LTS; 2 = Latest)
+   "Latest") Kernel=2
    ;;
-   *) echo "${Debug}" >> feliz.log
+   *) Bugger
   esac
 }
 
@@ -200,10 +200,10 @@ InstallKernel() { # Kernel and some other core systems
       PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
       ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
       # And finally the man pages
-      DisplayProgress "Installing man-db & man-pages" 240
+      DisplayProgress "Installing man-db & man-pages" 180
       pacstrap /mnt man-db man-pages &>> feliz.log
     ;;
-    *) DisplayProgress "Installing Latest kernel" 300
+    *) DisplayProgress "Installing Latest kernel - this may take some time" 200
       pacstrap /mnt base base-devel &>> feliz.log
   esac
   
@@ -212,13 +212,6 @@ InstallKernel() { # Kernel and some other core systems
   ProgressArray "Installing cli tools" # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-  
-  # Virtualbox code (if selected
-  if [ ${IsInVbox} = "VirtualBox" ] && [ $Scope != "Basic" ]; then
-    pacstrap /mnt virtualbox-guest-utils &>> feliz.log
-    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
-  fi
 
 }
 
@@ -230,17 +223,18 @@ AddCodecs() { # Various codecs and graphical environment
   
   PassArray=() # Prepare for graphics
   PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm )
-  ProgressArray "Adding open-source video drivers & graphical environment" # Install each one using pacstrap
+  ProgressArray "Open-source video drivers & graphical environment" # Install each one using pacstrap
 
 }
 
 McInitCPIO() { 
   
-  DisplayProgress "Running mkinitcpio" 10
   case $Kernel in
-    1) arch_chroot "mkinitcpio -p linux-lts"
+    1) DisplayProgress "Running mkinitcpio for lts kernel" 10
+    arch_chroot "mkinitcpio -p linux-lts"
     ;;
-    *) arch_chroot "mkinitcpio -p linux"
+    *) DisplayProgress "Running mkinitcpio for latest kernel" 10
+    arch_chroot "mkinitcpio -p linux"
   esac
   
 }
@@ -306,6 +300,6 @@ SetUserPassword() {
 
 DisplayFinished() {
   
-  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer so you can remove the installation media before booting into your new system.\nHave fun!" 10 40
+  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer so you can remove the installation media before booting into your new system.\nHave fun!" 10 50
   
 }
