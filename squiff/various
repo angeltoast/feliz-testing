@@ -196,30 +196,32 @@ InstallKernel() { # Kernel and some other core systems
   case $Kernel in # Selected kernel
     1) DisplayProgress "Installing LTS kernel" 50
       pacstrap /mnt linux-lts &>> feliz.log
-      PassArray=() # Ensure array is empty
-      PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
-      ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
-      # And finally the man pages
-      DisplayProgress "Installing man-db & man-pages" 180
-      pacstrap /mnt man-db man-pages &>> feliz.log
     ;;
-    *) DisplayProgress "Installing Latest kernel - this may take some time" 200
-      pacstrap /mnt base base-devel &>> feliz.log
+    *) DisplayProgress "Installing Latest kernel" 50
+      pacstrap /mnt linux &>> feliz.log
   esac
   
-  PassArray=()  # Prepare array of additional cli programs
+  PassArray=() # Prepare the array for additional components
+  PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+  ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
+
+  PassArray=()  # Prepare array for additional cli programs
   PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
   ProgressArray "Installing cli tools" # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-
+      
+  # And finally the man pages
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 180
+  pacstrap /mnt man-db man-pages &>> feliz.log
+  
 }
 
 AddCodecs() { # Various codecs and graphical environment
   
   PassArray=() # Prepare for codecs
   PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond )
-  ProgressArray "Adding Codecs, graphics, etc" # Install each one using pacstrap
+  ProgressArray "Adding Codecs, etc" # Install each one using pacstrap
   
   PassArray=() # Prepare for graphics
   PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm )

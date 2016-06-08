@@ -244,27 +244,28 @@ InstallKernel() {
   
   LANG=C # Temporary addition to overcome bug in Arch man pages
 
-
   case $Kernel in  # Selected kernel
     1) TPecho "Installing LTS kernel - this may take some time"
         pacstrap /mnt linux-lts 2>> feliz.log
-        TPecho "Installing base & base-devel systems"
-        pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
-        # And finally the man pages
-        TPecho "Installing man-db & man-pages"
-        TPecho "This may take quite some time - please be patient"
-        pacstrap /mnt man-db man-pages 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel"
        TPecho "This may take quite some time - please be patient"
-        pacstrap /mnt base base-devel 2>> feliz.log
+        pacstrap /mnt linux 2>> feliz.log
   esac
+  
+  TPecho "Installing base & base-devel systems"
+  pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
 
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-
+  
+  # And finally the man pages
+  TPecho "Installing man-db & man-pages"
+  TPecho "This may take quite some time - please be patient"
+  pacstrap /mnt man-db man-pages 2>> feliz.log
+  
 }
 
 AddCodecs() {
@@ -284,13 +285,15 @@ AddCodecs() {
   
 }
 
-McInitCPIO() { # Cliff version can be 2>>
+McInitCPIO() {
+  
   DisplayProgress "Running mkinitcpio" 10
   case $Kernel in
     1) arch-chroot /mnt /bin/bash -c mkinitcpio -p linux-lts 2>> feliz.log
     ;;
     *) arch-chroot /mnt /bin/bash -c mkinitcpio -p linux 2>> feliz.log
   esac
+  
 }
 
 SetRootPassword() {
