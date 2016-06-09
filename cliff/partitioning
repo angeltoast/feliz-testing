@@ -40,7 +40,7 @@ CheckParts() {
       echo
       PrintOne "There are no partitions on the device, and at least one"
       PrintOne "partition is needed for the root directory."
-      PrintOne " If you are uncertain about partitioning, you should read the Arch Wiki."
+      PrintOne "If you are uncertain about partitioning, you should read the Arch Wiki."
       echo
       PrintOne "You can use 'cfdisk' to create a partition table, or "
       PrintOne "feliz can create partitions for you, if you wish."
@@ -388,6 +388,19 @@ then
   fi
   echo
   PartitionList=$Remaining  # Replace original PartitionList with remaining options
+else
+  PrintOne "There are no partitions available for swap,"
+  PrintOne "but you can allocate a swap file, if you wish."
+  Message="Create a swap file?: "
+  echo
+  listgen1 "Yes No" "" "nodone"
+  case $Response in
+    "1" | "Y" | "y") SetSwapFile
+      SwapPartition=""
+      ;;
+    *) SwapPartition=""
+      SwapFile=""
+  esac
 fi
 }
 

@@ -541,22 +541,22 @@ InstallLuxuries() {
         pacstrap /mnt fluxbox &>> feliz.log
       ;;
       "Gnome") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-              DisplayProgress "Installing 'Gnome' desktop Environment" 50
+              DisplayProgress "Installing 'Gnome' desktop Environment" 40
             pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         else
           InstallDM
-          DisplayProgress "Installing 'Gnome' desktop Environment" 50
+          DisplayProgress "Installing 'Gnome' desktop Environment" 40
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
         fi
       ;;
       "KDE") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-             DisplayProgress "Installing KDE Plasma meta package" 40
+             DisplayProgress "Installing KDE Plasma meta package" 30
             pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
         else
           InstallDM
-          DisplayProgress "Installing KDE Plasma meta package" 40
+          DisplayProgress "Installing KDE Plasma meta package" 30
           pacstrap /mnt plasma-meta &>> feliz.log
         fi
         DisplayProgress "Installing KDE applications package" 30
@@ -578,7 +578,7 @@ InstallLuxuries() {
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
       ;;
       "Mate") InstallDM
-          DisplayProgress "Installing 'Mate' desktop Environment" 80
+          DisplayProgress "Installing 'Mate' desktop Environment" 60
         pacstrap /mnt mate mate-extra &>> feliz.log
       ;;
       "Openbox") InstallDM
@@ -606,13 +606,13 @@ InstallLuxuries() {
       case $i in
       "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
       ;;
-      "cairo-dock") TPecho "Installing extra items ..." " ... cairo-dock & cairo-dock-plug-ins"
+      "cairo-dock") TPecho "Installing cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins &>> feliz.log
       ;;
-      "conky") TPecho "Installing extra items ..." " ... Conky"
+      "conky") TPecho "Installing Conky"
         pacstrap /mnt conky &>> feliz.log
       ;;
-      *) TPecho "Installing extra items ..." " ... $i"
+      *) TPecho "Installing $i"
         pacstrap /mnt $i &>> feliz.log
       esac
     done
