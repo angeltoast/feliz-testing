@@ -514,8 +514,7 @@ AddDEextras() {
 }
 
 FinalCheck() {
-  Repeat=1
-  while [ $Repeat -gt 0 ]
+  while :
   do
     print_heading
     PrintOne "These are the settings you have entered. Please check them ..."
@@ -573,45 +572,45 @@ FinalCheck() {
     case $Change in
       1) ChangeRootPartition
         AllocateRoot
-        Repeat=1
+        continue
       ;;
       2) ChangeSwapPartition
         AllocateSwap
-        Repeat=1
+        continue
       ;;
       3) ChangePartitions
         MorePartitions
-        Repeat=1
+        continue
       ;;
       4) SetKernel
-        Repeat=1
+        continue
       ;;
       5) SetGrubDevice
-        Repeat=1
+        continue
       ;;
       6) getkeymap
-        Repeat=1
+        continue
       ;;
       7) setlocale
-        Repeat=1
+        continue
       ;;
       8) SetTimeZone
-        Repeat=1
+        continue
       ;;
       9) ConfirmVbox
-        Repeat=1
+        continue
       ;;
       10) DisplayManager=""
         ChooseDM
-        Repeat=1
+        continue
       ;;
       11) ManualSettings
-        Repeat=1
+        continue
       ;;
       12) PickLuxuries
-        Repeat=1
+        continue
       ;;
-      *) Repeat=0
+      *) break
     esac
   done
 }

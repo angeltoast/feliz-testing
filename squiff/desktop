@@ -292,98 +292,109 @@ ChooseDM() { # Choose a display manager unless already fixed by certain DEs
 }
 
 FinalCheck() {
-Repeat=1
-while [ $Repeat -gt 0 ]
-do
-  local Message=
-  declare -a Settings
-  Settings[1]="$RootPartition $RootType                                         "
-  if [ $SwapPartition ] || [ $SwapFile ]; then
-    Settings[2]="$SwapPartition $SwapFile"
-  else
-    Settings[2]="No provision has been made for swap"
-  fi
-  if [ ${#AddPartList[@]} ]; then
-    Counter=0
-    Settings[3]=""
-    for i in ${AddPartList[@]}
-    do
-      if [ $Counter -eq 0 ]; then
-        Settings[3]="${AddPartList[$Counter]} ${AddPartType[$Counter]} ${AddPartMount[$Counter]}"
-      else
-        Settings[3]="${Settings[3]} : ${AddPartList[$Counter]} ${AddPartType[$Counter]} ${AddPartMount[$Counter]} "
-      fi
-      Counter=$((Counter+1))
-    done
-  else
-    Settings[3]="No additional partitions have been allocated"
-  fi
-  case $Kernel in
-    1) Settings[4]="The LTS kernel will be installed"
-    ;;
-    *) Settings[4]="The latest kernel will be installed"
-  esac
-  if [ $GrubDevice ]; then
-    Settings[5]="Grub will be installed to $GrubDevice"
-  else
-    Settings[5]="No provision has been made for Grub"
-  fi
-  Settings[6]="Keyboard is $Countrykbd"
-  Settings[7]="Locale will be set to $CountryLocale"
-  Settings[8]="Zone/subZone will be $ZONE/$SUBZONE"
-  case ${IsInVbox} in
-    "VirtualBox") Settings[9]="Virtualbox guest utilities will be installed"
-    ;;
-    *) Settings[9]="Virtualbox guest utilities will not be installed"
-  esac
-  if [ -z $DisplayManager ]; then
-    Settings[10]="No Display Manager selected"
-  else
-    Settings[10]="$DisplayManager"
-  fi
-  Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
-  Settings[12]="${LuxuriesList}"
-  listgen2 "Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras" "Settings"
-  dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them. Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 21 65 12 "${Options[@]}" 2> output.file
-  RetVal=$?
-  Response=$(cat output.file)
-  if [ $RetVal -eq 0 ]; then # An item has been selected for change
-    ConfirmReview
-    case $Response in
-      "Root") ChangeRootPartition
-          AllocateRoot
+  while :
+  do
+    local Message=
+    declare -a Settings
+    Settings[1]="$RootPartition $RootType                                         "
+    if [ $SwapPartition ] || [ $SwapFile ]; then
+      Settings[2]="$SwapPartition $SwapFile"
+    else
+      Settings[2]="No provision has been made for swap"
+    fi
+    if [ ${#AddPartList[@]} ]; then
+      Counter=0
+      Settings[3]=""
+      for i in ${AddPartList[@]}
+      do
+        if [ $Counter -eq 0 ]; then
+          Settings[3]="${AddPartList[$Counter]} ${AddPartType[$Counter]} ${AddPartMount[$Counter]}"
+        else
+          Settings[3]="${Settings[3]} : ${AddPartList[$Counter]} ${AddPartType[$Counter]} ${AddPartMount[$Counter]} "
+        fi
+        Counter=$((Counter+1))
+      done
+    else
+      Settings[3]="No additional partitions have been allocated"
+    fi
+    case $Kernel in
+      1) Settings[4]="The LTS kernel will be installed"
       ;;
-      "Swap") ChangeSwapPartition
-          AllocateSwap
-      ;;
-      "Additional") ChangePartitions
-          MorePartitions
-      ;;
-      "Kernel") SetKernel
-      ;;
-      "Grub") SetGrubDevice
-      ;;
-      "Keyboard") getkeymap
-      ;;
-      "Locale") setlocale
-      ;;
-      "Timezone") SetTimeZone
-      ;;
-      "Virtualbox") ConfirmVbox
-      ;;
-      "Display_Manager") DisplayManager=""
-      ChooseDM
-      ;;
-      "Identity") ManualSettings
-      ;;
-      "Extras") PickLuxuries
-      ;;
-      *) continue # Any error, restart the while loop
+      *) Settings[4]="The latest kernel will be installed"
     esac
-  else # Continue, Cancel or Esc
-    Repeat=0
-  fi
-done
+    if [ $GrubDevice ]; then
+      Settings[5]="Grub will be installed to $GrubDevice"
+    else
+      Settings[5]="No provision has been made for Grub"
+    fi
+    Settings[6]="Keyboard is $Countrykbd"
+    Settings[7]="Locale will be set to $CountryLocale"
+    Settings[8]="Zone/subZone will be $ZONE/$SUBZONE"
+    case ${IsInVbox} in
+      "VirtualBox") Settings[9]="Virtualbox guest utilities will be installed"
+      ;;
+      *) Settings[9]="Virtualbox guest utilities will not be installed"
+    esac
+    if [ -z $DisplayManager ]; then
+      Settings[10]="No Display Manager selected"
+    else
+      Settings[10]="$DisplayManager"
+    fi
+    Settings[11]="Hostname = '$HostName' :  User = '$UserName'"
+    Settings[12]="${LuxuriesList}"
+    listgen2 "Root Swap Additional Kernel Grub Keyboard Locale Timezone Virtualbox Display_Manager Identity Extras" "Settings"
+    dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Change" --cancel-button "Continue" --menu "These are the settings you have entered. Please check them. Press <Continue> to install with these settings, or choose an item if you wish to change it\n" 21 65 12 "${Options[@]}" 2> output.file
+    RetVal=$?
+    Response=$(cat output.file)
+    if [ $RetVal -eq 0 ]; then # An item has been selected for change
+      ConfirmReview
+      case $Response in
+        "Root") ChangeRootPartition
+            AllocateRoot
+            continue
+        ;;
+        "Swap") ChangeSwapPartition
+            AllocateSwap
+            continue
+        ;;
+        "Additional") ChangePartitions
+            MorePartitions
+            continue
+        ;;
+        "Kernel") SetKernel
+            continue
+        ;;
+        "Grub") SetGrubDevice
+            continue
+        ;;
+        "Keyboard") getkeymap
+            continue
+        ;;
+        "Locale") setlocale
+            continue
+        ;;
+        "Timezone") SetTimeZone
+            continue
+        ;;
+        "Virtualbox") ConfirmVbox
+            continue
+        ;;
+        "Display_Manager") DisplayManager=""
+            ChooseDM
+            continue
+        ;;
+        "Identity") ManualSettings
+            continue
+        ;;
+        "Extras") PickLuxuries
+            continue
+        ;;
+        *) continue # Any error, restart the while loop
+      esac
+    else # Continue, Cancel or Esc
+      break
+    fi
+  done
 }
 
 ManualSettings() {

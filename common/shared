@@ -512,7 +512,7 @@ InstallLuxuries() {
     do
       case $i in
       "Cinnamon") InstallDM
-          DisplayProgress "Installing Cinnamon desktop Environment" 50
+          DisplayProgress "Installing Cinnamon desktop Environment" 30
         pacstrap /mnt cinnamon &>> feliz.log
       ;;
       "Deepin") if [ -z ${DisplayManager} ]; then     # If there is no defined display manager
@@ -541,12 +541,12 @@ InstallLuxuries() {
         pacstrap /mnt fluxbox &>> feliz.log
       ;;
       "Gnome") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
-              DisplayProgress "Installing 'Gnome' desktop Environment" 40
+              DisplayProgress "Installing 'Gnome' desktop Environment" 30
             pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         else
           InstallDM
-          DisplayProgress "Installing 'Gnome' desktop Environment" 40
+          DisplayProgress "Installing 'Gnome' desktop Environment" 30
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
         fi
       ;;
@@ -578,7 +578,7 @@ InstallLuxuries() {
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
       ;;
       "Mate") InstallDM
-          DisplayProgress "Installing 'Mate' desktop Environment" 60
+          DisplayProgress "Installing 'Mate' desktop Environment" 30
         pacstrap /mnt mate mate-extra &>> feliz.log
       ;;
       "Openbox") InstallDM

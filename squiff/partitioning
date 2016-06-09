@@ -95,69 +95,69 @@ Partitioning() {
 }
 
 AutoPartition() {
-# Called from option 2) within Partitioning()
-AutoPart=0
-until [ ${AutoPart} -gt 0 ]
-do
-  DiskDetails=`lsblk -l | grep 'disk' | awk '{print $1}'`
-  UseDisk=$DiskDetails # If more than one, UseDisk will be first
-  # Count lines. If more than one disk, ask user which to use
-  local Counter=0
-  for i in $DiskDetails
+  # Called from option 2) within Partitioning()
+  AutoPart=0
+  until [ ${AutoPart} -gt 0 ]
   do
-    (( Counter+=1 ))
-    Drives[$Counter]=$i
-  done
-  if [ $Counter -gt 1 ]
-  then
-    UseDisk="" # Reset for user choice
-    Counter=0
-    ExistingPartitions="" # Prepare variable
+    DiskDetails=`lsblk -l | grep 'disk' | awk '{print $1}'`
+    UseDisk=$DiskDetails # If more than one, UseDisk will be first
+    # Count lines. If more than one disk, ask user which to use
+    local Counter=0
     for i in $DiskDetails
     do
       (( Counter+=1 ))
-      ExistingPartitions="$ExistingPartitions $i\n"
+      Drives[$Counter]=$i
     done
-    while [ -z $UseDisk ]
-    do
-      local Message="There are $Counter devices available\n $ExistingPartitions\nWhich do you wish to use for installation?\n(Remember, this is auto-partition, and any data on the chosen device will be lost)"
-      dialog --backtitle "$Backtitle" --title " - auto-partition - " --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
-      UseDisk=$(cat output.file)
-      #  Check entry against list
+    if [ $Counter -gt 1 ]
+    then
+      UseDisk="" # Reset for user choice
+      Counter=0
+      ExistingPartitions="" # Prepare variable
       for i in $DiskDetails
       do
-        if [ $i = $UseDisk ]; then
-          Counter=1
-        fi
+        (( Counter+=1 ))
+        ExistingPartitions="$ExistingPartitions $i\n"
       done
-      if [ $Counter -ne 1 ]; then
-        UseDisk=""
-      fi
+      while [ -z $UseDisk ]
+      do
+        local Message="There are $Counter devices available\n $ExistingPartitions\nWhich do you wish to use for installation?\n(Remember, this is auto-partition, and any data on the chosen device will be lost)"
+        dialog --backtitle "$Backtitle" --title " - auto-partition - " --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
+        UseDisk=$(cat output.file)
+        #  Check entry against list
+        for i in $DiskDetails
+        do
+          if [ $i = $UseDisk ]; then
+            Counter=1
+          fi
+        done
+        if [ $Counter -ne 1 ]; then
+          UseDisk=""
+        fi
+        AutoWarning
+      done
+    else
       AutoWarning
-    done
-  else
-    AutoWarning
-  fi
-done
+    fi
+  done
 }
 
 AutoWarning() {
-while :
-do
-  dialog --backtitle "$Backtitle" --title " - auto-partition - " --no-shadow --yesno "\nThis will erase any data on '${UseDisk}'\nAre you sure you wish to continue?\n" 10 40
-  case $? in
-    0) RunAutoPart
-      if [ ${Home} = "Y" ]; then
-        ShowPart3=`lsblk -l | grep "${UseDisk}3" | awk '{print $4}'` >/dev/null
-        PrintHome="Home partition: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
-      fi
-      dialog --backtitle "$Backtitle" --title " - Partitioning- " --no-shadow --msgbox "Partitioning of ${GrubDevice} successful\n\n $ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later." 15 40
-      break
-      ;;
-    *) UseDisk=""
-      break
-  esac
-done
+  while :
+  do
+    dialog --backtitle "$Backtitle" --title " - auto-partition - " --no-shadow --yesno "\nThis will erase any data on '${UseDisk}'\nAre you sure you wish to continue?\n" 10 40
+    case $? in
+      0) RunAutoPart
+        if [ ${Home} = "Y" ]; then
+          ShowPart3=`lsblk -l | grep "${UseDisk}3" | awk '{print $4}'` >/dev/null
+          PrintHome="Home partition: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
+        fi
+        dialog --backtitle "$Backtitle" --title " - Partitioning- " --no-shadow --msgbox "Partitioning of ${GrubDevice} successful\n\n $ShowPart1 ${SwapPartition}${SwapFile}\n $ShowPart2  ${RootPartition} ${RootType}\n$PrintHome\n\nYou will have the opportunity to review these later." 15 40
+        break
+        ;;
+      *) UseDisk=""
+        break
+    esac
+  done
 }
 
 FileSystem() {
@@ -179,24 +179,24 @@ FileSystem() {
 }
 
 EditLabel() { # Called by AllocateRoot, AllocateSwap and MorePartitions
-# Allows user to keep, edit or remove an existing label
-Label="${Labelled[$1]}"
-if [ -n ${Label} ]; then
-  dialog --backtitle "$Backtitle" --title " - Edit Partition Label - " --no-shadow --menu "The partition you have chosen is labelled '${Label}'" 18 50 3 \
-        "1" "Keep existing label" \
-        "2" "Delete label" \
-        "3" "Enter a new label" 2> output.file
-  Response=$(cat output.file)
-  case $Response in
-    1) LabellingArray[$PartitionID]=$Label # Keep saved label
-    ;;
-    2) LabellingArray[$PartitionID]="" # Empty label
-    ;;
-    *) dialog --backtitle "$Backtitle" --title " - Edit Partition Label - " --no-shadow --inputbox "$PartitionID \nEnter a new label ..." 10 50 2> output.file
-      Response=$(cat output.file)
-      LabellingArray[$PartitionID]=$Response # Save new label
-  esac
-fi
+  # Allows user to keep, edit or remove an existing label
+  Label="${Labelled[$1]}"
+  if [ -n ${Label} ]; then
+    dialog --backtitle "$Backtitle" --title " - Edit Partition Label - " --no-shadow --menu "The partition you have chosen is labelled '${Label}'" 18 50 3 \
+          "1" "Keep existing label" \
+          "2" "Delete label" \
+          "3" "Enter a new label" 2> output.file
+    Response=$(cat output.file)
+    case $Response in
+      1) LabellingArray[$PartitionID]=$Label # Keep saved label
+      ;;
+      2) LabellingArray[$PartitionID]="" # Empty label
+      ;;
+      *) dialog --backtitle "$Backtitle" --title " - Edit Partition Label - " --no-shadow --inputbox "$PartitionID \nEnter a new label ..." 10 50 2> output.file
+        Response=$(cat output.file)
+        LabellingArray[$PartitionID]=$Response # Save new label
+    esac
+  fi
 }
 
 AllocateRoot() {
@@ -245,107 +245,106 @@ AllocateRoot() {
 }
 
 CheckPartition() {
-# Finds if there is an existing file system on the selected partition
-CurrentType=`file -sL ${Partition} | grep "ext" | cut -c26-30`
-if [ ${CurrentType} ]; then
-  local Message="The selected partition ${Partition} is currently formatted to ${CurrentType}\nReformatting it will remove all data currently on it."
-else
- local Message=""
-fi
+  # Finds if there is an existing file system on the selected partition
+  CurrentType=`file -sL ${Partition} | grep "ext" | cut -c26-30`
+  if [ ${CurrentType} ]; then
+    local Message="The selected partition ${Partition} is currently formatted to ${CurrentType}\nReformatting it will remove all data currently on it."
+  else
+   local Message=""
+  fi
 }
 
 AllocateSwap() {
-# ~ Checks if there are remaining partitions and allows selection for swap ~
-if [ -n "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
-then
-  SwapPartition=""                   # Make sure other variables are empty
-  SwapFile=""
-  declare -a CopyArray               # Prepare empty array for passing to listgen2
-  local Counter=0                    # Start counter at 1
-  for p in "${PartitionArray[@]}"    # Copy each item from PartitionArray .....
-  do
-    CopyArray[${Counter}]=${PartitionArray[$Counter]} # ... into CopyArray for display in menu
-    (( Counter+=1 ))                 # Counter is always 1 ahead of array elements
-  done
-                                     # Prepare for passing to listgen2
-  CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
-  PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
-  listgen2 "$PickFrom" "CopyArray"
-  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
-  RetVal=$?
-  if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
-    Result="Done"                    # Prepare reporting variable before exiting
-    SwapPartition=""
-    break
-  fi
-  Result=$(cat output.file)          # Save selected partition ID
-  if [ $Result = "Swapfile" ]; then
-    SetSwapFile                      # Function call to set swapfile size
-    SwapPartition=""
-    break
-  else
-    SwapPartition="/dev/$Result"     # All other options are a partition in form 'sd*n'
-    IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
-    if [ -n "$IsSwap" ]; then                                     # If it is, offer yes/no ...
-      dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
-      RetVal=$?
-      case $RetVal in                # ... and use $? (exit status) to set variable
-      0) MakeSwap="Y"                # used during installation
-      ;;
-      *) MakeSwap="N"
-      esac
-    fi
-    Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
-    if [ -n "${Label}" ]; then       # If there is a label one ...
-      EditLabel "$Result"            # Pass partition ID to two functions
-      SetLabel "$Result"
-    fi
-    PassPart="$Result"
-    UpdateArray                      # Remove the selected partition ($Result) from $PartitionArray
-    Remaining=""
-    for p in "${PartitionArray[@]}"  # Then go through the array ...
+  # ~ Checks if there are remaining partitions and allows selection for swap ~
+  if [ "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
+  then
+    SwapPartition=""                   # Make sure other variables are empty
+    SwapFile=""
+    declare -a CopyArray               # Prepare empty array for passing to listgen2
+    local Counter=0                    # Start counter at 1
+    for p in "${PartitionArray[@]}"    # Copy each item from PartitionArray .....
     do
-      First=`echo $p | awk '{print $1}'` # Separate first field, and use it
-      Remaining="$Remaining $First"      # in building the new list
+      CopyArray[${Counter}]=${PartitionArray[$Counter]} # ... into CopyArray for display in menu
+      (( Counter+=1 ))                 # Counter is always 1 ahead of array elements
     done
-    PartitionList=$Remaining             # Replace original PartitionList with remaining options
-  fi
-else
-  dialog --backtitle "$Backtitle" --title " Swap " --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
-  RetVal=$?
-  case $RetVal in
-    0) SetSwapFile
+                                       # Prepare for passing to listgen2
+    CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
+    PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
+    listgen2 "$PickFrom" "CopyArray"
+    dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
+    RetVal=$?
+    if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
+      Result="Done"                    # Prepare reporting variable before exiting
       SwapPartition=""
-      ;;
-    *) SwapPartition=""
-      SwapFile=""
-  esac
-fi
-
+      break
+    fi
+    Result=$(cat output.file)          # Save selected partition ID
+    if [ $Result = "Swapfile" ]; then
+      SetSwapFile                      # Function call to set swapfile size
+      SwapPartition=""
+      break
+    else
+      SwapPartition="/dev/$Result"     # All other options are a partition in form 'sd*n'
+      IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
+      if [ -n "$IsSwap" ]; then                                     # If it is, offer yes/no ...
+        dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
+        RetVal=$?
+        case $RetVal in                # ... and use $? (exit status) to set variable
+        0) MakeSwap="Y"                # used during installation
+        ;;
+        *) MakeSwap="N"
+        esac
+      fi
+      Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
+      if [ -n "${Label}" ]; then       # If there is a label one ...
+        EditLabel "$Result"            # Pass partition ID to two functions
+        SetLabel "$Result"
+      fi
+      PassPart="$Result"
+      UpdateArray                      # Remove the selected partition ($Result) from $PartitionArray
+      Remaining=""
+      for p in "${PartitionArray[@]}"  # Then go through the array ...
+      do
+        First=`echo $p | awk '{print $1}'` # Separate first field, and use it
+        Remaining="$Remaining $First"      # in building the new list
+      done
+      PartitionList=$Remaining             # Replace original PartitionList with remaining options
+    fi
+  else
+    dialog --backtitle "$Backtitle" --title " Swap " --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
+    RetVal=$?
+    case $RetVal in
+      0) SetSwapFile
+        SwapPartition=""
+        ;;
+      *) SwapPartition=""
+        SwapFile=""
+    esac
+  fi
 }
 
 SetSwapFile() {
-LoopRepeat="Y"
-local Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
-while [ ${LoopRepeat} = "Y" ]
-do
-  dialog --backtitle "$Backtitle" --title " - Swapfile - " --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
-  Response=$(cat output.file)
-  RESPONSE="${Response^^}"
-  # Check that entry includes 'M or G'
-  CheckInput=(`echo $RESPONSE | grep "G\|M"`)
-  echo
-  if [ -z ${CheckInput} ]; then
-    local Message="You must include M or G\n$Message"
-    SwapFile=""
-  else
-    SwapFile=$RESPONSE
-    LoopRepeat="N"
-  fi
-  if [ ${LoopRepeat} = "N" ]; then
-    break
-  fi
-done
+  LoopRepeat="Y"
+  local Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
+  while [ ${LoopRepeat} = "Y" ]
+  do
+    dialog --backtitle "$Backtitle" --title " - Swapfile - " --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
+    Response=$(cat output.file)
+    RESPONSE="${Response^^}"
+    # Check that entry includes 'M or G'
+    CheckInput=(`echo $RESPONSE | grep "G\|M"`)
+    echo
+    if [ -z ${CheckInput} ]; then
+      local Message="You must include M or G\n$Message"
+      SwapFile=""
+    else
+      SwapFile=$RESPONSE
+      LoopRepeat="N"
+    fi
+    if [ ${LoopRepeat} = "N" ]; then
+      break
+    fi
+  done
 }
 
 MorePartitions() { # For any unallocated partitions. Uses PartitionList and PartitionArray
