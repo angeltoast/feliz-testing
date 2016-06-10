@@ -495,7 +495,7 @@ TestExistingDM() {   # Test for existing display manager and disable if necessar
 
 InstallDM() { # Install display manager - called for each desktop environment
   
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$DisplayManager" 5 40 ###########
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $DisplayManager" 8 40 ###########
   
   if [ ${DisplayManager} ]; then
     TPecho "Installing ${DisplayManager} display manager" ""
@@ -503,7 +503,7 @@ InstallDM() { # Install display manager - called for each desktop environment
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
     DisplayManager="" # Don't allow any other DMs
       
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$DisplayManager" 5 40 ###########
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $DisplayManager" 8 40 ###########
   
   fi
 }
@@ -517,7 +517,7 @@ InstallLuxuries() { # Install desktops and other extras
     for i in ${LuxuriesList}
     do
     
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$i" 5 40 ###########
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $i" 8 40 ###########
   
       case $i in
       "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 40
@@ -570,7 +570,9 @@ InstallLuxuries() { # Install desktops and other extras
       *) continue # Ignore all others on this pass
       esac
     done
-    
+        
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO" 8 40 ###########
+  
     # Install Yaourt
     TPecho "Installing extra items ..." "Modifying pacman.conf and installing Yaourt"
     cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
