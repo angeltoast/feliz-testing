@@ -11,16 +11,15 @@
 
 # Please read the introduction in the README file
 
-# ----------------     -----------------------
-# Function    Line     Function           Line
-# ----------------     -----------------------
-# getkeymap     20     Display Managers    262
-# setlocale     35     FinalCheck          285
-# settimezone   46     ManualSettings      330
-# UserName      75     ChangeRootPartition 356
-# Hostname      85     ChangeSwapPartition 364
-# PickLuxuries  93     ChangePartitions    372
-# ShoppingList 142     AddExtras           383
+# -----------------     ---------------------
+# Function     Line     Function         Line
+# -----------------     ---------------------
+# getkeymap      20     PickLuxuries       93
+# setlocale      35     ShoppingList      142
+# settimezone    46     Display Managers  262
+# UserName       75     FinalCheck        285
+# Hostname       85     ManualSettings    330
+# -----------------     ---------------------
 
 getkeymap() {
   ListKbs=`cat keymaps.list`
@@ -347,7 +346,7 @@ FinalCheck() {
     RetVal=$?
     Response=$(cat output.file)
     if [ $RetVal -eq 0 ]; then # An item has been selected for change
-      ConfirmReview
+      ConfirmReview            # User confirmation to make change
       case $Response in
         "Root") ChangeRootPartition
             AllocateRoot
@@ -389,9 +388,9 @@ FinalCheck() {
         "Extras") PickLuxuries
             continue
         ;;
-        *) continue # Any error, restart the while loop
+        *) continue            # Any error, restart the while loop
       esac
-    else # Continue, Cancel or Esc
+    else                       # Continue, Cancel or Esc
       break
     fi
   done

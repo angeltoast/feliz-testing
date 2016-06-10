@@ -256,8 +256,8 @@ CheckPartition() {
 
 AllocateSwap() {
   # ~ Checks if there are remaining partitions and allows selection for swap ~
-  if [ "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
-  then
+  if [ -n "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
+  then                                 # Is not empty
     SwapPartition=""                   # Make sure other variables are empty
     SwapFile=""
     declare -a CopyArray               # Prepare empty array for passing to listgen2
@@ -275,21 +275,21 @@ AllocateSwap() {
     RetVal=$?
     if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
       Result="Done"                    # Prepare reporting variable before exiting
-      SwapPartition=""
+      SwapPartition=""                 # And set SwapPartition to empty
       break
     fi
     Result=$(cat output.file)          # Save selected partition ID
-    if [ $Result = "Swapfile" ]; then
+    if [ $Result = "Swapfile" ]; then  # User selects swapfile option
       SetSwapFile                      # Function call to set swapfile size
-      SwapPartition=""
+      SwapPartition=""                 # And set SwapPartition to empty
       break
-    else
-      SwapPartition="/dev/$Result"     # All other options are a partition in form 'sd*n'
+    else                               # User selects a partition
+      SwapPartition="/dev/$Result"     # All are a partition in form 'sd*n'
       IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
-      if [ -n "$IsSwap" ]; then                                     # If it is, offer yes/no ...
+      if [ -n "$IsSwap" ]; then                                             # If it is, offer yes/no ...
         dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
         RetVal=$?
-        case $RetVal in                # ... and use $? (exit status) to set variable
+        case $RetVal in                # Use exit status to set variable
         0) MakeSwap="Y"                # used during installation
         ;;
         *) MakeSwap="N"
@@ -297,11 +297,11 @@ AllocateSwap() {
       fi
       Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
       if [ -n "${Label}" ]; then       # If there is a label one ...
-        EditLabel "$Result"            # Pass partition ID to two functions
+        EditLabel "$Result"            # Pass partition ID to two labelling functions
         SetLabel "$Result"
       fi
-      PassPart="$Result"
-      UpdateArray                      # Remove the selected partition ($Result) from $PartitionArray
+      PassPart="$Result"               # Pass the partition to UpdateArray
+      UpdateArray                      # Remove the selected partition from $PartitionArray
       Remaining=""
       for p in "${PartitionArray[@]}"  # Then go through the array ...
       do
@@ -310,7 +310,7 @@ AllocateSwap() {
       done
       PartitionList=$Remaining             # Replace original PartitionList with remaining options
     fi
-  else
+  else                                     # PartitionList array is empty
     dialog --backtitle "$Backtitle" --title " Swap " --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
     RetVal=$?
     case $RetVal in
