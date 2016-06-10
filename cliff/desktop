@@ -383,6 +383,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
             ;;
             *) DDEextras=""
           esac
+     	  DisplayManager="lightdm"
+     	  Greeter="deepin-session-ui"
        ;;
       "Enlightenment") DesktopEnvironment=$SaveResult
          case $Response in
