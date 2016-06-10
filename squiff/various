@@ -40,6 +40,7 @@ DisplayProgress() {  # Displays timed progress bar for longer processes
   Estimate=$2           # Numeric argument = multiple of 20
   local Message="$1"        # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
+  local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percantage of $Estimate
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -48,7 +49,7 @@ DisplayProgress() {  # Displays timed progress bar for longer processes
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
-    Percent=`expr $Percent + $Sleep`
+    Percent=`expr $Percent + $Increment`
     sleep $Sleep
   done
   ) |
