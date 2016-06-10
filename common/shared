@@ -493,30 +493,32 @@ TestExistingDM() {   # Test for existing display manager and disable if necessar
   esac
 }
 
-# Install display manager
-InstallDM() { # Called from /common/shared/InstallLuxuries for each desktop environment
-  case ${DisplayManager} in
-    "") echo "No Display Manager selected" >> feliz.log
-    ;;
-    *) TPecho "Installing ${DisplayManager} display manager" ""
-      pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
-      arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
+InstallDM() { # Install display manager - called for each desktop environment
+  
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$DisplayManager" 5 40 ###########
+  
+  if [ ${DisplayManager} ]; then
+    TPecho "Installing ${DisplayManager} display manager" ""
+    pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
+    arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
+    DisplayManager="" # Don't allow any other DMs
       
-      
-      DisplayManager="" # Don't allow any other DMs
-      
-      
-  esac
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$DisplayManager" 5 40 ###########
+  
+  fi
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  TestExistingDM    # First check for any existing DM and disable it
-  if [ ${DisplayManager} ]; then   # If a display manager is set
-    InstallDM
+  TestExistingDM                      # First check for any existing DM and disable it
+  if [ ${DisplayManager} ]; then      # If a display manager is set
+    InstallDM                         # Install it
   fi
   if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
+    
+  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "\n$i" 5 40 ###########
+  
       case $i in
       "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 40
           pacstrap /mnt cinnamon &>> feliz.log

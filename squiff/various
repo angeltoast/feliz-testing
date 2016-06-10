@@ -30,7 +30,7 @@ arch_chroot() {  # From Lution AIS
 }
 
 PrintOne() {  # Arguments: "Component" "Patient"
-  dialog --backtitle "$Backtitle" --title " - Information - " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
+  dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
 TPecho() { # For compatibility with Cliff
@@ -196,10 +196,10 @@ InstallKernel() { # Kernel and some other core systems
   LANG=C # Temporary addition to overcome bug in Arch man pages
   
   case $Kernel in # Selected kernel
-    1) DisplayProgress "Installing LTS kernel" 50
+    1) DisplayProgress "Installing LTS kernel" 60
       pacstrap /mnt linux-lts &>> feliz.log
     ;;
-    *) DisplayProgress "Installing Latest kernel" 50
+    *) DisplayProgress "Installing Latest kernel" 60
       pacstrap /mnt linux &>> feliz.log
   esac
   

@@ -93,7 +93,7 @@ SetHostname() {
 PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
   case "${LuxuriesList}" in
-  "") local Message="Now you have the option to add extras, such as a web browser, etc.\nIf you want only a base Arch installation, you can exit without choosing any extras"
+  "") local Message="Now you have the option to add extras, such as a desktop environment, web browser, etc. If you want only a base Arch installation, just exit without choosing any extras"
   ;;
   *) local Message="You can add more items, or select items to delete."
   esac
@@ -297,7 +297,7 @@ ChooseDM() { # Choose a display manager
     fi
   else # Warn that DM already set, and offer option to change it
     local Message=
-    dialog --backtitle "$Backtitle" --title " Display Manager " --no-shadow --yesno "Display manager is already set as: $DisplayManager. Only one display manager can be active.\nDo you wish to change it?" 10 50
+    dialog --backtitle "$Backtitle" --title " Display Manager " --no-shadow --yesno "Display manager is already set as: $DisplayManager. Only one display manager can be active.\nDo you wish to change it?" 8 50
     RetVal=$?
     if [ $RetVal -eq 0 ]; then # User wishes to change DM
       DisplayManager=""        # Clear DM variable
