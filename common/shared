@@ -514,14 +514,14 @@ InstallLuxuries() { # Install desktops and other extras
           DisplayProgress "Installing Cinnamon desktop Environment" 40
         pacstrap /mnt cinnamon &>> feliz.log
         ;;
-      "Deepin") if [ -z ${DisplayManager} ]; then     # If there is no defined display manager
+      "Deepin") if [ -z ${DisplayManager} ]; then   # If there is no defined display manager
              # Install LightDM and Deepin greeter
             pacstrap /mnt lightdm deepin-session-ui &>> feliz.log
            # Activate daemon
           arch_chroot "systemctl -f enable lightdm.service"
           # Change the greeter line in lightdm.conf
          sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
-        else
+        else                                        # If display manager selected as part of another DE
           InstallDM
         fi
         DisplayProgress "Installing Deepin desktop Environment" 20
@@ -543,17 +543,17 @@ InstallLuxuries() { # Install desktops and other extras
               DisplayProgress "Installing 'Gnome' desktop Environment" 40
             pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
-        else
+        else                                        # If display manager selected as part of another DE
           InstallDM
           DisplayProgress "Installing 'Gnome' desktop Environment" 40
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
         fi
         ;;
-      "KDE") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
+      "KDE") if [ -z ${DisplayManager} ]; then      # If there is no defined display manager
              DisplayProgress "Installing KDE Plasma meta package" 40
             pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
-        else
+        else                                        # If display manager selected as part of another DE
           InstallDM
           DisplayProgress "Installing KDE Plasma meta package" 40
           pacstrap /mnt plasma-meta &>> feliz.log
@@ -561,12 +561,12 @@ InstallLuxuries() { # Install desktops and other extras
         DisplayProgress "Installing KDE applications package" 40
         pacstrap /mnt kde-applications &>> feliz.log
         ;;
-      "LXDE") if [ -z ${DisplayManager} ]; then   # If there is no defined display manager
+      "LXDE") if [ -z ${DisplayManager} ]; then    # If there is no defined display manager
               DisplayProgress "Installing 'LXDE' desktop Environment" 20
             pacstrap /mnt lxde &>> feliz.log
            arch_chroot "systemctl -f enable lxdm.service"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
-        else
+        else                                        # If display manager selected as part of another DE
           InstallDM
           DisplayProgress "Installing 'LXDE' desktop Environment" 20
           pacstrap /mnt lxde &>> feliz.log
@@ -588,18 +588,18 @@ InstallLuxuries() { # Install desktops and other extras
           DisplayProgress "Installing 'Xfce' desktop Environment" 40
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         ;;
-      *) continue # Ignore others on this pass
+      *) continue # Ignore all others on this pass
       esac
     done
     
     # Install Yaourt
     TPecho "Installing extra items ..." "Modifying pacman.conf and installing Yaourt"
     cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
-    cp pacman.conf /etc 2>> feliz.log # For installer
+    cp pacman.conf /etc 2>> feliz.log     # For installer
     pacman-key --init &>> feliz.log
     pacman-key --populate archlinux &>> feliz.log
-    pacman -Sy &>> feliz.log # Update
-    pacstrap /mnt yaourt &>> feliz.log
+    pacman -Sy &>> feliz.log              # Update
+    pacstrap /mnt yaourt &>> feliz.log    # Then install Yaourt
     
     # ... then install the other extras
     for i in ${LuxuriesList}

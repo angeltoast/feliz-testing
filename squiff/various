@@ -21,8 +21,9 @@
 # DisplayProgress       39       MountPartitions      134
 # ProgressArray         58       InstallKernel        192
 # Bugger                83       AddCodecs            218
-# SetKernel             87       Passwords            233
-# ConfirmVbox           99       Finish               261
+# SetKernel             87       McInitCPIO           233
+# ConfirmVbox           99       Passwords            243
+#                                Finish               271
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
@@ -36,11 +37,11 @@ TPecho() { # For compatibility with Cliff
     PrintOne "$1" "$2"
 }
 
-DisplayProgress() {  # Displays timed progress bar for longer processes
-  Estimate=$2           # Numeric argument = multiple of 20
-  local Message="$1"        # Text passed to appear above progress bar
+DisplayProgress() {                 # Displays timed progress bar for longer processes
+  Estimate=$2                       # Numeric argument = multiple of 20
+  local Message="$1"                # Text passed to appear above progress bar
   local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
-  local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percantage of $Estimate
+  local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percentage of $Estimate
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -213,7 +214,7 @@ InstallKernel() { # Kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages - this may take some time" 160
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 200
   pacstrap /mnt man-db man-pages &>> feliz.log
   
 }
@@ -233,10 +234,10 @@ AddCodecs() { # Various codecs and graphical environment
 McInitCPIO() { 
   
   case $Kernel in
-    1) DisplayProgress "Running mkinitcpio for lts kernel" 10
+    1) PrintOne "Running mkinitcpio for lts kernel"
     arch_chroot "mkinitcpio -p linux-lts"
     ;;
-    *) DisplayProgress "Running mkinitcpio for latest kernel" 10
+    *) PrintOne "Running mkinitcpio for latest kernel"
     arch_chroot "mkinitcpio -p linux"
   esac
   

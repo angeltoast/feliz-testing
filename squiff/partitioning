@@ -255,9 +255,14 @@ CheckPartition() {
 }
 
 AllocateSwap() {
-  # ~ Checks if there are remaining partitions and allows selection for swap ~
-  if [ -n "${PartitionList}" ]         # Partitionlist as updated by AllocateRoot
-  then                                 # Is not empty
+  # Check if there are remaining partitions
+  Partitions=0
+  for part in ${PartitionList}         # Partitionlist as updated by AllocateRoot
+  do
+    (( Partitions+=1 ))
+  done
+  if [ ${Partitions} -gt 0 ]           # If there are unallocated partitions
+  then
     SwapPartition=""                   # Make sure other variables are empty
     SwapFile=""
     declare -a CopyArray               # Prepare empty array for passing to listgen2
@@ -310,7 +315,7 @@ AllocateSwap() {
       done
       PartitionList=$Remaining             # Replace original PartitionList with remaining options
     fi
-  else                                     # PartitionList array is empty
+  else                                     # There are no unallocated partitions
     dialog --backtitle "$Backtitle" --title " Swap " --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
     RetVal=$?
     case $RetVal in
