@@ -25,21 +25,17 @@
 
 CheckParts() { # Check available partitions on the system
   ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'` 2>> feliz.log # Test for existing partitions
-read -p "$LINENO $ShowPartitions"
   local Partitions=0
-read -p "$LINENO"
   for i in $ShowPartitions                                   # Ensure that there is at least one
   do
-read -p "$LINENO"
     (( Partitions+=1 ))
     break
   done
-read -p "$LINENO"
   if [ $Partitions -eq 0 ]; then   # If no partitions exist, offer cfdisk to create (or exit)
     while [ $Partitions -eq 0 ]
     do
       local Message="There are no partitions on the device, and at least one partition is needed for the root directory. If you choose to do nothing now, the script will terminate to allow you to partition in some other way."
-      Partitioning # Partitioning options
+      Partitioning          # Offer user partitioning options
       if [ $Proceed -eq 3 ]; then
         PrintOne "Exiting"
         exit
@@ -54,7 +50,7 @@ read -p "$LINENO"
       done
     done
     # Call function to generate an array of partitions
-    BuildPartitionLists # This is a first call
+    BuildPartitionLists # /common/shared/ This is a first call
   else
     # Generate an array of partitions
     BuildPartitionLists # /common/shared/ - This is a first call
@@ -64,12 +60,14 @@ read -p "$LINENO"
     for part in ${PartitionList}
     do
       ExistingPartitions="$ExistingPartitions \n ${PartitionArray[$Partitions]}"
+      
+  read -p "squiff/partitioning # $LINENO $PartitionArray[$Partitions]"
+      
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, the script will next enable you to allocate the existing partitions."
-    Partitioning # Partitioning options
-    # Call function to regenerate the array of partitions
-    MakePartitionList
+    local Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, Feliz will help you to allocate the existing partitions."
+    Partitioning          # Offer user partitioning options
+    MakePartitionList     # /common/shared/ Regenerate the array of partitions
   fi
 }
 
@@ -258,58 +256,57 @@ CheckPartition() {
 
 AllocateSwap() {
   
-    SwapPartition=""                   # Make sure other variables are empty
-    SwapFile=""
-    declare -a CopyArray               # Prepare empty array for passing to listgen2
-    local Counter=0                    # Start counter at 1
-    for p in "${PartitionArray[@]}"    # Copy each item from PartitionArray .....
+  SwapPartition=""                   # Make sure other variables are empty
+  SwapFile=""
+  declare -a CopyArray               # Prepare empty array for passing to listgen2
+  local Counter=0                    # Start counter at 1
+  for p in "${PartitionArray[@]}"    # Copy each item from PartitionArray .....
+  do
+    CopyArray[${Counter}]=${PartitionArray[$Counter]} # ... into CopyArray for display in menu
+    (( Counter+=1 ))                 # Counter is always 1 ahead of array elements
+  done
+                                     # Prepare for passing to listgen2
+  CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
+  PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
+  listgen2 "$PickFrom" "CopyArray"
+  dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
+  RetVal=$?
+  if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
+    Result="Done"                    # Prepare reporting variable before exiting
+    SwapPartition=""                 # And set SwapPartition to empty
+    break
+  fi
+  Result=$(cat output.file)          # Save selected partition ID
+  if [ $Result = "Swapfile" ]; then  # User selects swapfile option
+    SetSwapFile                      # Function call to set swapfile size
+    SwapPartition=""                 # And set SwapPartition to empty
+    break
+  else                               # User selects a partition
+    SwapPartition="/dev/$Result"     # All are a partition in form 'sd*n'
+    IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
+    if [ -n "$IsSwap" ]; then                                             # If it is, offer yes/no ...
+      dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
+      RetVal=$?
+      case $RetVal in                # Use exit status to set variable
+      0) MakeSwap="Y"                # used during installation
+      ;;
+      *) MakeSwap="N"
+      esac
+    fi
+    Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
+    if [ -n "${Label}" ]; then       # If there is a label ...
+      EditLabel "$Result"            # Pass partition ID to the two labelling functions
+      SetLabel "$Result"
+    fi
+    PassPart="$Result"               # Pass the partition to UpdateArray
+    UpdateArray                      # Remove the selected partition from $PartitionArray
+    Remaining=""
+    for p in "${PartitionArray[@]}"      # Then go through the array ...
     do
-      CopyArray[${Counter}]=${PartitionArray[$Counter]} # ... into CopyArray for display in menu
-      (( Counter+=1 ))                 # Counter is always 1 ahead of array elements
+      First=`echo $p | awk '{print $1}'` # Separate first field, and use it
+      Remaining="$Remaining $First"      # in building the new list
     done
-                                       # Prepare for passing to listgen2
-    CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
-    PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
-    listgen2 "$PickFrom" "CopyArray"
-    dialog --backtitle "$Backtitle" --title " - Partitions - " --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
-    RetVal=$?
-    if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
-      Result="Done"                    # Prepare reporting variable before exiting
-      SwapPartition=""                 # And set SwapPartition to empty
-      break
-    fi
-    Result=$(cat output.file)          # Save selected partition ID
-    if [ $Result = "Swapfile" ]; then  # User selects swapfile option
-      SetSwapFile                      # Function call to set swapfile size
-      SwapPartition=""                 # And set SwapPartition to empty
-      break
-    else                               # User selects a partition
-      SwapPartition="/dev/$Result"     # All are a partition in form 'sd*n'
-      IsSwap=`sudo blkid ${SwapPartition} | grep 'swap' | awk '{print $1}'` # Check if already a swap
-      if [ -n "$IsSwap" ]; then                                             # If it is, offer yes/no ...
-        dialog --backtitle "$Backtitle" --title " Swap Partition " --yesno "$Result is already formatted as a swap partition, Do you wish to reformat it?" 8 40
-        RetVal=$?
-        case $RetVal in                # Use exit status to set variable
-        0) MakeSwap="Y"                # used during installation
-        ;;
-        *) MakeSwap="N"
-        esac
-      fi
-      Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
-      if [ -n "${Label}" ]; then       # If there is a label ...
-        EditLabel "$Result"            # Pass partition ID to the two labelling functions
-        SetLabel "$Result"
-      fi
-      PassPart="$Result"               # Pass the partition to UpdateArray
-      UpdateArray                      # Remove the selected partition from $PartitionArray
-      Remaining=""
-      for p in "${PartitionArray[@]}"      # Then go through the array ...
-      do
-        First=`echo $p | awk '{print $1}'` # Separate first field, and use it
-        Remaining="$Remaining $First"      # in building the new list
-      done
-      PartitionList=$Remaining             # Replace original PartitionList with remaining options
-    fi
+    PartitionList=$Remaining             # Replace original PartitionList with remaining options
   fi
 }
 
