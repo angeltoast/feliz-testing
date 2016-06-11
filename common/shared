@@ -208,25 +208,30 @@ MakePartitionList() {
 
 BuildPartitionLists() { # First called by CheckParts to generate details of partitions
   # for display, then by feliz to prepare partition arrays for selection for root, swap and others
-  # 1) First get a list of all partitions up to sda99 | select first field | remove /dev/ | remove colon
-  ListTypeIDs=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $1}' | cut -c 6- | sed s/://g`
-  # Then get matching list of types, removing unwanted text (TYPE=) and quotes
-  ListTypes=`sudo blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g`
-  # Add records from those two indexed arrays into the associative array
-  local Counter=0
-  for i in ${ListTypeIDs}
-  do
-    x=0
-    for l in ${ListTypes}
+  
+  # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
+    # First an array of all partitions up to sd*99
+    #                           |includes word | select 1st field | cut /dev/ | remove colon
+    ListTypeIDs=`blkid /dev/sd* | grep ' TYPE' | awk '{print $1}' | cut -c 6- | sed s/://g`
+    # Then a matching array of types
+    #                         |includes word |  select last field   | remove TYPE | remove quotes
+    ListTypes=`blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g`
+    # Add records from those two indexed arrays into the associative array
+    local Counter=0
+    for i in ${ListTypeIDs}
     do
-      if [ $x -eq $Counter ]; then
-        FileSystem[$i]=$l # ... get the matching type
-      break
-      fi
-      x=$((x+1))
+      x=0
+      for l in ${ListTypes}
+      do
+        if [ $x -eq $Counter ]; then
+          FileSystem[$i]=$l # ... get the matching type
+        break
+        fi
+        x=$((x+1))
+      done
+      Counter=$((Counter+1))
     done
-    Counter=$((Counter+1))
-  done
+  
   # 2) Find all up to sd*99 with LABEL | select 1st field | remove /dev/ | remove colon
   ListLabelledIDs=`sudo blkid /dev/sd* | grep LABEL | awk '{print $1}' | cut -c 6- | sed s/://g`
   # If at least one labelled partition found, get a matching list of labels (remove quotes)
@@ -249,6 +254,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of part
     Counter=$((Counter+1))
   done
   local HowManyLabelled="${#Labelled[@]}"
+  
   # 3) Find any partitions flagged as bootable
   ListAll=`sudo sfdisk -l | grep /dev | grep '*' | awk '{print $1}' | cut -c 6-`
   declare -a Flagged
@@ -289,7 +295,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of part
     LongID=`lsblk -l | grep ${part} | awk '{print $1 " " $4 " " $7}'`
     PartitionArray[${Counter}]="$LongID $ThisPart ${Label} ${Bootable}"
     
-  read -p "shared # $LINENO $PartitionArray[${Counter}]"
+  read -p "shared # $LINENO ${PartitionArray[${Counter}]}"
     
     Label=""
     # Save the short ID for later functions
@@ -497,9 +503,7 @@ InstallDM() { # Display manager
       done
   esac
   
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $DisplayManager" 8 40 ###########
-  
-  # Install display manager
+  # Then install selected display manager
     TPecho "Installing ${DisplayManager} display manager" ""
     pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
@@ -516,9 +520,6 @@ InstallLuxuries() { # Install desktops and other extras
   if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
-    
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $i" 8 40 ###########
-  
       case $i in
       "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 40
           pacstrap /mnt cinnamon &>> feliz.log
@@ -570,9 +571,7 @@ InstallLuxuries() { # Install desktops and other extras
       *) continue # Ignore all others on this pass
       esac
     done
-        
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO" 8 40 ###########
-  
+    
     # Install Yaourt
     TPecho "Installing extra items ..." "Modifying pacman.conf and installing Yaourt"
     cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
@@ -615,4 +614,3 @@ UserAdd() {
     TPecho "User already exists"
   fi
 }
-

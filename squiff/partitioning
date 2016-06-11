@@ -36,7 +36,7 @@ CheckParts() { # Check available partitions on the system
     do
       local Message="There are no partitions on the device, and at least one partition is needed for the root directory. If you choose to do nothing now, the script will terminate to allow you to partition in some other way."
       Partitioning          # Offer user partitioning options
-      if [ $Proceed -eq 3 ]; then
+      if [ $Proceed = "3" ]; then
         PrintOne "Exiting"
         exit
       fi
@@ -60,9 +60,6 @@ CheckParts() { # Check available partitions on the system
     for part in ${PartitionList}
     do
       ExistingPartitions="$ExistingPartitions \n ${PartitionArray[$Partitions]}"
-      
-  read -p "squiff/partitioning # $LINENO $PartitionArray[$Partitions]"
-      
       (( Partitions+=1 ))
     done
     local Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, Feliz will help you to allocate the existing partitions."
@@ -89,7 +86,7 @@ Partitioning() {
       ;;
       "Auto") AutoPartition
       ;;
-      *) Proceed=3
+      *) Proceed="3"
      esac
   done
 }
@@ -256,7 +253,7 @@ CheckPartition() {
 
 AllocateSwap() {
   
-  SwapPartition=""                   # Make sure other variables are empty
+  SwapPartition=""                   # Make sure variables are empty
   SwapFile=""
   declare -a CopyArray               # Prepare empty array for passing to listgen2
   local Counter=0                    # Start counter at 1
@@ -327,7 +324,7 @@ SetSwapFile() {
   local Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
   while [ ${LoopRepeat} = "Y" ]
   do
-    dialog --backtitle "$Backtitle" --title " - Swapfile - " --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Swapfile - " --no-shadow --inputbox "\n$Message\n" 10 50 2> output.file
     Response=$(cat output.file)
     RESPONSE="${Response^^}"
     # Check that entry includes 'M or G'
