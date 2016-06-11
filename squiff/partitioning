@@ -255,13 +255,17 @@ CheckPartition() {
 }
 
 AllocateSwap() {
+  
   # Check if there are remaining partitions
-  Partitions=0
-  for part in ${PartitionList}         # Partitionlist as updated by AllocateRoot
+  PartitionCount=0
+  for Part in ${PartitionList}         # Partitionlist as updated by AllocateRoot
   do
-    (( Partitions+=1 ))
+    echo $PartitionCount $Part
+    (( PartitionCount+=1 ))
   done
-  if [ ${Partitions} -gt 0 ]           # If there are unallocated partitions
+  read -p "$PartitionCount"
+  
+  if [ ${PartitionCount} -gt 0 ]           # If there are unallocated partitions
   then
     SwapPartition=""                   # Make sure other variables are empty
     SwapFile=""

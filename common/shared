@@ -158,8 +158,8 @@ LongWMs[8]="Desktop panel"
 # LocalMirrorList      174    ChangeSwapPartition  435
 # Parted               189    ChangePartitions     443
 # MakePartitionList    194    AddExtras            455
-# BuildPartitionLists  208    TestExistingDM       468
-# UpdateArray          299    InstallDM            497
+# BuildPartitionLists  208    
+# UpdateArray          299    InstallDM            468
 # RunAutoPart          325    InstallLuxuries      507
 # SetLabel             401    UserAdd              621
 # -------------------------   -------------------------
@@ -465,7 +465,9 @@ AddExtras() {
 # Install stage --------------------------------------------------------
 #
 
-TestExistingDM() {   # Test for existing display manager and disable if necessary
+InstallDM() { # Display manager
+  
+  # First test for existing display manager and disable if necessary
   arch-chroot /mnt touch etc/output.log          # Create an empty file for output of next line
   arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > /mnt/etc/output.log
   DMLine=`cat /mnt/etc/output.log`               # Read contents of file
@@ -491,28 +493,23 @@ TestExistingDM() {   # Test for existing display manager and disable if necessar
         Counter=$((Counter+1))
       done
   esac
-}
-
-InstallDM() { # Install display manager - called for each desktop environment
   
   dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $DisplayManager" 8 40 ###########
   
-  if [ ${DisplayManager} ]; then
+  # Install display manager
     TPecho "Installing ${DisplayManager} display manager" ""
     pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
     DisplayManager="" # Don't allow any other DMs
-      
-  dialog --backtitle "$Backtitle" --title " Error-checking " --msgbox "$LINENO $DisplayManager" 8 40 ###########
   
-  fi
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  TestExistingDM                      # First check for any existing DM and disable it
+  
   if [ ${DisplayManager} ]; then      # If a display manager is set
     InstallDM                         # Install it
   fi
+  
   if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}
     do
@@ -550,12 +547,12 @@ InstallLuxuries() { # Install desktops and other extras
           DisplayProgress "Installing KDE applications package" 40
           pacstrap /mnt kde-applications &>> feliz.log
         ;;
-      "LXDE") DisplayProgress "Installing 'LXDE' desktop Environment" 20
+      "LXDE") TPecho "Installing 'LXDE' desktop Environment"
           pacstrap /mnt lxde &>> feliz.log
           arch_chroot "systemctl -f enable lxdm.service"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         ;;
-      "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 40
+      "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 20
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
         ;;
       "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 40
@@ -564,7 +561,7 @@ InstallLuxuries() { # Install desktops and other extras
       "Openbox") DisplayProgress "Installing 'Openbox' window manager" 20
         pacstrap /mnt openbox &>> feliz.log
         ;;
-      "Xfce") DisplayProgress "Installing 'Xfce' desktop Environment" 40
+      "Xfce") DisplayProgress "Installing 'Xfce' desktop Environment" 20
         pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         ;;
       *) continue # Ignore all others on this pass
