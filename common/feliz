@@ -24,7 +24,7 @@ Backtitle="The Feliz install scripts for Arch Linux"
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
-CheckParts # Check partition table & offer options
+CheckParts                             # Check partition table & offer options
 
 if [ $AutoPart -eq 0 ]; then
   BuildPartitionLists                  # Prepare table of available partitions

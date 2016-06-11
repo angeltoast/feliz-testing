@@ -23,17 +23,16 @@
 # EditLabel           183      MakePartition       393
 # -----------------------      ------------------------
 
-CheckParts() { # First check of available partitions on the system
+CheckParts() { # Check available partitions on the system
   ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'` # Test for existing partitions
   local Partitions=0
-  for i in $ShowPartitions
+  for i in $ShowPartitions                                   # Ensure that there is at least one
   do
     (( Partitions+=1 ))
     break
   done
-  # If no partitions exist, offer cfdisk to create (or exit)
-  if [ $Partitions -eq 0 ]
-  then
+
+  if [ $Partitions -eq 0 ]; then   # If no partitions exist, offer cfdisk to create (or exit)
     while [ $Partitions -eq 0 ]
     do
       local Message="There are no partitions on the device, and at least one partition is needed for the root directory. If you choose to do nothing now, the script will terminate to allow you to partition in some other way."
