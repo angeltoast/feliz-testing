@@ -294,9 +294,6 @@ BuildPartitionLists() { # First called by CheckParts to generate details of part
     ThisPart=${FileSystem[${part}]} # Find the record in FileSystem that matches the current iteration
     LongID=`lsblk -l | grep ${part} | awk '{print $1 " " $4 " " $7}'`
     PartitionArray[${Counter}]="$LongID $ThisPart ${Label} ${Bootable}"
-    
-  read -p "shared # $LINENO ${PartitionArray[${Counter}]}"
-    
     Label=""
     # Save the short ID for later functions
     PartitionList="${PartitionList} ${part}"
