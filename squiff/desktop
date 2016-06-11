@@ -230,7 +230,6 @@ ShoppingList() {
            ;;
           *) GoodiesGnome=""
         esac
-        DisplayManager="gdm"
         ChooseDM
       ;;
     "JWM") DesktopEnvironment="JWM"

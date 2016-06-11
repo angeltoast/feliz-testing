@@ -501,11 +501,11 @@ InstallDM() { # Display manager
   esac
   
   # Then install selected display manager
-    TPecho "Installing ${DisplayManager} display manager" ""
+    TPecho "Installing ${DisplayManager} display manager" " "
     pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
     DisplayManager="" # Don't allow any other DMs
-  
+    TPecho " " " "
 }
 
 InstallLuxuries() { # Install desktops and other extras
@@ -538,11 +538,11 @@ InstallLuxuries() { # Install desktops and other extras
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' window manager" 20
           pacstrap /mnt fluxbox &>> feliz.log
         ;;
-      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 40
+      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 80
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         ;;
-      "KDE") DisplayProgress "Installing KDE Plasma meta package" 40
+      "KDE") DisplayProgress "Installing KDE Plasma meta package" 60
           pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
           DisplayProgress "Installing KDE applications package" 40

@@ -198,26 +198,32 @@ InstallKernel() { # Kernel and some other core systems
   case $Kernel in # Selected kernel
     1) DisplayProgress "Installing LTS kernel" 60
       pacstrap /mnt linux-lts &>> feliz.log
+      
       PassArray=() # Prepare the array for additional components for lts
       PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
       ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
-
+      
+      PassArray=()  # Prepare array for additional cli programs
+      PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
+      ProgressArray "Installing cli tools" # Install each one using pacstrap
     ;;
     *) DisplayProgress "Installing Latest kernel" 60
       pacstrap /mnt linux &>> feliz.log
+      
       PassArray=() # Prepare the array for additional components
-      PassArray=( cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+      PassArray=( cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
       ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
+      
+      PassArray=()  # Prepare array for additional cli programs
+      PassArray=( btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
+      ProgressArray "Installing cli tools" # Install each one using pacstrap
   esac
 
-  PassArray=()  # Prepare array for additional cli programs
-  PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
-  ProgressArray "Installing cli tools" # Install each one using pacstrap
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages - this may take some time" 160
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 120
   pacstrap /mnt man-db man-pages &>> feliz.log
   
 }
@@ -307,6 +313,6 @@ SetUserPassword() {
 
 DisplayFinished() {
   
-  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer so you can remove the installation media before booting into your new system.\nHave fun!" 10 50
+  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer.\nRemember to remove the installation media before restarting.\nHave fun!" 10 50
   
 }

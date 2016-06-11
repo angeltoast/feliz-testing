@@ -240,25 +240,30 @@ MountPartitions() {
   
 }
 
-InstallKernel() {
+InstallKernel() { # Kernel and some other core systems
   
   LANG=C # Temporary addition to overcome bug in Arch man pages
 
   case $Kernel in  # Selected kernel
     1) TPecho "Installing LTS kernel - this may take some time"
       pacstrap /mnt linux-lts 2>> feliz.log
+      
       TPecho "Installing base & base-devel systems"
       pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+      
+      TPecho "Installing cli tools"
+      pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel"
       TPecho "This may take quite some time - please be patient"
       pacstrap /mnt linux 2>> feliz.log
       TPecho "Installing base & base-devel systems"
-      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+      
+      TPecho "Installing cli tools"
+      pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   esac
 
-  TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
@@ -366,7 +371,7 @@ DisplayFinished() {
   
   print_heading
   read_timed "Congratulations, installation is complete."
-  read_timed "It is time for Feliz to shut down the computer to allow you to"
-  read_timed "remove the installation media before booting into your new system."
+  read_timed "It is time for Feliz to shut down the computer."
+  read_timed "Remember to remove the installation media before restarting."
   read_timed "Have fun!"
 }

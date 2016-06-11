@@ -383,8 +383,10 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
             ;;
             *) DDEextras=""
           esac
-     	  DisplayManager="lightdm"
-     	  Greeter="deepin-session-ui"
+     	  ChooseDM
+        if [ $DisplayManager="lightdm" ]; then
+          Greeter="deepin-session-ui"
+        fi
        ;;
       "Enlightenment") DesktopEnvironment=$SaveResult
          case $Response in
@@ -403,13 +405,16 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
            ;;
            *) GoodiesGnome=""
           esac
+          ChooseDM
         ;;
       "JWM") DesktopEnvironment=$SaveResult
           ChooseDM
         ;;
       "KDE") DesktopEnvironment=$SaveResult
+          ChooseDM
         ;;
      "LXDE") DesktopEnvironment=$SaveResult
+          ChooseDM
        ;;
       "LXQt") DesktopEnvironment=$SaveResult
           ChooseDM
