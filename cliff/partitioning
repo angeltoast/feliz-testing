@@ -305,103 +305,101 @@ CheckPartition() {
 }
 
 AllocateSwap() {
-  # Checks if remaining partitions and allows selection for swap
   print_heading
-  if [ "${PartitionList}" ]
-  then
-    PrintOne "Select a partition for swap from the ones that"
-    PrintOne "remain, or you can allocate a swap file."
-    PrintOne "Warning: Btrfs does not support swap files."
-    echo
-    Remaining=""
-    local Counter=0
-    SwapPartition=""
-    PickFrom="$PartitionList Swapfile"
-    SwapFile=""
-    declare -a CopyArray # For passing to listgen2
-    local Counter=0
-    for p in "${PartitionArray[@]}"
-    do
-      CopyArray[${Counter}]=${PartitionArray[$Counter]}
-      Counter=$((Counter+1))
-    done
-    CopyArray[${Counter}]="Swapfile"
-    PrintOne "If you skip this step, no swap will be allocated."
-    echo
-    listgen2 "$PickFrom" "Partitions" "" "CopyArray"
-    Reply=$Response # Number of selected item
-    if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
-      PassPart=$Result
-    fi
-    echo
-    Counter=0
-    for i in ${PickFrom}
-    do
-      Counter=$((Counter+1))
-      if [ $Counter -eq $Reply ]
-      then
-        case $i in
-          "Done") SwapPartition=""
-                break
-          ;;
-          "Swapfile") SetSwapFile
-              SwapPartition=""
-              break
-          ;;
-          *) SwapPartition="/dev/$i"
-           # IsSwap=`lsblk -l | grep $i | grep SWAP | awk '{print $7}'`
-            IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
-            if [ -n "$IsSwap" ]; then
-              print_heading
-              PrintOne "$i is already formatted as a swap partition,"
-              PrintOne "Do you wish to reformat it?"
-              echo
-              listgen1 "Yes No" "" "nodone"
-              case $Response in
-                "1" | "Y" | "y") MakeSwap="Y"
-                ;;
-                "2" | "N" | "n") MakeSwap="N"
-                ;;
-                *) MakeSwap="Y"
-              esac
-            fi
-            Label="${Labelled[${PassPart}]}"
-            if [ -n "${Label}" ]; then
-              EditLabel "$PassPart"
-              SetLabel "$PassPart"
-            fi
-            UpdateArray # Remove the selected partition from $PartitionArray[]
-        esac
-      else
-        if [ $i != "Done" ] && [ $i != Swapfile ]; then
-          Remaining="$Remaining $i" # Add next available partition
-        fi
-      fi
-    done
-    print_heading
-    if [ $SwapPartition ]; then
-      read_timed "$SwapPartition will be used for swap" 1
-    elif [ $SwapFile ]; then
-      read_timed "A swap file of ${SwapFile} will be allocated." 1
-    else
-      read_timed "No swap option has been allocated." 1
-    fi
-    echo
-    PartitionList=$Remaining  # Replace original PartitionList with remaining options
-  else
-    PrintOne "There are no partitions available for swap,"
-    PrintOne "but you can allocate a swap file, if you wish."
-    Message="Create a swap file?: "
-    echo
-    listgen1 "Yes No" "" "nodone"
-    case $Response in
-      "1" | "Y" | "y") SetSwapFile
-        SwapPartition=""
-        ;;
-      *) SwapPartition=""
-        SwapFile=""
-    esac
+  PrintOne "Select a partition for swap from the ones that"
+  PrintOne "remain, or you can allocate a swap file."
+  PrintOne "Warning: Btrfs does not support swap files."
+  echo
+  Remaining=""
+  local Counter=0
+  SwapPartition=""
+  PickFrom="$PartitionList Swapfile"
+  SwapFile=""
+  declare -a CopyArray # For passing to listgen2
+  local Counter=0
+  for p in "${PartitionArray[@]}"
+  do
+    CopyArray[${Counter}]=${PartitionArray[$Counter]}
+    Counter=$((Counter+1))
+  done
+  CopyArray[${Counter}]="Swapfile"
+  PrintOne "If you skip this step, no swap will be allocated."
+  echo
+  listgen2 "$PickFrom" "Partitions" "" "CopyArray"
+  Reply=$Response # Number of selected item
+  if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
+    PassPart=$Result
   fi
+  echo
+  Counter=0
+  for i in ${PickFrom}
+  do
+    Counter=$((Counter+1))
+    if [ $Counter -eq $Reply ]
+    then
+      case $i in
+        "Done") SwapPartition=""
+              break
+        ;;
+        "Swapfile") SetSwapFile
+            SwapPartition=""
+            break
+        ;;
+        *) SwapPartition="/dev/$i"
+         # IsSwap=`lsblk -l | grep $i | grep SWAP | awk '{print $7}'`
+          IsSwap=`sudo blkid /dev/sd* | grep 'swap' | awk '{print $1}'`
+          if [ -n "$IsSwap" ]; then
+            print_heading
+            PrintOne "$i is already formatted as a swap partition,"
+            PrintOne "Do you wish to reformat it?"
+            echo
+            listgen1 "Yes No" "" "nodone"
+            case $Response in
+              "1" | "Y" | "y") MakeSwap="Y"
+              ;;
+              "2" | "N" | "n") MakeSwap="N"
+              ;;
+              *) MakeSwap="Y"
+            esac
+          fi
+          Label="${Labelled[${PassPart}]}"
+          if [ -n "${Label}" ]; then
+            EditLabel "$PassPart"
+            SetLabel "$PassPart"
+          fi
+          UpdateArray # Remove the selected partition from $PartitionArray[]
+      esac
+    else
+      if [ $i != "Done" ] && [ $i != Swapfile ]; then
+        Remaining="$Remaining $i" # Add next available partition
+      fi
+    fi
+  done
+  print_heading
+  if [ $SwapPartition ]; then
+    read_timed "$SwapPartition will be used for swap" 1
+  elif [ $SwapFile ]; then
+    read_timed "A swap file of ${SwapFile} will be allocated." 1
+  else
+    read_timed "No swap option has been allocated." 1
+  fi
+  echo
+  PartitionList=$Remaining  # Replace original PartitionList with remaining options
+}
+
+NoPartitions() { # There are no unallocated partitions
+  PrintOne "There are no partitions available for swap,"
+  PrintOne "but you can allocate a swap file, if you wish."
+  Message="Create a swap file?: "
+  echo
+  listgen1 "Yes No" "" "nodone"
+  case $Response in
+    "1" | "Y" | "y") SetSwapFile
+      SwapPartition=""
+     ;;
+    *) SwapPartition=""
+      SwapFile=""
+  esac
 }
 
 SetSwapFile() {

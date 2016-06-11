@@ -256,17 +256,6 @@ CheckPartition() {
 
 AllocateSwap() {
   
-  # Check if there are remaining partitions
-  PartitionCount=0
-  for Part in ${PartitionList}         # Partitionlist as updated by AllocateRoot
-  do
-    echo $PartitionCount $Part
-    (( PartitionCount+=1 ))
-  done
-  read -p "$PartitionCount"
-  
-  if [ ${PartitionCount} -gt 0 ]           # If there are unallocated partitions
-  then
     SwapPartition=""                   # Make sure other variables are empty
     SwapFile=""
     declare -a CopyArray               # Prepare empty array for passing to listgen2
@@ -305,21 +294,24 @@ AllocateSwap() {
         esac
       fi
       Label="${Labelled[${Result}]}"   # Recover the label found earlier (associative array index 'sd*n')
-      if [ -n "${Label}" ]; then       # If there is a label one ...
-        EditLabel "$Result"            # Pass partition ID to two labelling functions
+      if [ -n "${Label}" ]; then       # If there is a label ...
+        EditLabel "$Result"            # Pass partition ID to the two labelling functions
         SetLabel "$Result"
       fi
       PassPart="$Result"               # Pass the partition to UpdateArray
       UpdateArray                      # Remove the selected partition from $PartitionArray
       Remaining=""
-      for p in "${PartitionArray[@]}"  # Then go through the array ...
+      for p in "${PartitionArray[@]}"      # Then go through the array ...
       do
         First=`echo $p | awk '{print $1}'` # Separate first field, and use it
         Remaining="$Remaining $First"      # in building the new list
       done
       PartitionList=$Remaining             # Replace original PartitionList with remaining options
     fi
-  else                                     # There are no unallocated partitions
+  fi
+}
+
+NoPartitions() { # There are no unallocated partitions
     dialog --backtitle "$Backtitle" --title " Swap " --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
     RetVal=$?
     case $RetVal in
@@ -329,7 +321,6 @@ AllocateSwap() {
       *) SwapPartition=""
         SwapFile=""
     esac
-  fi
 }
 
 SetSwapFile() {
