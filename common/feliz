@@ -64,7 +64,7 @@ if [ $Scope != "Basic" ]; then
   if [ ${IsInVbox} = "VirtualBox" ]; then
     ConfirmVbox
   else
-    IsInVbox=""
+    IsInVbox="N"
   fi
 fi
 

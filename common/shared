@@ -37,7 +37,7 @@ DiskDetails=0             # Size of selected disk
 #
 GrubDevice=""             # eg: /dev/sda
 Kernel="1"                # Default 1 = LTS
-IsInVbox=""               # Result of test to see if installation is in Virtualbox
+IsInVbox="N"               # Result of test to see if installation is in Virtualbox
 DualBoot="N"              # Ready for dual-booting option
 EFIPartition=""           # Will hold EFI partition mountpoint in format "/dev/sda1"
 OSprober="Y"
@@ -573,7 +573,7 @@ InstallLuxuries() { # Install desktops and other extras
     for i in ${LuxuriesList}
     do
       case $i in
-      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 40
+      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 140
           pacstrap /mnt cinnamon &>> feliz.log
         ;;
       "Deepin") if [ ${DisplayManager} = "lightdm" ]; then   # If display manager is lightdm
@@ -611,7 +611,7 @@ InstallLuxuries() { # Install desktops and other extras
       "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 20
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
         ;;
-      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 40
+      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 140
         pacstrap /mnt mate mate-extra &>> feliz.log
         ;;
       "Openbox") DisplayProgress "Installing 'Openbox' window manager" 20

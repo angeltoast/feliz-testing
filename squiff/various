@@ -138,7 +138,7 @@ InstallKernel() { # Kernel and some other core systems
       pacstrap /mnt linux-lts &>> feliz.log
       
       PassArray=() # Prepare the array for additional components for lts
-      PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+      PassArray=( cryptsetup device-mapper dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 nano netctl pacman pcmciautils procps-ng psmisc reiserfsprogs s-nail sed sysfsutils systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
       ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
