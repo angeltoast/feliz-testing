@@ -597,10 +597,10 @@ InstallLuxuries() { # Install desktops and other extras
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         ;;
-      "KDE") DisplayProgress "Installing KDE Plasma meta package" 60
+      "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
           pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
-          DisplayProgress "Installing KDE applications package" 40
+          DisplayProgress "Installing KDE applications package" 200
           pacstrap /mnt kde-applications &>> feliz.log
         ;;
       "LXDE") TPecho "Installing 'LXDE' desktop Environment"
@@ -625,7 +625,7 @@ InstallLuxuries() { # Install desktops and other extras
     done
     
     # Install Yaourt
-    TPecho "Installing extra items ..." "Modifying pacman.conf and installing Yaourt"
+    TPecho "Modifying pacman.conf and installing Yaourt"
     cp pacman.conf /mnt/etc 2>> feliz.log # For installed system
     cp pacman.conf /etc 2>> feliz.log     # For installer
     pacman-key --init &>> feliz.log
