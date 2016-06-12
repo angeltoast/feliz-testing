@@ -16,13 +16,13 @@
 # -------------------------      -------------------------
 # arch_chroot           27       Bugger               136
 # print_heading         31       SetGrubDevice        148
-# invalid_option        39       MountPartitions      176
-# TPread                44       InstallKernel        238
-# DisplayProgress       59       AddCodecs            261
-# TPecho                63       McInitCPIO           273
-# read_timed            81       SetRootPassword      282
-# SetKernel             99       SetUserPassword      320
-# ConfirmVbox          112       DisplayFinished      347
+# invalid_option        39       
+# TPread                44       InstallKernel        176
+# DisplayProgress       59       AddCodecs            209
+# TPecho                63       McInitCPIO           222
+# read_timed            81       SetRootPassword      231
+# SetKernel             99       SetUserPassword      269
+# ConfirmVbox          112       DisplayFinished      296
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
@@ -174,74 +174,7 @@ SetGrubDevice() {
   done
 }
 
-MountPartitions() {
-  
-  case $RootType in
-    "") TPecho "Not formatting root partition"
-    ;;
-    *) TPecho "Formatting root partition"
-      umount ${RootPartition} /mnt >/dev/null &>> feliz.log
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30`
-    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${RootPartition}
-    elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} &>> feliz.log
-    else
-      Partition=`echo $RootPartition | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
-    fi
-  esac
-  
-  TPecho "Mounting root partition"
-  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
-  if [ ${SwapPartition} ]; then
-    swapoff -a 2>> feliz.log
-    if [ $MakeSwap = "Y" ]; then
-      TPecho "Making swap partition"
-      Partition=`echo $SwapPartition | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mkswap ${Label} ${SwapPartition} # eg: mkswap -L Arch-Swap /dev/sda2
-    fi
-    TPecho "Activating /swap"
-    swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
-  fi
-  
-  local Counter=0
-  for id in ${AddPartList} # Additional partitions
-  do
-    TPecho "Mounting ${id} as ${AddPartMount[$Counter]}"
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log  # eg: mkdir -p /mnt/home
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
-    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${id}
-    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} &>> feliz.log
-    elif [ ${AddPartType[$Counter]} != "" ]; then
-      Partition=`echo ${id} | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
-    fi
-    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
-    Counter=$((Counter+1))
-  done
-  
-}
-
 InstallKernel() { # Kernel and some other core systems
-  
   LANG=C # Temporary addition to overcome bug in Arch man pages
 
   case $Kernel in  # Selected kernel
@@ -271,11 +204,9 @@ InstallKernel() { # Kernel and some other core systems
   TPecho "Installing man-db & man-pages"
   TPecho "This may take quite some time - please be patient"
   pacstrap /mnt man-db man-pages 2>> feliz.log
-  
 }
 
 AddCodecs() {
-  
   TPecho "Adding codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
   
@@ -288,18 +219,15 @@ AddCodecs() {
   
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log # Install opensource video drivers
-  
 }
 
 McInitCPIO() {
-  
   DisplayProgress "Running mkinitcpio" 10
   case $Kernel in
     1) arch-chroot /mnt /bin/bash -c mkinitcpio -p linux-lts 2>> feliz.log
     ;;
     *) arch-chroot /mnt /bin/bash -c mkinitcpio -p linux 2>> feliz.log
   esac
-  
 }
 
 SetRootPassword() {

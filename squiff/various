@@ -18,12 +18,12 @@
 # arch_chroot           27       ConfirmReview        112
 # PrintOne              31       SetGrubDevice        120
 # TPecho                35       arch_chroot          155
-# DisplayProgress       39       MountPartitions      134
-# ProgressArray         58       InstallKernel        192
-# Bugger                83       AddCodecs            218
-# SetKernel             87       McInitCPIO           233
-# ConfirmVbox           99       Passwords            243
-#                                Finish               271
+# DisplayProgress       39       InstallKernel        134
+# ProgressArray         58       AddCodecs            158
+# Bugger                83       McInitCPIO           173
+# SetKernel             87       Passwords            195
+# ConfirmVbox           99       Finish               250
+# -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
@@ -54,7 +54,7 @@ DisplayProgress() {                 # Displays timed progress bar for longer pro
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title " - Progress - " --no-shadow --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title " Progress " --no-shadow --gauge "" 9 60 0 &
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
@@ -83,12 +83,12 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
 }
 
 Bugger() {
-  dialog --backtitle "This shouldn't be happening" --title " - Information - " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless" 9 30
+  dialog --backtitle "This shouldn't be happening" --title " Information " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless" 9 30
 }
 
 SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
   listgen1 "LTS Latest"
-  dialog --backtitle "$Backtitle" --title " - Choose your kernel - " --no-shadow --ok-button "Select" --nocancel --menu "The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS.\n" 12 60 6 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " Choose your kernel " --no-shadow --ok-button "Select" --nocancel --menu "The Long-Term-Support kernel (LTS) offers stabilty, while the Latest kernel has all the new features. If in doubt, choose LTS.\n" 12 60 6 "${Options[@]}" 2> output.file
   case $(cat output.file) in
    "LTS") Kernel=1
    ;;
@@ -100,7 +100,7 @@ SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
 
 ConfirmVbox() {
   local Message="It appears that feliz is running in Virtualbox. If you wish, feliz can install Virtualbox guest utilities and make appropriate settings for you.\n\nInstall Virtualbox guest utilities?"
-  dialog --backtitle "$Backtitle" --title " - Virtualbox guest modules - " --no-shadow --yesno "$Message\n" 10 50
+  dialog --backtitle "$Backtitle" --title " Virtualbox guest modules " --no-shadow --yesno "$Message\n" 10 50
   RetVal=$?
   case $RetVal in
     0) IsInVbox="VirtualBox"
@@ -112,7 +112,7 @@ ConfirmVbox() {
 }
 
 ConfirmReview() {
-  dialog --backtitle "$Backtitle" --title " - Review - " --no-shadow --yesno "You have chosen to edit your choices for\n  $Response\n\nAre you sure?\n" 8 50
+  dialog --backtitle "$Backtitle" --title " Review " --no-shadow --yesno "You have chosen to edit your choices for\n  $Response\n\nAre you sure?\n" 8 50
   RetVal=$?
   if [ $RetVal -ne 0 ]; then
     FinalCheck
@@ -124,71 +124,13 @@ SetGrubDevice() {
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   GrubDevice=""
   listgen1 "${DevicesList}"
-  dialog --backtitle "$Backtitle" --title " - Devices - " --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 14 60 6 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " Devices " --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 14 60 6 "${Options[@]}" 2> output.file
   RetVal=$?
   if [ $RetVal -gt 0 ]; then # <Cancel> selected
    GrubDevice=""
   else
    GrubDevice=$(cat output.file)
   fi
-}
-
-MountPartitions() {
-  case $RootType in
-  "") echo "Not formatting root partition" >> feliz.log
-  ;;
-  *) PrintOne "Preparing and mounting partitions" ""
-    umount ${RootPartition} /mnt >/dev/null &>> feliz.log
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
-    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${RootPartition} &>> feliz.log
-    elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} &>> feliz.log
-    else
-      Partition=`echo $RootPartition | cut -c 6-` 2>> feliz.log
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
-    fi
-  esac
-  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
-  if [ ${SwapPartition} ]; then
-    swapoff -a &>> feliz.log
-    if [ $MakeSwap = "Y" ]; then
-      Partition=`echo $SwapPartition | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mkswap ${Label} ${SwapPartition} &>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
-    fi
-    swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
-  fi
-  local Counter=0
-  for id in ${AddPartList}
-  do
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log  # eg: mkdir -p /mnt/home
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
-    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${id} &>> feliz.log
-    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} &>> feliz.log
-    elif [ ${AddPartType[$Counter]} != "" ]; then
-      Partition=`echo ${id} | cut -c 6-`
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
-    fi
-    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
-    Counter=$((Counter+1))
-  done
 }
 
 InstallKernel() { # Kernel and some other core systems
@@ -201,7 +143,7 @@ InstallKernel() { # Kernel and some other core systems
       
       PassArray=() # Prepare the array for additional components for lts
       PassArray=( bash bzip2	coreutils	cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
-      ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
+      ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
       PassArray=( btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
@@ -212,7 +154,7 @@ InstallKernel() { # Kernel and some other core systems
       
       PassArray=() # Prepare the array for additional components
       PassArray=( cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
-      ProgressArray "Installing base & base-devel packages" # Install each one using pacstrap
+      ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
       PassArray=( btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
@@ -241,7 +183,6 @@ AddCodecs() { # Various codecs and graphical environment
 }
 
 McInitCPIO() { 
-  
   case $Kernel in
     1) PrintOne "Running mkinitcpio for lts kernel"
     arch_chroot "mkinitcpio -p linux-lts"
@@ -249,11 +190,9 @@ McInitCPIO() {
     *) PrintOne "Running mkinitcpio for latest kernel"
     arch_chroot "mkinitcpio -p linux"
   esac
-  
 }
 
 SetRootPassword() {
-  
   Backtitle="Success! Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
   Repeat="Y"
   ExtraMessage=""
@@ -279,11 +218,9 @@ SetRootPassword() {
     fi
   done
   rm output.file
-  
 }
 
 SetUserPassword() {
-  
   Repeat="Y"
   ExtraMessage=""
   while [ $Repeat = "Y" ]
@@ -308,11 +245,8 @@ SetUserPassword() {
     fi
   done
   rm output.file
-  
 }
 
 DisplayFinished() {
-  
-  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer.\nRemember to remove the installation media before restarting.\nHave fun!" 10 50
-  
+  dialog --backtitle "$Backtitle" --no-shadow --msgbox "\nCongratulations, installation is complete, and it is time for Feliz to shut down the computer. Remember to remove the installation media before restarting.\nHave fun!" 11 50
 }

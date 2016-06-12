@@ -158,10 +158,10 @@ LongWMs[8]="Desktop panel"
 # LocalMirrorList      174    ChangeSwapPartition  435
 # Parted               189    ChangePartitions     443
 # MakePartitionList    194    AddExtras            455
-# BuildPartitionLists  208    
-# UpdateArray          299    InstallDM            468
-# RunAutoPart          325    InstallLuxuries      507
-# SetLabel             401    UserAdd              621
+# BuildPartitionLists  208    MountPartitions      468
+# UpdateArray          299    InstallDM            532
+# RunAutoPart          325    InstallLuxuries      567
+# SetLabel             401    UserAdd              655
 # -------------------------   -------------------------
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
@@ -471,8 +471,65 @@ AddExtras() {
 # Install stage --------------------------------------------------------
 #
 
+MountPartitions() {
+  case $RootType in
+  "") echo "Not formatting root partition" >> feliz.log
+  ;;
+  *) PrintOne "Preparing and mounting partitions" ""
+    umount ${RootPartition} /mnt >/dev/null &>> feliz.log
+    # Check if replacing existing ext3/4 partition with btrfs
+    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log
+    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${RootPartition} &>> feliz.log
+    elif [ $RootType = "btrfs" ]; then
+      mkfs.btrfs -f ${RootPartition} &>> feliz.log
+    else
+      Partition=`echo $RootPartition | cut -c 6-` 2>> feliz.log
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"
+      fi
+      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
+    fi
+  esac
+  mount ${RootPartition} /mnt &>> feliz.log # eg: mount /dev/sda1 /mnt
+  if [ ${SwapPartition} ]; then
+    swapoff -a &>> feliz.log
+    if [ $MakeSwap = "Y" ]; then
+      Partition=`echo $SwapPartition | cut -c 6-`
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"
+      fi
+      mkswap ${Label} ${SwapPartition} &>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
+    fi
+    swapon ${SwapPartition} &>> feliz.log # eg: swapon /dev/sda2
+  fi
+  local Counter=0
+  for id in ${AddPartList}
+  do
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null &>> feliz.log
+    mkdir -p /mnt${AddPartMount[$Counter]} &>> feliz.log  # eg: mkdir -p /mnt/home
+    # Check if replacing existing ext3/4 partition with btrfs
+    CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
+    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${id} &>> feliz.log
+    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
+      mkfs.btrfs -f ${id} &>> feliz.log
+    elif [ ${AddPartType[$Counter]} != "" ]; then
+      Partition=`echo ${id} | cut -c 6-`
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"
+      fi
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+    fi
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    Counter=$((Counter+1))
+  done
+}
+
 InstallDM() { # Display manager
-  
   # First test for existing display manager and disable if necessary
   arch-chroot /mnt touch etc/output.log          # Create an empty file for output of next line
   arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > /mnt/etc/output.log
@@ -508,7 +565,6 @@ InstallDM() { # Display manager
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  
   if [ ${DisplayManager} ]; then      # If a display manager is set
     InstallDM                         # Install it
   fi
