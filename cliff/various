@@ -182,10 +182,10 @@ InstallKernel() { # Kernel and some other core systems
       pacstrap /mnt linux-lts 2>> feliz.log
       
       TPecho "Installing core systems"
-      pacstrap /mnt bash bzip2 coreutils cryptsetup device-mapper dhcpcd dialog diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
+      pacstrap /mnt cryptsetup device-mapper dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed sysfsutils systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo 2>> feliz.log
       
       TPecho "Installing cli tools"
-      pacstrap /mnt btrfs-progs gamin gksu gvfs mdadm ntp pciutils wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+      pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel - this may take some time"
       pacstrap /mnt linux 2>> feliz.log
