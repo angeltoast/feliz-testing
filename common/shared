@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 19 April 2016
+# 12 June 2016
 
 # /common/shared - Variables and functions used by both sqiff and cliff
 
@@ -475,7 +475,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
   ;;
-  *) PrintOne "Preparing and mounting partitions" ""
+  *) TPecho "Preparing and mounting partitions" ""
     umount ${RootPartition} /mnt >/dev/null &>> feliz.log
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` &>> feliz.log

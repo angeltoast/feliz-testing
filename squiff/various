@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 21 April 2016
+# 12 June 2016
 
 # Semi-graphical interface
 # /squiff/various
@@ -16,7 +16,7 @@
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
 # arch_chroot           27       ConfirmReview        112
-# PrintOne              31       SetGrubDevice        120
+#                                SetGrubDevice        120
 # TPecho                35       arch_chroot          155
 # DisplayProgress       39       InstallKernel        134
 # ProgressArray         58       AddCodecs            158
@@ -29,11 +29,7 @@ arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" &>> feliz.log
 }
 
-PrintOne() {  # Arguments: "Component" "Patient"
-  dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
-}
-
-TPecho() { # For compatibility with Cliff
+TPecho() { # Infobox
   dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
@@ -184,10 +180,10 @@ AddCodecs() { # Various codecs and graphical environment
 
 McInitCPIO() { 
   case $Kernel in
-    1) PrintOne "Running mkinitcpio for lts kernel"
+    1) TPecho "Running mkinitcpio for lts kernel"
     arch_chroot "mkinitcpio -p linux-lts"
     ;;
-    *) PrintOne "Running mkinitcpio for latest kernel"
+    *) TPecho "Running mkinitcpio for latest kernel"
     arch_chroot "mkinitcpio -p linux"
   esac
 }

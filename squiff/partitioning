@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 19 April 2016
+# 12 June 2016
 
 # /squiff/partitioning - Semi-graphical Dialog interface
 # Partitioning functions (user settings)
@@ -37,7 +37,7 @@ CheckParts() { # Check available partitions on the system
       local Message="There are no partitions on the device, and at least one partition is needed for the root directory. If you choose to do nothing now, the script will terminate to allow you to partition in some other way."
       Partitioning          # Offer user partitioning options
       if [ $Proceed = "3" ]; then
-        PrintOne "Exiting"
+        TPecho "Exiting"
         exit
       fi
       # Check that partitions have been created
@@ -416,7 +416,7 @@ MakePartition() { # Called by MorePartitions
     # Check that entry includes '/'
     CheckInput=(`echo $Response | cut -c1`)
     case ${CheckInput} in
-      "") PrintOne "You must enter a valid name"
+      "") TPecho "You must enter a valid name"
           PartMount=""
           ;;
       *) if [ ${CheckInput} != "/" ]; then
