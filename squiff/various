@@ -138,7 +138,7 @@ InstallKernel() { # Kernel and some other core systems
       pacstrap /mnt linux-lts &>> feliz.log
       
       PassArray=() # Prepare the array for additional components for lts
-      PassArray=( cryptsetup device-mapper dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed sysfsutils systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+      PassArray=( cryptsetupdhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo )
       ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
@@ -149,7 +149,7 @@ InstallKernel() { # Kernel and some other core systems
       pacstrap /mnt linux &>> feliz.log
       
       PassArray=() # Prepare the array for additional components
-      PassArray=( cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs automake binutils bison fakeroot flex gcc groff libtool m4 make patch pkg-config sudo )
+      PassArray=( cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo )
       ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
@@ -169,11 +169,11 @@ InstallKernel() { # Kernel and some other core systems
 AddCodecs() { # Various codecs and graphical environment
   
   PassArray=() # Prepare for codecs
-  PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss libdvdread libdvdnav dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond )
+  PassArray=( a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab flashplugin b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware iw wireless_tools wpa_actiond )
   ProgressArray "Adding Codecs, etc" # Install each one using pacstrap
   
   PassArray=() # Prepare for graphics
-  PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-apps xorg-xinit xorg-twm )
+  PassArray=( xf86-video-vesa xf86-video-nouveau xf86-input-synaptics xorg-server xorg-server-utils xorg-xinit xorg-twm )
   ProgressArray "Open-source video drivers & graphical environment" # Install each one using pacstrap
 
 }
