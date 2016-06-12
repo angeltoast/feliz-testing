@@ -530,38 +530,28 @@ MountPartitions() {
 }
 
 InstallDM() { # Display manager
-  # First test for existing display manager and disable if necessary
-  arch-chroot /mnt touch etc/output.log          # Create an empty file for output of next line
-  arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service' > /mnt/etc/output.log
-  DMLine=`cat /mnt/etc/output.log`               # Read contents of file
+  # First test target for existing display manager and disable if necessary
+  DMLine=`arch-chroot /mnt systemctl list-unit-files | grep '(*dm|slim)\.service'` # Create list of existing DMs
   local Counter=1
-  case ${DMLine} in
-    "") echo "No previous DM discovered" >> feliz.log
-    ;;
-    *) local Continue="Y"
-      while [ ${Continue} = "Y" ]
-      do
-        ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '` # First of pair is DM
-        if [ -z ${ExDM} ]; then
-          Continue="N" # Quit if no further entries
-          break
-        fi
-        Counter=$((Counter+1))
-        ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second is status
-        case ${ExDMStatus} in
-          "enabled") arch_chroot "systemctl disable ${ExDM}" >/dev/null
-          ;;
-          *) echo "${ExDM} already disabled" >> feliz.log
-        esac
-        Counter=$((Counter+1))
-      done
-  esac
+  ExDM=`echo $DMLine  | cut -f ${Counter} -d ' '`         # First of pair is DM
+  while [ $ExDM ]
+  do
+    if [ -z ${ExDM} ]; then                               # Quit if no further entries
+      break
+    fi
+    Counter=$((Counter+1))                                # Move counter to next item in list
+    ExDMStatus=`echo $DMLine  | cut -f ${Counter} -d ' '` # Second of pair is status
+    if [ $ExDMStatus = "enabled" ]; then
+      arch_chroot "systemctl disable ${ExDM}" >/dev/null
+    fi
+    Counter=$((Counter+1))                                # Move counter to next item in list
+  done
   
   # Then install selected display manager
-    TPecho "Installing ${DisplayManager} display manager" ""
-    pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
-    arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
-    DisplayManager="" # Don't allow any other DMs
+  TPecho "Installing ${DisplayManager} display manager" ""
+  pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
+  arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
+  DisplayManager="" # Don't allow any other DMs
 }
 
 InstallLuxuries() { # Install desktops and other extras
@@ -573,7 +563,7 @@ InstallLuxuries() { # Install desktops and other extras
     for i in ${LuxuriesList}
     do
       case $i in
-      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 140
+      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 60
           pacstrap /mnt cinnamon &>> feliz.log
         ;;
       "Deepin") if [ ${DisplayManager} = "lightdm" ]; then   # If display manager is lightdm
@@ -593,7 +583,7 @@ InstallLuxuries() { # Install desktops and other extras
       "Fluxbox") DisplayProgress "Installing 'Fluxbox' window manager" 20
           pacstrap /mnt fluxbox &>> feliz.log
         ;;
-      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 80
+      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 40
           pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         ;;
@@ -611,7 +601,7 @@ InstallLuxuries() { # Install desktops and other extras
       "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 20
         pacstrap /mnt lxqt oxygen-icons &>> feliz.log
         ;;
-      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 140
+      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 60
         pacstrap /mnt mate mate-extra &>> feliz.log
         ;;
       "Openbox") DisplayProgress "Installing 'Openbox' window manager" 20
