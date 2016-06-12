@@ -34,7 +34,7 @@ PrintOne() {  # Arguments: "Component" "Patient"
 }
 
 TPecho() { # For compatibility with Cliff
-    PrintOne "$1" "$2"
+  dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
 DisplayProgress() {                 # Displays timed progress bar for longer processes
