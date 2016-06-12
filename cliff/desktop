@@ -405,13 +405,13 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
            ;;
            *) GoodiesGnome=""
           esac
-          ChooseDM
+          DisplayManager="reserved"
         ;;
       "JWM") DesktopEnvironment=$SaveResult
           ChooseDM
         ;;
       "KDE") DesktopEnvironment=$SaveResult
-          ChooseDM
+          DisplayManager="reserved"
         ;;
      "LXDE") DesktopEnvironment=$SaveResult
           ChooseDM
@@ -448,7 +448,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 }
 
 ChooseDM() { # Choose a display manager unless already fixed by certain DEs
-  if [ -z $DisplayManager ]; then
+  case $DisplayManager in
+    "") # Only offered if no other display manager has been set
     Counter=0
     Greeter=""
     DMList="GDM LightDM LXDM sddm SLIM XDM"
@@ -486,7 +487,24 @@ ChooseDM() { # Choose a display manager unless already fixed by certain DEs
         break
       fi
     done
-  fi
+  "reserved") # Indicating that either KDE or Gnome DE is set and will install own DM
+    Greeter=""
+    ;;
+  *) # Warn that DM already set, and offer option to change it
+    print_heading
+    PrintOne "Display manager is already set as: $DisplayManager."
+    PrintOne "Only one display manager can be active"
+    echo
+    PrintOne "Do you wish to change it?: "
+    echo
+    listgen1 "Yes No" "" "nodone"
+    echo
+    if [ $Response -eq 1 ]; then    # User wishes to change DM
+      DisplayManager=""        # Clear DM variable
+      Greeter=""               # and greeter
+      ChooseDM                 # Call this function again
+    fi
+  esac
 }
 
 AddDEextras() {

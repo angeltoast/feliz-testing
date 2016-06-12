@@ -555,9 +555,14 @@ InstallDM() { # Display manager
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  if [ ${DisplayManager} ]; then      # If a display manager is set
-    InstallDM                         # Install it
-  fi
+  
+  case ${DisplayManager} in       # Check $DisplayManager
+    "") DisplayManager=""         # No display manager set - do nothing
+    ;;
+    "reserved") DisplayManager="" # A DE installs its own DM - do nothing
+    ;;
+    *) InstallDM                  # Install it
+  esac
   
   if [ -n "${LuxuriesList}" ]; then   # Parse through LuxuriesList checking for DEs
     for i in ${LuxuriesList}

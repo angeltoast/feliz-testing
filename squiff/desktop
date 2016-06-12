@@ -230,13 +230,13 @@ ShoppingList() {
            ;;
           *) GoodiesGnome=""
         esac
-        ChooseDM
+      DisplayManager="reserved"
       ;;
     "JWM") DesktopEnvironment="JWM"
         ChooseDM
       ;;
     "KDE") DesktopEnvironment="KDE"
-        ChooseDM    
+      DisplayManager="reserved"
       ;;
     "libreoffice") Picked="libreoffice-fresh"
       ;;
@@ -269,23 +269,20 @@ done
 }
 
 ChooseDM() { # Choose a display manager
-  if [ -z $DisplayManager ]; then # Only offered if no other display manager has been set
+  case $DisplayManager in
+    "") # Only offered if no other display manager has been set
     Greeter=""
-    listgen1 "GDM LightDM LXDM sddm SLIM XDM"
+    listgen1 "LightDM LXDM SLIM XDM"
     dialog --backtitle "$Backtitle" --title " ChooseDM/Greeter} " --no-shadow --ok-button "Select" --cancel-label "Done" --menu "Choose one of the following display managers. Note that not all display managers work well with all desktop environments. If in doubt, choose LightDM.\nIf you do not install a display manager, you will have to launch your desktop environment manually.\n" 16 60 6 "${Options[@]}" 2> output.file
     RetVal=$?
     Response=$(cat output.file)
     if [ $RetVal -eq 0 ]; then
       Reply=$Response
       case $Reply in
-        "GDM") DisplayManager="gdm"
-         ;;
         "LightDM") DisplayManager="lightdm"
             Greeter="lightdm-gtk-greeter"
          ;;
         "LXDM") DisplayManager="lxdm"
-         ;;
-        "sddm") DisplayManager="sddm"
          ;;
         "SLIM") DisplayManager="slim"
          ;;
@@ -294,8 +291,11 @@ ChooseDM() { # Choose a display manager
         *) DisplayManager=""
       esac
     fi
-  else # Warn that DM already set, and offer option to change it
-    local Message=
+    ;;
+  "reserved") # Indicating that either KDE or Gnome DE is set and will install own DM
+    Greeter=""
+    ;;
+  *) # Warn that DM already set, and offer option to change it
     dialog --backtitle "$Backtitle" --title " Display Manager " --no-shadow --yesno "Display manager is already set as: $DisplayManager. Only one display manager can be active.\nDo you wish to change it?" 8 50
     RetVal=$?
     if [ $RetVal -eq 0 ]; then # User wishes to change DM
@@ -303,7 +303,7 @@ ChooseDM() { # Choose a display manager
       Greeter=""               # and greeter
       ChooseDM                 # Call this function again
     fi
-  fi
+  esac
 }
 
 FinalCheck() {
