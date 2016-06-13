@@ -142,7 +142,7 @@ InstallKernel() { # Kernel and some other core systems
       ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
-      PassArray=( btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
+      PassArray=( btrfs-progs gamin gksu ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
       ProgressArray "Installing cli tools" # Install each one using pacstrap
     ;;
     *) DisplayProgress "Installing Latest kernel" 60
@@ -153,7 +153,7 @@ InstallKernel() { # Kernel and some other core systems
       ProgressArray "Installing core packages" # Install each one using pacstrap
       
       PassArray=()  # Prepare array for additional cli programs
-      PassArray=( btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
+      PassArray=( btrfs-progs gamin gksu ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm )
       ProgressArray "Installing cli tools" # Install each one using pacstrap
   esac
 

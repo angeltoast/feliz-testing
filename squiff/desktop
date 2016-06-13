@@ -28,7 +28,7 @@ getkeymap() {
     keyboards="$keyboards $k"
   done
   listgen1 "$keyboards"
-  dialog --backtitle "$Backtitle" --title " - Keyboards - " --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list, or type a letter, to find your keyboard.\n" 20 50 12 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " Keyboards " --hfile "helpMENUS" --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list to find your keyboard.\n" 20 50 12 "${Options[@]}" 2> output.file
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
 }
@@ -43,7 +43,7 @@ setlocale() {
     Options[${Counter}]="UTF-8"
   done
   Counter=$((Counter/2))
-  dialog --backtitle "$Backtitle" --title " - Locales - " --no-shadow --nocancel --menu "Scroll through this list, or type a letter, to find your locale. This will be used to set fonts and language and to find the best mirrors for downloading your system\n" 20 55 $Counter "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - Locales - " --hfile "helpLOCALE" --no-shadow --nocancel --menu "Scroll through this list to find your locale.\n" 20 55 $Counter "${Options[@]}" 2> output.file
   CountryLocale="$(cat output.file).UTF-8"
   CountryCode=(`cat output.file | cut -c4-5`)
 }
@@ -55,20 +55,22 @@ SetTimeZone() {
     passzones="$passzones $z"
   done
   listgen1 "$passzones"
-  dialog --backtitle "$Backtitle" --title " - World_Zones - " --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n" 20 50 11 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " - World_Zones - " --hfile "helpUTC" --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n(UTC? press F1)" 20 60 11 "${Options[@]}" 2> output.file
   ZONE=$(cat output.file)
-  SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
-  passzones=""
-  for z in ${SubZones[@]}; do
-    passzones="$passzones $z"
-  done
-  listgen1 "$passzones"
-  dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
-  SUBZONE=$(cat output.file)
+  if [ $ZONE != "UTC" ]; then
+    SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
+    passzones=""
+    for z in ${SubZones[@]}; do
+      passzones="$passzones $z"
+    done
+    listgen1 "$passzones"
+    dialog --backtitle "$Backtitle" --title " - ${ZONE} - " --hfile "helpMENUS" --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\nPress F1 for help" 20 50 13 "${Options[@]}" 2> output.file
+    SUBZONE=$(cat output.file)
+  fi
 }
 
 UserName() {
-  dialog --backtitle "$Backtitle" --title " - User Name - " --no-shadow --nocancel --inputbox "Enter a name for the primary user of the new system.\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
+  dialog --backtitle "$Backtitle" --title " - User Name - " --no-shadow --nocancel --inputbox "Enter a name for the primary user of the new system (one word only, lower case).\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
   Response=$(cat output.file)
   Entered=${Response,,}
   case $Entered in
@@ -116,7 +118,7 @@ PickLuxuries() { # User selects any combination from a store of extras
       ItemCounter=$((ItemCounter+1))
     done
     # Use $ItemCounter and ${Options[@]} array in menu dialog
-    dialog --backtitle "$Backtitle" --title " - Categories - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
+    dialog --backtitle "$Backtitle" --title " - Categories - " --hfile "helpMENUS" --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
     RetVal=$?
     if [ $RetVal -gt 0 ]; then # <Cancel> selected
       break
@@ -167,7 +169,7 @@ ShoppingList() {
       ;;
       *) break
     esac
-    dialog --backtitle "$Backtitle" --title " - ${Category} - " --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
+    dialog --backtitle "$Backtitle" --title " - ${Category} - " --hfile "helpMENUS" --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     if [ $RetVal -gt 0 ]; then # <Cancel> selected
       break
@@ -421,7 +423,7 @@ ManualSettings() {
     Settings[1]="(currently $HostName)"
     Settings[2]="(currently $UserName)"
     listgen2 "Hostname Username" "Settings"
-    dialog --backtitle "$Backtitle" --title " - Final_Check - " --no-shadow --ok-button "Select" --menu "Select data to change.\n or <Cancel> to finish\n" 18 60 6 "${Options[@]}" 2> output.file
+    dialog --backtitle "$Backtitle" --title " - Final_Check - " --hfile "helpMENUS" --no-shadow --ok-button "Select" --menu "Select data to change.\n or <Cancel> to finish\n" 18 60 6 "${Options[@]}" 2> output.file
     RetVal=$?
     Response=$(cat output.file)
     Count=1
