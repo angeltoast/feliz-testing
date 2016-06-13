@@ -28,7 +28,7 @@ getkeymap() {
     keyboards="$keyboards $k"
   done
   listgen1 "$keyboards"
-  dialog --backtitle "$Backtitle" --title " Keyboards " --hfile "helpMENUS" --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list to find your keyboard.\nPress F1 for help." 20 50 12 "${Options[@]}" 2> output.file
+  dialog --backtitle "$Backtitle" --title " Keyboards " --hfile "helpMENUS" --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list to find your keyboard. Press F1 for help." 20 50 12 "${Options[@]}" 2> output.file
   Countrykbd=$(cat output.file)
   loadkeys ${Countrykbd} 2>> feliz.log
 }
@@ -208,10 +208,10 @@ ShoppingList() {
            ;;
           *) DDEextras=""
         esac
-        ChooseDM
-        if [ $DisplayManager="lightdm" ]; then
-          Greeter="deepin-session-ui"
-        fi
+      #  ChooseDM
+      #  if [ $DisplayManager="lightdm" ]; then
+      #    Greeter="deepin-session-ui"
+      #  fi
       ;;
     "Enlightenment") DesktopEnvironment="Enlightenment"
         dialog --backtitle "$Backtitle" --title " Enlightenment " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability.\nInclude them?\n" 10 40
