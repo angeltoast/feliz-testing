@@ -214,10 +214,6 @@ ShoppingList() {
            ;;
           *) DDEextras=""
         esac
-      #  ChooseDM
-      #  if [ $DisplayManager="lightdm" ]; then
-      #    Greeter="deepin-session-ui"
-      #  fi
       ;;
     "Enlightenment") DesktopEnvironment="Enlightenment"
         dialog --backtitle "$Backtitle" --title " Enlightenment " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability.\nInclude them?\n" 10 40

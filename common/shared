@@ -572,7 +572,7 @@ InstallLuxuries() { # Install desktops and other extras
       "Deepin") DisplayProgress "Installing Deepin desktop Environment" 20
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           # Change the greeter line in lightdm.conf
-          sed -i '/#greeter-session=/ c\greeter-session=lightdm-deepin-greeter' /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
+          sed -i s/#greeter-session=/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
         ;;
       "Enlightenment") DisplayProgress "Installing 'Enlightenment' desktop Environment" 20
           pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
