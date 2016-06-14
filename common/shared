@@ -546,7 +546,7 @@ InstallDM() { # Display manager
   done
   
   # Then install selected display manager
-  TPecho "Installing ${DisplayManager} display manager" ""
+  DisplayProgress "Installing ${DisplayManager} display manager" 40
   pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
   arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   DisplayManager="" # Don't allow any other DMs
@@ -569,10 +569,10 @@ InstallLuxuries() { # Install desktops and other extras
       "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 60
           pacstrap /mnt cinnamon &>> feliz.log
         ;;
-      "Deepin") DisplayProgress "Installing Deepin desktop Environment" 20
+      "Deepin") DisplayProgress "Installing Deepin desktop Environment" 60
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           # Change the greeter line in lightdm.conf
-          sed -i s/#greeter-session=/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
+          sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
         ;;
       "Enlightenment") DisplayProgress "Installing 'Enlightenment' desktop Environment" 20
           pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
