@@ -33,13 +33,11 @@ AutoPart=0                # Flag - changes to 1 if auto-partition is chosen
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
 #
-# Grub, kernel & EFI variables
+# Grub & kernelvariables
 #
 GrubDevice=""             # eg: /dev/sda
 Kernel="1"                # Default 1 = LTS
-IsInVbox="N"               # Result of test to see if installation is in Virtualbox
-DualBoot="N"              # Ready for dual-booting option
-EFIPartition=""           # Will hold EFI partition mountpoint in format "/dev/sda1"
+IsInVbox="N"              # Result of test to see if installation is in Virtualbox
 OSprober="Y"
 #
 # Location variables
