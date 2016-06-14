@@ -34,9 +34,9 @@ TPecho() { # Infobox
 }
 
 DisplayProgress() {                 # Displays timed progress bar for longer processes
-  Estimate=$2                       # Numeric argument = multiple of 100
+  Estimate=$2                       # Numeric argument = seconds in multiples of 20
   local Message="$1"                # Text passed to appear above progress bar
-  local Sleep=$(( $Estimate / 100 )) # Set sleep period to 1% of total time
+  local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
   local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percentage of $Estimate
   local Percent=0
   (
@@ -134,10 +134,10 @@ InstallKernel() { # Kernel and some other core systems
   LANG=C # Temporary addition to overcome bug in Arch man pages
   
   case $Kernel in # Selected kernel
-    1) DisplayProgress "Installing LTS kernel" 600
+    1) DisplayProgress "Installing LTS kernel" 60
       pacstrap /mnt linux-lts &>> feliz.log
     ;;
-    *) DisplayProgress "Installing Latest kernel" 800
+    *) DisplayProgress "Installing Latest kernel" 80
       pacstrap /mnt linux &>> feliz.log
   esac
 
@@ -153,7 +153,7 @@ InstallKernel() { # Kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages - this may take some time" 1800
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 180
   pacstrap /mnt man-db man-pages &>> feliz.log
   
 }
