@@ -571,6 +571,7 @@ InstallLuxuries() { # Install desktops and other extras
         ;;
       "Deepin") DisplayProgress "Installing Deepin desktop Environment" 60
           pacstrap /mnt deepin ${DDEextras} &>> feliz.log
+          arch_chroot "systemctl -f enable lightdm.service"
           # Change the greeter line in lightdm.conf
           sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
         ;;
