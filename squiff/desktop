@@ -270,6 +270,9 @@ ShoppingList() {
     esac
     while :
     do
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
       dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
