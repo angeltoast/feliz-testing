@@ -73,9 +73,20 @@ Partitioning() {
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    dialog --backtitle "$Backtitle" --title " Partitioning " --hfile "helpPART" --no-shadow --cancel-label "Do nothing" --menu "$Message Press F1 for help." 20 55 2 \
+    while :
+    do
+      dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --cancel-label "Do nothing" --menu "$Message Press F1 for help." 20 55 2 \
         "Manual" "Open cfdisk so I can partition manually" \
         "Auto" "Allow feliz to partition the whole device" 2> output.file
+      RetVal=$?
+      case $RetVal in
+      2) Message=`cat helpPART`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        continue
+        ;;
+      *) break
+      esac
+    done
     Proceed=$(cat output.file)
     case $Proceed in
       "Manual") cfdisk 2>> feliz.log
@@ -163,16 +174,27 @@ FileSystem() {
   ;;
   *) local Cancel="--cancel-label $1"
   esac
-  dialog --backtitle "$Backtitle" --title " Partitioning " --hfile "helpFILESYSTEM" --no-shadow ${Cancel} --menu "\n$Message\nPress F1 for help." 16 50 4 \
-        "ext2" "-" \
-        "ext3" "-" \
-        "ext4" "-" \
-        "btrfs" "-" 2> output.file
-  if [ $? -gt 0 ]; then # If <Cancel> option selected
-    PartitionType=""
-  else
-    PartitionType=$(cat output.file)
-  fi
+  while :
+  do
+    dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow ${Cancel} --menu "\n$Message\nPress F1 for help." 16 50 4 \
+          "ext2" "-" \
+          "ext3" "-" \
+          "ext4" "-" \
+          "btrfs" "-" 2> output.file
+    RetVal=$?
+    case $RetVal in
+      0) PartitionType=$(cat output.file) # Item selected
+        break
+        ;;
+      2) Message=`cat helpFILESYSTEM`     # Help button pressed
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        continue
+        ;;
+      *) PartitionType=""                 # <Cancel> or any other option selected
+        break
+    esac
+  done     
+  
 }
 
 EditLabel() { # Called by AllocateRoot, AllocateSwap and MorePartitions
@@ -203,7 +225,20 @@ AllocateRoot() {
   Partition=""
   PartitionType=""
   listgen2 "$PartitionList" "PartitionArray"
-  dialog --backtitle "$Backtitle" --title " Partitions " --hfile "helpROOT" --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\nPress F1 for help." 14 60 $Counter "${Options[@]}" 2> output.file
+  while :
+  do
+    dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 14 60 $Counter "${Options[@]}" 2> output.file
+    RetVal=$?
+    case $RetVal in
+      2) Message=`cat helpROOT`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        continue
+        ;;
+      *) break
+    esac
+  done
+  
+  
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
@@ -266,13 +301,22 @@ AllocateSwap() {
   CopyArray[${Counter}]="Swapfile"   # Add 'Swapfile' to array of available partitions
   PickFrom="$PartitionList Swapfile" # and make copy of PartitionList with 'Swapfile' added
   listgen2 "$PickFrom" "CopyArray"
-  dialog --backtitle "$Backtitle" --title " Partitions " --hfile "helpSWAP" --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files. Press F1 for help." 14 60 $Counter "${Options[@]}" 2> output.file
-  RetVal=$?
-  if [ $RetVal -ne 0 ]; then         # If <Cancel> selected
-    Result="Done"                    # Prepare reporting variable before exiting
-    SwapPartition=""                 # And set SwapPartition to empty
-    break
-  fi
+  while :
+  do
+    dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files. Press F1 for help." 14 60 $Counter "${Options[@]}" 2> output.file
+    RetVal=$?
+    case $RetVal in
+      0) break                       # Item selected
+      ;;
+      2) Message=`cat helpSWAP`      # Help button pressed
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        continue
+        ;;
+      *) Result="Done"               # <Cancel> or other exit - prepare reporting variable before exiting
+        SwapPartition=""             # And set SwapPartition to empty
+        break
+    esac
+  done
   Result=$(cat output.file)          # Save selected partition ID
   if [ $Result = "Swapfile" ]; then  # User selects swapfile option
     SetSwapFile                      # Function call to set swapfile size
@@ -308,15 +352,24 @@ AllocateSwap() {
 }
 
 NoPartitions() { # There are no unallocated partitions
-    dialog --backtitle "$Backtitle" --title " Swap " --hfile "helpSWAP" --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
+  while :
+  do
+    dialog --backtitle "$Backtitle" --title " Swap " --help-button --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
     RetVal=$?
     case $RetVal in
       0) SetSwapFile
         SwapPartition=""
+        break
+        ;;
+      2) Message=`cat helpSWAP`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        continue
         ;;
       *) SwapPartition=""
         SwapFile=""
+        break
     esac
+  done
 }
 
 SetSwapFile() {
@@ -324,7 +377,18 @@ SetSwapFile() {
   local Message="Allocate the size of your swap file (M = Megabytes, G = Gigabytes) [eg: 512M or 2G]"
   while [ ${LoopRepeat} = "Y" ]
   do
-    dialog --backtitle "$Backtitle" --title " Swapfile " --hfile "helpSWAP" --no-shadow --inputbox "\n$Message\n" 10 50 2> output.file
+    while :
+    do
+      dialog --backtitle "$Backtitle" --title " Swapfile " --help-button --no-shadow --inputbox "\n$Message\n" 10 50 2> output.file
+      RetVal=$?
+      case $RetVal in
+        2) Message=`cat helpSWAP`
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          continue
+          ;;
+        *) break
+      esac
+    done
     Response=$(cat output.file)
     RESPONSE="${Response^^}"
     # Check that entry includes 'M or G'
@@ -355,8 +419,19 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
   do
     Remaining=""
     listgen2 "$PartitionList" "PartitionArray"
-    dialog --backtitle "$Backtitle" --title " Partitions " --hfile "helpOTHER" --no-shadow --ok-button "Select" --cancel-button "Done" --menu "The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning.\n Press F1 for help." 18 60 $Counter "${Options[@]}" 2> output.file
-    Response=$?
+    while :
+    do
+      dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning.\n Press F1 for help." 18 60 $Counter "${Options[@]}" 2> output.file
+      RetVal=$?
+      Response=$RetVal
+      case $RetVal in
+        2) Message=`cat helpOTHER`
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          continue
+          ;;
+        *) break
+      esac
+    done
     if [ $Response -gt 0 ]; then # ie: <Done>
       Elements=0
       break
@@ -411,7 +486,18 @@ MakePartition() { # Called by MorePartitions
   local Message="Enter a mountpoint for ${Partition} (eg: /home)"
   while [ ${LoopRepeat} = "Y" ]
   do
-    dialog --backtitle "$Backtitle" --title " Partitioning " --hfile "helpOTHER" --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
+    while :
+    do
+      dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
+      RetVal=$?
+      case $RetVal in
+        2) Message=`cat helpOTHER`
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          continue
+          ;;
+        *) break
+      esac
+    done
     Response=$(cat output.file)
     # Check that entry includes '/'
     CheckInput=(`echo $Response | cut -c1`)
