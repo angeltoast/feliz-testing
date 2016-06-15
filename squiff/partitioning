@@ -26,7 +26,7 @@
 CheckParts() { # Check available partitions on the system
   ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'` 2>> feliz.log # Test for existing partitions
   local Partitions=0
-  for i in $ShowPartitions                                   # Ensure that there is at least one
+  for i in $ShowPartitions         # Ensure that there is at least one
   do
     (( Partitions+=1 ))
     break
@@ -98,7 +98,8 @@ Partitioning() {
           dialog --backtitle "$Backtitle" --title " Help " --no-shadow --msgbox "$HelpMessage" 18 60
           continue
       ;;
-      *) break                        # Escape or any other option
+      *) Proceed="4" 
+        break                        # <Do nothing>, Escape or any other option
       esac
     done
   done
