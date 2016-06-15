@@ -122,13 +122,13 @@ SetGrubDevice() {
   listgen1 "${DevicesList}"
   while :
   do
-    dialog --backtitle "$Backtitle" --title " Devices " --help-button --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed. Press F1 for help.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 14 60 6 "${Options[@]}" 2> output.file
+    dialog --backtitle "$Backtitle" --title " Devices " --help-button --no-shadow --ok-button "Select" --menu "Select the device where Grub is to be installed.\nNote that if you do not select a device, Grub will not be installed, and you will have to make alternative arrangements for booting your new system.\n" 14 60 6 "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
     0) GrubDevice=$(cat output.file)
       break
     2) Message=`cat helpGRUB`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
       continue
       ;;
     *) GrubDevice=""

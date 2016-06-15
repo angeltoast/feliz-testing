@@ -75,30 +75,32 @@ Partitioning() {
   do
     while :
     do
-      dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --cancel-label "Do nothing" --menu "$Message Press F1 for help." 20 55 2 \
+      dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --cancel-label "Do nothing" --menu "$Message" 20 55 2 \
         "Manual" "Open cfdisk so I can partition manually" \
         "Auto" "Allow feliz to partition the whole device" 2> output.file
       RetVal=$?
       case $RetVal in
+      0) Proceed=$(cat output.file)
+        case $Proceed in
+          "Manual") cfdisk 2>> feliz.log
+            tput setf 0 # Change foreground colour to black temporarily to hide error message
+            partprobe 2>> feliz.log #Inform kernel of changes to partitions
+            tput sgr0 # Reset colour
+            ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
+          ;;
+          "Auto") AutoPartition
+          ;;
+          *) Proceed="3"
+         esac
+         break
       2) Message=`cat helpPART`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
         continue
         ;;
       *) break
       esac
     done
-    Proceed=$(cat output.file)
-    case $Proceed in
-      "Manual") cfdisk 2>> feliz.log
-        tput setf 0 # Change foreground colour to black temporarily to hide error message
-        partprobe 2>> feliz.log #Inform kernel of changes to partitions
-        tput sgr0 # Reset colour
-        ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
-      ;;
-      "Auto") AutoPartition
-      ;;
-      *) Proceed="3"
-     esac
+
   done
 }
 
@@ -176,7 +178,7 @@ FileSystem() {
   esac
   while :
   do
-    dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow ${Cancel} --menu "\n$Message\nPress F1 for help." 16 50 4 \
+    dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow ${Cancel} --menu "\n$Message\n" 16 50 4 \
           "ext2" "-" \
           "ext3" "-" \
           "ext4" "-" \
@@ -187,7 +189,7 @@ FileSystem() {
         break
         ;;
       2) Message=`cat helpFILESYSTEM`     # Help button pressed
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
         continue
         ;;
       *) PartitionType=""                 # <Cancel> or any other option selected
@@ -231,7 +233,7 @@ AllocateRoot() {
     RetVal=$?
     case $RetVal in
       2) Message=`cat helpROOT`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
         continue
         ;;
       *) break
@@ -257,7 +259,7 @@ AllocateRoot() {
         local Message="$Message\nYou can choose to leave it as it is, but should be aware that not reformatting the root partition can have unexpected consequences."
         FileSystem "None"
       else
-        local Message="Please now select the file system for ${Partition} ... It is not recommended to mix the btrfs file-system with others.\nPress F1 for help."
+        local Message="Please now select the file system for ${Partition} ... It is not recommended to mix the btrfs file-system with others.\n"
         FileSystem "None"
       fi
       if [ -z ${PartitionType} ] && [ ${CurrentType} ]; then
@@ -303,13 +305,13 @@ AllocateSwap() {
   listgen2 "$PickFrom" "CopyArray"
   while :
   do
-    dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files. Press F1 for help." 14 60 $Counter "${Options[@]}" 2> output.file
+    dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
       0) break                       # Item selected
       ;;
       2) Message=`cat helpSWAP`      # Help button pressed
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
         continue
         ;;
       *) Result="Done"               # <Cancel> or other exit - prepare reporting variable before exiting
@@ -362,7 +364,7 @@ NoPartitions() { # There are no unallocated partitions
         break
         ;;
       2) Message=`cat helpSWAP`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
         continue
         ;;
       *) SwapPartition=""
@@ -383,7 +385,7 @@ SetSwapFile() {
       RetVal=$?
       case $RetVal in
         2) Message=`cat helpSWAP`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
           continue
           ;;
         *) break
@@ -421,12 +423,12 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
     listgen2 "$PartitionList" "PartitionArray"
     while :
     do
-      dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning.\n Press F1 for help." 18 60 $Counter "${Options[@]}" 2> output.file
+      dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "The following partitions remain unallocated.\nIf you wish to use one, select it from the list, or choose 'Done' to finish partitioning.\n" 18 60 $Counter "${Options[@]}" 2> output.file
       RetVal=$?
       Response=$RetVal
       case $RetVal in
         2) Message=`cat helpOTHER`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
           continue
           ;;
         *) break
@@ -492,7 +494,7 @@ MakePartition() { # Called by MorePartitions
       RetVal=$?
       case $RetVal in
         2) Message=`cat helpOTHER`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 12 50
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
           continue
           ;;
         *) break
