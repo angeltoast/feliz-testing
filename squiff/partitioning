@@ -95,7 +95,7 @@ Partitioning() {
           break
       ;;
       2) HelpMessage=`cat helpPART`   # Help button pressed
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --msgbox "$HelpMessage" 18 60
+          DisplayHelp
           continue
       ;;
       *) Proceed="4" 
@@ -189,8 +189,8 @@ FileSystem() {
     0) PartitionType=$(cat output.file) # Item selected
       break
     ;;
-    2) Message=`cat helpFILESYSTEM`     # Help button pressed
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpFILESYSTEM`     # Help button pressed
+      DisplayHelp
       continue
     ;;
     *) PartitionType=""                 # <Cancel> or any other option selected
@@ -232,8 +232,8 @@ AllocateRoot() {
     dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 14 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpROOT`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpROOT`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -308,8 +308,8 @@ AllocateSwap() {
     case $RetVal in
     0) break                       # Item selected
     ;;
-    2) Message=`cat helpSWAP`      # Help button pressed
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpSWAP`      # Help button pressed
+      DisplayHelp
       continue
     ;;
     *) Result="Done"               # <Cancel> or other exit - prepare reporting variable before exiting
@@ -361,8 +361,8 @@ NoPartitions() { # There are no unallocated partitions
       SwapPartition=""
       break
     ;;
-    2) Message=`cat helpSWAP`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpSWAP`
+      DisplayHelp
       continue
     ;;
     *) SwapPartition=""
@@ -382,8 +382,8 @@ SetSwapFile() {
       dialog --backtitle "$Backtitle" --title " Swapfile " --help-button --no-shadow --inputbox "\n$Message\n" 10 50 2> output.file
       RetVal=$?
       case $RetVal in
-      2) Message=`cat helpSWAP`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpSWAP`
+        DisplayHelp
         continue
       ;;
       *) break
@@ -425,8 +425,8 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
       RetVal=$?
       Response=$RetVal
       case $RetVal in
-      2) Message=`cat helpOTHER`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpOTHER`
+        DisplayHelp
         continue
       ;;
       *) break
@@ -491,8 +491,8 @@ MakePartition() { # Called by MorePartitions
       dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
       RetVal=$?
       case $RetVal in
-      2) Message=`cat helpOTHER`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpOTHER`
+        DisplayHelp
         continue
       ;;
       *) break

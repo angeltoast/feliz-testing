@@ -24,6 +24,10 @@
 helpHELPFILE=""
 helpMESSAGE=""
 
+DisplayHelp() {
+  dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+}
+
 getkeymap() {
   ListKbs=`cat keymaps.list`
   keyboards=""
@@ -36,8 +40,8 @@ getkeymap() {
     dialog --backtitle "$Backtitle" --title " Keyboards " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list to find your keyboard." 20 50 12 "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpMENUS`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpMENUS`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -62,8 +66,8 @@ setlocale() {
     dialog --backtitle "$Backtitle" --title " - Locales - " --help-button --no-shadow --nocancel --menu "Scroll through this list to find your locale.\n" 20 55 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpLOCALE`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpLOCALE`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -85,8 +89,8 @@ SetTimeZone() {
     dialog --backtitle "$Backtitle" --title " World_Zones " --help-button --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n" 20 60 11 "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpUTC`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpUTC`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -105,8 +109,8 @@ SetTimeZone() {
       dialog --backtitle "$Backtitle" --title " ${ZONE} " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-      2) Message=`cat helpMENUS`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpMENUS`
+        DisplayHelp
         continue
       ;;
       *) break
@@ -122,8 +126,8 @@ UserName() {
     dialog --backtitle "$Backtitle" --title " User Name " --help-button --no-shadow --nocancel --inputbox "Enter a name for the primary user of the new system (one word only, lower case).\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpUSERNAME`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpUSERNAME`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -145,8 +149,8 @@ SetHostname() {
     dialog --backtitle "$Backtitle" --title " Hostname " --help-button --no-shadow --nocancel --inputbox "A hostname is needed. This will be a unique name to identify your device on a network.\nIf you do not enter one, the default hostname of 'arch-linux' will be used\n" 12 50 2> output.file
     RetVal=$?
     case $RetVal in
-    2) Message=`cat helpHOSTNAME`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    2) HelpMessage=`cat helpHOSTNAME`
+      DisplayHelp
       continue
     ;;
     *) break
@@ -197,8 +201,8 @@ PickLuxuries() { # User selects any combination from a store of extras
           Category=${Categories[${Selected}]}
           break
         ;;
-        2) Message=`cat helpCATEGORIES`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        2) HelpMessage=`cat helpCATEGORIES`
+          DisplayHelp
           continue
         ;;
         *) break
@@ -223,65 +227,72 @@ ShoppingList() {
     ;;
     *) local Title="Choose your next category"
   esac
-  helpHELPFILE="helpSHOPPING"
   while [ $Complete -eq 0 ]
   do
     local Message="Added so far: ${LuxuriesList}"
     # Pass category to listgen2 for user to choose one item;
     case $Category in
       "Accessories") listgen2 "$Accessories" "LongAccs"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Desktop_Environments") listgen2 "$Desktops" "LongDesk"
-      helpHELPFILE="helpDEs"
+        HelpMessage=`cat ${helpDEs}`
       ;;
       "Graphical") listgen2 "$Graphical" "LongGraph"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Internet") listgen2 "$Internet" "LongNet"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Multimedia") listgen2 "$Multimedia" "LongMulti"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Office") listgen2 "$Office" "LongOffice"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Programming") listgen2 "$Programming" "LongProg"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Window_Managers") listgen2 "$WindowManagers" "LongWMs"
+        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       *) break
     esac
     while :
     do
-      dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n$helpMESSAGE" 15 60 $Counter "${Options[@]}" 2> output.file
+      dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-      0) Picked=$(cat output.file)
-        break
+      0) Picked=$(cat output.file)    # Item selected
+        for lux in $LuxuriesList      # Check that chosen item is not already on the list
+        do
+          if [ ${lux} = ${Picked} ]; then
+            Temp=""
+            dialog --yes-label "Keep" --no-label "Delete" --backtitle "$Backtitle" --title " Information " --no-shadow --yesno "\n  '$Picked' is already in your shopping list\n Do you wish to keep it or delete it?" 10 60
+            case $? in
+              0) continue 3           # Keep $LuxuriesList as it is and return to top of enclosing loop
+              ;;
+              *) for lux in $LuxuriesList
+                do
+                  if [ ${lux} != ${Picked} ]; then
+                    Temp="$Temp $lux"
+                  fi
+                done
+                LuxuriesList="$Temp"  # Revise $LuxuriesList 
+                continue 3            # and return to top of enclosing loop
+            esac
+          fi
+        done
+        break                         # Probably unnecessary, as preceding code exits this block
       ;;
-      2) dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "${helpHELPFILE}" 18 60
+      2) DisplayHelp                  # Help button selected - HelpMessage set by 'case $Category in' above
         continue
       ;;
-      *) break
+      *) Picked=""
+        break  # <Done> or Escape or other exit
       esac
     done
-    # Check that chosen item is not already on the list
-    for lux in $LuxuriesList
-    do
-      if [ ${lux} = ${Picked} ]; then
-        Temp=""
-        dialog --yes-label "Keep" --no-label "Delete" --backtitle "$Backtitle" --title " Information " --no-shadow --yesno "\n  '$Picked' is already in your shopping list\n Do you wish to keep it or delete it?" 10 60
-        case $? in
-          0) continue 2 # Keep $LuxuriesList as it is and return to top of enclosing loop
-          ;;
-          *) for lux in $LuxuriesList
-            do
-              if [ ${lux} != ${Picked} ]; then
-                Temp="$Temp $lux"
-              fi
-            done
-            LuxuriesList="$Temp"
-            continue 2 # Revise $LuxuriesList and return to top of enclosing loop
-        esac
-      fi
-    done
+
     # Carry out any specific tests and add the item to the list
     case $Picked in
     "Cinnamon") DesktopEnvironment="Cinnamon"
@@ -377,8 +388,8 @@ ChooseDM() { # Choose a display manager
           *) DisplayManager=""
           esac
       ;;
-      2) Message=`cat helpDM`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpDM`
+        DisplayHelp
         continue
       ;;
       *) break
@@ -519,8 +530,8 @@ ManualSettings() {
       dialog --backtitle "$Backtitle" --title " Final_Check " --help-button --no-shadow --ok-button "Select" --menu "Select data to change.\n or <Cancel> to finish\n" 18 60 6 "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-      2) Message=`cat helpMENUS`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpMENUS`
+        DisplayHelp
         continue
       ;;
       *) break

@@ -127,10 +127,11 @@ SetGrubDevice() {
     case $RetVal in
     0) GrubDevice=$(cat output.file)
       break
-    2) Message=`cat helpGRUB`
-      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+    ;;
+    2) HelpMessage=`cat helpGRUB`
+      DisplayHelp
       continue
-      ;;
+    ;;
     *) GrubDevice=""
       break
     esac
