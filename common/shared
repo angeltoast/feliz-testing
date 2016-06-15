@@ -67,6 +67,8 @@ Scope=""                  # Installation scope ... 'Full' or 'Basic'
 #
 Response=""
 Result=""
+# Help system
+helpMESSAGE=""
 #
 # ---- Extra Applications ----
 #

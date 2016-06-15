@@ -14,18 +14,16 @@
 # -----------------     ---------------------
 # Function     Line     Function         Line
 # -----------------     ---------------------
-# getkeymap      20     PickLuxuries       93
-# setlocale      35     ShoppingList      142
-# settimezone    46     Display Managers  262
-# UserName       75     FinalCheck        285
-# Hostname       85     ManualSettings    330
+# DisplayHelp    25
+# getkeymap      29     PickLuxuries      166
+# setlocale      52     ShoppingList      220
+# settimezone    78     ChooseDM          363
+# UserName      121     FinalCheck        410
+# Hostname      143     ManualSettings    516
 # -----------------     ---------------------
 
-helpHELPFILE=""
-helpMESSAGE=""
-
 DisplayHelp() {
-  dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+  dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$HelpMessage" 18 60
 }
 
 getkeymap() {
@@ -196,16 +194,16 @@ PickLuxuries() { # User selects any combination from a store of extras
       dialog --backtitle "$Backtitle" --title " Categories " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
       RetVal=$?
       case $RetVal in
-        0) Selected=`cat feliz.output`
-          # Use selected number to get category for script use
-          Category=${Categories[${Selected}]}
-          break
-        ;;
-        2) HelpMessage=`cat helpCATEGORIES`
-          DisplayHelp
-          continue
-        ;;
-        *) break
+      0) Selected=`cat feliz.output`
+        # Use selected number to get category for script use
+        Category=${Categories[${Selected}]}
+        break
+      ;;
+      2) HelpMessage=`cat helpCATEGORIES`
+        DisplayHelp
+        continue
+      ;;
+      *) break 2
       esac
     done 
     # Then shop in that category
@@ -223,13 +221,13 @@ ShoppingList() {
   # Called by PickLuxuries after a category has been chosen.
   local Complete=0
   case "$LuxuriesList" in
-    "") local Title="Choose your first category"
+    "") Title="Choose your first category"
     ;;
-    *) local Title="Choose your next category"
+    *) Title="Choose your next category"
   esac
   while [ $Complete -eq 0 ]
   do
-    local Message="Added so far: ${LuxuriesList}"
+    Message="Added so far: ${LuxuriesList}"
     # Pass category to listgen2 for user to choose one item;
     case $Category in
       "Accessories") listgen2 "$Accessories" "LongAccs"
@@ -288,11 +286,10 @@ ShoppingList() {
       2) DisplayHelp                  # Help button selected - HelpMessage set by 'case $Category in' above
         continue
       ;;
-      *) Picked=""
-        break  # <Done> or Escape or other exit
+      *) Picked=""                    # <Done> or Escape or other exit
+        break
       esac
     done
-
     # Carry out any specific tests and add the item to the list
     case $Picked in
     "Cinnamon") DesktopEnvironment="Cinnamon"
@@ -360,7 +357,7 @@ ShoppingList() {
      *) echo "${Picked} added in desktop at $LINENO" >> feliz.log
     esac
     LuxuriesList="${LuxuriesList} ${Picked}"
-done
+  done
 }
 
 ChooseDM() { # Choose a display manager
