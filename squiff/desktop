@@ -197,13 +197,7 @@ PickLuxuries() { # User selects any combination from a store of extras
       0) Selected=`cat feliz.output`
         # Use selected number to get category for script use
         Category=${Categories[${Selected}]}
-        
-  read -p "$LINENO $Category"
-        
         break
-        
-  read -p "$LINENO"
-        
       ;;
       2) HelpMessage=`cat helpCATEGORIES`
         DisplayHelp
@@ -212,9 +206,6 @@ PickLuxuries() { # User selects any combination from a store of extras
       *) break 2
       esac
     done 
-        
-  read -p "$LINENO"
-        
     # Then shop in that category
     ShoppingList
     Message="Added so far: ${LuxuriesList}\nYou can now choose from any of the other lists, or choose <Done> to finish this part of the setup"
@@ -240,12 +231,18 @@ ShoppingList() {
   while [ $Complete -eq 0 ]
   do
     Message="Added so far: ${LuxuriesList}"
+        
+  read -p "$LINENO"
+        
     # Pass category to listgen2 for user to choose one item;
     case $Category in
       "Accessories") listgen2 "$Accessories" "LongAccs"
         HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Desktop_Environments") listgen2 "$Desktops" "LongDesk"
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
         HelpMessage=`cat ${helpDEs}`
       ;;
       "Graphical") listgen2 "$Graphical" "LongGraph"
