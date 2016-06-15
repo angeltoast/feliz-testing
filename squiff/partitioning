@@ -81,26 +81,26 @@ Partitioning() {
       RetVal=$?
       case $RetVal in
       0) Proceed=$(cat output.file)
-        case $Proceed in
+          case $Proceed in
           "Manual") cfdisk 2>> feliz.log
-            tput setf 0 # Change foreground colour to black temporarily to hide error message
-            partprobe 2>> feliz.log #Inform kernel of changes to partitions
-            tput sgr0 # Reset colour
-            ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
+              tput setf 0 # Change foreground colour to black temporarily to hide error message
+              partprobe 2>> feliz.log #Inform kernel of changes to partitions
+              tput sgr0 # Reset colour
+              ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
           ;;
           "Auto") AutoPartition
           ;;
           *) Proceed="3"
-         esac
-         break
+          esac
+          break
+      ;;
       2) Message=`cat helpPART`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+          continue
+      ;;
       *) break
       esac
     done
-
   done
 }
 
