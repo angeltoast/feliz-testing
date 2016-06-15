@@ -218,9 +218,6 @@ PickLuxuries() { # User selects any combination from a store of extras
 }
 
 ShoppingList() {
-        
-  read -p "$LINENO"
-        
   # Called by PickLuxuries after a category has been chosen.
   local Complete=0
   case "$LuxuriesList" in
@@ -231,25 +228,31 @@ ShoppingList() {
   while [ $Complete -eq 0 ]
   do
     Message="Added so far: ${LuxuriesList}"
-        
-  read -p "$LINENO"
-        
     # Pass category to listgen2 for user to choose one item;
     case $Category in
       "Accessories") listgen2 "$Accessories" "LongAccs"
         HelpMessage=`cat ${helpSHOPPING}`
-      ;;
-      "Desktop_Environments") listgen2 "$Desktops" "LongDesk"
         
   read -p "$LINENO ${Options[@]} $Counter"
         
+      ;;
+      "Desktop_Environments") listgen2 "$Desktops" "LongDesk"
         HelpMessage=`cat ${helpDEs}`
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
       ;;
       "Graphical") listgen2 "$Graphical" "LongGraph"
         HelpMessage=`cat ${helpSHOPPING}`
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
       ;;
       "Internet") listgen2 "$Internet" "LongNet"
         HelpMessage=`cat ${helpSHOPPING}`
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
       ;;
       "Multimedia") listgen2 "$Multimedia" "LongMulti"
         HelpMessage=`cat ${helpSHOPPING}`
@@ -265,6 +268,9 @@ ShoppingList() {
       ;;
       *) break
     esac
+        
+  read -p "$LINENO ${Options[@]} $Counter"
+        
     while :
     do
         

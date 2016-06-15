@@ -44,9 +44,6 @@ listgen2() {
   do
     Options[$((Counter))]="${Items[${ItemCounter}]}"
     Options[$((Counter+1))]="$item"
-        
-  read -p "listgen $LINENO ${Options[$((Counter))]} ${Options[$((Counter+1))]}"
-        
     Counter=$((Counter+2))
     ItemCounter=$((ItemCounter+1))
   done
