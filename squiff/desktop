@@ -174,16 +174,13 @@ PickLuxuries() { # User selects any combination from a store of extras
   until [ $Category = "Done" ]
   do
   # First select a category. CategoriesList is a string variable in same order as the Categories array
-    HowMany=`echo ${CategoriesList} | wc -w` # Count words
-    echo ${CategoriesList} | sed "s/ /\\n/g" > feliz.output # Copy categories to file
-    
-  read -p "desktop $LINENO check feliz.output"
-    
+    HowMany=`echo ${CategoriesList} | wc -w`                 # Count words
+    echo ${CategoriesList} | sed "s/ /\\n/g" > feliz.output  # Copy categories to file
     Counter=1
     ItemCounter=1
     Width=50
     Options=()
-    until [ $ItemCounter -gt $HowMany ] # Prepare numbered list from file
+    until [ $ItemCounter -gt $HowMany ]                      # Prepare numbered list from file
     do
       Options[$((Counter))]=${ItemCounter}
       Counter=$((Counter+1))
@@ -194,10 +191,12 @@ PickLuxuries() { # User selects any combination from a store of extras
     # Use $ItemCounter and ${Options[@]} array in menu dialog
     while :
     do
-      dialog --backtitle "$Backtitle" --title " Categories " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output # Output is line number of selection
+      dialog --backtitle "$Backtitle" --title " Categories " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output     # Output is line number of selection
       RetVal=$?
-     
-  read -p "desktop $LINENO $RetVal check feliz.output"
+
+  echo "desktop Line $LINENO $RetVal check feliz.output"
+  cat feliz.output
+  read
     
       case $RetVal in
       0) Selected=`cat feliz.output`
