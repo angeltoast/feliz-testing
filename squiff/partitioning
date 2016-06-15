@@ -62,7 +62,7 @@ CheckParts() { # Check available partitions on the system
       ExistingPartitions="$ExistingPartitions \n ${PartitionArray[$Partitions]}"
       (( Partitions+=1 ))
     done
-    local Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, Feliz will help you to allocate the existing partitions."
+    Message="Here is a list of available partitions on all connected devices:\n$ExistingPartitions\n\nIf you choose to do nothing now, Feliz will help you to allocate the existing partitions."
     Partitioning          # Offer user partitioning options
     MakePartitionList     # /common/shared/ Regenerate the array of partitions
   fi
@@ -70,7 +70,7 @@ CheckParts() { # Check available partitions on the system
 
 Partitioning() {
   Proceed=""
-  AutoPart=0 # Set flag to 'off' by default
+  AutoPart=0              # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
     while :
@@ -80,12 +80,12 @@ Partitioning() {
         "Auto" "Allow feliz to partition the whole device" 2> output.file
       RetVal=$?
       case $RetVal in
-      0) Proceed=$(cat output.file)
+      0) Proceed=$(cat output.file)   # Item selected
           case $Proceed in
           "Manual") cfdisk 2>> feliz.log
-              tput setf 0 # Change foreground colour to black temporarily to hide error message
+              tput setf 0             # Change foreground colour to black temporarily to hide error message
               partprobe 2>> feliz.log #Inform kernel of changes to partitions
-              tput sgr0 # Reset colour
+              tput sgr0               # Reset colour
               ShowPartitions=`lsblk -l | grep 'part' | awk '{print $1}'`
           ;;
           "Auto") AutoPartition
@@ -94,11 +94,11 @@ Partitioning() {
           esac
           break
       ;;
-      2) Message=`cat helpPART`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      2) HelpMessage=`cat helpPART`   # Help button pressed
+          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --msgbox "$HelpMessage" 18 60
           continue
       ;;
-      *) break
+      *) break                        # Escape or any other option
       esac
     done
   done
@@ -185,18 +185,17 @@ FileSystem() {
           "btrfs" "-" 2> output.file
     RetVal=$?
     case $RetVal in
-      0) PartitionType=$(cat output.file) # Item selected
-        break
-        ;;
-      2) Message=`cat helpFILESYSTEM`     # Help button pressed
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) PartitionType=""                 # <Cancel> or any other option selected
-        break
+    0) PartitionType=$(cat output.file) # Item selected
+      break
+    ;;
+    2) Message=`cat helpFILESYSTEM`     # Help button pressed
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) PartitionType=""                 # <Cancel> or any other option selected
+      break
     esac
   done     
-  
 }
 
 EditLabel() { # Called by AllocateRoot, AllocateSwap and MorePartitions
@@ -232,15 +231,13 @@ AllocateRoot() {
     dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Please now select a partition to use for /root\n" 14 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpROOT`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpROOT`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done
-  
-  
   Reply=$(cat output.file)
   PassPart="$Reply"
   SetLabel "$Reply"
@@ -308,15 +305,15 @@ AllocateSwap() {
     dialog --backtitle "$Backtitle" --title " Partitions " --help-button --no-shadow --ok-button "Select" --cancel-button "None" --menu "Select a partition for swap from the ones that remain, or you can allocate a swap file. Warning: Btrfs does not support swap files." 14 60 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-      0) break                       # Item selected
-      ;;
-      2) Message=`cat helpSWAP`      # Help button pressed
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) Result="Done"               # <Cancel> or other exit - prepare reporting variable before exiting
-        SwapPartition=""             # And set SwapPartition to empty
-        break
+    0) break                       # Item selected
+    ;;
+    2) Message=`cat helpSWAP`      # Help button pressed
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) Result="Done"               # <Cancel> or other exit - prepare reporting variable before exiting
+      SwapPartition=""             # And set SwapPartition to empty
+      break
     esac
   done
   Result=$(cat output.file)          # Save selected partition ID
@@ -359,17 +356,17 @@ NoPartitions() { # There are no unallocated partitions
     dialog --backtitle "$Backtitle" --title " Swap " --help-button --yesno "There are no partitions available for swap.\nDo you wish to create a swap file?" 8 40
     RetVal=$?
     case $RetVal in
-      0) SetSwapFile
-        SwapPartition=""
-        break
-        ;;
-      2) Message=`cat helpSWAP`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) SwapPartition=""
-        SwapFile=""
-        break
+    0) SetSwapFile
+      SwapPartition=""
+      break
+    ;;
+    2) Message=`cat helpSWAP`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) SwapPartition=""
+      SwapFile=""
+      break
     esac
   done
 }
@@ -384,11 +381,11 @@ SetSwapFile() {
       dialog --backtitle "$Backtitle" --title " Swapfile " --help-button --no-shadow --inputbox "\n$Message\n" 10 50 2> output.file
       RetVal=$?
       case $RetVal in
-        2) Message=`cat helpSWAP`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      2) Message=`cat helpSWAP`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     Response=$(cat output.file)
@@ -427,11 +424,11 @@ MorePartitions() { # For any unallocated partitions. Uses PartitionList and Part
       RetVal=$?
       Response=$RetVal
       case $RetVal in
-        2) Message=`cat helpOTHER`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      2) Message=`cat helpOTHER`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     if [ $Response -gt 0 ]; then # ie: <Done>
@@ -493,11 +490,11 @@ MakePartition() { # Called by MorePartitions
       dialog --backtitle "$Backtitle" --title " Partitioning " --help-button --no-shadow --inputbox "\n$Message\n" 18 50 2> output.file
       RetVal=$?
       case $RetVal in
-        2) Message=`cat helpOTHER`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      2) Message=`cat helpOTHER`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     Response=$(cat output.file)

@@ -36,11 +36,11 @@ getkeymap() {
     dialog --backtitle "$Backtitle" --title " Keyboards " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Scroll through this list to find your keyboard." 20 50 12 "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpMENUS`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpMENUS`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done
   Countrykbd=$(cat output.file)
@@ -62,11 +62,11 @@ setlocale() {
     dialog --backtitle "$Backtitle" --title " - Locales - " --help-button --no-shadow --nocancel --menu "Scroll through this list to find your locale.\n" 20 55 $Counter "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpLOCALE`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpLOCALE`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done
   CountryLocale="$(cat output.file).UTF-8"
@@ -85,11 +85,11 @@ SetTimeZone() {
     dialog --backtitle "$Backtitle" --title " World_Zones " --help-button --no-shadow --ok-button "Select" --nocancel --menu "To set the system clock, please first choose the World Zone of your location.\n" 20 60 11 "${Options[@]}" 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpUTC`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpUTC`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done
   ZONE=$(cat output.file)
@@ -105,11 +105,11 @@ SetTimeZone() {
       dialog --backtitle "$Backtitle" --title " ${ZONE} " --help-button --no-shadow --ok-button "Select" --nocancel --menu "Now select your nearest city from this list.\n" 20 50 13 "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-        2) Message=`cat helpMENUS`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      2) Message=`cat helpMENUS`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     SUBZONE=$(cat output.file)
@@ -122,11 +122,11 @@ UserName() {
     dialog --backtitle "$Backtitle" --title " User Name " --help-button --no-shadow --nocancel --inputbox "Enter a name for the primary user of the new system (one word only, lower case).\nIf you don't create a username here, a default user called 'archie' will be set up\n" 12 50 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpUSERNAME`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpUSERNAME`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done
   Response=$(cat output.file)
@@ -145,11 +145,11 @@ SetHostname() {
     dialog --backtitle "$Backtitle" --title " Hostname " --help-button --no-shadow --nocancel --inputbox "A hostname is needed. This will be a unique name to identify your device on a network.\nIf you do not enter one, the default hostname of 'arch-linux' will be used\n" 12 50 2> output.file
     RetVal=$?
     case $RetVal in
-      2) Message=`cat helpHOSTNAME`
-        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-        continue
-        ;;
-      *) break
+    2) Message=`cat helpHOSTNAME`
+      dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+      continue
+    ;;
+    *) break
     esac
   done  
   Response=$(cat output.file)
@@ -196,11 +196,11 @@ PickLuxuries() { # User selects any combination from a store of extras
           # Use selected number to get category for script use
           Category=${Categories[${Selected}]}
           break
-          ;;
+        ;;
         2) Message=`cat helpCATEGORIES`
           dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
           continue
-          ;;
+        ;;
         *) break
       esac
     done 
@@ -253,13 +253,13 @@ ShoppingList() {
       dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n$helpMESSAGE" 15 60 $Counter "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-        0) Picked=$(cat output.file)
-          break
-          ;;
-        2) dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "${helpHELPFILE}" 18 60
-          continue
-          ;;
-        *) break
+      0) Picked=$(cat output.file)
+        break
+      ;;
+      2) dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "${helpHELPFILE}" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     # Check that chosen item is not already on the list
@@ -354,7 +354,7 @@ done
 
 ChooseDM() { # Choose a display manager
   case $DisplayManager in
-    "") # Only offered if no other display manager has been set
+  "") # Only offered if no other display manager has been set
     Greeter=""
     listgen1 "LightDM LXDM SLIM XDM"
     while :
@@ -362,32 +362,32 @@ ChooseDM() { # Choose a display manager
       dialog --backtitle "$Backtitle" --title " ChooseDM/Greeter} " --help-button --no-shadow --ok-button "Select" --cancel-label "Done" --menu "Choose one of the following display managers. Note that not all display managers work well with all desktop environments. If in doubt, choose LightDM.\nIf you do not install a display manager, you will have to launch your desktop environment manually.\n" 16 57 6 "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-        0) Response=$(cat output.file)
+      0) Response=$(cat output.file)
           Reply=$Response
           case $Reply in
-            "LightDM") DisplayManager="lightdm"
-                Greeter="lightdm-gtk-greeter"
-             ;;
-            "LXDM") DisplayManager="lxdm"
-             ;;
-            "SLIM") DisplayManager="slim"
-             ;;
-            "XDM") DisplayManager="xdm"
-             ;;
-            *) DisplayManager=""
+          "LightDM") DisplayManager="lightdm"
+              Greeter="lightdm-gtk-greeter"
+          ;;
+          "LXDM") DisplayManager="lxdm"
+          ;;
+          "SLIM") DisplayManager="slim"
+          ;;
+          "XDM") DisplayManager="xdm"
+          ;;
+          *) DisplayManager=""
           esac
-          ;;
-        2) Message=`cat helpDM`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      ;;
+      2) Message=`cat helpDM`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
-    ;;
+  ;;
   "reserved") # Indicating that either KDE or Gnome DE is set and will install own DM
     Greeter=""
-    ;;
+  ;;
   *) # Warn that DM already set, and offer option to change it
     dialog --backtitle "$Backtitle" --title " Display Manager " --no-shadow --yesno "Display manager is already set as: $DisplayManager. Only one display manager can be active.\nDo you wish to change it?" 8 50
     RetVal=$?
@@ -519,11 +519,11 @@ ManualSettings() {
       dialog --backtitle "$Backtitle" --title " Final_Check " --help-button --no-shadow --ok-button "Select" --menu "Select data to change.\n or <Cancel> to finish\n" 18 60 6 "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in
-        2) Message=`cat helpMENUS`
-          dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
-          continue
-          ;;
-        *) break
+      2) Message=`cat helpMENUS`
+        dialog --backtitle "$Backtitle" --title " Help " --no-shadow --nocancel --msgbox "$Message" 18 60
+        continue
+      ;;
+      *) break
       esac
     done
     Response=$(cat output.file)
