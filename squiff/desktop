@@ -193,16 +193,17 @@ PickLuxuries() { # User selects any combination from a store of extras
     do
       dialog --backtitle "$Backtitle" --title " Categories " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "$Message\n" 19 50 $ItemCounter "${Options[@]}" 2> feliz.output     # Output is line number of selection
       RetVal=$?
-
-  echo "desktop Line $LINENO $RetVal check feliz.output"
-  cat feliz.output
-  read
-    
       case $RetVal in
       0) Selected=`cat feliz.output`
         # Use selected number to get category for script use
         Category=${Categories[${Selected}]}
+        
+  read -p "$LINENO $Category"
+        
         break
+        
+  read -p "$LINENO"
+        
       ;;
       2) HelpMessage=`cat helpCATEGORIES`
         DisplayHelp
@@ -211,6 +212,9 @@ PickLuxuries() { # User selects any combination from a store of extras
       *) break 2
       esac
     done 
+        
+  read -p "$LINENO"
+        
     # Then shop in that category
     ShoppingList
     Message="Added so far: ${LuxuriesList}\nYou can now choose from any of the other lists, or choose <Done> to finish this part of the setup"
@@ -223,6 +227,9 @@ PickLuxuries() { # User selects any combination from a store of extras
 }
 
 ShoppingList() {
+        
+  read -p "$LINENO"
+        
   # Called by PickLuxuries after a category has been chosen.
   local Complete=0
   case "$LuxuriesList" in
