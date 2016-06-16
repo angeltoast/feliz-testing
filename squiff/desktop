@@ -225,57 +225,32 @@ ShoppingList() {
     ;;
     *) Title="Choose your next category"
   esac
+  HelpMessage=`cat ${helpSHOPPING}`
   while [ $Complete -eq 0 ]
   do
-    Message="Added so far: ${LuxuriesList}"
     # Pass category to listgen2 for user to choose one item;
     case $Category in
       "Accessories") listgen2 "$Accessories" "LongAccs"
-        HelpMessage=`cat ${helpSHOPPING}`
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
       ;;
-      "Desktop_Environments") listgen2 "$Desktops" "LongDesk"
-        HelpMessage=`cat ${helpDEs}`
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
+      "Desktop_Environments") HelpMessage=`cat ${helpDEs}`
+        listgen2 "$Desktops" "LongDesk"
       ;;
       "Graphical") listgen2 "$Graphical" "LongGraph"
-        HelpMessage=`cat ${helpSHOPPING}`
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
       ;;
       "Internet") listgen2 "$Internet" "LongNet"
-        HelpMessage=`cat ${helpSHOPPING}`
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
       ;;
       "Multimedia") listgen2 "$Multimedia" "LongMulti"
-        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Office") listgen2 "$Office" "LongOffice"
-        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Programming") listgen2 "$Programming" "LongProg"
-        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       "Window_Managers") listgen2 "$WindowManagers" "LongWMs"
-        HelpMessage=`cat ${helpSHOPPING}`
       ;;
       *) break
     esac
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
     while :
     do
-        
-  read -p "$LINENO ${Options[@]} $Counter"
-        
       dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> output.file
       RetVal=$?
       case $RetVal in

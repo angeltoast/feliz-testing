@@ -68,7 +68,9 @@ Scope=""                  # Installation scope ... 'Full' or 'Basic'
 Response=""
 Result=""
 # Help system
-helpMESSAGE=""
+helpMESSAGE=""            # Used by help system
+declare -a Options        # For listgen functions
+
 #
 # ---- Extra Applications ----
 #
