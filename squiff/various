@@ -202,7 +202,7 @@ InstallKernel() { # Kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages - this may take some time" 180
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 140
   pacstrap /mnt man-db man-pages &>> feliz.log
   
 }

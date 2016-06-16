@@ -295,6 +295,7 @@ ShoppingList() {
            ;;
           *) DDEextras=""
         esac
+        DisplayManager="reserved"
       ;;
     "Enlightenment") DesktopEnvironment="Enlightenment"
         dialog --backtitle "$Backtitle" --title " Enlightenment " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability.\nInclude them?\n" 10 40
@@ -315,21 +316,21 @@ ShoppingList() {
            ;;
           *) GoodiesGnome=""
         esac
-      DisplayManager="reserved"
+        DisplayManager="reserved"
       ;;
     "JWM") DesktopEnvironment="JWM"
         ChooseDM
       ;;
     "KDE") DesktopEnvironment="KDE"
-      DisplayManager="reserved"
+        DisplayManager="reserved"
       ;;
     "libreoffice") Picked="libreoffice-fresh"
       ;;
     "LXDE") DesktopEnvironment="LXDE"
-        ChooseDM
+        DisplayManager="reserved"
       ;;
     "LXQt") DesktopEnvironment="LXQt"
-        ChooseDM
+        DisplayManager="sddm"
       ;;
     "Mate") DesktopEnvironment="Mate"
         ChooseDM
