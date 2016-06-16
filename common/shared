@@ -67,12 +67,13 @@ Scope=""                  # Installation scope ... 'Full' or 'Basic'
 #
 Response=""
 Result=""
-# Help system
+#
+# Miscellaneous
+#
 helpMESSAGE=""            # Used by help system
 declare -a Options        # For listgen functions
-
 #
-# ---- Extra Applications ----
+# ---- Arrays for extra Applications ----
 #
 CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
 Categories[1]="Accessories"
