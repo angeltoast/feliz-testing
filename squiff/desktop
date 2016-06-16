@@ -280,7 +280,7 @@ ShoppingList() {
         continue
       ;;
       *) Picked=""                    # <Done> or Escape or other exit
-        break
+        break 2
       esac
     done
     # Carry out any specific tests and add the item to the list
@@ -377,6 +377,7 @@ ChooseDM() { # Choose a display manager
           ;;
           *) DisplayManager=""
           esac
+          break
       ;;
       2) HelpMessage=`cat helpDM`
         DisplayHelp
