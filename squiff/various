@@ -183,10 +183,10 @@ InstallKernel() { # Kernel and some other core systems
   LANG=C # Temporary addition to overcome bug in Arch man pages
   
   case $Kernel in # Selected kernel
-    1) DisplayProgress "Installing LTS kernel" 60
+    1) DisplayProgress "Installing LTS kernel" 40
       pacstrap /mnt linux-lts &>> feliz.log
     ;;
-    *) DisplayProgress "Installing Latest kernel" 80
+    *) DisplayProgress "Installing Latest kernel" 60
       pacstrap /mnt linux &>> feliz.log
   esac
 
