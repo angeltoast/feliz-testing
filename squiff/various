@@ -77,9 +77,6 @@ InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
   download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
   download_seconds=$((download_size/connection_speed))                            # And calculate download time
-  
-  read -p "$LINENO File $1 is $download_size bytes and will download in $download_seconds seconds"
-  
   # Use system speed to calculate processing time for file based on download seconds
   case $total_MHz in
   1) InstallTime=$((download_seconds*3))                      # Slow (1000 Mhz) * 3
@@ -88,26 +85,21 @@ InstallFile() {   # Find download file size and calculate install time
   ;;
   *) InstallTime=$download_seconds                            # Faster - no need to multiply
   esac
-  
-  read -p "$LINENO Install time is $InstallTime seconds"
-  
   # Proceed with installation
   if [ $InstallTime -gt 10 ]; then                     # Decide whether to use gauge or message, based on InstallTime
     tmpfile=$(mktemp)
     pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
     pid=$!                                             # Save process id for DisplayProgress
-    DisplayProgress "Installing $FileName" ${InstallTime} ; rm "$tmpfile"  # Display a gauge of $InstallTime seconds
+    DisplayProgress "Installing $FileName" ${InstallTime}
+    rm "$tmpfile"
   else
     TPecho "Installing ${FileName}"                    # Message for shorter install times
-    pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
+    pacstrap /mnt "$FileName" &>"$tmpfile"             # Start installation with pacstrap
   fi
 }
 
 DisplayProgress() { # Displays timed progress bar for longer processes
   Estimate=$2                            # Numeric argument = seconds
-  
-  read -p "$LINENO Estimate is $Estimate seconds"
-    
   local Message="$1"                     # Text argument to appear above progress bar
   local Sleep=0
   local TenPercent=$(( Estimate / 10 ))  # Get 10% of total time
@@ -116,9 +108,6 @@ DisplayProgress() { # Displays timed progress bar for longer processes
   else
     Sleep=1
   fi
-  
-  read -p "$LINENO sleep time is $Sleep seconds"
-  
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -135,7 +124,7 @@ DisplayProgress() { # Displays timed progress bar for longer processes
     sleep $Sleep
   done
   ) |
-  dialog --backtitle "$Backtitle" --title " Progress " --no-shadow --gauge "" 9 60 0 &
+  dialog --backtitle "$Backtitle" --title " Progress " --no-shadow --gauge "" 9 60 0
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
