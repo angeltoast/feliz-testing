@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The Feliz installation scripts for Arch Linux
-# 12 June 2016
+# 17 June 2016
 
 # Semi-graphical interface
 # /squiff/various
@@ -15,14 +15,15 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           27       ConfirmReview        150
-# listgen1 & 2          35       SetGrubDevice        158
-# TPecho                72       arch_chroot          193
-# DisplayProgress       76       InstallKernel        197
-# ProgressArray         96       AddCodecs            200
-# Bugger               120       McInitCPIO           210
-# SetKernel            125       Passwords            220
-# ConfirmVbox          037       Finish               250
+# arch_chroot           29       ConfirmReview        161
+# listgen1 & 2          35       SetGrubDevice        179
+# TPecho                72       ConnectionSpeed      202
+# InstallFile           76
+# DisplayProgress       97       InstallKernel        242
+# ProgressArray        117       AddCodecs            271
+# Bugger               141       McInitCPIO           283
+# SetKernel            146       Passwords            293
+# ConfirmVbox          156       Finish               348
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -68,20 +69,43 @@ listgen2() {
   done
 }
 
-
 TPecho() { # Infobox
   dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
+InstallFile() {   # Find download file size and calculate install time
+  FileName="$1"   # Passed by caller
+  download_size=$(pacman -Sp --print-format='%s' ${FileName} | tail --lines=1) # Use pacman to get file size in bytes
+  download_seconds=$((download_size/connection_speed))                         # And calculate download time
+  # Use system speed to calculate processing time for file based on download seconds
+  case $total_MHz in
+  1[0-9][0-9[0-9]) InstallTime=$((download_seconds*3)) ;;                      # Slow (1000 Mhz) * 3
+  2[0-9][0-9[0-9]) InstallTime=$((download_seconds*2)) ;;                      # Fair (2000 Mhz) * 2
+  *) InstallTime=$download_seconds                                             # Faster * 1
+  esac
+  # Proceed with installation
+  if [ $InstallTime -gt 10 ]; then                     # Decide whether to use gauge or message, based on InstallTime
+    tmpfile=$(mktemp)
+    pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
+    pid=$!                                             # Save process id for DisplayProgress
+    DisplayProgress "Installing $FileName" ${InstallTime} ; rm "$tmpfile"  # Install with a gauge in $InstallTime seconds
+  else
+    TPecho "Installing ${FileName}"                    # Message for shorter install times
+  fi
+}
+
 DisplayProgress() {                 # Displays timed progress bar for longer processes
-  Estimate=$2                       # Numeric argument = seconds in multiples of 20
+  Estimate=$2                       # Numeric argument = seconds
   local Message="$1"                # Text passed to appear above progress bar
-  local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
+  local Sleep=$(( $Estimate / 10 )) # Set sleep period to 10% of total time
   local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percentage of $Estimate
   local Percent=0
   (
   until [ $Percent -gt 100 ]
   do
+    proc=$(ps | grep "$pid") 	               # First check if process $pid is still running
+    if [ "$?" -gt "0" ]; then break; fi      # If not, break from loop
+
     echo "XXX"
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
@@ -178,16 +202,54 @@ SetGrubDevice() {
   done
 }
 
+ConnectionSpeed() {  # 
+  # Set address for test link
+  test_link="ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db"
+  # wget a 1MB test file - save output to feliz.output
+  wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
+  # Then extract connection speed and rate to variables
+  connection_speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
+  connection_rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
+  # Speed is either in Kb/s or Mb/s - either way it's probably a decimal
+  # Bash can't do floating point arithmetic, so convert to bytes
+  # Count the number of numerals after the decimal point
+  eof=`echo $connection_speed | wc -m`
+  mantissa=0
+  Increment=1                     # Character counter
+  until [ $Increment -eq $eof ]
+  do
+    digit=`echo $test_number | cut -c ${Increment}`
+    ((mantissa++))                # Advance mantissa counter
+    if [ "${digit}" = "." ]; then # When decimal point reached
+      mantissa=0                  # Reset mantissa counter
+    fi
+    ((Increment++))               # Increment character counter
+  done
+  # Then remove the decimal point
+  connection_speed=$(echo $connection_speed | sed 's/\.//g')
+  # Now we have a number that bash can use
+  # Multiply in factors of 1000, to convert to bytes
+  # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
+  # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
+  case $connection_rate in
+   "KB/s") factor=$((5 - $mantissa))
+   ;;
+   "MB/s") factor=$((8 - $mantissa))
+   ;;
+  esac
+  connection_speed=$((connection_speed * (10 ** $factor)))
+  # Also get system speed for use when calculating install time
+  total_MHz=$(lscpu | grep "CPU MHz" | awk '{print $3}')                       # May differ on live system - check
+}
+
 InstallKernel() { # Kernel and some other core systems
 
   LANG=C # Temporary addition to overcome bug in Arch man pages
   
   case $Kernel in # Selected kernel
-    1) DisplayProgress "Installing LTS kernel" 40
-      pacstrap /mnt linux-lts &>> feliz.log
+    1) InstallFile "linux-lts"
     ;;
-    *) DisplayProgress "Installing Latest kernel" 60
-      pacstrap /mnt linux &>> feliz.log
+    *) InstallFile "linux"
   esac
 
   PassArray=() # Prepare the array for additional components for lts
@@ -202,8 +264,7 @@ InstallKernel() { # Kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  DisplayProgress "Installing man-db & man-pages - this may take some time" 140
-  pacstrap /mnt man-db man-pages &>> feliz.log
+  InstallFile "man-db man-pages"
   
 }
 
