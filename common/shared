@@ -551,6 +551,9 @@ InstallDM() { # Display manager
   
   # Then install selected display manager
   InstallFile "${DisplayManager} ${Greeter}"
+
+read -p "shared line $LINENO"
+
   arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
 
 }
@@ -588,6 +591,9 @@ InstallLuxuries() { # Install desktops and other extras
           InstallFile "kde-applications"
         ;;
       "LXDE") InstallFile "lxde"
+
+read -p "shared line $LINENO"
+
           arch_chroot "systemctl -f enable lxdm.service"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         ;;

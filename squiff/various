@@ -96,7 +96,7 @@ InstallFile() {   # Find download file size and calculate install time
     tmpfile=$(mktemp)
     pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
     pid=$!                                             # Save process id for DisplayProgress
-    DisplayProgress "Installing $FileName" ${InstallTime} ; rm "$tmpfile"  # Install with a gauge in $InstallTime seconds
+    DisplayProgress "Installing $FileName" ${InstallTime} ; rm "$tmpfile"  # Display a gauge of $InstallTime seconds
   else
     TPecho "Installing ${FileName}"                    # Message for shorter install times
     pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
@@ -250,6 +250,10 @@ ConnectionSpeed() {  #
   connection_speed=$((connection_speed * (10 ** $factor)))
   # Also get system speed for use when calculating install time
   total_MHz=$(lscpu | grep "CPU MHz" | awk '{print $3}')                       # May differ on live system - check
+
+read -p "various line $LINENO : Connection speed is $connection_speed : System speed is $total_MHz"
+
+ 
 }
 
 InstallKernel() { # Kernel and some other core systems
@@ -258,6 +262,9 @@ InstallKernel() { # Kernel and some other core systems
   
   case $Kernel in # Selected kernel
     1) InstallFile "linux-lts"
+
+read -p "various line $LINENO"
+
     ;;
     *) InstallFile "linux"
   esac
@@ -275,7 +282,9 @@ InstallKernel() { # Kernel and some other core systems
       
   # And finally the man pages
   InstallFile "man-db man-pages"
-  
+
+read -p "various line $LINENO"
+
 }
 
 AddCodecs() { # Various codecs and graphical environment
