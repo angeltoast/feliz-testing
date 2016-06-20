@@ -75,6 +75,7 @@ TPecho() { # Infobox
 
 InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
+
   download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
   download_seconds=$((download_size/connection_speed))                            # And calculate download time
   # Use system speed to calculate processing time for file based on download seconds
@@ -96,6 +97,9 @@ InstallFile() {   # Find download file size and calculate install time
     TPecho "Installing ${FileName}"                    # Message for shorter install times
     pacstrap /mnt "$FileName" &>"$tmpfile"             # Start installation with pacstrap
   fi
+
+read -p "various line $LINENO : InstallFile has finished for $FileName : pid is $pid"
+
 }
 
 DisplayProgress() { # Displays timed progress bar for longer processes
@@ -112,10 +116,18 @@ DisplayProgress() { # Displays timed progress bar for longer processes
   (
   until [ $Percent -gt 100 ]
   do
-    proc=$(ps | grep "$pid") 	               # First check if process $pid is still running
-    if [ "$?" -gt "0" ]; then                # If not zero, it is finished
-     break
-    fi      # If not, break from loop
+    ps | grep "$pid"     	               # First check if process $pid is still running
+    ReturnCode=$?
+    if [ "$ReturnCode" -gt "0" ]; then            # If not zero, it is finished
+
+read -p "various line $LINENO : ReturnCode $ReturnCode : pid is $pid"
+
+     break                               # So break from loop
+    else
+
+read -p "various line $LINENO : ReturnCode $ReturnCode : pid is $pid"
+
+    fi 
     echo "XXX"
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
@@ -218,6 +230,10 @@ ConnectionSpeed() {  #
   test_link="ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db"
   # wget a 1MB test file - save output to feliz.output
   wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
+
+cat feliz.output
+read -p "various line $LINENO"
+
   # Then extract connection speed and rate to variables
   connection_speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
   connection_rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
@@ -235,6 +251,9 @@ ConnectionSpeed() {  #
       mantissa=0                  # Reset mantissa counter
     fi
     ((Increment++))               # Increment character counter
+
+read -p "various line $LINENO : mantissa is $mantissa : digit is $digit"
+
   done
   # Then remove the decimal point
   connection_speed=$(echo $connection_speed | sed 's/\.//g')
@@ -249,15 +268,17 @@ ConnectionSpeed() {  #
    ;;
   esac
   connection_speed=$((connection_speed * (10 ** $factor)))
+
+read -p "various line $LINENO : Connection speed is $connection_speed"
+
   # Also get system speed for use when calculating install time
   Float=$(lscpu | grep "CPU MHz" | awk '{print $3}')     # Result will be floating point
   Integer=${Float/.*}                                    # Get integer
   Integer=$((Integer+499))                               # Round up
   total_MHz=$((echo $Integer | cut -c 1))                # Keep first digit for multiplier
 
-read -p "various line $LINENO : Connection speed is $connection_speed : System speed is $total_MHz"
+read -p "various line $LINENO : System speed is $total_MHz"
 
- 
 }
 
 InstallKernel() { # Kernel and some other core systems
