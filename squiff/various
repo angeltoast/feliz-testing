@@ -74,6 +74,9 @@ TPecho() { # Infobox
 }
 
 InstallFile() {   # Find download file size and calculate install time
+
+read -p "various line $LINENO : InstallFile called for $FileName : pid is $pid"
+
   FileName="$1"   # Passed by caller
 
   download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
@@ -105,6 +108,9 @@ read -p "various line $LINENO : InstallFile has finished for $FileName : pid is 
 DisplayProgress() { # Displays timed progress bar for longer processes
   Estimate=$2                            # Numeric argument = seconds
   local Message="$1"                     # Text argument to appear above progress bar
+
+read -p "various line $LINENO : DisplayProgress called for $Message : Estimate is $Estimate"
+
   local Sleep=0
   local TenPercent=$(( Estimate / 10 ))  # Get 10% of total time
   if [ $TenPercent -gt 0 ]; then         # Set sleep
@@ -118,15 +124,8 @@ DisplayProgress() { # Displays timed progress bar for longer processes
   do
     ps | grep "$pid"     	               # First check if process $pid is still running
     ReturnCode=$?
-    if [ "$ReturnCode" -gt "0" ]; then            # If not zero, it is finished
-
-read -p "various line $LINENO : ReturnCode $ReturnCode : pid is $pid"
-
-     break                               # So break from loop
-    else
-
-read -p "various line $LINENO : ReturnCode $ReturnCode : pid is $pid"
-
+    if [ "$ReturnCode" -gt "0" ]; then   # If not zero, it is finished
+      break                              # So break from loop
     fi 
     echo "XXX"
     echo $Percent
@@ -137,6 +136,9 @@ read -p "various line $LINENO : ReturnCode $ReturnCode : pid is $pid"
   done
   ) |
   dialog --backtitle "$Backtitle" --title " Progress " --no-shadow --gauge "" 9 60 0
+
+read -p "various line $LINENO : DisplayProgress finished for $Message"
+
 }
 
 ProgressArray() { # For installing multiple programs with pacstrap and displaying gauge
