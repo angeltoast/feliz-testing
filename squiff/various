@@ -103,11 +103,22 @@ InstallFile() {   # Find download file size and calculate install time
   fi
 }
 
-DisplayProgress() {                 # Displays timed progress bar for longer processes
-  Estimate=$2                       # Numeric argument = seconds
-  local Message="$1"                # Text passed to appear above progress bar
-  local Sleep=$(( Estimate / 10 )) # Set sleep period to 10% of total time
-  local Increment=$(( Sleep * 100 / Estimate )) # Increment is $Sleep as percentage of $Estimate
+DisplayProgress() { # Displays timed progress bar for longer processes
+  Estimate=$2                            # Numeric argument = seconds
+  
+  read -p "$LINENO Estimate is $Estimate seconds"
+    
+  local Message="$1"                     # Text argument to appear above progress bar
+  local Sleep=0
+  local TenPercent=$(( Estimate / 10 ))  # Get 10% of total time
+  if [ $TenPercent -gt 0 ]; then         # Set sleep
+    Sleep=$TenPercent
+  else
+    Sleep=1
+  fi
+  
+  read -p "$LINENO sleep time is $Sleep seconds"
+  
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -120,7 +131,7 @@ DisplayProgress() {                 # Displays timed progress bar for longer pro
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
-    Percent=$(($Percent + $Increment))
+    Percent=$(($Percent + 10))
     sleep $Sleep
   done
   ) |
