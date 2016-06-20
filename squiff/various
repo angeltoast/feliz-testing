@@ -75,10 +75,10 @@ TPecho() { # Infobox
 
 InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
-  download_size=$(pacman -Sp --print-format='%s' ${FileName} | tail --lines=1) # Use pacman to get file size in bytes
-  download_seconds=$((download_size/connection_speed))                         # And calculate download time
+  download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
+  download_seconds=$((download_size/connection_speed))                            # And calculate download time
   
-  read -p "$LINENO File $1 is $download_size and will download in $download_seconds"
+  read -p "$LINENO File $1 is $download_size bytes and will download in $download_seconds"
   
   # Use system speed to calculate processing time for file based on download seconds
   case $total_MHz in
@@ -108,7 +108,6 @@ DisplayProgress() {                 # Displays timed progress bar for longer pro
   do
     proc=$(ps | grep "$pid") 	               # First check if process $pid is still running
     if [ "$?" -gt "0" ]; then break; fi      # If not, break from loop
-
     echo "XXX"
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
