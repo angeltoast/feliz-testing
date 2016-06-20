@@ -117,10 +117,11 @@ DisplayProgress() { # Displays timed progress bar for longer processes
   do
     ps | grep "$pid"     	               # Check if process $pid is still running
     ReturnCode=$?
-    if [ $ReturnCode -gt 0 ]; then     # If not zero, it is finished
-      break                              # So break from loop
-    else
-      continue
+    
+read -p "$ReturnCode $pid"
+    
+    if [ $ReturnCode -ne $pid ]; then    # If process has finished
+      break                              # Break from loop
     fi 
     echo "XXX"
     echo $Percent
