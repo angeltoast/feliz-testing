@@ -76,25 +76,28 @@ TPecho() { # Infobox
 InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
   download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
-  download_seconds=$((download_size/connection_speed))                            # And calculate download time
+  download_seconds=$(( download_size / connection_speed ))                            # And calculate download time
   # Use system speed to calculate processing time for file based on download seconds
   case $total_MHz in
-  1) InstallTime=$((download_seconds*3))                      # Slow (1000 Mhz) * 3
+  0) InstallTime=$(( download_seconds * 4 ))           # Slow (1000 Mhz) * 3
   ;;
-  2) InstallTime=$((download_seconds*2))                      # Fair (2000 Mhz) * 2
+  1) InstallTime=$(( download_seconds * 3 ))           # Slow (1000 Mhz) * 3
   ;;
-  *) InstallTime=$download_seconds                            # Faster - no need to multiply
+  2) InstallTime=$(( download_seconds * 2 ))           # Fair (2000 Mhz) * 2
+  ;;
+  *) InstallTime=$download_seconds                     # Faster - no need to multiply
   esac
   # Proceed with installation
   if [ $InstallTime -gt 9 ]; then                      # Decide whether to use gauge or message, based on InstallTime
-    tmpfile=$(mktemp)
-    pacstrap /mnt "$FileName" &>"$tmpfile" &           # Start installation with pacstrap
+    # tmpfile=$(mktemp)
+    pacstrap /mnt "$FileName" # &>"$tmpfile" &         # Start installation with pacstrap
     pid=$!                                             # Save process id for DisplayProgress
+    sleep 1                                            # delay calling DisplayProgress
     DisplayProgress "Installing $FileName" ${InstallTime}
-    rm "$tmpfile"
+    # rm "$tmpfile"
   else
     TPecho "Installing ${FileName}"                    # Message for shorter install times
-    pacstrap /mnt "$FileName" &>"$tmpfile"             # Start installation with pacstrap
+    pacstrap /mnt "$FileName" &>feliz.log              # Start installation with pacstrap
   fi
 }
 
@@ -221,8 +224,6 @@ ConnectionSpeed() {  #
   wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
 
 cat feliz.output
-read -p "various line $LINENO"
-
   # Then extract connection speed and rate to variables
   connection_speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
   connection_rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
@@ -240,9 +241,6 @@ read -p "various line $LINENO"
       mantissa=0                  # Reset mantissa counter
     fi
     ((Increment++))               # Increment character counter
-
-read -p "various line $LINENO : mantissa is $mantissa : digit is $digit"
-
   done
   # Then remove the decimal point
   connection_speed=$(echo $connection_speed | sed 's/\.//g')
@@ -257,17 +255,11 @@ read -p "various line $LINENO : mantissa is $mantissa : digit is $digit"
    ;;
   esac
   connection_speed=$((connection_speed * (10 ** $factor)))
-
-read -p "various line $LINENO : Connection speed is $connection_speed"
-
   # Also get system speed for use when calculating install time
   Float=$(lscpu | grep "CPU MHz" | awk '{print $3}')     # Result will be floating point
-  Integer=${Float/.*}                                    # Get integer
+  Integer=${Float/.*}                                    # Convert to integer
   Integer=$((Integer+499))                               # Round up
   total_MHz=$((echo $Integer | cut -c 1))                # Keep first digit for multiplier
-
-read -p "various line $LINENO : System speed is $total_MHz"
-
 }
 
 InstallKernel() { # Kernel and some other core systems
