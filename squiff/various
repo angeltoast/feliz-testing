@@ -90,7 +90,7 @@ InstallFile() {   # Find download file size and calculate install time
   # Proceed with installation
   if [ $InstallTime -gt 9 ]; then                      # Decide whether to use gauge or message, based on InstallTime
     # tmpfile=$(mktemp)
-    pacstrap /mnt "$FileName" # &>"$tmpfile" &         # Start installation with pacstrap
+    pacstrap /mnt "$FileName" &>feliz.log &            # Start installation with pacstrap
     pid=$!                                             # Save process id for DisplayProgress
     sleep 1                                            # delay calling DisplayProgress
     DisplayProgress "Installing $FileName" ${InstallTime}
