@@ -115,10 +115,12 @@ DisplayProgress() { # Displays timed progress bar for longer processes
   (
   until [ $Percent -gt 100 ]
   do
-    ps | grep "$pid"     	               # First check if process $pid is still running
+    ps | grep "$pid"     	               # Check if process $pid is still running
     ReturnCode=$?
-    if [ "$ReturnCode" -gt 0 ]; then   # If not zero, it is finished
+    if [ "$ReturnCode" -gt 0 ]; then     # If not zero, it is finished
       break                              # So break from loop
+    else
+      continue
     fi 
     echo "XXX"
     echo $Percent
@@ -222,8 +224,6 @@ ConnectionSpeed() {  #
   test_link="ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db"
   # wget a 1MB test file - save output to feliz.output
   wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
-
-cat feliz.output
   # Then extract connection speed and rate to variables
   connection_speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
   connection_rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
