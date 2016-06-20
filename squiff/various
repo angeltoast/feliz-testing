@@ -106,8 +106,8 @@ InstallFile() {   # Find download file size and calculate install time
 DisplayProgress() {                 # Displays timed progress bar for longer processes
   Estimate=$2                       # Numeric argument = seconds
   local Message="$1"                # Text passed to appear above progress bar
-  local Sleep=$(( $Estimate / 10 )) # Set sleep period to 10% of total time
-  local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percentage of $Estimate
+  local Sleep=$(( Estimate / 10 )) # Set sleep period to 10% of total time
+  local Increment=$(( Sleep * 100 / Estimate )) # Increment is $Sleep as percentage of $Estimate
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -120,7 +120,7 @@ DisplayProgress() {                 # Displays timed progress bar for longer pro
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
-    Percent=`expr $Percent + $Increment`
+    Percent=$(($Percent + $Increment))
     sleep $Sleep
   done
   ) |
