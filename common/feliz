@@ -76,6 +76,8 @@ FinalCheck
 
 # No further user intervention from here ..................
 
+ConnectionSpeed
+
 MountPartitions
 
 ReflectorMirrorList

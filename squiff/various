@@ -77,6 +77,9 @@ InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
   download_size=$(pacman -Sp --print-format='%s' ${FileName} | tail --lines=1) # Use pacman to get file size in bytes
   download_seconds=$((download_size/connection_speed))                         # And calculate download time
+  
+  read -p "$LINENO File $1 is $download_size and will download in $download_seconds"
+  
   # Use system speed to calculate processing time for file based on download seconds
   case $total_MHz in
   1[0-9][0-9[0-9]) InstallTime=$((download_seconds*3)) ;;                      # Slow (1000 Mhz) * 3
