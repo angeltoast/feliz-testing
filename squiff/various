@@ -77,23 +77,19 @@ InstallFile() {   # Find download file size and calculate install time
   
     FileName="$1"   # Passed by caller
     
-    FileList=$(pacstrap /mnt --print-format='%s' ${FileName}) # Get contents list of sizes to a file
-    LineCount=$(echo $FileList | wc -w) # Count lines
+    # FileList=$(pacstrap /mnt --print-format='%s' ${FileName}) # Get contents list of sizes to a variable
+    pacstrap /mnt --print-format='%s' ${FileName} &>feliz.output # Get contents list of sizes to a file
+    LineCount=$(cat feliz.output | wc -w) # Count lines
   
-  read -p "$FileName"
-  read -p "$LineCount"
-  read -p "$FileList"
-  
+    Count=1
     Total=0
-  
-    for v in $FileList  # In case more than one, add them all
+    until [ $Count -eq $LineCount  # In case more than one, add them all
     do
-       Total=$((Total+v))
-       echo $v
+      Item=$(sed -n "$Item p" feliz.output) # Parse through lines
+      Total=$(( Total + Item ))
+  echo $Item
+      ((Count++))
     done
-   ErrorTrap=$?
-   
-   read
    
   read -p "Total file size $Total bytes"
   
