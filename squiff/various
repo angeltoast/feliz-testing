@@ -98,12 +98,6 @@ InstallFile() {   # Find download file size and calculate install time
     
   read -p "$Total"
     
-    Bugtrap=$?
-    if [ $FileSize -eq 0 ] || [ $Bugtrap -ne 0 ]; then
-      Bugger
-      break
-    fi
-    
     DownloadTime=$(( FileSize / connection_speed ))
     
     # In case result is zero
@@ -195,10 +189,6 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
     pacstrap /mnt $f &>> feliz.log
   done
   )
-}
-
-Bugger() {
-  dialog --backtitle "This shouldn't be happening" --title " Information " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless" 9 30
 }
 
 SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
