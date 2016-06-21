@@ -108,15 +108,13 @@ InstallFile() {   # Find download file size and calculate install time
   
   # Install time is 1 + 2 + 3
   InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
-  InstallTime=$(( InstallTime / 11 * 10 ))  # Add safety margin
-
+  InstallTime=$(( InstallTime / 10 * 9 ))  # Add safety margin
+  
   # Decide whether to use gauge or message, based on InstallTime
   if [ $InstallTime -ge 10 ]; then
-    # Start gauge
     DisplayProgress "Installing $FileName" ${InstallTime}
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   else
-    # Display message for shorter install times
     TPecho "Installing ${FileName}"
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   fi

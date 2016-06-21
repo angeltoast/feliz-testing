@@ -595,6 +595,7 @@ InstallLuxuries() { # Install desktops and other extras
         ;;
       "LXDE") InstallFile "lxde"
           arch_chroot "systemctl -f enable lxdm.service"
+          pacstrap /mnt "leafpad"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         ;;
       "LXQt") InstallFile "lxqt"
