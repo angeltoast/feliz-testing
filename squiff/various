@@ -91,10 +91,10 @@ InstallFile() {   # Find download file size and calculate install time
   ShowTimeSecs=$(( $InstallTime % 60 ))
   # Proceed with installation
   if [ $InstallTime -ge 10 ]; then                     # Decide whether to use gauge or message, based on InstallTime
-    DisplayProgress "Installing $FileName - about $ShowTimeMins minute $ShowTimeSecs seconds" ${InstallTime} # Start gauge
+    DisplayProgress "Installing $FileName - $download_size at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds" ${InstallTime} # Start gauge
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   else
-    TPecho "Installing ${FileName} $download_size bytes at $connection_speed $connection_rate = $download_seconds. "                    # Display message for shorter install times
+    TPecho "Installing ${FileName} $download_size bytes at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds"                    # Display message for shorter install times
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation with pacstrap
   fi
 }
@@ -240,9 +240,9 @@ ConnectionSpeed() {  #
   # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
   # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
   case $connection_rate in
-   "KB/s") factor=$((5 - $mantissa))
+   "KB/s") factor=$((4 - $mantissa))
    ;;
-   "MB/s") factor=$((8 - $mantissa))
+   "MB/s") factor=$((7 - $mantissa))
    ;;
   esac
   connection_speed=$((connection_speed * (10 ** $factor)))
