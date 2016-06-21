@@ -74,15 +74,23 @@ TPecho() { # Infobox
 }
 
 InstallFile() {   # Find download file size and calculate install time
+  
   FileName="$1"   # Passed by caller
   FileSize=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
+  
   # 1) Calculate download time
-  DownloadTime=$(( FileSize / connection_speed ))
-  until [ $DownloadTime -gt 0 ] # In case of zero
+  case $FileName in
+  "man-db") DownloadTime=$(( FileSize * 100 / connection_speed ))
+  ;;
+  *) DownloadTime=$(( FileSize / connection_speed ))
+  esac
+  # In case of zero
+  until [ $DownloadTime -gt 0 ]
   do
     download_size=$(( FileSize * 10 ))
     DownloadTime=$(( download_size / connection_speed ))
   done
+
   
   # 2) Use system speed to calculate processing time for file based on download seconds
   if [ $total_MHz -gt 0 ]; then
@@ -90,7 +98,8 @@ InstallFile() {   # Find download file size and calculate install time
   else
     ProcessTime=$(( DownloadTime )) 
   fi
-  if [ $ProcessTime -eq 0 ]; then # In case of zero
+  # In case of zero
+  if [ $ProcessTime -eq 0 ]; then
     ProcessTime=1
   fi
   
@@ -99,17 +108,16 @@ InstallFile() {   # Find download file size and calculate install time
   
   # Install time is 1 + 2 + 3
   InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
-  
-  ShowTimeMins=$(( $InstallTime / 60 ))
-  ShowTimeSecs=$(( $InstallTime % 60 ))
-  # Proceed with installation
-  if [ $InstallTime -ge 10 ]; then # Decide whether to use gauge or message, based on InstallTime
+  InstallTime=$(( InstallTime / 11 * 10 ))  # Add safety margin
+
+  # Decide whether to use gauge or message, based on InstallTime
+  if [ $InstallTime -ge 10 ]; then
     # Start gauge
-    DisplayProgress "Installing $FileName - $download_size at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds" ${InstallTime}
+    DisplayProgress "Installing $FileName" ${InstallTime}
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   else
     # Display message for shorter install times
-    TPecho "Installing ${FileName} $download_size bytes at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds"
+    TPecho "Installing ${FileName}"
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   fi
 }
