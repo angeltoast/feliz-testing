@@ -75,8 +75,6 @@ TPecho() { # Infobox
 
 InstallFile() {   # Find download file size and calculate install time
   
-  while :
-  do
     FileName="$1"   # Passed by caller
     
     FileList=$(pacstrap /mnt --print-format='%s' ${FileName}) # Get contents list of sizes to a file
@@ -96,7 +94,9 @@ InstallFile() {   # Find download file size and calculate install time
       Total=$(echo $FileList | tail --lines=1)
     fi
     
-  read -p "$Total"
+  read -p "Total file size $Total bytes"
+  
+    FileSize=$Total
     
     DownloadTime=$(( FileSize / connection_speed ))
     
@@ -135,10 +135,6 @@ InstallFile() {   # Find download file size and calculate install time
       pacstrap /mnt "$FileName" &>feliz.log              # Start installation
     fi
     
-    break
-    
-  done
-  
 }
 
 DisplayProgress() { # Displays timed progress bar for longer processes
