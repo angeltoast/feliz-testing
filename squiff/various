@@ -75,17 +75,27 @@ TPecho() { # Infobox
 
 InstallFile() {   # Find download file size and calculate install time
   FileName="$1"   # Passed by caller
-  download_size=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
+  FileSize=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
   # 1) Calculate download time
-  DownloadTime=$(( download_size / connection_speed ))
+  DownloadTime=$(( FileSize / connection_speed ))
+  until [ $DownloadTime -gt 0 ] # In case of zero
+  do
+    download_size=$(( FileSize * 10 ))
+    DownloadTime=$(( download_size / connection_speed ))
+  done
+  
   # 2) Use system speed to calculate processing time for file based on download seconds
   if [ $total_MHz -gt 0 ]; then
     ProcessTime=$(( DownloadTime / total_MHz )) 
   else
     ProcessTime=$(( DownloadTime )) 
   fi
+  if [ $ProcessTime -eq 0 ]; then # In case of zero
+    ProcessTime=1
+  fi
+  
   # Calculate write-to-disk time
-  WriteToDisk=$(( DownloadTime / write_speed ))
+  WriteToDisk=$(( ProcessTime * write_factor ))
   
   # Install time is 1 + 2 + 3
   InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
@@ -291,7 +301,8 @@ ConnectionSpeed() {  # Determine download speed, process speed and write-to-disk
    ;;
   esac
   write_speed=$((Whole * (10 ** $factor)))  # Write-to-disk speed in bytes per second
-   
+  write_factor=$(echo $write_speed | cut -c 1)                # Keep first digit for multiplier
+  
 }
 
 InstallKernel() { # Kernel and some other core systems
