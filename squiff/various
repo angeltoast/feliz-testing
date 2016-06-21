@@ -79,17 +79,13 @@ InstallFile() {   # Find download file size and calculate install time
   # 1) Calculate download time
   DownloadTime=$(( download_size / connection_speed ))
   # 2) Use system speed to calculate processing time for file based on download seconds
-  case $total_MHz in
-  0) ProcessTime=$(( DownloadTime * 25 / 10 ))     # Slow (<1000 Mhz)
-  ;;
-  1) ProcessTime=$(( DownloadTime * 2 ))           # Slow (>1000 Mhz)
-  ;;
-  2) ProcessTime=$(( DownloadTime * 15 / 10 ))     # Fair (>2000 Mhz)
-  ;;
-  *) ProcessTime=$(( DownloadTime ))               # Faster 
-  esac
+  if [ $total_MHz -gt 0 ]; then
+    ProcessTime=$(( DownloadTime / total_MHz )) 
+  else
+    ProcessTime=$(( DownloadTime )) 
+  fi
   # Calculate write-to-disk time
-  WriteToDisk=$(( download_size / write_speed ))
+  WriteToDisk=$(( DownloadTime / write_speed ))
   
   # Install time is 1 + 2 + 3
   InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
