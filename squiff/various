@@ -84,16 +84,13 @@ InstallFile() {   # Find download file size and calculate install time
   read -p "$LineCount"
   read -p "$FileList"
   
-    if [ $LineCount -gt 1 ]; then # Get file size in bytes
-      Total=0
-      for line in $FileList  # If more than one, add them all
-      do
-         Total=$((Total+line))
-      done
-    else
-      Total=$(echo $FileList | tail --lines=1)
-    fi
-    
+    Total=0
+  
+    for line in $FileList  # In case more than one, add them all
+    do
+       Total=$((Total+line))
+    done
+   
   read -p "Total file size $Total bytes"
   
     FileSize=$Total
