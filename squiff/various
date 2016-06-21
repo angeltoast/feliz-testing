@@ -79,20 +79,22 @@ InstallFile() {   # Find download file size and calculate install time
   download_seconds=$(( download_size / connection_speed ))                            # And calculate download time
   # Use system speed to calculate processing time for file based on download seconds
   case $total_MHz in
-  0) InstallTime=$(( download_seconds * 4 ))           # Slow (1000 Mhz) * 3
+  0) InstallTime=$(( download_seconds * 5 ))           # Slow (<1000 Mhz)
   ;;
-  1) InstallTime=$(( download_seconds * 3 ))           # Slow (1000 Mhz) * 3
+  1) InstallTime=$(( download_seconds * 4 ))           # Slow (>1000 Mhz)
   ;;
-  2) InstallTime=$(( download_seconds * 2 ))           # Fair (2000 Mhz) * 2
+  2) InstallTime=$(( download_seconds * 3 ))           # Fair (>2000 Mhz)
   ;;
-  *) InstallTime=$download_seconds                     # Faster - no need to multiply
+  *) InstallTime=$(( download_seconds * 2 ))           # Faster 
   esac
+  ShowTimeMins=$(( $InstallTime / 60 ))
+  ShowTimeSecs=$(( $InstallTime % 60 ))
   # Proceed with installation
   if [ $InstallTime -ge 10 ]; then                     # Decide whether to use gauge or message, based on InstallTime
-    DisplayProgress "Installing $FileName" ${InstallTime} # Start gauge
+    DisplayProgress "Installing $FileName - about $ShowTimeMins : ShowTimeSecs" ${InstallTime} # Start gauge
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   else
-    TPecho "Installing ${FileName}"                    # Display message for shorter install times
+    TPecho "Warning, file is $download_size bytes. Installing ${FileName}"                    # Display message for shorter install times
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation with pacstrap
   fi
 }
