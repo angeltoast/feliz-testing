@@ -231,67 +231,71 @@ ConnectionSpeed() {  # Determine download speed, process speed and write-to-disk
   # Bash can't do floating point arithmetic, so convert to bytes
   # Count the number of numerals after the decimal point
   eof=`echo $Speed | wc -m`
+  eof=$((eof-1))
   mantissa=0
   Increment=1                     # Character counter
   until [ $Increment -eq $eof ]
   do
     digit=`echo $Speed | cut -c ${Increment}`
-    ((mantissa++))                # Advance mantissa counter
     if [ "${digit}" = "." ]; then # When decimal point reached
       mantissa=0                  # Reset mantissa counter
     fi
     ((Increment++))               # Increment character counter
+    ((mantissa++))                # Advance mantissa counter
   done
+  Characteristic=$(( eof - mantissa - 1 )) # Digits before decimal
   # Then remove the decimal point
-  Speed=$(echo $Speed | sed 's/\.//g')
+  Whole=$(echo $Speed | sed 's/\.//g')
   # Now we have a number that bash can use
   # Multiply in factors of 1000, to convert to bytes
   # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
   # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
   case $Rate in
-   "KB/s") factor=$((5 - $mantissa))
+   "KB/s") factor=$(( Characteristic + mantissa - 2 ))
    ;;
-   "MB/s") factor=$((8 - $mantissa))
+   "MB/s") factor=$(( Characteristic + mantissa + 1 ))
    ;;
   esac
-  connection_speed=$((Speed * (10 ** $factor)))          # Internet speed in bytes per second
-  
+  connection_speed=$((Whole * (10 ** $factor)))          # Internet speed in bytes per second
+
   # Get system speed for use when calculating install time
   Float=$(lscpu | grep "CPU MHz" | awk '{print $3}')     # Result will be floating point
   Integer=${Float/.*}                                    # Convert to integer
   Integer=$((Integer+499))                               # Round up
-  total_MHz=$((echo $Integer | cut -c 1))                # Keep first digit for multiplier
-  
+  total_MHz=$(echo $Integer | cut -c 1)                # Keep first digit for multiplier
+
   # Get write-to-disk speed
-  dd if=/dev/zero of=speetest bs=1M count=100 conv=fdatasync > feliz.output
+  dd if=/dev/zero of=speetest bs=1M count=100 conv=fdatasync &> feliz.output
   Speed=$(tail feliz.output -n 1 | awk '{print $10}')    # Float
   Rate=$(tail feliz.output -n 1 | awk '{print $11}')     # Float
   eof=`echo $Speed | wc -m`
+  eof=$((eof-1))
   mantissa=0
   Increment=1                     # Character counter
   until [ $Increment -eq $eof ]
   do
     digit=`echo $Speed | cut -c ${Increment}`
-    ((mantissa++))                # Advance mantissa counter
     if [ "${digit}" = "." ]; then # When decimal point reached
       mantissa=0                  # Reset mantissa counter
     fi
     ((Increment++))               # Increment character counter
+    ((mantissa++))                # Advance mantissa counter
   done
+  Characteristic=$(( eof - mantissa - 1 )) # Digits before decimal
   # Then remove the decimal point
-  Speed=$(echo $Speed | sed 's/\.//g')
+  Whole=$(echo $Speed | sed 's/\.//g')
   # Now we have a number that bash can use
   # Multiply in factors of 1000, to convert to bytes
   # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
   # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
   case $Rate in
-   "KB/s") factor=$((5 - $mantissa))
+   "KB/s") factor=$(( Characteristic + mantissa - 2 ))
    ;;
-   "MB/s") factor=$((8 - $mantissa))
+   "MB/s") factor=$(( Characteristic + mantissa + 1 ))
    ;;
   esac
-  write_speed=$((Speed * (10 ** $factor)))  # Write-to-disk speed in bytes per second
- 
+  write_speed=$((Whole * (10 ** $factor)))  # Write-to-disk speed in bytes per second
+   
 }
 
 InstallKernel() { # Kernel and some other core systems
