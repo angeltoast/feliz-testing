@@ -83,11 +83,11 @@ InstallFile() {   # Find download file size and calculate install time
   
     Count=1
     Total=0
-    until [ $Count -eq $LineCount  # In case more than one, add them all
+    until [ $Count -eq $LineCount ] # In case more than one, add them all
     do
       Item=$(sed -n "$Item p" feliz.output) # Parse through lines
       Total=$(( Total + Item ))
-  echo $Item
+  read -p "$Item"
       ((Count++))
     done
    
