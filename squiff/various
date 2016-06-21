@@ -86,10 +86,14 @@ InstallFile() {   # Find download file size and calculate install time
   
     Total=0
   
-    for line in $FileList  # In case more than one, add them all
+    for v in $FileList  # In case more than one, add them all
     do
-       Total=$((Total+line))
+       Total=$((Total+v))
+       echo $v
     done
+   ErrorTrap=$?
+   
+   read
    
   read -p "Total file size $Total bytes"
   
