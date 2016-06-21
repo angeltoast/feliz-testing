@@ -19,11 +19,11 @@
 # listgen1 & 2          35       SetGrubDevice        179
 # TPecho                72       ConnectionSpeed      202
 # InstallFile           76
-# DisplayProgress       97       InstallKernel        242
-# ProgressArray        117       AddCodecs            271
-# Bugger               141       McInitCPIO           283
-# SetKernel            146       Passwords            293
-# ConfirmVbox          156       Finish               348
+# DisplayProgress       97       InstallKernel        314
+# ProgressArray        117       AddCodecs            341
+# Bugger               141       McInitCPIO           353
+# SetKernel            146       Passwords            363
+# ConfirmVbox          156       Finish               418
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -75,49 +75,61 @@ TPecho() { # Infobox
 
 InstallFile() {   # Find download file size and calculate install time
   
-  FileName="$1"   # Passed by caller
-  FileSize=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
-  
-  # 1) Calculate download time
-  case $FileName in
-  "man-db") DownloadTime=$(( FileSize * 100 / connection_speed ))
-  ;;
-  *) DownloadTime=$(( FileSize / connection_speed ))
-  esac
-  # In case of zero
-  until [ $DownloadTime -gt 0 ]
+  while :
   do
-    download_size=$(( FileSize * 10 ))
-    DownloadTime=$(( download_size / connection_speed ))
+    FileName="$1"   # Passed by caller
+    FileSize=$(pacstrap /mnt --print-format='%s' ${FileName} | tail --lines=1) # Get file size in bytes
+    
+    if [ $FileSize -eq 0 ]; then
+      Bugger
+      break
+    fi
+    
+    # 1) Calculate download time
+    case $FileName in
+    "man-db") DownloadTime=$(( FileSize * 1000 / connection_speed ))
+    ;;
+    *) DownloadTime=$(( FileSize / connection_speed ))
+    esac
+    # In case of zero
+    until [ $DownloadTime -gt 0 ]
+    do
+      download_size=$(( FileSize * 10 ))
+      DownloadTime=$(( download_size / connection_speed ))
+    done
+  
+    
+    # 2) Use system speed to calculate processing time for file based on download seconds
+    if [ $total_MHz -gt 0 ]; then
+      ProcessTime=$(( DownloadTime / total_MHz )) 
+    else
+      ProcessTime=$(( DownloadTime )) 
+    fi
+    # In case of zero
+    if [ $ProcessTime -eq 0 ]; then
+      ProcessTime=1
+    fi
+    
+    # Calculate write-to-disk time
+    WriteToDisk=$(( ProcessTime * write_factor ))
+    
+    # Install time is 1 + 2 + 3
+    InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
+    InstallTime=$(( InstallTime / 10 * 9 ))  # Add safety margin
+    
+    # Decide whether to use gauge or message, based on InstallTime
+    if [ $InstallTime -ge 10 ]; then
+      DisplayProgress "Installing $FileName" ${InstallTime}
+      pacstrap /mnt "$FileName" &>feliz.log              # Start installation
+    else
+      TPecho "Installing ${FileName}"
+      pacstrap /mnt "$FileName" &>feliz.log              # Start installation
+    fi
+    
+    break
+    
   done
-
   
-  # 2) Use system speed to calculate processing time for file based on download seconds
-  if [ $total_MHz -gt 0 ]; then
-    ProcessTime=$(( DownloadTime / total_MHz )) 
-  else
-    ProcessTime=$(( DownloadTime )) 
-  fi
-  # In case of zero
-  if [ $ProcessTime -eq 0 ]; then
-    ProcessTime=1
-  fi
-  
-  # Calculate write-to-disk time
-  WriteToDisk=$(( ProcessTime * write_factor ))
-  
-  # Install time is 1 + 2 + 3
-  InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
-  InstallTime=$(( InstallTime / 10 * 9 ))  # Add safety margin
-  
-  # Decide whether to use gauge or message, based on InstallTime
-  if [ $InstallTime -ge 10 ]; then
-    DisplayProgress "Installing $FileName" ${InstallTime}
-    pacstrap /mnt "$FileName" &>feliz.log              # Start installation
-  else
-    TPecho "Installing ${FileName}"
-    pacstrap /mnt "$FileName" &>feliz.log              # Start installation
-  fi
 }
 
 DisplayProgress() { # Displays timed progress bar for longer processes
@@ -231,7 +243,7 @@ SetGrubDevice() {
 }
 
 ConnectionSpeed() {  # Determine download speed, process speed and write-to-disk speed
-  TPecho "Checking Internet Speed"
+  TPecho "Checking System and Internet Speed"
   # Set address for test link
   test_link="ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db"
   # wget a 1MB test file - save output to feliz.output
