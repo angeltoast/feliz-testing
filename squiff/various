@@ -83,8 +83,8 @@ InstallFile() {   # Find download file size and calculate install time
     LineCount=$(echo $FileList | wc -w) # Count lines
   
   read -p "$FileName"
-  echo $LineCount
-  echo $FileList
+  read -p "$LineCount"
+  read -p "$FileList"
   
     if [ $LineCount -gt 1 ]; then # Get file size in bytes
       Total=0
