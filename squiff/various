@@ -81,21 +81,23 @@ InstallFile() {   # Find download file size and calculate install time
   case $total_MHz in
   0) InstallTime=$(( download_seconds * 3 ))           # Slow (<1000 Mhz)
   ;;
-  1) InstallTime=$(( download_seconds * 5 / 2 ))       # Slow (>1000 Mhz)
+  1) InstallTime=$(( download_seconds * 2 ))           # Slow (>1000 Mhz)
   ;;
-  2) InstallTime=$(( download_seconds * 2 ))           # Fair (>2000 Mhz)
+  2) InstallTime=$(( download_seconds * 15 / 10 ))     # Fair (>2000 Mhz)
   ;;
-  *) InstallTime=$(( download_seconds * 3 / 2 ))       # Faster 
+  *) InstallTime=$(( download_seconds * 12 / 10 ))     # Faster 
   esac
   ShowTimeMins=$(( $InstallTime / 60 ))
   ShowTimeSecs=$(( $InstallTime % 60 ))
   # Proceed with installation
-  if [ $InstallTime -ge 10 ]; then                     # Decide whether to use gauge or message, based on InstallTime
-    DisplayProgress "Installing $FileName - $download_size at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds" ${InstallTime} # Start gauge
+  if [ $InstallTime -ge 10 ]; then # Decide whether to use gauge or message, based on InstallTime
+    # Start gauge
+    DisplayProgress "Installing $FileName - $download_size at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds" ${InstallTime}
     pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   else
-    TPecho "Installing ${FileName} $download_size bytes at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds"                    # Display message for shorter install times
-    pacstrap /mnt "$FileName" &>feliz.log              # Start installation with pacstrap
+    # Display message for shorter install times
+    TPecho "Installing ${FileName} $download_size bytes at $connection_speed $connection_rate = $ShowTimeMins minute $ShowTimeSecs seconds"
+    pacstrap /mnt "$FileName" &>feliz.log              # Start installation
   fi
 }
 
@@ -216,12 +218,12 @@ ConnectionSpeed() {  #
   # wget a 1MB test file - save output to feliz.output
   wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
   # Then extract connection speed and rate to variables
-  connection_speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
-  connection_rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
+  Speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
+  Rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
   # Speed is either in Kb/s or Mb/s - either way it's probably a decimal
   # Bash can't do floating point arithmetic, so convert to bytes
   # Count the number of numerals after the decimal point
-  eof=`echo $connection_speed | wc -m`
+  eof=`echo $Speed | wc -m`
   mantissa=0
   Increment=1                     # Character counter
   until [ $Increment -eq $eof ]
@@ -234,18 +236,21 @@ ConnectionSpeed() {  #
     ((Increment++))               # Increment character counter
   done
   # Then remove the decimal point
-  connection_speed=$(echo $connection_speed | sed 's/\.//g')
+  Speed=$(echo $Speed | sed 's/\.//g')
   # Now we have a number that bash can use
   # Multiply in factors of 1000, to convert to bytes
   # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
   # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
-  case $connection_rate in
-   "KB/s") factor=$((4 - $mantissa))
+  case $Rate in
+   "KB/s") factor=$((5 - $mantissa))
    ;;
-   "MB/s") factor=$((7 - $mantissa))
+   "MB/s") factor=$((8 - $mantissa))
    ;;
   esac
-  connection_speed=$((connection_speed * (10 ** $factor)))
+  connection_speed=$((Speed * (10 ** $factor)))
+  
+read -p "Speed = $Speed $Rate : connection_speed = $connection_speed"
+  
   # Also get system speed for use when calculating install time
   Float=$(lscpu | grep "CPU MHz" | awk '{print $3}')     # Result will be floating point
   Integer=${Float/.*}                                    # Convert to integer

@@ -254,7 +254,7 @@ ShoppingList() {
       dialog --backtitle "$Backtitle" --title " ${Category} " --help-button --no-shadow --ok-button "Select" --cancel-button "Done" --menu "Added so far: ${LuxuriesList}\n" 15 60 $Counter "${Options[@]}" 2> feliz.output
       RetVal=$?
       case $RetVal in
-      0) Picked=$(cat feliz.output)    # Item selected
+      0) Picked=$(cat feliz.output)   # Item selected
         for lux in $LuxuriesList      # Check that chosen item is not already on the list
         do
           if [ ${lux} = ${Picked} ]; then
@@ -289,33 +289,15 @@ ShoppingList() {
         ChooseDM
       ;;
     "Deepin") DesktopEnvironment="Deepin"
-        dialog --backtitle "$Backtitle" --title " Deepin Extras " --no-shadow --yesno "The deepin-extras pack includes the Deepin game center, media players, terminal & screenshot tools.\nInclude the extras pack?\n" 10 40
-        case $? in
-          0) DDEextras="deepin-extra"
-           ;;
-          *) DDEextras=""
-        esac
         DisplayManager="reserved"
       ;;
     "Enlightenment") DesktopEnvironment="Enlightenment"
-        dialog --backtitle "$Backtitle" --title " Enlightenment " --no-shadow --yesno "It is suggested that the Connman network utility and Terminology terminal emulator are installed for usability.\nInclude them?\n" 10 40
-        case $? in
-          0) EnExtras="connman terminology"
-           ;;
-          *) EnExtras=""
-        esac
         ChooseDM
       ;;
     "Fluxbox") DesktopEnvironment="Fluxbox"
         ChooseDM
       ;;
     "Gnome") DesktopEnvironment="Gnome"
-        dialog --backtitle "$Backtitle" --title " Gnome Goodies " --no-shadow --yesno "The gnome-extras pack includes games, text editor and some utilities.\nInclude the extras pack?\n" 10 40
-        case $? in
-          0) GoodiesGnome="gnome-extra"
-           ;;
-          *) GoodiesGnome=""
-        esac
         DisplayManager="reserved"
       ;;
     "JWM") DesktopEnvironment="JWM"
@@ -339,13 +321,6 @@ ShoppingList() {
         ChooseDM
       ;;
     "Xfce") DesktopEnvironment="Xfce"
-        dialog --backtitle "$Backtitle" --title " Desktop Environment " \
-    --yesno "\nThe xfce4-goodies pack includes includes the Whisker menu, extra\nplugins and a number of utilities such as the mousepad editor\nInclude the Goodies pack?\n" 10 40
-        case $? in
-          0) GoodiesXfce="xfce4-goodies"
-           ;;
-          *) GoodiesXfce=""
-        esac
         ChooseDM
       ;;
      *) echo "${Picked} added in desktop at $LINENO" >> feliz.log

@@ -377,29 +377,15 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           ChooseDM
        ;;
       "Deepin") DesktopEnvironment="Deepin"
-          case $Response in
-            1) DDEextras="deepin-extra"
-            ;;
-            *) DDEextras=""
-          esac
-       ;;
+          DisplayManager="reserved"
+        ;;
       "Enlightenment") DesktopEnvironment=$SaveResult
-         case $Response in
-            1) EnExtras="connman terminology"
-            ;;
-            *) EnExtras=""
-         esac
          ChooseDM
        ;;
       "Fluxbox") DesktopEnvironment=$SaveResult
           ChooseDM
         ;;
       "Gnome") DesktopEnvironment=$SaveResult
-          case $Response in
-           1) GoodiesGnome="xfce4-goodies"
-           ;;
-           *) GoodiesGnome=""
-          esac
           DisplayManager="reserved"
         ;;
       "JWM") DesktopEnvironment=$SaveResult
@@ -409,28 +395,18 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           DisplayManager="reserved"
         ;;
      "LXDE") DesktopEnvironment=$SaveResult
-          ChooseDM
+          DisplayManager="reserved"
        ;;
       "LXQt") DesktopEnvironment=$SaveResult
-          ChooseDM
+          DisplayManager="sddm"
         ;;
       "Mate") DesktopEnvironment=$SaveResult
           ChooseDM
        ;;
      "Openbox") DesktopEnvironment=$SaveResult
-        case $Response in
-          1) GoodiesOpenbox="tint2"
-          ;;
-          *) GoodiesOpenbox=""
-         esac
          ChooseDM
        ;;
       "Xfce") DesktopEnvironment=$SaveResult
-         case $Response in
-            1) GoodiesXfce="xfce4-goodies"
-            ;;
-            *) GoodiesXfce=""
-         esac
          ChooseDM
        ;;
       "") continue
@@ -500,37 +476,6 @@ ChooseDM() { # Choose a display manager unless already fixed by certain DEs
       ChooseDM                 # Call this function again
     fi
   esac
-}
-
-AddDEextras() {
-  print_heading
-  echo
-  case $DesktopEnvironment in
-    "Deepin") PrintOne "The deepin-extras pack includes the Deepin game center, media"
-      PrintOne "players, terminal and screenshot tools."
-      echo
-      ;;
-    "Enlightenment") PrintOne "It is suggested that the Connman network utility, and"
-        PrintOne "Terminology terminal emulator are installed for usability."
-      echo
-      ;;
-    "Gnome") PrintOne "The gnome-extras pack includes games, a text"
-      PrintOne "editor and some utilities."
-      echo
-      ;;
-    "Openbox") PrintOne "Tint2 is a system panel/taskbar that can be configured"
-      PrintOne "to include a system tray, task list, battery monitor, clock, etc."
-      echo
-      ;;
-    "Xfce") PrintOne "The xfce4-goodies pack includes includes the Whisker menu, extra"
-      PrintOne "plugins and a number of utilities such as the mousepad editor"
-      echo
-      ;;
-    *) echo
-  esac
-  PrintOne "Include the extras pack?"
-  echo
-  listgen1 "Yes No" "" "nodone"
 }
 
 FinalCheck() {

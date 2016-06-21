@@ -574,16 +574,19 @@ InstallLuxuries() { # Install desktops and other extras
       case $i in
       "Cinnamon") InstallFile "cinnamon"
         ;;
-      "Deepin") InstallFile "deepin ${DDEextras}"
+      "Deepin") InstallFile "deepin"
+          InstallFile "deepin-extra"
           arch_chroot "systemctl -f enable lightdm.service"
           # Change the greeter line in lightdm.conf
           sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
         ;;
-      "Enlightenment") InstallFile "enlightenment ${EnExtras}"
+      "Enlightenment") InstallFile "enlightenment"
+          pacstrap /mnt "connman terminology"
         ;;
       "Fluxbox") InstallFile "fluxbox"
         ;;
-      "Gnome") InstallFile "gnome ${GoodiesGnome}"
+      "Gnome") InstallFile "gnome"
+          pacstrap /mnt "gnome-extra"
           arch_chroot "systemctl -f enable gdm.service"
         ;;
       "KDE") InstallFile "plasma-meta"
@@ -594,13 +597,17 @@ InstallLuxuries() { # Install desktops and other extras
           arch_chroot "systemctl -f enable lxdm.service"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         ;;
-      "LXQt") InstallFile "lxqt oxygen-icons"
+      "LXQt") InstallFile "lxqt"
+          pacstrap /mnt "oxygen-icons"
         ;;
-      "Mate") InstallFile "mate mate-extra"
+      "Mate") InstallFile "mate"
+          pacstrap /mnt "mate-extra"
         ;;
       "Openbox") InstallFile "openbox"
+          pacstrap /mnt "tint2"
         ;;
-      "Xfce") InstallFile "xfce4 ${GoodiesXfce}"
+      "Xfce") InstallFile "xfce4"
+          pacstrap /mnt "xfce4-goodies"
         ;;
       *) continue # Ignore all others on this pass
       esac
