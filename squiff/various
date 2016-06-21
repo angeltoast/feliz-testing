@@ -79,7 +79,7 @@ InstallFile() {   # Find download file size and calculate install time
   do
     FileName="$1"   # Passed by caller
     
-    FileList=$(sudo pacman -S --print-format='%s' ${FileName}) # Get contents list to a file
+    FileList=$(pacstrap /mnt --print-format='%s' ${FileName}) # Get contents list of sizes to a file
     LineCount=$(echo $FileList | wc -w) # Count lines
   
   read -p "$FileName"
