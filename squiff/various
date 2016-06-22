@@ -77,10 +77,12 @@ InstallFile() {   # Find download file size and calculate install time
   
   FileName="$1"   # Passed by caller
 
-  FileList=$(pacman -S --print-format='%s' ${FileName}) # Get contents list to a file
+  FileList=$(pacman -Sp --print-format='%s' ${FileName}) 2>feliz.output # Get contents list of sizes to variable
+  bugger=$?
+  Bugger
   LineCount=$(echo $FileList | wc -w) # Count lines
   
-  echo $LineCount
+  echo "$FileName has $LineCount lines"
   echo $FileList
   
   Total=0
@@ -180,6 +182,10 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
     pacstrap /mnt $f &>> feliz.log
   done
   )
+}
+
+Bugger() {
+  dialog --backtitle "This shouldn't be happening" --title " Information " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless\n\n      Line &LINENO : Error $bugger : Check feliz.output" 12 30
 }
 
 SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
