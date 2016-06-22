@@ -550,10 +550,8 @@ InstallDM() { # Display manager
   done
   
   # Then install selected display manager
-  InstallFile "${DisplayManager}"
-  if [ -n "${Greeter}" ]; then
-    InstallFile "${Greeter}"
-  fi
+  DisplayProgress "Installing ${DisplayManager} display manager" 20
+  pacstrap /mnt ${DisplayManager} ${Greeter} &>> feliz.log
   arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
 
 }
@@ -572,43 +570,47 @@ InstallLuxuries() { # Install desktops and other extras
     for i in ${LuxuriesList}
     do
       case $i in
-      "Cinnamon") InstallFile "cinnamon"
+      "Cinnamon") DisplayProgress "Installing Cinnamon desktop Environment" 60
+          pacstrap /mnt cinnamon &>> feliz.log
         ;;
-      "Deepin") InstallFile "deepin"
-          InstallFile "deepin-extra"
+      "Deepin") DisplayProgress "Installing Deepin desktop Environment" 100
+          pacstrap /mnt deepin ${DDEextras} &>> feliz.log
           arch_chroot "systemctl -f enable lightdm.service"
           # Change the greeter line in lightdm.conf
           sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
         ;;
-      "Enlightenment") InstallFile "enlightenment"
-          pacstrap /mnt "connman terminology"
+      "Enlightenment") DisplayProgress "Installing 'Enlightenment' desktop Environment" 20
+          pacstrap /mnt enlightenment ${EnExtras} &>> feliz.log
         ;;
-      "Fluxbox") InstallFile "fluxbox"
+      "Fluxbox") DisplayProgress "Installing 'Fluxbox' window manager" 20
+          pacstrap /mnt fluxbox &>> feliz.log
         ;;
-      "Gnome") InstallFile "gnome"
-          pacstrap /mnt "gnome-extra"
+      "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment" 40
+          pacstrap /mnt gnome ${GoodiesGnome} &>> feliz.log
           arch_chroot "systemctl -f enable gdm.service"
         ;;
-      "KDE") InstallFile "plasma-meta"
+      "KDE") DisplayProgress "Installing KDE Plasma meta package" 80
+          pacstrap /mnt plasma-meta &>> feliz.log
           arch_chroot "systemctl -f enable sddm.service"
-          InstallFile "kde-applications"
+          DisplayProgress "Installing KDE applications package" 200
+          pacstrap /mnt kde-applications &>> feliz.log
         ;;
-      "LXDE") InstallFile "lxde"
+      "LXDE") DisplayProgress "Installing 'LXDE' desktop Environment" 10
+          pacstrap /mnt lxde &>> feliz.log
           arch_chroot "systemctl -f enable lxdm.service"
-          pacstrap /mnt "leafpad"
           echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
         ;;
-      "LXQt") InstallFile "lxqt"
-          pacstrap /mnt "oxygen-icons"
+      "LXQt") DisplayProgress "Installing 'LXQt' desktop Environment" 20
+        pacstrap /mnt lxqt oxygen-icons &>> feliz.log
         ;;
-      "Mate") InstallFile "mate"
-          pacstrap /mnt "mate-extra"
+      "Mate") DisplayProgress "Installing 'Mate' desktop Environment" 60
+        pacstrap /mnt mate mate-extra &>> feliz.log
         ;;
-      "Openbox") InstallFile "openbox"
-          pacstrap /mnt "tint2"
+      "Openbox") DisplayProgress "Installing 'Openbox' window manager" 20
+        pacstrap /mnt openbox &>> feliz.log
         ;;
-      "Xfce") InstallFile "xfce4"
-          pacstrap /mnt "xfce4-goodies"
+      "Xfce") DisplayProgress "Installing 'Xfce' desktop Environment" 20
+        pacstrap /mnt xfce4 ${GoodiesXfce} &>> feliz.log
         ;;
       *) continue # Ignore all others on this pass
       esac

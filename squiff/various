@@ -15,15 +15,14 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           29       ConfirmReview        161
-# listgen1 & 2          35       SetGrubDevice        179
-# TPecho                72       ConnectionSpeed      202
-# InstallFile           76
-# DisplayProgress       97       InstallKernel        314
-# ProgressArray        117       AddCodecs            341
-# Bugger               141       McInitCPIO           353
-# SetKernel            146       Passwords            363
-# ConfirmVbox          156       Finish               418
+# arch_chroot           27       ConfirmReview        150
+# listgen1 & 2          35       SetGrubDevice        158
+# TPecho                72       arch_chroot          193
+# DisplayProgress       76       InstallKernel        197
+# ProgressArray         96       AddCodecs            200
+# Bugger               120       McInitCPIO           210
+# SetKernel            125       Passwords            220
+# ConfirmVbox          037       Finish               250
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -69,72 +68,16 @@ listgen2() {
   done
 }
 
+
 TPecho() { # Infobox
   dialog --backtitle "$Backtitle" --title " Information " --no-shadow --infobox "\n$1\n$2" 6 50 ; sleep 1 &
 }
 
-InstallFile() {   # Find download file size and calculate install time
-  
-  FileName="$1"   # Passed by caller
-  FileList=`pacstrap /mnt --print-format='%s' ${FileName} 2> feliz.log`   # Get contents list of sizes to variable
-  LineCount=`echo $FileList | wc -w` # Count lines
-  
-  read -p "$FileName has $LineCount lines"
-  
-  Total=0
-  for line in ${FileList}  # If more than one, add them all
-  do
-     Total=$((Total+line))
-  done
-   
-  read -p "Total file size = $Total bytes"
-  
-    FileSize=$Total
-    
-    DownloadTime=$((FileSize/connection_speed ))
-    # In case of zero
-    if [ $DownloadTime -eq 0 ]; then
-      DownloadTime=10
-    fi
-    # 2) Use system speed to calculate processing time for file based on download time
-    if [ $total_MHz -gt 0 ]; then
-      ProcessTime=$((DownloadTime/total_MHz)) 
-    else
-      ProcessTime=$DownloadTime 
-    fi
-    # In case of zero
-    if [ $ProcessTime -eq 0 ]; then
-      ProcessTime=1
-    fi
-    
-    # Calculate write-to-disk time
-    WriteToDisk=$((ProcessTime*write_factor))
-    
-    # Install time is 1 + 2 + 3
-    InstallTime=$((DownloadTime+ProcessTime+WriteToDisk))
-    InstallTime=$((InstallTime/10*9))  # Add safety margin
-    
-    # Decide whether to use gauge or message, based on InstallTime
-    if [ $InstallTime -ge 10 ]; then
-      DisplayProgress "Installing $FileName" ${InstallTime}
-      pacstrap /mnt "$FileName" &>feliz.log              # Start installation
-    else
-      TPecho "Installing ${FileName}"
-      pacstrap /mnt "$FileName" &>feliz.log              # Start installation
-    fi
-    
-}
-
-DisplayProgress() { # Displays timed progress bar for longer processes
-  Estimate=$2                            # Numeric argument = seconds
-  local Message="$1"                     # Text argument to appear above progress bar
-  local Sleep=0
-  local TenPercent=$(( Estimate / 10 ))  # Get 10% of total time
-  if [ $TenPercent -gt 0 ]; then         # Set sleep
-    Sleep=$TenPercent
-  else
-    Sleep=1
-  fi
+DisplayProgress() {                 # Displays timed progress bar for longer processes
+  Estimate=$2                       # Numeric argument = seconds in multiples of 20
+  local Message="$1"                # Text passed to appear above progress bar
+  local Sleep=$(( $Estimate / 20 )) # Set sleep period to 5% of total time
+  local Increment=$(( $Sleep * 100 / $Estimate )) # $Sleep as percentage of $Estimate
   local Percent=0
   (
   until [ $Percent -gt 100 ]
@@ -143,7 +86,7 @@ DisplayProgress() { # Displays timed progress bar for longer processes
     echo $Percent
     echo "$Message\nProcessing may continue after gauge shows 100%\nPlease be patient ..."
     echo "XXX"
-    Percent=$(($Percent + 10))
+    Percent=`expr $Percent + $Increment`
     sleep $Sleep
   done
   ) |
@@ -176,7 +119,7 @@ ProgressArray() { # For installing multiple programs with pacstrap and displayin
 }
 
 Bugger() {
-  dialog --backtitle "This shouldn't be happening" --title " Information " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless\n\n    Error $bugger at Line $LINENO\n\n      Check feliz.output" 12 30
+  dialog --backtitle "This shouldn't be happening" --title " Information " --no-shadow --infobox "\n      This is a bug\n\n           =Ộ= \n\n  It is probably harmless" 9 30
 }
 
 SetKernel() { # Note: Kernel commands linux & linux-lts include base/commonutils
@@ -235,95 +178,16 @@ SetGrubDevice() {
   done
 }
 
-ConnectionSpeed() {  # Determine download speed, process speed and write-to-disk speed
-  TPecho "Checking System and Internet Speed"
-  # Set address for test link
-  test_link="ftp://speedtest:speedtest@ftp.otenet.gr/test1Mb.db"
-  # wget a 1MB test file - save output to feliz.output
-  wget --no-check-certificate --output-file=feliz.output -O /dev/null "$test_link"
-  # Then extract connection speed and rate to variables
-  Speed=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $1}')
-  Rate=$(tail feliz.output | grep -oP '(?<=\().*(?=\))' | awk '{print $2}')
-  # Speed is either in Kb/s or Mb/s - either way it's probably a decimal
-  # Bash can't do floating point arithmetic, so convert to bytes
-  # Count the number of numerals after the decimal point
-  eof=`echo $Speed | wc -m`
-  eof=$((eof-1))
-  mantissa=0
-  Increment=1                     # Character counter
-  until [ $Increment -eq $eof ]
-  do
-    digit=`echo $Speed | cut -c ${Increment}`
-    if [ "${digit}" = "." ]; then # When decimal point reached
-      mantissa=0                  # Reset mantissa counter
-    fi
-    ((Increment++))               # Increment character counter
-    ((mantissa++))                # Advance mantissa counter
-  done
-  Characteristic=$(( eof - mantissa - 1 )) # Digits before decimal
-  # Then remove the decimal point
-  Whole=$(echo $Speed | sed 's/\.//g')
-  # Now we have a number that bash can use
-  # Multiply in factors of 1000, to convert to bytes
-  # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
-  # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
-  case $Rate in
-   "KB/s") factor=$(( Characteristic + mantissa - 2 ))
-   ;;
-   "MB/s") factor=$(( Characteristic + mantissa + 1 ))
-   ;;
-  esac
-  connection_speed=$((Whole * (10 ** $factor)))          # Internet speed in bytes per second
-
-  # Get system speed for use when calculating install time
-  Float=$(lscpu | grep "CPU MHz" | awk '{print $3}')     # Result will be floating point
-  Integer=${Float/.*}                                    # Convert to integer
-  Integer=$((Integer+499))                               # Round up
-  total_MHz=$(echo $Integer | cut -c 1)                # Keep first digit for multiplier
-
-  # Get write-to-disk speed
-  dd if=/dev/zero of=speetest bs=1M count=100 conv=fdatasync &> feliz.output
-  Speed=$(tail feliz.output -n 1 | awk '{print $10}')    # Float
-  Rate=$(tail feliz.output -n 1 | awk '{print $11}')     # Float
-  eof=`echo $Speed | wc -m`
-  eof=$((eof-1))
-  mantissa=0
-  Increment=1                     # Character counter
-  until [ $Increment -eq $eof ]
-  do
-    digit=`echo $Speed | cut -c ${Increment}`
-    if [ "${digit}" = "." ]; then # When decimal point reached
-      mantissa=0                  # Reset mantissa counter
-    fi
-    ((Increment++))               # Increment character counter
-    ((mantissa++))                # Advance mantissa counter
-  done
-  Characteristic=$(( eof - mantissa - 1 )) # Digits before decimal
-  # Then remove the decimal point
-  Whole=$(echo $Speed | sed 's/\.//g')
-  # Now we have a number that bash can use
-  # Multiply in factors of 1000, to convert to bytes
-  # If download time was in Kb/s, multiply by 10 to the power ( 5 characters - $mantissa ) 
-  # If download time was in Mb/s, multiply by 10 to the power ( 8 characters - $mantissa ) 
-  case $Rate in
-   "KB/s") factor=$(( Characteristic + mantissa - 2 ))
-   ;;
-   "MB/s") factor=$(( Characteristic + mantissa + 1 ))
-   ;;
-  esac
-  write_speed=$((Whole * (10 ** $factor)))  # Write-to-disk speed in bytes per second
-  write_factor=$(echo $write_speed | cut -c 1)                # Keep first digit for multiplier
-  
-}
-
 InstallKernel() { # Kernel and some other core systems
 
-  LANG=C          # Temporary addition to overcome bug in Arch man pages
+  LANG=C # Temporary addition to overcome bug in Arch man pages
   
   case $Kernel in # Selected kernel
-    1) InstallFile "linux-lts"
+    1) DisplayProgress "Installing LTS kernel" 40
+      pacstrap /mnt linux-lts &>> feliz.log
     ;;
-    *) InstallFile "linux"
+    *) DisplayProgress "Installing Latest kernel" 60
+      pacstrap /mnt linux &>> feliz.log
   esac
 
   PassArray=() # Prepare the array for additional components for lts
@@ -338,9 +202,9 @@ InstallKernel() { # Kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >/dev/null
       
   # And finally the man pages
-  InstallFile "man-db"
-  InstallFile "man-pages"
-
+  DisplayProgress "Installing man-db & man-pages - this may take some time" 140
+  pacstrap /mnt man-db man-pages &>> feliz.log
+  
 }
 
 AddCodecs() { # Various codecs and graphical environment
