@@ -76,16 +76,13 @@ TPecho() { # Infobox
 InstallFile() {   # Find download file size and calculate install time
   
   FileName="$1"   # Passed by caller
-
   FileList=`pacstrap /mnt --print-format='%s' ${FileName} 2> feliz.log`   # Get contents list of sizes to variable
-
   LineCount=`echo $FileList | wc -w` # Count lines
   
   read -p "$FileName has $LineCount lines"
-  echo $FileList
   
   Total=0
-  for line in $FileList  # If more than one, add them all
+  for line in ${FileList}  # If more than one, add them all
   do
      Total=$((Total+line))
   done
@@ -94,21 +91,16 @@ InstallFile() {   # Find download file size and calculate install time
   
     FileSize=$Total
     
-    DownloadTime=$(( FileSize / connection_speed ))
-    
-    # In case result is zero
-    until [ $DownloadTime -gt 0 ]
-    do
-      download_size=$(( FileSize * 10 ))
-      DownloadTime=$(( download_size / connection_speed ))
-    done
-  
-    
-    # 2) Use system speed to calculate processing time for file based on download seconds
+    DownloadTime=$((FileSize/connection_speed ))
+    # In case of zero
+    if [ $DownloadTime -eq 0 ]; then
+      DownloadTime=10
+    fi
+    # 2) Use system speed to calculate processing time for file based on download time
     if [ $total_MHz -gt 0 ]; then
-      ProcessTime=$(( DownloadTime / total_MHz )) 
+      ProcessTime=$((DownloadTime/total_MHz)) 
     else
-      ProcessTime=$(( DownloadTime )) 
+      ProcessTime=$DownloadTime 
     fi
     # In case of zero
     if [ $ProcessTime -eq 0 ]; then
@@ -116,11 +108,11 @@ InstallFile() {   # Find download file size and calculate install time
     fi
     
     # Calculate write-to-disk time
-    WriteToDisk=$(( ProcessTime * write_factor ))
+    WriteToDisk=$((ProcessTime*write_factor))
     
     # Install time is 1 + 2 + 3
-    InstallTime=$(( DownloadTime + ProcessTime + WriteToDisk ))
-    InstallTime=$(( InstallTime / 10 * 9 ))  # Add safety margin
+    InstallTime=$((DownloadTime+ProcessTime+WriteToDisk))
+    InstallTime=$((InstallTime/10*9))  # Add safety margin
     
     # Decide whether to use gauge or message, based on InstallTime
     if [ $InstallTime -ge 10 ]; then
