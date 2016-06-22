@@ -77,9 +77,10 @@ InstallFile() {   # Find download file size and calculate install time
   
   FileName="$1"   # Passed by caller
 
-  arch_chroot "pacman -Sp --print-format='%s' ${FileName} > feliz.output" # Get contents list of sizes to file
-  read
-  FileList=$(cat /mnt/feliz.output)                                       # Copy to variable
+lsblk
+read
+
+  FileList=$(pacman -Sp --print-format='%s' ${FileName} > feliz.output)   # Get contents list of sizes to variable
   read
   LineCount=$(echo $FileList | wc -w) # Count lines
   
