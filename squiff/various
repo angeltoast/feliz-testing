@@ -80,8 +80,8 @@ InstallFile() {   # Find download file size and calculate install time
 lsblk
 read
 
-  FileList=$(pacman -Sp --print-format='%s' ${FileName} > feliz.output)   # Get contents list of sizes to variable
-  read
+  FileList=$(pacstrap /mnt --print-format='%s' ${FileName} 2> feliz.log)   # Get contents list of sizes to variable
+  exit
   LineCount=$(echo $FileList | wc -w) # Count lines
   
   read -p "$FileName has $LineCount lines"
@@ -328,6 +328,9 @@ ConnectionSpeed() {  # Determine download speed, process speed and write-to-disk
 }
 
 InstallKernel() { # Kernel and some other core systems
+
+lsblk
+read
 
   LANG=C # Temporary addition to overcome bug in Arch man pages
   
