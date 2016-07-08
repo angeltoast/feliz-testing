@@ -444,61 +444,62 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 
 ChooseDM() { # Choose a display manager unless already fixed by certain DEs
   case $DisplayManager in
-    "") # Only offered if no other display manager has been set
-    Counter=0
-    Greeter=""
-    DMList="GDM LightDM LXDM sddm SLIM XDM"
-    print_heading
-    PrintOne "You can choose one of the following display managers."
-    PrintOne "Not all display managers work well with all desktop environments."
-    PrintOne "If in doubt, choose LightDM."
-    PrintOne "If you do not install a display manager, you will have"
-    PrintOne "to launch your desktop environment manually."
-    echo
-    listgen1 "${DMList}" "Display_Manager/Greeter" "None"
-    Reply=$Response
-    for item in ${DMList}
-    do
-      Counter=$((Counter+1))
-      if [ $Counter -eq $Reply ]
-      then
-        SelectedDM=$item
-        case $SelectedDM in
-          "GDM") DisplayManager="gdm"
-            ;;
-          "LightDM") DisplayManager="lightdm"
-                Greeter="lightdm-gtk-greeter"
-            ;;
-          "LXDM") DisplayManager="lxdm"
-            ;;
-          "sddm") DisplayManager="sddm"
-            ;;
-          "SLIM") DisplayManager="slim"
-            ;;
-          "XDM") DisplayManager="xdm"
-            ;;
-          *) DisplayManager=""
-        esac
-        break
-      fi
-    done
+  "") # Only offered if no other display manager has been set
+      Counter=0
+      Greeter=""
+      DMList="GDM LightDM LXDM sddm SLIM XDM"
+      print_heading
+      PrintOne "You can choose one of the following display managers."
+      PrintOne "Not all display managers work well with all desktop environments."
+      PrintOne "If in doubt, choose LightDM."
+      PrintOne "If you do not install a display manager, you will have"
+      PrintOne "to launch your desktop environment manually."
+      echo
+      listgen1 "${DMList}" "Display_Manager/Greeter" "None"
+      Reply=$Response
+      for item in ${DMList}
+      do
+        Counter=$((Counter+1))
+        if [ $Counter -eq $Reply ]
+        then
+          SelectedDM=$item
+          case $SelectedDM in
+            "GDM") DisplayManager="gdm"
+              ;;
+            "LightDM") DisplayManager="lightdm"
+                  Greeter="lightdm-gtk-greeter"
+              ;;
+            "LXDM") DisplayManager="lxdm"
+              ;;
+            "sddm") DisplayManager="sddm"
+              ;;
+            "SLIM") DisplayManager="slim"
+              ;;
+            "XDM") DisplayManager="xdm"
+              ;;
+            *) DisplayManager=""
+          esac
+          break
+        fi
+      done
+  ;;
   "reserved") # Indicating that either KDE or Gnome DE is set and will install own DM
-    Greeter=""
-    ;;
+      Greeter=""
+  ;;
   *) # Warn that DM already set, and offer option to change it
-    print_heading
-    PrintOne "Display manager is already set as: $DisplayManager."
-    PrintOne "Only one display manager can be active"
-    echo
-    PrintOne "Do you wish to change it?: "
-    echo
-    listgen1 "Yes No" "" "nodone"
-    echo
-    if [ $Response -eq 1 ]; then    # User wishes to change DM
-      DisplayManager=""        # Clear DM variable
-      Greeter=""               # and greeter
-      ChooseDM                 # Call this function again
-    fi
+      print_heading
+      PrintOne "Display manager is already set as: $DisplayManager."
+      PrintOne "Only one display manager can be active"
+      echo
+      PrintOne "Do you wish to change it?: "
+      echo
+      listgen1 "Yes No" "" "nodone"
+      echo
+      if [ $Response -eq 1 ]; then    # User wishes to change DM
+        DisplayManager=""        # Clear DM variable
+        Greeter=""               # and greeter
+        ChooseDM                 # Call this function again
+      fi
   esac
 }
 
