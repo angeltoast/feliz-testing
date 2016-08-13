@@ -21,6 +21,7 @@ source shared
 source various
 source partitioning
 source desktop
+source listgen
 
 Backtitle="The Feliz install scripts for Arch Linux"
 
