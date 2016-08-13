@@ -621,6 +621,11 @@ InstallLuxuries()
       esac
     done
   fi
+  
+  # And finally the man pages
+  TPecho "Installing man-pages - this may take some time - please be patient"
+  pacman -S /mnt man-db man-pages 2>> feliz.log
+  
 }
 
 UserAdd() {

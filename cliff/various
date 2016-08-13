@@ -346,10 +346,7 @@ InstallKernel() { # Kernel and some other core systems
 
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
-  
-  # And finally the man pages
-  TPecho "Installing man-pages - this may take some time - please be patient"
-  pacstrap /mnt man-db man-pages 2>> feliz.log
+
 }
 
 AddCodecs() {
