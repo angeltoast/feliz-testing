@@ -623,8 +623,10 @@ InstallLuxuries()
   fi
   
   # And finally the man pages
-  TPecho "Installing man-pages - this may take some time - please be patient"
-  pacman -S /mnt man-db man-pages 2>> feliz.log
+  TPecho "Installing man-pages"
+  pacstrap /mnt man-pages 2>> feliz.log
+  TPecho "Installing man-db - this takes some time - please be patient"
+  pacstrap /mnt man-db 2>> feliz.log
   
 }
 
