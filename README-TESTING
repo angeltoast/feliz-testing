@@ -1,6 +1,4 @@
-This is the 'testing' repo for the Feliz Arch Linux installation scripts.
-
-The scripts in this repo will most likely be unstable at various times and should not be used for anything other than testing. They are shared in the spirit of the community, subject to the conditions set out in the GNU GENERAL LICENSE.
+This is the 'testing' repo for the Feliz Arch Linux installation scripts. The scripts in this repo will most likely be unstable at various times and should not be used for anything other than testing. They are shared in the spirit of the community, subject to the conditions set out in the GNU GENERAL LICENSE.
 
 Feliz is a progression from the Achoo scripts, adding the option of a semi-graphical environment. Feliz and Achoo aim to speed up and simplify the installation of Arch Linux for experienced or new users.
 
@@ -13,4 +11,4 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 A copy of the GNU General Public License is available from the Feliz page at http://sourceforge.net/projects/feliz/files or https://github.com/angeltoast/feliz, or write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 Elizabeth Mills
-Jume 2016
+August 2016
