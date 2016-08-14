@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# The Feliz installation scripts for Arch Linux
-# 17 June 2016
+# The 2 installation scripts for Arch Linux
+# 14 August 2016
+# Complete restructure for cli-only version
 
-# /common/feliz - Main module
+# Main module
 
 # Developed by Elizabeth Mills
 # With thanks to Carl Duff
