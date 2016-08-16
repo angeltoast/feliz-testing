@@ -342,12 +342,12 @@ RunAutoPart() {
     SwapPartition="${GrubDevice}1"
     MakeSwap="Y"
     # Root partition 15GiB
-    Parted "mkpart primary ext4 8GiB 28GiB"
+    Parted "mkpart primary ext4 8GiB 23GiB"
     Parted "set 2 boot on"
     RootPartition="${GrubDevice}2"
     RootType="ext4"
     # Home partition = remainder (size from 19GiB to maximum available)
-    Parted "mkpart primary ext4 28GiB 100%"
+    Parted "mkpart primary ext4 23GiB 100%"
     AddPartList[0]="${GrubDevice}3" # Add to the array of additional partitions
     AddPartMount[0]="/home"
     AddPartType[0]="ext4"
@@ -359,12 +359,12 @@ RunAutoPart() {
     SwapPartition="${GrubDevice}1"
     MakeSwap="Y"
     # Root partition 15GiB
-    Parted "mkpart primary ext4 4GiB 19GiB"
+    Parted "mkpart primary ext4 4GiB 16GiB"
     Parted "set 2 boot on"
     RootPartition="${GrubDevice}2"
     RootType="ext4"
     # Home partition = remainder (size from 19GiB to maximum available)
-    Parted "mkpart primary ext4 19GiB 100%"
+    Parted "mkpart primary ext4 16GiB 100%"
     AddPartList[0]="${GrubDevice}3" # Add to the array of additional partitions
     AddPartMount[0]="/home"
     AddPartType[0]="ext4"
@@ -621,6 +621,11 @@ InstallLuxuries()
       esac
     done
   fi
+
+  # And, finally, the damned man-db
+  TPecho "Installing man-db - this takes some time - please be patient"
+  sleep 1
+  pacstrap /mnt man-db 2>> feliz.log
 
 }
 

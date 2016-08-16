@@ -190,10 +190,8 @@ InstallKernel() {   # Kernel and some other core systems
   
   # Man pages
   TPecho "Installing man-pages"
-  pacstrap /mnt man-pages 2>> feliz.log
-  TPecho "Installing man-db"
-  pacstrap /mnt man-db & 2>> feliz.log      # Testing the idea of running this line in background
-      
+  pacstrap /mnt man-pages 2>> feliz.log     # Note: man-db installed last, after DE
+
   TPecho "Installing core systems"
   pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
 
