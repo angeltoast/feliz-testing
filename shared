@@ -630,15 +630,6 @@ InstallLuxuries()
     done
   fi
 
-  # And, finally, the damned man-db
-  TPecho "Installing man-db - this takes some time ..."
-  sleep 2
-  TPecho "... a very long time - please be patient"
-  sleep 2
-#  pacstrap /mnt man-db 2>> feliz.log
-  TPecho "New idea of copying man-db under trial"
-  sleep 5
-
 }
 
 UserAdd() {
