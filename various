@@ -201,6 +201,10 @@ InstallKernel() {   # Kernel and some other core systems
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
   
+  TPecho "Testing copy of man-db"
+  cp /usr/lib/man-db /mnt/usr/lib/
+  sleep 10
+  
 }
 
 AddCodecs() {
