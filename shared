@@ -493,7 +493,7 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
     fi
   esac
-  mount ${RootPartition} /mnt 2>> feliz.log # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt &>> feliz.log         # eg: mount /dev/sda1 /mnt !! Suppressed output !!
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
@@ -504,7 +504,7 @@ MountPartitions() {
       fi
       mkswap ${Label} ${SwapPartition} 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
-    swapon ${SwapPartition} 2>> feliz.log # eg: swapon /dev/sda2
+    swapon ${SwapPartition} 2>> feliz.log            # eg: swapon /dev/sda2
   fi
   local Counter=0
   for id in ${AddPartList}
@@ -525,7 +525,7 @@ MountPartitions() {
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} 2>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home !! Suppressed output !!
     Counter=$((Counter+1))
   done
 }
@@ -566,7 +566,7 @@ InstallLuxuries()
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
       "Gnome") DisplayProgress "Installing 'Gnome' desktop Environment"
-          pacstrap /mnt adwaita-icon-theme baobab brasero sheese dconf-editor empathy eog epiphany evince agnome-backgrounds gedit gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-control-center gnome-desktop gnome-dictionary gnome-disk-utility gnome-font-viewer gnome-keyring gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-sound-recorder gnome-system-log gnome-system-monitor gnome-terminal gnome-themes-standard gnome-tweak-tool gnome-user-docs gnome-user-share grilo-plugins gucharmap gvfs gvfs-afc gvfs-goa gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mousetweaks mutter nautilus nautilus-sendto orca sushi totem tracker vino xdg-user-dirs-gtk yelp 2>> feliz.log
+          pacstrap /mnt adwaita-icon-theme baobab brasero sheese dconf-editor empathy eog epiphany evince gnome-backgrounds gedit gnome-calculator gnome-calendar gnome-characters gnome-clocks gnome-contacts gnome-control-center gnome-desktop gnome-dictionary gnome-disk-utility gnome-font-viewer gnome-keyring gnome-screenshot gnome-session gnome-settings-daemon gnome-shell gnome-shell-extensions gnome-sound-recorder gnome-system-log gnome-system-monitor gnome-terminal gnome-themes-standard gnome-tweak-tool gnome-user-docs gnome-user-share grilo-plugins gucharmap gvfs gvfs-afc gvfs-goa gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-smb mousetweaks mutter nautilus nautilus-sendto orca sushi totem tracker vino xdg-user-dirs-gtk yelp 2>> feliz.log
         ;;
       "KDE") DisplayProgress "Installing KDE Plasma meta package"
           pacstrap /mnt bluedevil breeze breeze-gtk drkonqi kactivitymanagerd kde-cli-tools kde-gtk-config kdecoration kdeplasma-addons kgamma5 khotkeys kinfocenter kmenuedit kscreen kscreenlocker ksshaskpass ksysguard kuiserver kwallet-pam kwayland-integration kwin kwrited libkscreen libksysguard milou oxygen plasma-desktop plasma-integration plasma-mediacenter plasma-nm plasma-pa plasma-sdk plasma-workspace plasma-workspace-wallpapers polkit-kde-agent powerdevil sddm-kcm systemsettings user-manager 2>> feliz.log
@@ -621,13 +621,7 @@ InstallLuxuries()
       esac
     done
   fi
-  
-  # And finally the man pages
-  TPecho "Installing man-pages"
-  pacstrap /mnt man-pages 2>> feliz.log
-  TPecho "Installing man-db - this takes some time - please be patient"
-  pacstrap /mnt man-db 2>> feliz.log
-  
+
 }
 
 UserAdd() {
