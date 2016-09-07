@@ -73,15 +73,19 @@ PickLuxuries
 if [ $Scope != "Basic" ]; then
   UserName
   # Use dmidecode to check for Virtualbox installation
-  IsInVbox=`dmidecode --type 1 | grep 'Product Name' | cut -c 16-`
-  if [ ${IsInVbox} = "VirtualBox" ]; then
+  # IsInVbox=`dmidecode --type 1 | grep 'Product Name' | cut -c 16-`
+  # if [ ${IsInVbox} = "VirtualBox" ]; then
+  
+  # Alternative to dmidecode method
+  if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
     ConfirmVbox
   else
-    IsInVbox="N"
+    IsInVbox=""
   fi
 fi
 
-FinalCheck      # Allow user to change any variables
+# Allow user to change any variables
+FinalCheck
 
 # No further user intervention from here ..................
 
@@ -146,24 +150,18 @@ McInitCPIO
 echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 
 # Extra processes for desktop installation
-if [ $Scope != "Basic" ]; then
-  AddCodecs # Various bits
-      
-  if [ ${IsInVbox} = "VirtualBox" ]; then 
-    pacstrap /mnt virtualbox-guest-utils mesa-libgl 2>> feliz.log                # Virtualbox guest utils with X support
-    case $Kernel in
-      1) pacstrap /mnt virtualbox-guest-dkms linux-lts-headers 2>> feliz.log     # LTS kernel
-      ;;
-      *) pacstrap /mnt virtualbox-guest-modules-arch linux-headers 2>> feliz.log # latest kernel
-    esac
-    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log   # To overcome piix4 Virtualbox error
-    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log                    # Vbox startup
-  fi
-  arch-chroot /mnt systemctl enable vboxservice
-  
-  InstallLuxuries # Install DEs, WMs and DMs
-  UserAdd         # Add user
-  
+  if [ $Scope != "Basic" ]; then
+    AddCodecs # Various bits
+    
+    if [ ${IsInVbox} = "VirtualBox" ]; then
+      pacstrap /mnt virtualbox-guest-utils linux-headers 2>> feliz.log            # Virtualbox guest utils
+      echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
+    fi
+    arch-chroot /mnt systemctl enable vboxservice   
+    
+  InstallLuxuries # common/shared Install DEs, WMs and DMs
+
+  UserAdd # common/shared
 fi
 
 EndTime=$(date +%s)
