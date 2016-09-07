@@ -1,14 +1,27 @@
 #!/bin/bash
 
-# The Feliz installation scripts for Arch Linux
-# 13 August 2016
-
-# /cliff/desktop
-# CLI functions relevant to users, settings, extra applications and review
-
+# The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
+# Revision date: 7th September 2016
 
 # Please read the introduction in the README file
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# A copy of the GNU General Public License is available from the Feliz2
+# page at http://sourceforge.net/projects/feliz2/files
+# or https://github.com/angeltoast/feliz2, or write to:
+# The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# In this module:
+# Functions relevant to users, settings, extra applications and review
 
 # -----------------   -----------------------
 # Function     Line   Function           Line
@@ -383,28 +396,40 @@ ShoppingList()
     fi
     case $SaveResult in
       "Cinnamon") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
       "Deepin") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
       "Enlightenment") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
       "Fluxbox") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
       "Gnome") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
       "JWM") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
       "KDE") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
      "LXDE") DesktopEnvironment=$SaveResult
+       ChooseDM
        ;;
       "LXQt") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
       "Mate") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
      "Openbox") DesktopEnvironment=$SaveResult
+       ChooseDM
        ;;
       "Xfce") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
       "") continue
        ;;
@@ -412,7 +437,7 @@ ShoppingList()
     esac
     LuxuriesList="${LuxuriesList} ${SaveResult}"
   done
-  ChooseDM
+
   Passed=""
 }
 
@@ -424,8 +449,7 @@ ChooseDM()
       Greeter=""
       DMList="GDM LightDM LXDM sddm SLIM XDM"
       print_heading
-      PrintOne "You can choose one of the following display managers."
-      PrintOne "Not all display managers work well with all desktop environments."
+      PrintOne "A display manager provides a graphical login screen."
       PrintOne "If in doubt, choose LightDM."
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually."
@@ -468,9 +492,9 @@ ChooseDM()
       listgen1 "Yes No" "" "nodone"
       echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
-        DisplayManager=""        # Clear DM variable
-        Greeter=""               # and greeter
-        ChooseDM                 # Call this function again
+        DisplayManager=""             # Clear DM variable
+        Greeter=""                    # and greeter
+        ChooseDM                      # Call this function again
       fi
   esac
 }
