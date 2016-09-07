@@ -150,16 +150,20 @@ echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 if [ $Scope != "Basic" ]; then
   AddCodecs # Various bits
       
-  # Virtualbox code if selected
-  if [ ${IsInVbox} = "VirtualBox" ]; then
-    pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
-    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
-    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log
+  if [ ${IsInVbox} = "VirtualBox" ]; then                                        # Add if Virtualbox set
+    pacstrap /mnt virtualbox-guest-utils  2>> feliz.log                          # For use with X support
+    case $Kernel in
+      1) pacstrap /mnt virtualbox-guest-dkms linux-lts-headers 2>> feliz.log     # LTS kernel
+      ;;
+      *) pacstrap /mnt virtualbox-guest-modules-arch linux-headers 2>> feliz.log # latest kernel
+    esac
+    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log   # To overcome piix4 Virtualbox error
+    cp virtualbox.conf /mnt/etc/modules-load.d/ 2>> feliz.log                    # For Vbox startup
   fi
 
-  InstallLuxuries # common/shared Install DEs, WMs and DMs
-
-  UserAdd # common/shared
+  InstallLuxuries # Install DEs, WMs and DMs
+  UserAdd         # Add user
+  
 fi
 
 EndTime=$(date +%s)
