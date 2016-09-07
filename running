@@ -264,49 +264,6 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
 }
 
 #
-# Review stage ---------------------------------------------------------
-#
-
-ChangeRootPartition() {
-# Start array with SwapPartition
-  Ignorelist[0]=${SwapPartition}
-  local Counter=1
-  AddExtras
-  MakePartitionList
-}
-
-ChangeSwapPartition() {
-# Start array with RootPartition
-  Ignorelist[0]=${RootPartition}
-  Counter=1
-  AddExtras
-  MakePartitionList
-}
-
-ChangePartitions() {
-  # Copy RootPartition and SwapPartition into temporary array
-  Ignorelist[0]=${RootPartition}
-  local Counter=1
-  if [ ${SwapPartition} ]; then
-    Ignorelist[1]=${SwapPartition}
-    Counter=2
-  fi
-  Ignores=${#Ignorelist[@]} # Save a count for later
-  MakePartitionList
-}
-
-AddExtras() {
-  # Called by ChangeSwapPartition and ChangeRootPartition with
-  # Ignorelist started and Counter set to next record number
-  # Add each field (extra partition) from AddPartList into the array:
-  for a in ${AddPartList[@]}; do
-    Ignorelist[$Counter]=$a
-    Counter=$((Counter+1))
-  done
-  Ignores=${#Ignorelist[@]} # Save a count for later
-}
-
-#
 # Install stage --------------------------------------------------------
 #
 
