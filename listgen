@@ -26,7 +26,7 @@
 # Window width and height are adjusted according to content
 
 PrintOne() { # Aligned text according to screen size
-  width=`tput cols`
+  width=$(tput cols)
   EMPTY=" "
   lov=${#1}
   if [ ${lov} -lt ${width} ]; then
@@ -52,7 +52,7 @@ do
   local Done=$3
   if [ $2 ]; then
     PrintOne $2
-    Underscore=`echo $2 | sed 's/./-/g'`
+    Underscore=$(echo $2 | sed 's/./-/g')
     PrintOne $Underscore
   fi
   local Counter=0
@@ -118,7 +118,7 @@ do
   echo
   if [ -n $2 ]; then
     PrintOne $2
-    Underscore=`echo $2 | sed 's/./-/g'`
+    Underscore=$(echo $2 | sed 's/./-/g')
     PrintOne $Underscore
   fi
   Counter=0
