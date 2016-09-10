@@ -45,7 +45,7 @@ print_heading() {
   clear
   T_COLS=$(tput cols)
   tput cup 1 $(((T_COLS/2)-20))
-  printf "~ $Backtitle ~\n"
+  printf "~ %s ~\n" "$Backtitle"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
@@ -59,7 +59,7 @@ TPread() { # Aligned prompt for user-entry
   T_COLS=$(tput cols)
   lov=${#1}
   if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(((T_COLS - $lov) / 2 ))
+    stpt=$(((T_COLS - lov) / 2 ))
   elif [ ${lov} -gt ${T_COLS} ]; then
     stpt=0
   else
