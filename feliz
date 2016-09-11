@@ -39,7 +39,7 @@ echo "${StartTime}" >> feliz.log
 
 CheckParts                             # Check partition table & offer options
 
-if [ $AutoPart -eq 0 ]; then
+if [ "$AutoPart" -eq 0 ]; then
   BuildPartitionLists                  # Prepare table of available partitions
   AllocateRoot                         # Allow user to select root partition
   
@@ -56,7 +56,7 @@ fi
 
 # Select kernel and device for Grub
 SetKernel
-if [ $AutoPart -eq 0 ]; then
+if [ "$AutoPart" -eq 0 ]; then
   SetGrubDevice
 fi
 
@@ -70,13 +70,10 @@ SetHostname
 
 # Add extras
 PickLuxuries
-if [ $Scope != "Basic" ]; then
+if [ "$Scope" != "Basic" ]; then
   UserName
-  # Use dmidecode to check for Virtualbox installation
-  # IsInVbox=$(dmidecode --type 1 | grep 'Product Name' | cut -c 16-`
-  # if [ ${IsInVbox} = "VirtualBox" ]; then
   
-  # Alternative to dmidecode method
+  # Determine if in Virtualbox
   if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
     ConfirmVbox
   else
@@ -103,15 +100,15 @@ arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/u
 # Generate fstab
 genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
 
-if [ ${SwapFile} ]; then
-  fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
+if [ "${SwapFile}" ]; then
+  fallocate -l "${SwapFile}" /mnt/swapfile >/dev/null 2>> feliz.log
   chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log 
   mkswap /mnt/swapfile >/dev/null 2>> feliz.log
   swapon /mnt/swapfile >/dev/null 2>> feliz.log
   echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
 fi
 
-echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
+echo "${HostName}" > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
@@ -124,17 +121,17 @@ arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
 arch_chroot "hwclock --systohc --utc"
 
 # Networking
-if [ $Scope != "Basic" ]; then
+if [ "$Scope" != "Basic" ]; then
   arch_chroot "systemctl enable dhcpcd.service"
   pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
   arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 fi
 
 # Grub
-if [ ${GrubDevice} ]; then
+if [ "${GrubDevice}" ]; then
   TPecho "Installing Grub2 to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
-  if [ $OSprober = "Y" ]; then
+  if [ "$OSprober" = "Y" ]; then
     pacstrap /mnt os-prober 2>> feliz.log
   fi
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
@@ -147,17 +144,17 @@ fi
 McInitCPIO
 
 # Set keyboard to selected language at next startup
-echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
+echo KEYMAP="${Countrykbd}" > /mnt/etc/vconsole.conf 2>> feliz.log
 
 # Extra processes for desktop installation
-if [ $Scope != "Basic" ]; then
+if [ "$Scope" != "Basic" ]; then
 
   AddCodecs # Various bits
   
   if [ ${IsInVbox} = "VirtualBox" ]; then                                       # If in Virtualbox
     pacstrap /mnt virtualbox-guest-utils linux-headers 2>> feliz.log            # Virtualbox guest utils
     arch-chroot /mnt systemctl enable vboxservice   
-    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome piix4 Virtualbox error
+    echo blacklist i2c_piix4 > /mnt/etc/modprobe.d/modprobe.conf 2>> feliz.log  # To overcome Virtualbox error
   fi
 
   InstallLuxuries # Install DEs, WMs and DMs
@@ -167,12 +164,12 @@ if [ $Scope != "Basic" ]; then
 fi
 
 EndTime=$(date +%s)
-Difference=$(( $EndTime-$StartTime ))
-DIFFMIN=$(( $Difference / 60 ))
-DIFFSEC=$(( $Difference % 60 ))
+Difference=$((EndTime-StartTime ))
+DIFFMIN=$((Difference / 60 ))
+DIFFSEC=$((Difference % 60 ))
 
 SetRootPassword
-if [ $Scope != "Basic" ]; then
+if [ "$Scope" != "Basic" ]; then
   SetUserPassword
 fi
 

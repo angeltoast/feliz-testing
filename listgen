@@ -29,7 +29,7 @@ PrintOne() { # Aligned text according to screen size
   width=$(tput cols)
   EMPTY=" "
   lov=${#1}
-  if [ ${lov} -lt ${width} ]; then
+  if [ "${lov}" -lt "${width}" ]; then
     stpt=$(((width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
@@ -50,7 +50,7 @@ local Complete=0
 while [ $Complete -eq 0 ]
 do
   local Done=$3
-  if [ $2 ]; then
+  if [ "$2" ]; then
     PrintOne "$2"
     Underscore=$(echo "$2" | sed 's/./-/g')   # Uses sed to replace every character with a dash
     PrintOne "$Underscore"
@@ -82,16 +82,16 @@ do
   case $Response in
     ''|*[!0-9]*) invalid_option
     ;;
-    *) if [ ${Response} -gt ${Counter} ] || [ ${Response} -lt 1 ]; then
+    *) if [ "${Response}" -gt "${Counter}" ] || [ "${Response}" -lt 1 ]; then
         invalid_option
-      elif [ ${Response} -eq ${Counter} ] && [ -z $Done ]; then
-        Result=${ConvertToArray[${Response}]}
+      elif [ "${Response}" -eq "${Counter}" ] && [ -z "$Done" ]; then
+        Result="${ConvertToArray[${Response}]}"
         Complete=1
-      elif [ ${Response} -eq ${Counter} ]; then
+      elif [ "${Response}" -eq "${Counter}" ]; then
         Result="$Done"
         Complete=1
       else
-        Result=${ConvertToArray[${Response}]}
+        Result="${ConvertToArray[${Response}]}"
         Complete=1
       fi
   esac
@@ -116,9 +116,9 @@ do
   LongDescription=("${!name}")
   local Counter=0
   echo
-  if [ -n $2 ]; then
+  if [ -n "$2" ]; then
     PrintOne "$2"
-    Underscore=$(echo "$2" | sed 's/./-/g')   # Uses sed to replace every character with a dash
+    Underscore=$(sed 's/./-/g' <<< "$2")   # Uses sed to replace every character with a dash
     PrintOne "$Underscore"
   fi
   Counter=0
@@ -146,16 +146,17 @@ do
    case $Response in
     ''|*[!0-9]*) invalid_option
     ;;
-    *) if [ ${Response} -gt ${Counter} ]; then
+    *) if [ "${Response}" -gt "${Counter}" ]; then
       invalid_option
-      elif [ ${Response} -eq ${Counter} ]; then
+      elif [ "${Response}" -eq "${Counter}" ]; then
         Result="$Done"
         Complete=1
       else
         local Match=0
-        for i in $PrimaryFile; do
-          Match=$((Match+1))
-          if [ $Match -eq $Response ]; then
+        for i in $PrimaryFile
+        do
+          Match="$((Match+1))"
+          if [ "$Match" -eq "$Response" ]; then
             Result="$i"
           fi
         done

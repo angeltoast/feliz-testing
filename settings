@@ -91,7 +91,7 @@ setlocale()
     echo
     TPread "$SearchPrompt"
     print_heading
-    if [ -z ${Response} ]; then
+    if [ -z "${Response}" ]; then
       invalid_option
       print_heading
     else
@@ -104,7 +104,7 @@ setlocale()
       fi
       local Counter=0
       localelist=""
-      for l in ${LocaleList[@]}
+      for l in "${LocaleList[@]}"
       do
         localelist="${localelist} $l"
         Counter=$((Counter+1))
@@ -142,7 +142,7 @@ SetTimeZone()
     Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
     echo
     zones=""
-    for x in ${Zones[@]}
+    for x in "${Zones[@]}"
     do
       zones="$zones $x"
     done
@@ -174,7 +174,7 @@ SetSubZone()
     PrintOne "Please enter the first letter"
     TPread "of your nearest major city: "
     echo
-    if [ -z ${Response} ]; then
+    if [ -z "${Response}" ]; then
       invalid_option
       continue
     else
@@ -182,7 +182,7 @@ SetSubZone()
     fi
     subzones=""
     local Counter=0
-    for x in ${SubZones[@]}
+    for x in "${SubZones[@]}"
     do
       if [ "${x:0:1}" = "$Zone2" ]; then    # Note this code for getting any character or characters in a string
         subzones="$subzones $x"
@@ -448,7 +448,7 @@ ChooseDM()
       for item in ${DMList}
       do
         Counter=$((Counter+1))
-        if [ $Counter -eq $Reply ]
+        if [ "$Counter" -eq "$Reply" ]
         then
           SelectedDM=$item
           case $SelectedDM in
@@ -480,7 +480,7 @@ ChooseDM()
       echo
       listgen1 "Yes No" "" "nodone"
       echo
-      if [ $Response -eq 1 ]; then    # User wishes to change DM
+      if [ "$Response" -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
         Greeter=""                    # and greeter
         ChooseDM                      # Call this function again
@@ -496,7 +496,7 @@ FinalCheck()
     PrintOne "These are the settings you have entered. Please check them ..."
     echo
     PrintOne "1)  Root partition ... $RootPartition : $RootType" 50
-    if [ $SwapPartition ] || [ $SwapFile ]; then
+    if [ "$SwapPartition" ] || [ "$SwapFile" ]; then
       PrintMany "2)  Swap partition ... $SwapPartition $SwapFile"
     else
       PrintMany "2)  No provision has been made for swap"
@@ -504,7 +504,7 @@ FinalCheck()
     if [ ${#AddPartList[@]} ]; then
       Counter=0
       PrintMany "3)  Extra partitions ..."
-      for i in ${AddPartList[@]}
+      for i in "${AddPartList[@]}"
       do
         PrintMany "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}" 50
         Counter=$((Counter+1))
@@ -517,7 +517,7 @@ FinalCheck()
       ;;
       *) PrintMany "4)  The latest kernel will be installed"
     esac
-    if [ $GrubDevice ]; then
+    if [ "$GrubDevice" ]; then
     PrintMany "5)  Grub will be installed to $GrubDevice" 50
     else
       PrintMany "5)  No provision has been made for Grub"
@@ -638,7 +638,7 @@ ChangePartitions() {
   # Copy RootPartition and SwapPartition into temporary array
   Ignorelist[0]=${RootPartition}
   local Counter=1
-  if [ ${SwapPartition} ]; then
+  if [ "${SwapPartition}" ]; then
     Ignorelist[1]=${SwapPartition}
     Counter=2
   fi
@@ -650,7 +650,8 @@ AddExtras() {
   # Called by ChangeSwapPartition and ChangeRootPartition with
   # Ignorelist started and Counter set to next record number
   # Add each field (extra partition) from AddPartList into the array:
-  for a in ${AddPartList[@]}; do
+  for a in "${AddPartList[@]}"
+  do
     Ignorelist[$Counter]=$a
     Counter=$((Counter+1))
   done
