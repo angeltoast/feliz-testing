@@ -59,7 +59,6 @@ ZONE=""                   # eg: Europe For time
 SUBZONE=""                # eg: London
 
 # Desktop environment, display manager and greeter variables
-DesktopEnvironment="None" # eg: xfce4
 GoodiesXfce=""
 GoodiesGnome=""
 GoodiesOpenbox=""
