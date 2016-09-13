@@ -245,13 +245,13 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   URL="https://www.archlinux.org/mirrorlist/?country=${CountryCode}&use_mirror_status=on"
   MirrorTemp=$(mktemp --suffix=-mirrorlist) 2>> feliz.log
   # Use curl to get list of mirrors from the Arch mirrorlist ${URL} to ${MirrorTemp}
-  curl -so "${MirrorTemp}" "${URL}" 2>> feliz.log
+  curl -so ${MirrorTemp} ${URL} 2>> feliz.log
   # Use sed to filter entries
   sed -i 's/^#Server/Server/g' "${MirrorTemp}" 2>> feliz.log
   # Make a safe copy of existing mirrorlist
   mv -f /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig 2>> feliz.log
   # Replace existing mirrorlist with new local mirrorlist
-  mv -f "${MirrorTemp}" /etc/pacman.d/mirrorlist 2>> feliz.log
+  mv -f ${MirrorTemp} /etc/pacman.d/mirrorlist 2>> feliz.log
   chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
 }
 
@@ -264,55 +264,55 @@ MountPartitions() {
   "") echo "Not formatting root partition" >> feliz.log
   ;;
   *) TPecho "Preparing and mounting partitions" ""
-    umount "${RootPartition}" /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
+    umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=$(file -sL "${RootPartition}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
-    if [ "${CurrentType}" ] && [ "$RootType" = "btrfs" ] && [ "${CurrentType}" != "btrfs" ]; then
-      btrfs-convert "${RootPartition}" 2>> feliz.log
-    elif [ "$RootType" = "btrfs" ]; then
-      mkfs.btrfs -f "${RootPartition}" 2>> feliz.log
+    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${RootPartition} 2>> feliz.log
+    elif [ $RootType = "btrfs" ]; then
+      mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
       Partition=$(echo "$RootPartition" | cut -c 6-) 2>> feliz.log
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
+      Label=${LabellingArray[${Partition}]}
+      if [ -n ${Label} ]; then
         Label="-L ${Label}"
       fi
-      mke2fs "${Label}" -t "${RootType}" "${RootPartition}" &>> feliz.log
+      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  mount "${RootPartition}" /mnt &>> feliz.log        # eg: mount /dev/sda1 /mnt !! Suppressed output !!
-  if [ "${SwapPartition}" ]; then
+  mount ${RootPartition} /mnt &>> feliz.log        # eg: mount /dev/sda1 /mnt !! Suppressed output !!
+  if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
-    if [ "$MakeSwap" = "Y" ]; then
+    if [ $MakeSwap = "Y" ]; then
       Partition=${SwapPartition: -4}                     # Last 4 characters
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
+      Label=${LabellingArray[${Partition}]}
+      if [ -n ${Label} ]; then
         Label="-L ${Label}"
       fi
-      mkswap "${Label}" "${SwapPartition}" 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
+      mkswap ${Label} ${SwapPartition} 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
-    swapon "${SwapPartition}" 2>> feliz.log              # eg: swapon /dev/sda2
+    swapon ${SwapPartition} 2>> feliz.log              # eg: swapon /dev/sda2
   fi
   local Counter=0
   for id in ${AddPartList}
   do
-    umount "${id}" /mnt"${AddPartMount[$Counter]}" >/dev/null 2>> feliz.log
-    mkdir -p /mnt"${AddPartMount[$Counter]}" 2>> feliz.log  # eg: mkdir -p /mnt/home
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30)
-    if [ "${AddPartType[$Counter]}" = "btrfs" ] && [ "${CurrentType}" != "btrfs" ]; then
-      btrfs-convert "${id}" 2>> feliz.log
-    elif [ "${AddPartType[$Counter]}" = "btrfs" ]; then
-      mkfs.btrfs -f "${id}" 2>> feliz.log
-    elif [ "${AddPartType[$Counter]}" != "" ]; then
+    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${id} 2>> feliz.log
+    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
+      mkfs.btrfs -f ${id} 2>> feliz.log
+    elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=${id: -4}                            # Last 4 characters of ${id}
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
+      Label=${LabellingArray[${Partition}]}
+      if [ -n ${Label} ]; then
         Label="-L ${Label}"
       fi
-      mke2fs "${Label}" -t "${AddPartType[$Counter]}" "${id}" &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount "${id}" /mnt"${AddPartMount[$Counter]}" &>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
 }
