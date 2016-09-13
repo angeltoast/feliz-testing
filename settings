@@ -26,7 +26,7 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# getkeymap         25    ShoppingList        283
+# getkeymap         25    ShoppingList        305
 # setocale          63    ChooseDM            441
 # SetTimeZone      117    AddDEextras         483
 # SetSubZone       148    FinalCheck          513
@@ -311,7 +311,7 @@ ShoppingList()
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
     echo
-     # $Category passed here is number of item in CategoriesList
+     # $Category passed here is the number of the item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
@@ -390,11 +390,8 @@ ShoppingList()
     done
     # Then carry out any specific tests and add the item to the list
     SaveResult="$Result" # (Because other subroutines return $Result)
-    if [ "${SaveResult}" = "libreoffice" ]; then
-      LuxuriesList="${LuxuriesList} libreoffice-fresh"
-      continue
-    fi
-    DesktopEnvironment="$SaveResult"
+
+    # DesktopEnvironment="$SaveResult"      # May no longer be used
     case $SaveResult in
       "Budgie") ChooseDM
        ;;
@@ -426,7 +423,12 @@ ShoppingList()
        ;;
       *) echo
     esac
-    LuxuriesList="${LuxuriesList} ${SaveResult}"
+    if [ "${SaveResult}" = "libreoffice" ]; then
+      LuxuriesList="${LuxuriesList} libreoffice-fresh"
+      continue
+    else
+      LuxuriesList="${LuxuriesList} ${SaveResult}"
+    fi
   done
 
   Passed=""

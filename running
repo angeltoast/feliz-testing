@@ -406,7 +406,7 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
+      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
         ;;
       "cairo-dock") TPecho "Installing cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
