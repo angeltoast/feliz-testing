@@ -96,11 +96,11 @@ setlocale()
       print_heading
     else
       echo
-      searchterm="${Response,,}"
-      LocaleList=$(grep "${searchterm}"....UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
+      searchterm=${Response,,}
+      LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
       if [ ${#LocaleList[@]} -eq 0 ]; then
-        SEARCHTERM="${Response^^}"
-        LocaleList=$(grep "${SEARCHTERM}".UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
+        SEARCHTERM=${Response^^}
+        LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
       fi
       local Counter=0
       localelist=""
@@ -121,14 +121,14 @@ setlocale()
         "Try_again") continue
         ;;
         *) CountryLocale="${Result}.UTF-8"
-        CountryCode="${Result:3:2}"                     # Note the use of character counting in variable $Result
+        CountryCode="${Result:3:2}"                     # Character counting in variable $Result
         break
       esac
     fi
     print_heading
   done
   print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:4}" 1 # Note the use of character counting in variable $CountryLocale
+  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # Character counting in variable $CountryLocale
 }
 
 SetTimeZone()
@@ -396,6 +396,8 @@ ShoppingList()
     fi
     DesktopEnvironment="$SaveResult"
     case $SaveResult in
+      "Budgie") ChooseDM
+       ;;
       "Cinnamon") ChooseDM
        ;;
       "Deepin") ChooseDM
