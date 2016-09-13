@@ -255,10 +255,6 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
 }
 
-#
-# Install stage --------------------------------------------------------
-#
-
 MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
@@ -272,7 +268,10 @@ MountPartitions() {
     elif [ $RootType = "btrfs" ]; then
       mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
-      Partition=$(echo $RootPartition | cut -c 6-) 2>> feliz.log
+      Partition=${id: -4}                            # Last 4 characters
+  
+  read -p "Debug in 'running' at line 273 - Root Partition = ${Partition} - press enter"
+  
       Label=${LabellingArray[${Partition}]}
       if [ -n ${Label} ]; then
         Label="-L ${Label}"
@@ -280,7 +279,7 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  mount ${RootPartition} /mnt &>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
+  mount ${RootPartition} /mnt 2>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
   
   read -p "Debug in 'running' at line 284 - press enter"
   
@@ -289,6 +288,9 @@ MountPartitions() {
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
       Partition=${SwapPartition: -4}                 # Last 4 characters
+  
+  read -p "Debug in 'running' at line 292 - Swap Partition = ${Partition} - press enter"
+  
       Label=${LabellingArray[${Partition}]}
       if [ -n ${Label} ]; then
         Label="-L ${Label}"
