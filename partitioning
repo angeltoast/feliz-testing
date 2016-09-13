@@ -265,8 +265,8 @@ AllocateRoot() {
   echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response
-  if [ "$Result" != "Done" ]; then
-    PassPart="$Result"
+  if [ $Result != "Done" ]; then
+    PassPart=$Result
     SetLabel "$Result"
     UpdateArray # Remove the selected partition from $PartitionArray[]
   fi
@@ -274,12 +274,12 @@ AllocateRoot() {
   for i in ${PartitionList}
   do
     Counter=$((Counter+1))
-    if [ "$Counter" -eq "$Reply" ]; then
+    if [ $Counter -eq $Reply ]; then
       Partition="/dev/$i"
       RootPartition="${Partition}"
       # Before going to select_filesystem, check the partition
       CheckPartition
-      if [ "${CurrentType}" ]; then
+      if [ ${CurrentType} ]; then
         PrintOne "You can choose to leave it as it is, but should"
         PrintOne "understand that not reformatting the root"
         PrintOne "partition can have unexpected consequences."
@@ -311,7 +311,7 @@ CheckPartition() {
   # Finds if there is an existing file system on the selected partition
   print_heading
   CurrentType=$(file -sL "${Partition}" | grep "ext" | cut -c26-30)
-  if [ "${CurrentType}" ]; then
+  if [ ${CurrentType} ]; then
     PrintOne "The selected partition ${Partition} is currently formatted to ${CurrentType}"
     PrintOne "Reformatting it will remove all data currently on it."
   fi

@@ -271,13 +271,13 @@ MountPartitions() {
     else
       Partition=${RootPartition: -4}                 # Last 4 characters
   
-  read -p "Debug in 'running' at line 273 - Root Partition = ${Partition} - press enter"
+  read -p "Debug in 'running' at line 273 - Root Partition = ${RootPartition} - press enter"
   
-      Label=${LabellingArray[${Partition}]}
-      if [ -n ${Label} ]; then
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
+      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
     fi
   esac
   mount ${RootPartition} /mnt 2>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
@@ -292,7 +292,7 @@ MountPartitions() {
   
   read -p "Debug in 'running' at line 292 - Swap Partition = ${Partition} - press enter"
   
-      Label=${LabellingArray[${Partition}]}
+      Label="${LabellingArray[${Partition}]}"
       if [ -n ${Label} ]; then
         Label="-L ${Label}"
       fi
