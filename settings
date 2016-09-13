@@ -182,7 +182,10 @@ SetSubZone()
     local Counter=0
     for x in ${SubZones[@]}
     do
-      if [ ${x:0:1} = "$Zone2" ]; then    # Get 1 character from position 0 in string $x
+      if [ ${x:0:1} = ${Zone2} ]; then    # Get 1 character from position 0 in string $x
+        
+  read -p "Debug in 'settings' at line 187 - Subzone = $x ${Zone2} - press enter"
+  
         subzones="$subzones $x"
         Counter=$((Counter+1))
       fi
