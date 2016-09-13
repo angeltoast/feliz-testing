@@ -2,8 +2,9 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 13th September 2016
+# Revision date: 7th September 2016
 
+# Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
@@ -21,13 +22,14 @@
 
 # In this module:
 # Functions relevant to users, settings, extra applications and review
+
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# getkeymap         40    ShoppingList        305
-# setocale          79    ChooseDM            441
-# SetTimeZone      134    AddDEextras         483
-# SetSubZone       166    FinalCheck          513
+# getkeymap         25    ShoppingList        283
+# setocale          63    ChooseDM            441
+# SetTimeZone      117    AddDEextras         483
+# SetSubZone       148    FinalCheck          513
 # Username         188    ManualSettings      604
 # Hostname         204    ChangeRootPartition 634
 # PickLuxuries     220    ChangeSwapPartition 642
@@ -51,7 +53,7 @@ getkeymap()
     TPread "(eg: 'atari' or 'us'): "
     local Term="${Response,,}"
     echo
-    ListKbs=$(grep "${Term}" keymaps.list | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
+    ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
     case ${ListKbs} in
       "") print_heading
         echo
@@ -67,7 +69,7 @@ getkeymap()
       ;;
     *) Repeat=0
       Countrykbd="${Result}"
-      loadkeys "${Countrykbd}" 2>> feliz.log
+      loadkeys ${Countrykbd} 2>> feliz.log
     esac
   done
   print_heading
@@ -89,25 +91,18 @@ setlocale()
     echo
     TPread "$SearchPrompt"
     print_heading
-    if [ -z ${Response} ]; then
+    if [ -z ${Response} ]
+    then
       invalid_option
       print_heading
     else
       echo
       searchterm="${Response,,}"
-      LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
-      
-  read -p "Debug in 'settings' at line 99 - searchterm = ${searchterm} - press enter"
-  read -p "Debug in 'settings' at line 104 - LocaleList = ${LocaleList} - press enter"
-  
+      LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
       if [ ${#LocaleList[@]} -eq 0 ]
       then
         SEARCHTERM="${Response^^}"
-        LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
-  
-  read -p "Debug in 'settings' at line 103 - SEARCHTERM = ${SEARCHTERM} - press enter"
-  read -p "Debug in 'settings' at line 104 - LocaleList = ${LocaleList} - press enter"
-  
+        LocaleList=(`cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
       fi
       local Counter=0
       localelist=""
@@ -128,14 +123,14 @@ setlocale()
         "Try_again") continue
         ;;
         *) CountryLocale="${Result}.UTF-8"
-        CountryCode=${Result:3:2}                     # Save 2 characters from position 3 in $Result
+        CountryCode=(`echo ${Result} | cut -c4-6`)
         break
       esac
     fi
     print_heading
   done
   print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # Display 5 characters from position 0 in $CountryLocale
+  read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
 }
 
 SetTimeZone()
@@ -146,7 +141,7 @@ SetTimeZone()
     print_heading
     PrintOne "To set the system clock, please first"
     PrintOne "choose the World Zone of your location."
-    Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
+    Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
     echo
     zones=""
     for x in ${Zones[@]}
@@ -172,7 +167,7 @@ SetTimeZone()
 
 SetSubZone()
 {
-  SubZones=$(timedatectl list-timezones | grep "${ZONE}" | sed 's/^.*\///')
+  SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
   while [ $Complete -eq 0 ]
   do
     print_heading
@@ -181,17 +176,18 @@ SetSubZone()
     PrintOne "Please enter the first letter"
     TPread "of your nearest major city: "
     echo
-    if [ -z ${Response} ]; then
+    if [ -z ${Response} ]
+    then
       invalid_option
       continue
     else
-      Zone2=${Response^^}
+      Zone2="${Response^^}"
     fi
     subzones=""
     local Counter=0
     for x in ${SubZones[@]}
     do
-      if [ ${x:0:1} = ${Zone2} ]; then    # Get 1 character from position 0 in string $x
+      if [ `echo $x | cut -c1` = $Zone2 ]; then
         subzones="$subzones $x"
         Counter=$((Counter+1))
       fi
@@ -262,7 +258,7 @@ PickLuxuries()
   do
     listgen1 "${CategoriesList}" "Categories" "Done"
     Category=$Response
-    if [ "$Result" = "Done" ]; then
+    if [ $Result = "Done" ]; then
       break
     else
       ShoppingList
@@ -298,7 +294,7 @@ KeepOrDelete()
         Temp=""
         for lux in $LuxuriesList
         do
-          if [ "${lux}" != "${Bagged}" ]; then
+          if [ ${lux} != ${Bagged} ]; then
             Temp="$Temp $lux"
           fi
         done
@@ -318,7 +314,7 @@ ShoppingList()
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
     echo
-     # $Category passed here is the number of the item in CategoriesList
+     # $Category passed here is number of item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
@@ -382,60 +378,67 @@ ShoppingList()
       *) break
     esac
     Passed="Choose your next item" # Loop until user selects "Done"
-    if [ "$Result" = "Done" ]; then
+    if [ $Result = "Done" ]; then
       break
     fi
     AddToList="Y"
     # First check that chosen item is not already on the list
     for lux in $LuxuriesList
     do
-      if [ "${lux}" = "${Result}" ]; then
-        KeepOrDelete "$Result"
+      if [ ${lux} = ${Result} ]; then
+        KeepOrDelete "$Result" # New function
         Result=""
         continue
       fi
     done
     # Then carry out any specific tests and add the item to the list
-    SaveResult="$Result" # (Because other subroutines return $Result)
-
-    # DesktopEnvironment="$SaveResult"      # May no longer be used
+    SaveResult=$Result # (Because other subroutines return $Result)
+    if [ ${SaveResult} = "libreoffice" ]; then
+      LuxuriesList="${LuxuriesList} libreoffice-fresh"
+      continue
+    fi
     case $SaveResult in
-      "Budgie") ChooseDM
+      "Cinnamon") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
-      "Cinnamon") ChooseDM
+      "Deepin") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
-      "Deepin") ChooseDM
+      "Enlightenment") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
-      "Enlightenment") ChooseDM
-       ;;
-      "Fluxbox") ChooseDM
+      "Fluxbox") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
-      "Gnome") ChooseDM
+      "Gnome") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
-      "JWM") ChooseDM
+      "JWM") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
-      "KDE") ChooseDM
+      "KDE") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
-     "LXDE") ChooseDM
+     "LXDE") DesktopEnvironment=$SaveResult
+       ChooseDM
        ;;
-      "LXQt") ChooseDM
+      "LXQt") DesktopEnvironment=$SaveResult
+        ChooseDM
         ;;
-      "Mate") ChooseDM
+      "Mate") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
-     "Openbox") ChooseDM
+     "Openbox") DesktopEnvironment=$SaveResult
+       ChooseDM
        ;;
-      "Xfce") ChooseDM
+      "Xfce") DesktopEnvironment=$SaveResult
+        ChooseDM
        ;;
       "") continue
        ;;
       *) echo
     esac
-    if [ "${SaveResult}" = "libreoffice" ]; then
-      LuxuriesList="${LuxuriesList} libreoffice-fresh"
-      continue
-    else
-      LuxuriesList="${LuxuriesList} ${SaveResult}"
-    fi
+    LuxuriesList="${LuxuriesList} ${SaveResult}"
   done
 
   Passed=""
@@ -459,7 +462,7 @@ ChooseDM()
       for item in ${DMList}
       do
         Counter=$((Counter+1))
-        if [ "$Counter" -eq "$Reply" ]
+        if [ $Counter -eq $Reply ]
         then
           SelectedDM=$item
           case $SelectedDM in
@@ -491,7 +494,7 @@ ChooseDM()
       echo
       listgen1 "Yes No" "" "nodone"
       echo
-      if [ "$Response" -eq 1 ]; then    # User wishes to change DM
+      if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
         Greeter=""                    # and greeter
         ChooseDM                      # Call this function again
@@ -507,7 +510,7 @@ FinalCheck()
     PrintOne "These are the settings you have entered. Please check them ..."
     echo
     PrintOne "1)  Root partition ... $RootPartition : $RootType" 50
-    if [ "$SwapPartition" ] || [ "$SwapFile" ]; then
+    if [ $SwapPartition ] || [ $SwapFile ]; then
       PrintMany "2)  Swap partition ... $SwapPartition $SwapFile"
     else
       PrintMany "2)  No provision has been made for swap"
@@ -515,7 +518,7 @@ FinalCheck()
     if [ ${#AddPartList[@]} ]; then
       Counter=0
       PrintMany "3)  Extra partitions ..."
-      for i in "${AddPartList[@]}"
+      for i in ${AddPartList[@]}
       do
         PrintMany "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}" 50
         Counter=$((Counter+1))
@@ -528,7 +531,7 @@ FinalCheck()
       ;;
       *) PrintMany "4)  The latest kernel will be installed"
     esac
-    if [ "$GrubDevice" ]; then
+    if [ $GrubDevice ]; then
     PrintMany "5)  Grub will be installed to $GrubDevice" 50
     else
       PrintMany "5)  No provision has been made for Grub"
@@ -649,7 +652,7 @@ ChangePartitions() {
   # Copy RootPartition and SwapPartition into temporary array
   Ignorelist[0]=${RootPartition}
   local Counter=1
-  if [ "${SwapPartition}" ]; then
+  if [ ${SwapPartition} ]; then
     Ignorelist[1]=${SwapPartition}
     Counter=2
   fi
@@ -661,8 +664,7 @@ AddExtras() {
   # Called by ChangeSwapPartition and ChangeRootPartition with
   # Ignorelist started and Counter set to next record number
   # Add each field (extra partition) from AddPartList into the array:
-  for a in "${AddPartList[@]}"
-  do
+  for a in ${AddPartList[@]}; do
     Ignorelist[$Counter]=$a
     Counter=$((Counter+1))
   done

@@ -43,9 +43,9 @@ arch_chroot() {  # From Lution AIS
 
 print_heading() {
   clear
-  T_COLS=$(tput cols)
-  tput cup 1 $(((T_COLS/2)-20))
-  printf "~ %s ~\n" "$Backtitle"
+  T_COLS=`tput cols`
+  tput cup 1 $((($T_COLS/2)-20))
+  printf "~ $Backtitle ~\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
 }
 
@@ -56,14 +56,14 @@ invalid_option() { # (from AUI scripts)
 
 TPread() { # Aligned prompt for user-entry
   # $1 = prompt ... Returns result through $Response
-  T_COLS=$(tput cols)
+  T_COLS=`tput cols`
   lov=${#1}
-  if [ "${lov}" -lt "${T_COLS}" ]; then
-    stpt=$(((T_COLS - lov) / 2 ))
-  elif [ "${lov}" -gt "${T_COLS}" ]; then
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 2 ))
+  elif [ ${lov} -gt ${T_COLS} ]; then
     stpt=0
   else
-    stpt=$(((T_COLS - 10) / 2 ))
+    stpt=$(( ($T_COLS - 10) / 2 ))
   fi
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
@@ -72,14 +72,14 @@ TPread() { # Aligned prompt for user-entry
 TPecho() { # For displaying status while running on auto
   echo
   CurrentTime=$(date +%s)
-  Difference=$((CurrentTime - StartTime ))
-  DIFFMIN=$((Difference / 60 ))
-  DIFFSEC=$((Difference % 60 ))
-  T_COLS=$(tput cols)
+  Difference=$(( $CurrentTime-$StartTime ))
+  DIFFMIN=$(( $Difference/60 ))
+  DIFFSEC=$(( $Difference % 60 ))
+  T_COLS=`tput cols`
   EMPTY="     "
   lov=${#1}
-  if [ "${lov}" -lt "${T_COLS}" ]; then
-    stpt=$(((T_COLS - lov) / 3 ))
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 3 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
   tput bold
@@ -88,15 +88,15 @@ TPecho() { # For displaying status while running on auto
 }
 
 read_timed() { # $1 = text to display; $2 = duration
-  T_COLS=$(tput cols)
+  T_COLS=`tput cols`
   lov=${#1}
-  if [ "$2" ]; then
-    tim="$2"
+  if [ $2 ]; then
+    tim=$2
   else
     tim=2
   fi
-  if [ "${lov}" -lt "${T_COLS}" ]; then
-    stpt=$(((T_COLS - lov) / 2 ))
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   else
     EMPTY=""
@@ -172,11 +172,11 @@ SetGrubDevice() {
   do
     Item=$i
     Counter=$((Counter+1))
-    if [ "$Counter" -eq "$Reply" ]; then
-      if [ "$Item" = "$Done" ]; then
+    if [ $Counter -eq $Reply ]; then
+      if [ $Item = "$Done" ]; then
         GrubDevice=""
       else
-        GrubDevice="$Item"
+        GrubDevice=$Item
       fi
       break
     fi
@@ -190,7 +190,6 @@ InstallKernel() {   # Kernel and some other core systems
   case $Kernel in   # Selected kernel
     1) TPecho "Installing LTS kernel"
       pacstrap /mnt linux-lts 2>> feliz.log
-      pacstrap /mnt linux-lts-headers 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel"
       pacstrap /mnt linux 2>> feliz.log
@@ -248,7 +247,7 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   # Use curl to get list of mirrors from the Arch mirrorlist ${URL} to ${MirrorTemp}
   curl -so ${MirrorTemp} ${URL} 2>> feliz.log
   # Use sed to filter entries
-  sed -i 's/^#Server/Server/g' "${MirrorTemp}" 2>> feliz.log
+  sed -i 's/^#Server/Server/g' ${MirrorTemp} 2>> feliz.log
   # Make a safe copy of existing mirrorlist
   mv -f /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.orig 2>> feliz.log
   # Replace existing mirrorlist with new local mirrorlist
@@ -256,78 +255,65 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
 }
 
+#
+# Install stage --------------------------------------------------------
+#
+
 MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
   ;;
-  *) TPecho "Preparing and mounting root partition to ${RootPartition}" ""
+  *) TPecho "Preparing and mounting partitions" ""
     umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
     # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=$(file -sL "${RootPartition}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
+    CurrentType=`file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30` 2>> feliz.log
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${RootPartition} 2>> feliz.log
     elif [ $RootType = "btrfs" ]; then
       mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
-      Partition=${RootPartition: -4}                 # Last 4 characters
-  
-  read -p "Debug in 'running' at line 273 - Root Partition = ${RootPartition} - press enter"
-  
+      Partition=`echo $RootPartition | cut -c 6-` 2>> feliz.log
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
+      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  mount ${RootPartition} /mnt 2>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
-  
-  read -p "Debug in 'running' at line 284 - press enter"
-  
+  mount ${RootPartition} /mnt &>> feliz.log         # eg: mount /dev/sda1 /mnt !! Suppressed output !!
   if [ ${SwapPartition} ]; then
-    TPecho "Preparing and mounting swap partition to ${SwapPartition}" ""
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      Partition=${SwapPartition: -4}                 # Last 4 characters
-  
-  read -p "Debug in 'running' at line 292 - Swap Partition = ${Partition} - press enter"
-  
+      Partition=`echo $SwapPartition | cut -c 6-`
       Label="${LabellingArray[${Partition}]}"
-      if [ -n ${Label} ]; then
+      if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
       mkswap ${Label} ${SwapPartition} 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
     swapon ${SwapPartition} 2>> feliz.log            # eg: swapon /dev/sda2
   fi
-  
-  read -p "Debug in 'running' at line 298 - press enter"
-  
   local Counter=0
   for id in ${AddPartList}
   do
-    TPecho "Preparing and mounting ${AddPartType[$Counter]} partition to ${AddPartMount[$Counter]}" ""
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30)
+    CurrentType=`file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30`
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id} 2>> feliz.log
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
       mkfs.btrfs -f ${id} 2>> feliz.log
     elif [ ${AddPartType[$Counter]} != "" ]; then
-      Partition=${id: -4}                            # Last 4 characters of ${id}
-      Label=${LabellingArray[${Partition}]}
-      if [ -n ${Label} ]; then
+      Partition=`echo ${id} | cut -c 6-`
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
         Label="-L ${Label}"
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
-    
-    read -p "Debug in 'running' at line 320 - press enter"
-    
   done
 }
 
@@ -337,7 +323,7 @@ InstallDM()
   arch_chroot "systemctl disable display-manager.service" >/dev/null
   # Then install selected display manager
   TPecho "Installing ${DisplayManager} display manager" 20
-  pacstrap /mnt "${DisplayManager}" "${Greeter}" 2>> feliz.log
+  pacstrap /mnt ${DisplayManager} ${Greeter} 2>> feliz.log
   arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
 }
 
@@ -350,9 +336,6 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie") TPecho "Installing the Budgie desktop Environment"
-          pacstrap /mnt budgie-desktop 2>> feliz.log
-        ;;
       "Cinnamon") TPecho "Installing the Cinnamon desktop Environment"
           pacstrap /mnt cinnamon 2>> feliz.log
         ;;
@@ -420,7 +403,7 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
+      "Cinnamon" | "Deepin" | "Enlightenment" | "Feliz" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs this pass
         ;;
       "cairo-dock") TPecho "Installing cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
@@ -429,7 +412,7 @@ InstallLuxuries()
         pacstrap /mnt conky 2>> feliz.log
         ;;
       *) TPecho "Installing $i"
-        pacstrap /mnt "$i" 2>> feliz.log
+        pacstrap /mnt $i 2>> feliz.log
       esac
     done
   fi
@@ -442,9 +425,9 @@ InstallLuxuries()
 }
 
 UserAdd() {
-  CheckUsers=$(grep "${UserName}" /mnt/etc/passwd )
+  CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
   # If not already exist, create user
-  if [ -z "${CheckUsers}" ]; then
+  if [ -z ${CheckUsers} ]; then
     TPecho "Adding user '${UserName}' and setting up groups"
     arch_chroot "useradd ${UserName} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user
@@ -477,12 +460,12 @@ SetRootPassword() {
     echo
     read -s -p "Re-enter password for root: " Pass2
     echo
-    if [ -z "${Pass1}" ] || [ -z "${Pass2}" ]; then
+    if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
       read_timed "Passwords cannot be blank. Try again ..." 1
       continue
     fi
-    if [ "$Pass1" = "$Pass2" ]; then
+    if [ $Pass1 = $Pass2 ]; then
      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
      arch_chroot "passwd root" < /tmp/.passwd >/dev/null
      rm /tmp/.passwd 2>> feliz.log
@@ -503,12 +486,12 @@ SetUserPassword() {
     echo
     read -s -p "Re-enter password for $UserName: " Pass2
     echo
-    if [ -z "${Pass1}" ] || [ -z "${Pass2}" ]; then
+    if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
       read_timed "Passwords cannot be blank. Try again ..." 1
       continue
     fi
-    if [ "$Pass1" = "$Pass2" ]; then
+    if [ $Pass1 = $Pass2 ]; then
       echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
       arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
       rm /tmp/.passwd 2>> feliz.log
