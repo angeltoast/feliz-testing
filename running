@@ -190,6 +190,7 @@ InstallKernel() {   # Kernel and some other core systems
   case $Kernel in   # Selected kernel
     1) TPecho "Installing LTS kernel"
       pacstrap /mnt linux-lts 2>> feliz.log
+      pacstrap /mnt linux-lts-headers 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel"
       pacstrap /mnt linux 2>> feliz.log
