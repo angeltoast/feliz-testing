@@ -182,7 +182,7 @@ SetSubZone()
     fi
     subzones=""
     local Counter=0
-    for x in "${SubZones[@]}"
+    for x in ${SubZones[@]}
     do
       if [ "${x:0:1}" = "$Zone2" ]; then    # Note this code for getting any character or characters in a string
         subzones="$subzones $x"
