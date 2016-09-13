@@ -268,7 +268,7 @@ MountPartitions() {
     elif [ $RootType = "btrfs" ]; then
       mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
-      Partition=${id: -4}                            # Last 4 characters
+      Partition=${RootPartition: -4}                 # Last 4 characters
   
   read -p "Debug in 'running' at line 273 - Root Partition = ${Partition} - press enter"
   
