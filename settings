@@ -100,7 +100,8 @@ setlocale()
   read -p "Debug in 'settings' at line 99 - searchterm = ${searchterm} - press enter"
   read -p "Debug in 'settings' at line 104 - LocaleList = ${LocaleList} - press enter"
   
-      if [ ${#LocaleList[@]} -eq 0 ]; then
+      if [ ${#LocaleList[@]} -eq 0 ]
+      then
         SEARCHTERM="${Response^^}"
         LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
   
