@@ -89,16 +89,20 @@ setlocale()
     echo
     TPread "$SearchPrompt"
     print_heading
-    if [ -z "${Response}" ]; then
+    if [ -z ${Response} ]; then
       invalid_option
       print_heading
     else
       echo
-      searchterm=${Response,,}
+      searchterm="${Response,,}"
       LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
       if [ ${#LocaleList[@]} -eq 0 ]; then
-        SEARCHTERM=${Response^^}
+        SEARCHTERM="${Response^^}"
         LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g');
+  
+  read -p "Debug in 'settings' at line 103 - SEARCHTERM = ${SEARCHTERM} - press enter"
+  read -p "Debug in 'settings' at line 104 - LocaleList = ${LocaleList} - press enter"
+  
       fi
       local Counter=0
       localelist=""
@@ -183,9 +187,6 @@ SetSubZone()
     for x in ${SubZones[@]}
     do
       if [ ${x:0:1} = ${Zone2} ]; then    # Get 1 character from position 0 in string $x
-        
-  read -p "Debug in 'settings' at line 187 - Subzone = $x ${Zone2} - press enter"
-  
         subzones="$subzones $x"
         Counter=$((Counter+1))
       fi
