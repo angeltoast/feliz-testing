@@ -143,7 +143,7 @@ do
   echo
   TPread "Please enter the number of your selection: "
 
-   case $Response in
+  case $Response in
     ''|*[!0-9]*) invalid_option
     ;;
     *) if [ "${Response}" -gt "${Counter}" ]; then

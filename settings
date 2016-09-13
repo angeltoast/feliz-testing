@@ -104,7 +104,7 @@ setlocale()
       fi
       local Counter=0
       localelist=""
-      for l in "${LocaleList[@]}"
+      for l in ${LocaleList[@]}
       do
         localelist="${localelist} $l"
         Counter=$((Counter+1))
