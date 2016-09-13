@@ -263,7 +263,7 @@ MountPartitions() {
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
   ;;
-  *) TPecho "Preparing and mounting partitions" ""
+  *) TPecho "Preparing and mounting root partition to ${RootPartition}" ""
     umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
     # Check if replacing existing ext3/4 partition with btrfs
     CurrentType=$(file -sL "${RootPartition}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -272,7 +272,7 @@ MountPartitions() {
     elif [ $RootType = "btrfs" ]; then
       mkfs.btrfs -f ${RootPartition} 2>> feliz.log
     else
-      Partition=$(echo "$RootPartition" | cut -c 6-) 2>> feliz.log
+      Partition=$(echo $RootPartition | cut -c 6-) 2>> feliz.log
       Label=${LabellingArray[${Partition}]}
       if [ -n ${Label} ]; then
         Label="-L ${Label}"
@@ -280,22 +280,30 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  mount ${RootPartition} /mnt &>> feliz.log        # eg: mount /dev/sda1 /mnt !! Suppressed output !!
+  mount ${RootPartition} /mnt &>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
+  
+  read -p "Debug in 'running' at line 284 - press enter"
+  
   if [ ${SwapPartition} ]; then
+    TPecho "Preparing and mounting swap partition to ${SwapPartition}" ""
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
-      Partition=${SwapPartition: -4}                     # Last 4 characters
+      Partition=${SwapPartition: -4}                 # Last 4 characters
       Label=${LabellingArray[${Partition}]}
       if [ -n ${Label} ]; then
         Label="-L ${Label}"
       fi
       mkswap ${Label} ${SwapPartition} 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
     fi
-    swapon ${SwapPartition} 2>> feliz.log              # eg: swapon /dev/sda2
+    swapon ${SwapPartition} 2>> feliz.log            # eg: swapon /dev/sda2
   fi
+  
+  read -p "Debug in 'running' at line 298 - press enter"
+  
   local Counter=0
   for id in ${AddPartList}
   do
+    TPecho "Preparing and mounting ${AddPartType[$Counter]} partition to ${AddPartMount[$Counter]}" ""
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs
@@ -314,6 +322,9 @@ MountPartitions() {
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
+    
+    read -p "Debug in 'running' at line 320 - press enter"
+    
   done
 }
 

@@ -2,9 +2,8 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 7th September 2016
+# Revision date: 13th September 2016
 
-# Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
@@ -22,14 +21,13 @@
 
 # In this module:
 # Functions relevant to users, settings, extra applications and review
-
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# getkeymap         25    ShoppingList        305
-# setocale          63    ChooseDM            441
-# SetTimeZone      117    AddDEextras         483
-# SetSubZone       148    FinalCheck          513
+# getkeymap         40    ShoppingList        305
+# setocale          79    ChooseDM            441
+# SetTimeZone      134    AddDEextras         483
+# SetSubZone       166    FinalCheck          513
 # Username         188    ManualSettings      604
 # Hostname         204    ChangeRootPartition 634
 # PickLuxuries     220    ChangeSwapPartition 642
@@ -121,14 +119,14 @@ setlocale()
         "Try_again") continue
         ;;
         *) CountryLocale="${Result}.UTF-8"
-        CountryCode="${Result:3:2}"                     # Character counting in variable $Result
+        CountryCode=${Result:3:2}                     # Save 2 characters from position 3 in $Result
         break
       esac
     fi
     print_heading
   done
   print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # Character counting in variable $CountryLocale
+  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # Display 5 characters from position 0 in $CountryLocale
 }
 
 SetTimeZone()
@@ -142,7 +140,7 @@ SetTimeZone()
     Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
     echo
     zones=""
-    for x in "${Zones[@]}"
+    for x in ${Zones[@]}
     do
       zones="$zones $x"
     done
@@ -174,17 +172,17 @@ SetSubZone()
     PrintOne "Please enter the first letter"
     TPread "of your nearest major city: "
     echo
-    if [ -z "${Response}" ]; then
+    if [ -z ${Response} ]; then
       invalid_option
       continue
     else
-      Zone2="${Response^^}"
+      Zone2=${Response^^}
     fi
     subzones=""
     local Counter=0
     for x in ${SubZones[@]}
     do
-      if [ "${x:0:1}" = "$Zone2" ]; then    # Note this code for getting any character or characters in a string
+      if [ ${x:0:1} = "$Zone2" ]; then    # Get 1 character from position 0 in string $x
         subzones="$subzones $x"
         Counter=$((Counter+1))
       fi
