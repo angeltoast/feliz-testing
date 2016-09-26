@@ -142,7 +142,7 @@ if [ ${GrubDevice} ]; then
     pacstrap /mnt os-prober 2>> feliz.log
   fi
   
-  if [ UEFI -eq 1 ]; then                     # Installing in UEFI environment
+  if [ ${UEFI} -eq 1 ]; then                     # Installing in UEFI environment
     arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
     if [ ${IsInVbox} = "VirtualBox" ]; then   # If in Virtualbox
       mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
