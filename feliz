@@ -2,8 +2,8 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# With thanks to Carl Duff
-# Revision date: 7th September 2016
+# With acknowlegements to Carl Duff and Dylan Schacht
+# Revision date: 25th September 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,11 +29,14 @@ source running
 source partitioning
 source settings
 source listgen
+source UEFIcode
 
 Backtitle="The Feliz install scripts for Arch Linux"
 
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
+
+TestUEFI                               # Check if on UEFI system 
 
 CheckParts                             # Check partition table & offer options
 
@@ -132,16 +135,25 @@ fi
 if [ ${GrubDevice} ]; then
   TPecho "Installing Grub2 to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
+  
   if [ $OSprober = "Y" ]; then
     pacstrap /mnt os-prober 2>> feliz.log
   fi
-  arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
+  
+  if [ UEFI -eq 1 ]; then                     # Installing in UEFI environment
+    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
+    if [ ${IsInVbox} = "VirtualBox" ]; then   # If in Virtualbox
+      mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
+    fi
+  else                                        # Installing in BIOS environment
+    arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
+  fi
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 else
   echo "Not installing Grub" >> feliz.log
 fi
 
-McInitCPIO           # mkinitcpio function
+McInitCPIO           # Reconfigure kernel
 
 # Set keyboard to selected language at next startup
 echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log

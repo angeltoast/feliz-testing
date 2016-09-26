@@ -37,8 +37,7 @@
 #                         AddExtras           663
 # --------------------    -----------------------
 
-getkeymap()
-{
+getkeymap() {
   print_heading
   echo
   PrintOne "Let's try to find your keyboard"
@@ -76,8 +75,7 @@ getkeymap()
   read_timed "The keyboard is now set to: '$Countrykbd'" 1
 }
 
-setlocale()
-{
+setlocale() {
   SearchPrompt=" (for example: GB or en): "
   print_heading
   PrintOne "Next we will try to find your locale. This will"
@@ -136,8 +134,7 @@ setlocale()
   read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # 5 characters from position 0 in $CountryLocale
 }
 
-SetTimeZone()
-{
+SetTimeZone() {
   Complete=0
   while [ $Complete -eq 0 ]
   do
@@ -168,8 +165,7 @@ SetTimeZone()
   echo
 }
 
-SetSubZone()
-{
+SetSubZone() {
   SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
   while [ $Complete -eq 0 ]
   do
@@ -210,8 +206,7 @@ SetSubZone()
   done
 }
 
-UserName()
-{
+UserName() {
   print_heading
   PrintOne "Enter a name for the primary user of the new system."
   PrintOne "If you don't create a username here, a default user"
@@ -227,8 +222,7 @@ UserName()
   PrintOne "User '${UserName}' will be created."
 }
 
-SetHostname()
-{
+SetHostname() {
   Entered="arch-linux"
   print_heading
   PrintOne "A hostname is needed. This will be a unique name to identify"
@@ -245,8 +239,7 @@ SetHostname()
   PrintOne "Hostname = $HostName"
 }
 
-PickLuxuries()
-{ # User selects any combination from a store of extras
+PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
   local Complete=0
   print_heading
@@ -281,8 +274,7 @@ PickLuxuries()
   fi
 }
 
-KeepOrDelete()
-{
+KeepOrDelete() {
   Bagged="$1"
   Validated="N"
   until [ $Validated = "Y" ]
@@ -309,8 +301,7 @@ KeepOrDelete()
   LuxuriesList="$Temp"
 }
 
-ShoppingList()
-{ # Called by PickLuxuries after a category has been chosen.
+ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   local Complete=0
   Passed="Choose your first item"
   while [ $Complete -eq 0 ]
@@ -438,8 +429,7 @@ ShoppingList()
   Passed=""
 }
 
-ChooseDM()
-{ # Choose a display manager
+ChooseDM() { # Choose a display manager
   case $DisplayManager in
   "") # Only offered if no other display manager has been set
       Counter=0
@@ -496,8 +486,7 @@ ChooseDM()
   esac
 }
 
-FinalCheck()
-{
+FinalCheck() {
   while :
   do
     print_heading
@@ -599,8 +588,7 @@ FinalCheck()
   done
 }
 
-ManualSettings()
-{
+ManualSettings() {
   Retry="Y"
   Response=3
   while [ $Retry = "Y" ]

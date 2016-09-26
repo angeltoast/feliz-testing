@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 7th September 2016
+# Revision date: 26th September 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -261,6 +261,7 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
 #
 
 MountPartitions() {
+  
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log
   ;;
@@ -281,7 +282,12 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
     fi
   esac
-  mount ${RootPartition} /mnt &>> feliz.log          # eg: mount /dev/sda1 /mnt !! Suppressed output !!
+  mount ${RootPartition} /mnt &>> feliz.log          # eg: mount /dev/sda1 /mnt
+  
+  if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then
+    MountUEFI
+  fi
+  
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log
     if [ $MakeSwap = "Y" ]; then
