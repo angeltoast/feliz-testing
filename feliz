@@ -36,8 +36,6 @@ Backtitle="The Feliz install scripts for Arch Linux"
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
-read -p "In feliz at line ${LINENO}"
-
 TestUEFI                               # Check if on UEFI system 
 
 CheckParts                             # Check partition table & offer options

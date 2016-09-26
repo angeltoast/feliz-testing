@@ -24,9 +24,6 @@ DualBoot="N"      # For formatting EFI partition
 
 # 1) Assess environment
 TestUEFI() { # Called at launch of Feliz script, before all other actions
-
-read -p "In TestUEFI at line ${LINENO}"
-
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
     echo "You are using EFI boot."    # For testing only - remove when tested ..............
@@ -96,6 +93,10 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 
 # 3) Auto-create partitions for UEFI system and set variables for mounting
 UEFI_autopart() { # Partitioning for a UEFI environment
+  
+  sgdisk --zap-all ${UseDisk}     # Remove all existing filesystems
+  wipefs -a ${UseDisk}            # from the drive
+  
   Parted "mklabel gpt"
   if [ $DiskSize -ge 40 ]; then
     # Device is large enough for separate /home, /root (20 GiB) and /swap (8 GiB)
@@ -174,7 +175,6 @@ UEFI_autopart() { # Partitioning for a UEFI environment
 # 4) Format EFI boot partition and mount (after /root created at /mnt)
 MountUEFI() {
   mkfs.fat -F32 ${EFIPartition} 2> error.log
-  CheckForError "${LINENO} 'mkfs.fat -F32 ${EFIPartition}'" 2
   mkdir /mnt/boot
   mount ${EFIPartition} /mnt/boot
 }
