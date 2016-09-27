@@ -103,6 +103,9 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 UEFI_autopart() { # Partitioning for a UEFI environment
   
   sgdisk --zap-all ${UseDisk}     # Remove all existing filesystems
+  
+  read -p "Stop set at line $LINENO to read errors. UseDisk = $UseDisk"
+  
   wipefs -a ${UseDisk}            # from the drive
   
   read -p "Stop set at line $LINENO to read errors. UseDisk = $UseDisk"
