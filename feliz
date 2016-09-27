@@ -36,6 +36,7 @@ Backtitle="The Feliz install scripts for Arch Linux"
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
+print_heading
 TestUEFI                               # Check if on UEFI system 
 
 CheckParts                             # Check partition table & offer options
@@ -200,5 +201,5 @@ cp feliz.log /mnt/etc # Copy installation log for reference
 
 print_heading
 PrintOne "Congratulations, installation is complete."
-read_timed "Rebooting the computer ..."
-reboot
+read_timed "Shutting down the computer so you can remove the installation media"
+shutdown -h now

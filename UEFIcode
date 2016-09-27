@@ -61,19 +61,30 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
   echo
 	PrintOne "Here are the partitions that are available."
 	PrintOne "First you should select one to use for EFI (/boot)"
+  
+  print_heading
+  Remaining=""
+  local Counter=0
+  Partition=""
+  PartitionType=""
+  PrintOne "Please now select a partition to use for your EFI /boot partition"
   echo
-	select partition in ${PartitionList}
-	do
-    Reply=$REPLY
-    for i in ${PartitionList}
-		do
-		Counter=$((Counter+1))
-			if [ $Counter -eq $Reply ]
-			then
-				Partition="/dev/$i"
-				EFIPartition="${Partition}"
-        echo
-        PrintOne "Are other operating systems (eg: Windows) dual-booting"
+  listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
+  Reply=$Response
+  if [ $Result != "Done" ]; then
+    PassPart=$Result
+    SetLabel "$Result"
+    UpdateArray # Remove the selected partition from $PartitionArray[]
+  fi
+  Counter=0
+  for i in ${PartitionList}
+  do
+    Counter=$((Counter+1))
+    if [ $Counter -eq $Reply ]; then
+			Partition="/dev/$i"
+			EFIPartition="${Partition}"
+      echo
+      PrintOne "Are other operating systems (eg: Windows) dual-booting"
       TPread "with this installation? (y/N): "
       case $Response in
         "n" | "N" | "") DualBoot="N"
@@ -83,10 +94,9 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 			else
 				Remaining="$Remaining $i"	# Add next available partition
 			fi
-		done
-    PartitionList=$Remaining			# Replace original PartitionList with remaining options
-		break
-  done
+	done
+  PartitionList=$Remaining			# Replace original PartitionList with remaining options
+
 }
 
 # 3) Auto-create partitions for UEFI system and set variables for mounting
