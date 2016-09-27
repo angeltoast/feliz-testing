@@ -83,17 +83,17 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
     if [ $Counter -eq $Reply ]; then
 			Partition="/dev/$i"
 			EFIPartition="${Partition}"
-      echo
-      PrintOne "Are other operating systems (eg: Windows) dual-booting"
-      TPread "with this installation? (y/N): "
-      case $Response in
-        "n" | "N" | "") DualBoot="N"
-        ;;
-        *) DualBoot="Y"
-      esac
-			else
-				Remaining="$Remaining $i"	# Add next available partition
-			fi
+    #  echo
+    #  PrintOne "Are other operating systems (eg: Windows) dual-booting"
+    #  TPread "with this installation? (y/N): "
+    #  case $Response in
+    #    "n" | "N" | "") DualBoot="N"
+    #    ;;
+    #    *) DualBoot="Y"
+    #  esac
+		else
+			Remaining="$Remaining $i"	# Add next available partition
+		fi
 	done
   PartitionList=$Remaining			# Replace original PartitionList with remaining options
 

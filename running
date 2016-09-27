@@ -346,7 +346,7 @@ InstallLuxuries()
     do
       case $i in
       "Budgie") TPecho "Installing the Budgie desktop Environment"
-          pacstrap /mnt budgie-desktop gnome 2>> feliz.log
+          pacstrap /mnt budgie-desktop 2>> feliz.log
         ;;
       "Cinnamon") TPecho "Installing the Cinnamon desktop Environment"
           pacstrap /mnt cinnamon 2>> feliz.log

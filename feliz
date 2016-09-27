@@ -59,7 +59,8 @@ if [ $AutoPart -eq 0 ]; then
 fi
 
 SetKernel                              # Select kernel and device for Grub
-if [ $AutoPart -eq 0 ]; then
+if [ $AutoPart -eq 0 ] || [ $UEFI -eq 1 ]; then
+  # Not called if Feliz auto-partitioned the drive or if installing on EFI syatem
   SetGrubDevice
 fi
 
