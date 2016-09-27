@@ -178,6 +178,9 @@ UEFI_autopart() { # Partitioning for a UEFI environment
   ShowPart3="Root: `lsblk -l | grep "${UseDisk}3" | awk '{print $4}'`" >/dev/null
   ShowPart4=""
   AutoPart=1 # Set flag to 'on' for mounting
+  
+  read -p "Stop set at line $LINENO to read errors"
+  
 }
 
 # 4) Format EFI boot partition and mount (after /root created at /mnt)
