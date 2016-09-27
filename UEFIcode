@@ -102,11 +102,11 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 # 3) Auto-create partitions for UEFI system and set variables for mounting
 UEFI_autopart() { # Partitioning for a UEFI environment
   
-  sgdisk --zap-all ${UseDisk}     # Remove all existing filesystems
+  sgdisk --zap-all /dev/${UseDisk}     # Remove all existing filesystems
   
   read -p "Stop set at line $LINENO to read errors. UseDisk = $UseDisk"
   
-  wipefs -a ${UseDisk}            # from the drive
+  wipefs -a /dev/${UseDisk}            # from the drive
   
   read -p "Stop set at line $LINENO to read errors. UseDisk = $UseDisk"
   
@@ -135,7 +135,6 @@ UEFI_autopart() { # Partitioning for a UEFI environment
     Parted "mkpart primary linux-swap 513MiB 4GiB"    # /swap "/dev/sda2"
     SwapPartition="${GrubDevice}2"
     MakeSwap="Y"
-    # Root partition 15GiB
     Parted "mkpart primary ext4 4GiB 16GiB"           # /root "/dev/sda3"
     RootPartition="${GrubDevice}3"
     RootType="ext4"
