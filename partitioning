@@ -261,7 +261,7 @@ AllocateRoot() {
   # Display partitions for user-selection
   # Uses list of all available partitions in PartitionList
   
-  if [ ${UEFI} -eq 1 ]; then         # Installing in UEFI environment
+  if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the EFI /boot partition
   fi
   
