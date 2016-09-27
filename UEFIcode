@@ -26,7 +26,6 @@ DualBoot="N"      # For formatting EFI partition
 TestUEFI() { # Called at launch of Feliz script, before all other actions
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
-    echo "You are using EFI boot."    # For testing only - remove when tested ..............
     # Mount efivarfs if it is not already mounted
     if [[ -z $(mount | grep /sys/firmware/efi/efivars) ]]; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
@@ -48,7 +47,6 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
         shutdown -h now
       fi
   else
-    echo "You are using BIOS boot"    # For testing only - remove when tested .............
     UEFI=0
  fi
 }
@@ -60,9 +58,9 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	local Counter=0
   Partition=""
 	PartitionType=""
-  SetPS3
-	print_info "Here are the partitions that are available."
-	print_info "First you should select one to use for EFI (/boot)"
+  echo
+	PrintOne "Here are the partitions that are available."
+	PrintOne "First you should select one to use for EFI (/boot)"
   echo
 	select partition in ${PartitionList}
 	do
@@ -75,7 +73,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 				Partition="/dev/$i"
 				EFIPartition="${Partition}"
         echo
-        print_info "Are other operating systems (eg: Windows) dual-booting"
+        PrintOne "Are other operating systems (eg: Windows) dual-booting"
       TPread "with this installation? (y/N): "
       case $Response in
         "n" | "N" | "") DualBoot="N"
