@@ -105,6 +105,8 @@ UEFI_autopart() { # Partitioning for a UEFI environment
   sgdisk --zap-all ${UseDisk}     # Remove all existing filesystems
   wipefs -a ${UseDisk}            # from the drive
   
+  read -p "Stop set at line $LINENO to read errors. UseDisk = $UseDisk"
+  
   Parted "mklabel gpt"
   if [ $DiskSize -ge 40 ]; then
     # Device is large enough for separate /home, /root (20 GiB) and /swap (8 GiB)
