@@ -197,7 +197,7 @@ InstallKernel() {   # Kernel and some other core systems
   esac
 
   TPecho "Installing core systems"
-  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
 
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log

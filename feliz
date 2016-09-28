@@ -138,6 +138,7 @@ fi
 # Grub
 if [ ${UEFI} -eq 1 ]; then                     # Installing in UEFI environment
   TPecho "Installing Grub to /boot partition" ""
+  pacstrap /mnt grub efibootmgr
   arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
   if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
     mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
@@ -146,9 +147,6 @@ if [ ${UEFI} -eq 1 ]; then                     # Installing in UEFI environment
 elif [ -n ${GrubDevice} ]; then                # Installing in BIOS environment
   TPecho "Installing Grub to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
-  if [ $OSprober = "Y" ]; then
-    pacstrap /mnt os-prober 2>> feliz.log
-  fi
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
 else                                             # No grub device selected
   echo "Not installing Grub" >> feliz.log
