@@ -60,8 +60,10 @@ fi
 
 SetKernel                              # Select kernel and device for Grub
 
-if [ $AutoPart -eq 0 ]  && [ $UEFI -eq 0 ]; then   # Only set grub device if partitions set
-  SetGrubDevice                                    # by user, and installing on BIOS system
+if [ ${AutoPart} -eq 0 ]  && [ ${UEFI} -eq 0 ]; then   # Only call SetGrubDevice if partitions set
+  SetGrubDevice                                        # by user, and installing on BIOS system
+else
+  GrubDevice=""
 fi
 
 getkeymap                              # Select keyboard layout
@@ -134,20 +136,20 @@ if [ $Scope != "Basic" ]; then
 fi
 
 # Grub
-if [ ${GrubDevice} ]; then                       # Installing in BIOS environment
-  TPecho "Installing Grub to $GrubDevice" ""
-  pacstrap /mnt grub 2>> feliz.log
-  if [ $OSprober = "Y" ]; then
-    pacstrap /mnt os-prober 2>> feliz.log
-  fi
-  arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
-elif [ ${UEFI} -eq 1 ]; then                     # Installing in UEFI environment
+if [ ${UEFI} -eq 1 ]; then                     # Installing in UEFI environment
   TPecho "Installing Grub to /boot partition" ""
   arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
   if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
     mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
   fi
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+elif [ -n ${GrubDevice} ]; then                # Installing in BIOS environment
+  TPecho "Installing Grub to $GrubDevice" ""
+  pacstrap /mnt grub 2>> feliz.log
+  if [ $OSprober = "Y" ]; then
+    pacstrap /mnt os-prober 2>> feliz.log
+  fi
+  arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
 else                                             # No grub device selected
   echo "Not installing Grub" >> feliz.log
 fi

@@ -195,8 +195,11 @@ AutoWarning() {
         print_heading
         PrintOne "Partitioning of ${GrubDevice} successful"
         PrintOne "-------------------------------------"
-        PrintMany "Swap: ${SwapPartition}${SwapFile} $ShowPart1"
-        PrintMany "Root: ${RootPartition} ${RootType} $ShowPart2"
+        PrintMany "$ShowPart1"
+        PrintMany "$ShowPart2"
+        PrintMany "$ShowPart3"
+        PrintMany "$ShowPart4"
+
         if [ ${Home} = "Y" ]; then
           ShowPart3=$(lsblk -l | grep "${UseDisk}3" | awk '{print $4}') >/dev/null
           PrintMany "Home: ${AddPartList[0]} ${AddPartType[0]} $ShowPart3"
