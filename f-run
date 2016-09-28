@@ -98,6 +98,7 @@ InstallKernel() {   # Kernel and some other core systems
       ;;
     *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
+      
   esac
 
   TPecho "Installing cli tools"

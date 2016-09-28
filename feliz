@@ -152,6 +152,7 @@ elif [ -n ${GrubDevice} ]; then                  # Installing in BIOS environmen
   TPecho "Installing Grub to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
+  grub-mkconfig -o /boot/grub/grub.cfg
 else                                             # No grub device selected
   echo "Not installing Grub" >> feliz.log
 fi
