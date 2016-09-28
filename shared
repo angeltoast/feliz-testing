@@ -158,3 +158,13 @@ LongWMs[5]="Customizable dock & launcher application"
 LongWMs[6]="For opening applications & managing windows"
 LongWMs[7]="Desktop panel"
 LongWMs[8]="Desktop panel"
+
+# Various functions
+
+print_heading() {
+  clear
+  T_COLS=`tput cols`
+  tput cup 1 $((($T_COLS/2)-20))
+  printf "~ $Backtitle ~\n"
+  printf "%$(tput cols)s\n"|tr ' ' '-'
+}

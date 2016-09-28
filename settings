@@ -26,16 +26,76 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# getkeymap         25    ShoppingList        283
-# setocale          63    ChooseDM            441
-# SetTimeZone      117    AddDEextras         483
-# SetSubZone       148    FinalCheck          513
-# Username         188    ManualSettings      604
-# Hostname         204    ChangeRootPartition 634
-# PickLuxuries     220    ChangeSwapPartition 642
-# KeepOrDelete     255    ChangePartitions    650
-#                         AddExtras           663
+# invalid_option    41    KeepOrDelete        315
+# TPread            46    ShoppingList        343
+# SetKernel         61    ChooseDM            401
+# ConfirmVbox       75    SetGrubDevice       549
+# getkeymap        100    
+# setocale         138    FinalCheck          577
+# SetTimeZone      177    ManualSettings      682
+# SetSubZone       208    ChangeRootPartition 708
+# Username         248    ChangeSwapPartition 716
+# Hostname         264    ChangePartitions    724
+# PickLuxuries     280    AddExtras           736
 # --------------------    -----------------------
+
+invalid_option() { # (from AUI scripts)
+  echo
+  read_timed "Invalid entry. Try again ..." 1
+}
+
+TPread() { # Aligned prompt for user-entry
+  # $1 = prompt ... Returns result through $Response
+  T_COLS=`tput cols`
+  lov=${#1}
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( ($T_COLS - $lov) / 2 ))
+  elif [ ${lov} -gt ${T_COLS} ]; then
+    stpt=0
+  else
+    stpt=$(( ($T_COLS - 10) / 2 ))
+  fi
+  EMPTY="$(printf '%*s' $stpt)"
+  read -p "$EMPTY $1" Response
+}
+
+SetKernel() {
+  print_heading
+  echo
+  PrintOne "Choose your kernel"
+  PrintOne "The Long-Term-Support kernel (LTS) offers stabilty,"
+  PrintOne "while the Latest kernel has all the new features."
+  PrintOne "If in doubt, choose LTS."
+  echo
+  local Counter=0
+  listgen1 "LTS Latest" "Kernels" "nodone"
+  Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
+}
+
+ConfirmVbox() {
+  Retry="Y"
+  until [ $Retry = "N" ]
+  do
+    print_heading
+    PrintOne "It appears that feliz is running in Virtualbox."
+    PrintOne "If it is, feliz can install Virtualbox guest"
+    PrintOne "utilities and make appropriate settings for you."
+    echo
+    PrintOne "Install Virtualbox guest utilities?: "
+    echo
+    listgen1 "Yes No" "" "nodone"
+    echo
+    case $Response in
+      1) IsInVbox="VirtualBox"
+        Retry="N"
+      ;;
+      "") invalid_option
+      ;;
+      *) IsInVbox=""
+        Retry="N"
+    esac
+  done
+}
 
 getkeymap() {
   print_heading
@@ -486,12 +546,43 @@ ChooseDM() { # Choose a display manager
   esac
 }
 
+SetGrubDevice() {
+  DEVICE=""
+  DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
+  print_heading
+  GrubDevice=""
+  Counter=0
+  PrintOne "Select the device where Grub is to be installed."
+  PrintOne "Note that if you do not select a device, Grub"
+  PrintOne "will not be installed, and you will have to make"
+  PrintOne "alternative arrangements for booting your new system."
+  echo
+  listgen1 "${DevicesList}" "Devices" "None"
+  Reply=$Response
+  for i in ${DevicesList}
+  do
+    Item=$i
+    Counter=$((Counter+1))
+    if [ $Counter -eq $Reply ]; then
+      if [ $Item = "$Done" ]; then
+        GrubDevice=""
+      else
+        GrubDevice=$Item
+      fi
+      break
+    fi
+  done
+}
+
 FinalCheck() {
   while :
   do
     print_heading
     PrintOne "These are the settings you have entered. Please check them ..."
     echo
+    if [ ${UEFI} -eq 1 ]; then
+      PrintOne "0)  Boot partition ... $EFIPartition             " 50
+    fi
     PrintOne "1)  Root partition ... $RootPartition : $RootType" 50
     if [ $SwapPartition ] || [ $SwapFile ]; then
       PrintMany "2)  Swap partition ... $SwapPartition $SwapFile"

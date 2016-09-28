@@ -24,49 +24,18 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           42       AddCodecs            211
-# print_heading         46       McInitCPIO           226
-# invalid_option        54       ReflectorMirrorList  235
-# TPread                59       LocalMirrorList      245
-# TPecho                74       MountPartitions      262
-# read_timed            92       InstallDM            320
-# SetKernel            110       InstallLuxuries      330
-# ConfirmVbox          123       UserAdd              427
-# Bugger               148       SetRootPassword      442
-# SetGrubDevice        160       SetUserPassword      480
-# InstallKernel        188
+# arch_chroot           40       ReflectorMirrorList  136
+# TPecho                44       LocalMirrorList      146
+# read_timed            62       MountPartitions      165
+# Bugger                80       InstallDM            231
+# InstallKernel         92       InstallLuxuries      241
+# AddCodecs            116       UserAdd              341
+# McInitCPIO           131       SetRootPassword      356
+#                                SetUserPassword      395
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
-}
-
-print_heading() {
-  clear
-  T_COLS=`tput cols`
-  tput cup 1 $((($T_COLS/2)-20))
-  printf "~ $Backtitle ~\n"
-  printf "%$(tput cols)s\n"|tr ' ' '-'
-}
-
-invalid_option() { # (from AUI scripts)
-  echo
-  read_timed "Invalid entry. Try again ..." 1
-}
-
-TPread() { # Aligned prompt for user-entry
-  # $1 = prompt ... Returns result through $Response
-  T_COLS=`tput cols`
-  lov=${#1}
-  if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(( ($T_COLS - $lov) / 2 ))
-  elif [ ${lov} -gt ${T_COLS} ]; then
-    stpt=0
-  else
-    stpt=$(( ($T_COLS - 10) / 2 ))
-  fi
-  EMPTY="$(printf '%*s' $stpt)"
-  read -p "$EMPTY $1" Response
 }
 
 TPecho() { # For displaying status while running on auto
@@ -105,44 +74,6 @@ read_timed() { # $1 = text to display; $2 = duration
   echo
 }
 
-SetKernel() {
-  print_heading
-  echo
-  PrintOne "Choose your kernel"
-  PrintOne "The Long-Term-Support kernel (LTS) offers stabilty,"
-  PrintOne "while the Latest kernel has all the new features."
-  PrintOne "If in doubt, choose LTS."
-  echo
-  local Counter=0
-  listgen1 "LTS Latest" "Kernels" "nodone"
-  Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
-}
-
-ConfirmVbox() {
-  Retry="Y"
-  until [ $Retry = "N" ]
-  do
-    print_heading
-    PrintOne "It appears that feliz is running in Virtualbox."
-    PrintOne "If it is, feliz can install Virtualbox guest"
-    PrintOne "utilities and make appropriate settings for you."
-    echo
-    PrintOne "Install Virtualbox guest utilities?: "
-    echo
-    listgen1 "Yes No" "" "nodone"
-    echo
-    case $Response in
-      1) IsInVbox="VirtualBox"
-        Retry="N"
-      ;;
-      "") invalid_option
-      ;;
-      *) IsInVbox=""
-        Retry="N"
-    esac
-  done
-}
-
 Bugger() {
 	print_heading
 	PrintOne "This is a bug"
@@ -153,34 +84,6 @@ Bugger() {
 	echo
 	PrintOne "Press any key to continue"
 	read
-}
-
-SetGrubDevice() {
-  DEVICE=""
-  DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
-  print_heading
-  GrubDevice=""
-  Counter=0
-  PrintOne "Select the device where Grub is to be installed."
-  PrintOne "Note that if you do not select a device, Grub"
-  PrintOne "will not be installed, and you will have to make"
-  PrintOne "alternative arrangements for booting your new system."
-  echo
-  listgen1 "${DevicesList}" "Devices" "None"
-  Reply=$Response
-  for i in ${DevicesList}
-  do
-    Item=$i
-    Counter=$((Counter+1))
-    if [ $Counter -eq $Reply ]; then
-      if [ $Item = "$Done" ]; then
-        GrubDevice=""
-      else
-        GrubDevice=$Item
-      fi
-      break
-    fi
-  done
 }
 
 InstallKernel() {   # Kernel and some other core systems
@@ -255,10 +158,6 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   mv -f ${MirrorTemp} /etc/pacman.d/mirrorlist 2>> feliz.log
   chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
 }
-
-#
-# Install stage --------------------------------------------------------
-#
 
 MountPartitions() {
   
