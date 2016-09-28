@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With acknowlegements to Carl Duff and Dylan Schacht
-# Revision date: 25th September 2016
+# Revision date: 28th September 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,18 @@
 
 # Include source files
 #
-source shared
-source running
-source partitioning
-source settings
-source listgen
-source UEFIcode
+source f-vars     # Most variables and arrays are declared here
+source f-run      # Functions called during installation
+source f-part     # Functions concerned with allocating partitions
+source f-set      # Functions that set variables to be used during installation
+source listgen    # The two listgen functions and their required variables
+source f-UEFI     # Functions exclusive to installation on an EFI system
 
 Backtitle="The Feliz install scripts for Arch Linux"
+
+# ...............................................................................
+#                                   Settings phase                              .
+# ...............................................................................
 
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
@@ -91,7 +95,7 @@ fi
 FinalCheck                             # Allow user to change any variables
 
 # ...............................................................................
-#                       No further user intervention from here                  .
+#          Installation phase - no further user intervention from here          .
 # ...............................................................................
 
 MountPartitions
@@ -99,8 +103,6 @@ MountPartitions
 ReflectorMirrorList
 
 InstallKernel
-
-read -p "Debug: feliz at line $LINENO"
 
 TPecho "Preparing local services" ""
 

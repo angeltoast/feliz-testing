@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 26th September 2016
+# Revision date: 28th September 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -20,18 +20,17 @@
 # or https://github.com/angeltoast/feliz2, or write to:
 # The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# In this module:
+# In this module: functions used during installation
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           40       ReflectorMirrorList  136
-# TPecho                44       LocalMirrorList      146
-# read_timed            62       MountPartitions      165
-# Bugger                80       InstallDM            231
+# arch_chroot           40       LocalMirrorList      146
+# TPecho                44       MountPartitions      165
+# read_timed            62       InstallDM            231
 # InstallKernel         92       InstallLuxuries      241
 # AddCodecs            116       UserAdd              341
 # McInitCPIO           131       SetRootPassword      356
-#                                SetUserPassword      395
+# ReflectorMirrorList  136       SetUserPassword      395
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -56,7 +55,7 @@ TPecho() { # For displaying status while running on auto
   tput sgr0
 }
 
-read_timed() { # $1 = text to display; $2 = duration
+read_timed() { # Timed display - $1 = text to display; $2 = duration
   T_COLS=`tput cols`
   lov=${#1}
   if [ $2 ]; then
@@ -97,7 +96,7 @@ InstallKernel() {   # Kernel and some other core systems
       TPecho "Installing core systems"
       pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
       ;;
-    *) TPecho "Installing Latest kernel"
+    *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
   esac
 
