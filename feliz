@@ -168,6 +168,7 @@ if [ $Scope != "Basic" ]; then
         pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel
         TPecho "Installing virtualbox-guest-dkms for LTS kernel" ""
         pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log
+        
       ;;
       *) TPecho "Installing dkms & linux-headers for latest kernel" ""
         pacstrap /mnt dkms linux-headers 2>> feliz.log     # Latest kernel
