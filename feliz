@@ -106,20 +106,6 @@ InstallKernel
 
 TPecho "Preparing local services" ""
 
-# Set the default PATH variable
-arch_chroot "PATH=/usr/lib/systemd/system:/etc/systemd/system:/usr/local/sbin:/usr/local/bin:/usr/bin"
-
-# Generate fstab
-genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
-
-if [ ${SwapFile} ]; then
-  fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
-  chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log 
-  mkswap /mnt/swapfile >/dev/null 2>> feliz.log
-  swapon /mnt/swapfile >/dev/null 2>> feliz.log
-  echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
-fi
-
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
@@ -157,7 +143,11 @@ else                                             # No grub device selected
   echo "Not installing Grub" >> feliz.log
 fi
 
-McInitCPIO           # Reconfigure kernel
+# Generate fstab
+genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
+
+# Reconfigure kernel
+McInitCPIO
 
 # Set keyboard to selected language at next startup
 echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log

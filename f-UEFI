@@ -33,9 +33,9 @@ DualBoot="N"      # For formatting EFI partition
 # ---- ------------ --------------------------------------------------------- ----
 # Line   Function      Purpose                                     'My notes' Line       
 # ---- ------------ --------------------------------------------------------- ----
-#  25  TestUEFI      Test environment; if UEFI, inform user, and allow exit  13
-#  55  AllocateEFI   Offers list of partitions for user to select EFI /boot  37
-#  93  MountUEFI     During installation, prepares the EFI /boot partition   67
+#  25  TestUEFI      Test environment; if UEFI, inform user, and allow exit   13
+#  55  AllocateEFI   Offers list of partitions for user to select EFI /boot   37
+# 118  UEFI_autopart Automatically prepare partitions for available space     
 # ---- ------------ --------------------------------------------------------- ----
 
 # 1) Assess environment
@@ -118,8 +118,8 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 # 3) Auto-create partitions for UEFI system and set variables for mounting
 UEFI_autopart() { # Partitioning for a UEFI environment
   
-  sgdisk --zap-all /dev/${UseDisk} &>> feliz.log    # Remove all existing filesystems
-  wipefs -a /dev/${UseDisk} &>> feliz.log           # from the drive
+  sgdisk --zap-all /dev/${UseDisk} &>> feliz.log      # Remove all existing filesystems
+  wipefs -a /dev/${UseDisk} &>> feliz.log             # from the drive
   
   Parted "mklabel gpt"
   if [ $DiskSize -ge 40 ]; then
@@ -194,11 +194,4 @@ UEFI_autopart() { # Partitioning for a UEFI environment
   ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Set flag to 'on' for mounting
 
-}
-
-# 4) Format EFI boot partition and mount (after /root created at /mnt)
-MountUEFI() {
-  mkfs.fat -F32 ${EFIPartition} 2> error.log
-  mkdir /mnt/boot
-  mount ${EFIPartition} /mnt/boot
 }

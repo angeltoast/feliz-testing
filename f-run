@@ -24,13 +24,13 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           40       LocalMirrorList      146
-# TPecho                44       MountPartitions      165
-# read_timed            62       InstallDM            231
-# InstallKernel         92       InstallLuxuries      241
-# AddCodecs            116       UserAdd              341
-# McInitCPIO           131       SetRootPassword      356
-# ReflectorMirrorList  136       SetUserPassword      395
+# arch_chroot           40       ReflectorMirrorList  190
+# TPecho                44       LocalMirrorList      200
+# read_timed            62       InstallDM            215
+# MountPartitions       76       InstallLuxuries      225
+# InstallKernel        142       UserAdd              325
+# AddCodecs            166       SetRootPassword      340
+# McInitCPIO           181       SetUserPassword      378
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -73,19 +73,88 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
   echo
 }
 
-Bugger() {
-	print_heading
-	PrintOne "This is a bug"
-	echo
-	PrintOne " =Ộ= "
-	echo
-	PrintOne "It's probably harmless"
-	echo
-	PrintOne "Press any key to continue"
-	read
+MountPartitions() {
+  TPecho "Preparing and mounting partitions" ""
+  
+  # First unmount any mounted partitions
+  umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
+  # 1) Root partition  
+  case $RootType in
+  "") echo "Not formatting root partition" >> feliz.log   # If /root filetype not set - do nothing
+  ;;
+  *) # Otherwise, check if replacing existing ext3/4 /root partition with btrfs
+    CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
+    # Check if /root type or existing partition are btrfs ...
+    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${RootPartition} 2>> feliz.log      # Convert existing partition to btrfs
+    elif [ $RootType = "btrfs" ]; then                  # Otherwise, for btrfs /root
+      mkfs.btrfs -f ${RootPartition} 2>> feliz.log      # Format to btrfs
+    else                                                # /root is not btrfs
+      Partition=${RootPartition: -4}                    # Last 4 characters (eg: sda1)
+      Label="${LabellingArray[${Partition}]}"           # Check to see if it has a label
+      if [ -n "${Label}" ]; then                        # If it has a label ...
+        Label="-L ${Label}"                             # ... prepare to use it
+      fi
+      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log # eg: mke2fs -L Arch-Root -t ext4 /dev/sda1
+    fi
+  esac
+  mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
+  
+  # 2) EFI (if rquired)
+  if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
+    mkfs.fat -F32 ${EFIPartition} 2> error.log          # Format EFI boot partition
+    mkdir /mnt/boot                                     # Make mountpoint
+    mount ${EFIPartition} /mnt/boot                     # Mount it
+  fi
+  
+  # 3) Swap
+  if [ ${SwapPartition} ]; then
+    swapoff -a 2>> feliz.log                            # Make sure any existing swap cleared
+    if [ $MakeSwap = "Y" ]; then
+      Partition=${SwapPartition: -4}                    # Last 4 characters (eg: sda2)
+      Label="${LabellingArray[${Partition}]}"           # Check for label
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"                             # Prepare label
+      fi
+      mkswap ${Label} ${SwapPartition} 2>> feliz.log    # eg: mkswap -L Arch-Swap /dev/sda2
+    fi
+    swapon ${SwapPartition} 2>> feliz.log               # eg: swapon /dev/sda2
+  fi
+
+  if [ ${SwapFile} ]; then
+    fallocate -l ${SwapFile} /mnt/swapfile >/dev/null 2>> feliz.log
+    chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log 
+    mkswap /mnt/swapfile >/dev/null 2>> feliz.log
+    swapon /mnt/swapfile >/dev/null 2>> feliz.log
+    echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
+  fi
+
+  # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
+  local Counter=0
+  for id in ${AddPartList}
+  do
+    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
+    # Check if replacing existing ext3/4 partition with btrfs (as with /root)
+    CurrentType=$(file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
+    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
+      btrfs-convert ${id} 2>> feliz.log
+    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
+      mkfs.btrfs -f ${id} 2>> feliz.log
+    elif [ ${AddPartType[$Counter]} != "" ]; then
+      Partition=${id: -4}                               # Last 4 characters of ${id}
+      Label="${LabellingArray[${Partition}]}"
+      if [ -n "${Label}" ]; then
+        Label="-L ${Label}"                             # Prepare label
+      fi
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} 2>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+    fi
+    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    Counter=$((Counter+1))
+  done
 }
 
-InstallKernel() {   # Kernel and some other core systems
+InstallKernel() {   # Selected kernel and some other core systems
   
   LANG=C            # Temporary addition to overcome bug in Arch man pages
 
@@ -98,7 +167,6 @@ InstallKernel() {   # Kernel and some other core systems
       ;;
     *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
-      
   esac
 
   TPecho "Installing cli tools"
@@ -156,72 +224,6 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
   # Replace existing mirrorlist with new local mirrorlist
   mv -f ${MirrorTemp} /etc/pacman.d/mirrorlist 2>> feliz.log
   chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
-}
-
-MountPartitions() {
-  
-  case $RootType in
-  "") echo "Not formatting root partition" >> feliz.log
-  ;;
-  *) TPecho "Preparing and mounting partitions" ""
-    umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
-    if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${RootPartition} 2>> feliz.log
-    elif [ $RootType = "btrfs" ]; then
-      mkfs.btrfs -f ${RootPartition} 2>> feliz.log
-    else
-      Partition=${RootPartition: -4}                 # Last 4 characters
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
-    fi
-  esac
-  mount ${RootPartition} /mnt &>> feliz.log          # eg: mount /dev/sda1 /mnt
-  
-  if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then
-    MountUEFI
-  fi
-  
-  if [ ${SwapPartition} ]; then
-    swapoff -a 2>> feliz.log
-    if [ $MakeSwap = "Y" ]; then
-    #  Partition=`echo $SwapPartition | cut -c 6-`
-      Partition=${SwapPartition: -4}                 # Last 4 characters
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mkswap ${Label} ${SwapPartition} 2>> feliz.log # eg: mkswap -L Arch-Swap /dev/sda2
-    fi
-    swapon ${SwapPartition} 2>> feliz.log            # eg: swapon /dev/sda2
-  fi
-  local Counter=0
-  for id in ${AddPartList}
-  do
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
-    mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
-    # Check if replacing existing ext3/4 partition with btrfs
-    CurrentType=$(file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
-    if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
-      btrfs-convert ${id} 2>> feliz.log
-    elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} 2>> feliz.log
-    elif [ ${AddPartType[$Counter]} != "" ]; then
-    #  Partition=`echo ${id} | cut -c 6-`
-      Partition=${id: -4}                            # Last 4 characters of ${id}
-      Label="${LabellingArray[${Partition}]}"
-      if [ -n "${Label}" ]; then
-        Label="-L ${Label}"
-      fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
-    fi
-    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
-    Counter=$((Counter+1))
-  done
 }
 
 InstallDM()
