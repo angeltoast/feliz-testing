@@ -397,8 +397,8 @@ BIOS_autopart() { # Partitioning for a BIOS environment
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi                                                # ---------------------------------------------------
-  ShowPart1="Swap: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart2="Root: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart1="Swap:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1                                        # Set auto-partition flag to 'on'
 }

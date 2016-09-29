@@ -244,7 +244,6 @@ SetSubZone() {
     local Counter=0
     for x in ${SubZones[@]}
     do
-    #  if [ `echo $x | cut -c1` = $Zone2 ]; then
       if [ ${x:0:1} = ${Zone2} ]; then    # 1 character at position 0 in string $x
         subzones="$subzones $x"
         Counter=$((Counter+1))
@@ -254,6 +253,9 @@ SetSubZone() {
       invalid_option
       continue
     fi
+    print_heading
+    PrintOne "Now choose your city from this list"
+    PrintOne "... or try again"
     listgen1 "$subzones" "" "Try_again"
     case $Result in
       "Try_again") break

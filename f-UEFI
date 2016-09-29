@@ -188,9 +188,9 @@ UEFI_autopart() { # Partitioning for a UEFI environment
     SwapFile="2G"
     SwapPartition=""
   fi
-  ShowPart1="Boot: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart2="Swap: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart3="Root: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart1="Boot:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart2="Swap:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart3="Root:  `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Set flag to 'on' for mounting
 

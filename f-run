@@ -98,7 +98,7 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log # eg: mke2fs -L Arch-Root -t ext4 /dev/sda1
     fi
   esac
-  mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
   
   # 2) EFI (if rquired)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
@@ -149,7 +149,7 @@ MountPartitions() {
       fi
       mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} 2>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} 2>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
 }
