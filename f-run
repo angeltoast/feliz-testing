@@ -88,15 +88,15 @@ MountPartitions() {
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${RootPartition} 2>> feliz.log      # Convert existing partition to btrfs
     elif [ $RootType = "btrfs" ]; then                  # Otherwise, for btrfs /root
-      mkfs.btrfs -f ${RootPartition} 2>> feliz.log      # Format to btrfs
+      mkfs.btrfs -f ${RootPartition} 2>> feliz.log      # eg: mkfs.btrfs -f /dev/sda2
     else                                                # /root is not btrfs
       Partition=${RootPartition: -4}                    # Last 4 characters (eg: sda1)
       Label="${LabellingArray[${Partition}]}"           # Check to see if it has a label
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log # eg: mke2fs -L Arch-Root -t ext4 /dev/sda1
-    fi
+      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
+    fi                                                  # eg: mke2fs -L Arch-Root -t ext4 /dev/sda1
   esac
   mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
   
@@ -131,7 +131,7 @@ MountPartitions() {
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
   local Counter=0
-  for id in ${AddPartList}
+  for id in ${AddPartList}                              # $id will be in the form /dev/sda2
   do
     umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
@@ -140,14 +140,14 @@ MountPartitions() {
     if [ ${AddPartType[$Counter]} = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id} 2>> feliz.log
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
-      mkfs.btrfs -f ${id} 2>> feliz.log
+      mkfs.btrfs -f ${id} 2>> feliz.log &>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
     elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=${id: -4}                               # Last 4 characters of ${id}
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                             # Prepare label
       fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} 2>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))

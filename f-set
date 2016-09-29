@@ -30,7 +30,7 @@
 # ConfirmVbox       75    SetGrubDevice       549
 # getkeymap        100    
 # setocale         138    FinalCheck          577
-# SetTimeZone      177    ManualSettings      682
+# SetTimeZone      195    ManualSettings      682
 # SetSubZone       208    ChangeRootPartition 708
 # Username         248    ChangeSwapPartition 716
 # Hostname         264    ChangePartitions    724
@@ -230,13 +230,13 @@ SetSubZone() {
     print_heading
     PrintOne "World Zone = $ZONE"
     echo
-    PrintOne "Please enter the first letter"
-    TPread "of your nearest major city: "
+    PrintOne "Please enter the first letter of your nearest"
+    PrintOne "major city. To change World Zone, leave empty."
+    TPread "Type a letter, or leave empty: "
     echo
     if [ -z ${Response} ]
     then
-      invalid_option
-      continue
+      SetTimeZone
     else
       Zone2="${Response^^}"
     fi
@@ -255,7 +255,8 @@ SetSubZone() {
     fi
     print_heading
     PrintOne "Now choose your city from this list"
-    PrintOne "... or try again"
+    PrintOne "... or try again if it is not there"
+    echo
     listgen1 "$subzones" "" "Try_again"
     case $Result in
       "Try_again") break
