@@ -134,7 +134,7 @@ if [ ${GrubDevice} = "EFI" ]; then               # Installing in UEFI environmen
     mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
   fi
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
-elif [ ${GrubDevice} ]; then                  # Installing in BIOS environment
+elif [ ${GrubDevice} ]; then                     # Installing in BIOS environment
   TPecho "Installing Grub to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
