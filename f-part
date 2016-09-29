@@ -82,67 +82,14 @@ CheckParts() {
     BuildPartitionLists # This is a first call
   else
     # Alternatively, offer cfdisk to edit existing partitions
-    if [ $FileSystem="BIOS" ] && [ $UEFI -eq 1 ]; then # If existing filesystem is BIOS but booted in EFI
-      ListExisting                                       # Display exisiting partitions
-      PrintOne "Your computer is running in EFI mode, but the device is currently formatted"
-      PrintOne "as MBR.It is not possible to create the correct partitions in MBR to install"
-      PrintOne "and run an EFI system. Please read the Arch Wiki if you do not understand."
-      PrintOne "Feliz can removethe existing partition table for you, if you wish, so that"
-      PrintOne "you can prepare a new one, but be warned that this will destroy everything."
-      PrintOne "on the disk. Do not continue unless you accept the consequences."
-      echo
-      PrintOne "If you choose 'Wipe', the disk will be emptied and Feliz will restart."
-      PrintOne "If you choose 'Quit', Feliz will shut down the computer."
-      PrintOne "Wipe the drive, Quit the installation, or Restart Feliz?"
-      echo
-      listgen1 "Quit Wipe Restart" "" "nodone"
-      echo
-      case $Response in
-        2) PrintOne "Wiping the drive ..."
-          sgdisk --zap-all /dev/${UseDisk} 2>> feliz.log  # Remove all existing filesystems
-          wipefs -a /dev/${UseDisk} 2>> feliz.log         # from the drive
-          CheckParts                                      # Restart
-        ;;
-        3) CheckParts                                     # Restart
-        ;;
-        *) shutdown -h now
-      esac
-    elif [ $FileSystem="EFI" ] && [ $UEFI -eq 0 ]; then   # If existing filesystem is EFI but booted in BIOS
-      ListExisting                                        # Display exisiting partitions
-      PrintOne "Your computer is running in BIOS mode, but the device is currently formatted"
-      PrintOne "as GPT. Installing a BIOS system partitioned with GPT requires an additional"
-      PrintOne "boot partition. Feliz cannot, at present, install in this situation. However,"
-      PrintOne "it can remove the existing partition table for you, if you wish, so that you"
-      PrintOne "can prepare a new one, but be warned that this will destroy everything on the"
-      PrintOne "disk. Do not continue unless you accept the consequences."
-      echo
-      PrintOne "If you choose 'Quit', Feliz will shut down the computer."
-    #  PrintOne "If you choose 'Partition', cfdisk will start for you to edit the partitions."
-      PrintOne "If you choose 'Wipe', the disk will be emptied and Feliz will restart."
-      PrintOne "Quit the installation, Partition the drive with cfdisk, or Wipe the drive?"
-      echo
-      listgen1 "Quit Wipe" "" "nodone"
-      echo
-      case $Response in
-        2) PrintOne "Wiping the drive ..."
-          sgdisk --zap-all /dev/${UseDisk} 2>> feliz.log  # Remove all existing filesystems
-          wipefs -a /dev/${UseDisk} 2>> feliz.log         # from the drive
-          CheckParts                                      # Restart
-        ;;
-    #    2) cfdisk                                         # Restart
-    #    ;;
-        *) shutdown -h now
-      esac
-    else                                                  # Existing filesystem matches boot type
-      ListExisting                                        # Display exisiting partitions
-      PrintOne "'cfdisk' is available for you to edit them, or feliz can"
-      PrintOne "overwrite them with a new partition table if you wish."
-      PrintOne "If you choose to 'Leave it as it is' the script will next"
-      PrintOne "enable you to allocate the existing partitions."
-      echo
-      Partitioning            # Partitioning options
-      MakePartitionList       # Regenerate the array of partitions
-    fi
+    ListExisting                                        # Display exisiting partitions
+    PrintOne "'cfdisk' is available for you to edit them, or feliz can"
+    PrintOne "overwrite them with a new partition table if you wish."
+    PrintOne "If you choose to 'Leave it as it is' the script will next"
+    PrintOne "enable you to allocate the existing partitions."
+    echo
+    Partitioning            # Partitioning options
+    MakePartitionList       # Regenerate the array of partitions
   fi
 }
 
