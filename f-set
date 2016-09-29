@@ -582,7 +582,7 @@ FinalCheck() {
     PrintOne "These are the settings you have entered. Please check them ..."
     echo
     if [ ${UEFI} -eq 1 ]; then
-      PrintOne "0)  Boot partition ... $EFIPartition             " 50
+      PrintOne "   0)  Boot partition ... $EFIPartition             " 50
     fi
     PrintOne "1)  Root partition ... $RootPartition : $RootType" 50
     if [ $SwapPartition ] || [ $SwapFile ]; then

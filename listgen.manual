@@ -66,7 +66,8 @@ elements filled, before it can be used.
 
 It takes the form: listgen2 "$PrimaryFile" "Heading" "Finished" "ReferenceArray"
 
-Example: (from achoodesktop - luxuries)
+Example:
+Declare -A LongDesk
 Desktop="conky cairo-dock docky gparted yaourt"
 LongDesk[1]="Conky - Desktop time and system information           "
 LongDesk[2]="Cairo Dock - Highly customizable dock and launcher application"
