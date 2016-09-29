@@ -84,12 +84,12 @@ CheckParts() {
     # Alternatively, offer cfdisk to edit existing partitions
     if [ $FileSystem="BIOS" ] && [ $UEFI -eq 1 ]; then # If existing filesystem is BIOS but booted in EFI
       ListExisting                                       # Display exisiting partitions
-      PrintOne "Your computer is running in EFI mode, but the device is currently formatted as MBR."
-      PrintOne "It is not possible to create the correct partitions in MBR to install and run an"
-      PrintOne "EFI system. Please read the Arch Wiki if you do not understand. Feliz can remove"
-      PrintOne "the existing MBR partition table for you, if you wish, so that you can prepare a"
-      PrintOne "new partition table, but be warned that this will destroy everything on the disk."
-      PrintOne "Do not continue unless you know what you are doing and accept the consequences."
+      PrintOne "Your computer is running in EFI mode, but the device is currently formatted"
+      PrintOne "as MBR.It is not possible to create the correct partitions in MBR to install"
+      PrintOne "and run an EFI system. Please read the Arch Wiki if you do not understand."
+      PrintOne "Feliz can removethe existing partition table for you, if you wish, so that"
+      PrintOne "you can prepare a new one, but be warned that this will destroy everything."
+      PrintOne "on the disk. Do not continue unless you accept the consequences."
       echo
       PrintOne "If you choose 'Wipe', the disk will be emptied and Feliz will restart."
       PrintOne "If you choose 'Quit', Feliz will shut down the computer."
@@ -109,12 +109,12 @@ CheckParts() {
       esac
     elif [ $FileSystem="EFI" ] && [ $UEFI -eq 0 ]; then   # If existing filesystem is EFI but booted in BIOS
       ListExisting                                        # Display exisiting partitions
-      PrintOne "Your computer is running in BIOS mode, but the device is currently formatted as GPT."
-      PrintOne "Installing GRUB on a BIOS system partitioned with GPT requires an additional BIOS"
-      PrintOne "boot partition. Feliz cannot, at present, install in this situation. However, it can"
-      PrintOne "remove the existing GPT partition table for you, if you wish, so that you can prepare"
-      PrintOne "a new partition table, but be warned that this will destroy everything on the disk."
-      PrintOne "Do not continue unless you know what you are doing and accept the consequences."
+      PrintOne "Your computer is running in BIOS mode, but the device is currently formatted"
+      PrintOne "as GPT. Installing a BIOS system partitioned with GPT requires an additional"
+      PrintOne "boot partition. Feliz cannot, at present, install in this situation. However,"
+      PrintOne "it can remove the existing partition table for you, if you wish, so that you"
+      PrintOne "can prepare a new one, but be warned that this will destroy everything on the"
+      PrintOne "disk. Do not continue unless you accept the consequences."
       echo
       PrintOne "If you choose 'Quit', Feliz will shut down the computer."
     #  PrintOne "If you choose 'Partition', cfdisk will start for you to edit the partitions."
@@ -124,7 +124,7 @@ CheckParts() {
       listgen1 "Quit Wipe" "" "nodone"
       echo
       case $Response in
-        3) PrintOne "Wiping the drive ..."
+        2) PrintOne "Wiping the drive ..."
           sgdisk --zap-all /dev/${UseDisk} 2>> feliz.log  # Remove all existing filesystems
           wipefs -a /dev/${UseDisk} 2>> feliz.log         # from the drive
           CheckParts                                      # Restart
