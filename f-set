@@ -172,11 +172,11 @@ setlocale() {
         print_heading
         continue
       fi
-      PrintOne "Choose your locale from this list, or 'Try_Again': "
+      PrintOne "Choose your locale from this list, or 'Try_again': "
       echo
       listgen1 "${localelist}" "" "Try_again}"
       case $Result in
-        "Try_again") continue
+      "Try_again") continue
       ;;
       *) CountryLocale="${Result}.UTF-8"
         CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result

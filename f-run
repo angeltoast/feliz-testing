@@ -28,7 +28,7 @@
 # TPecho                40       LocalMirrorList      200
 # read_timed            58       InstallDM            215
 # MountPartitions       76       InstallLuxuries      225
-# InstallKernel        142       UserAdd              325
+# InstallKernel        157       UserAdd              325
 # AddCodecs            166       SetRootPassword      340
 # McInitCPIO           181       SetUserPassword      378
 # -------------------------      -------------------------
@@ -156,11 +156,14 @@ MountPartitions() {
 
 InstallKernel() {   # Selected kernel and some other core systems
   case $Kernel in   # Selected kernel
-    1) TPecho "Installing LTS kernel"
-      pacstrap /mnt linux-lts 2>> feliz.log
-      pacstrap /mnt linux-lts-headers 2>> feliz.log
-      TPecho "Installing core systems"
-      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+    1) TPecho "Installing LTS kernel and core systems"
+    
+      pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
+    
+    #  pacstrap /mnt linux-lts 2>> feliz.log
+    #  pacstrap /mnt linux-lts-headers 2>> feliz.log
+    #  TPecho "Installing core systems"
+    #  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
@@ -190,6 +193,10 @@ AddCodecs() {
 }
 
 McInitCPIO() {
+  
+  arch_chroot "mkinitcpio -p linux" 2>> feliz.log
+  break # See if 'linux' works for both
+  
   case $Kernel in
   1) TPecho "Running mkinitcpio for lts kernel" 10
     arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log
