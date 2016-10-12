@@ -28,8 +28,8 @@
 # TPread            46    ShoppingList        343
 # SetKernel         61    ChooseDM            401
 # ConfirmVbox       75    SetGrubDevice       549
-# getkeymap        100    
-# setocale         138    FinalCheck          577
+# getkeymap        100     --- Review stage ---
+# setlocale        138    FinalCheck          577
 # SetTimeZone      195    ManualSettings      682
 # SetSubZone       208    ChangeRootPartition 708
 # Username         248    ChangeSwapPartition 716
@@ -177,9 +177,8 @@ setlocale() {
       listgen1 "${localelist}" "" "Try_again}"
       case $Result in
         "Try_again") continue
-        ;;
-        *) CountryLocale="${Result}.UTF-8"
-      #  CountryCode=(`echo ${Result} | cut -c4-6`)
+      ;;
+      *) CountryLocale="${Result}.UTF-8"
         CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result
         break
         break
@@ -188,7 +187,6 @@ setlocale() {
     print_heading
   done
   print_heading
-  # read_timed "Locale is set to: `echo $CountryLocale | cut -c1-5`" 1
   read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # 5 characters from position 0 in $CountryLocale
 }
 
@@ -735,8 +733,8 @@ ChangePartitions() {
 }
 
 AddExtras() {
-  # Called by ChangeSwapPartition and ChangeRootPartition with
-  # Ignorelist started and Counter set to next record number
+  # Ignorelist started and Counter set to next record number by calling
+  # function ChangeSwapPartition or ChangeRootPartition
   # Add each field (extra partition) from AddPartList into the array:
   for a in ${AddPartList[@]}; do
     Ignorelist[$Counter]=$a

@@ -156,24 +156,38 @@ MountPartitions() {
 
 InstallKernel() {   # Selected kernel and some other core systems
   
-  LANG=C            # Temporary addition to overcome bug in Arch man pages
-
+  # LANG=C            # Temporary addition to overcome bug in Arch man pages
+  
+  read -p "Debug in f-run at line 163"
+  
   case $Kernel in   # Selected kernel
     1) TPecho "Installing LTS kernel"
       pacstrap /mnt linux-lts 2>> feliz.log
       pacstrap /mnt linux-lts-headers 2>> feliz.log
       TPecho "Installing core systems"
-      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+        
+  read -p "Debug in f-run at line 170"
+  
       ;;
     *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
+        
+  read -p "Debug in f-run at line 176"
+  
   esac
-
+  
+  read -p "Debug in f-run at line 180"
+  
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
-
+  
+  read -p "Debug in f-run at line 185"
+  
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
+  
+  read -p "Debug in f-run at line 190"
   
 }
 
@@ -328,11 +342,6 @@ InstallLuxuries()
       esac
     done
   fi
-
-  # Man pages
-  TPecho "Installing man-pages"
-  pacstrap /mnt man-pages 2>> feliz.log
-  pacstrap /mnt man-db 2>> feliz.log
 
 }
 
