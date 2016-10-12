@@ -166,10 +166,11 @@ InstallKernel() {   # Selected kernel and some other core systems
     #  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
       ;;
     *) TPecho "Installing Latest kernel and core systems"
-      pacstrap /mnt base base-devel 2>> feliz.log
+      pacstrap /mnt base 2>> feliz.log
   esac
 
   TPecho "Installing cli tools"
+  pacstrap /mnt base-devel 2>> feliz.log
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
 
   # Enable sshd
@@ -193,10 +194,6 @@ AddCodecs() {
 }
 
 McInitCPIO() {
-  
-  arch_chroot "mkinitcpio -p linux" 2>> feliz.log
-  break # See if 'linux' works for both
-  
   case $Kernel in
   1) TPecho "Running mkinitcpio for lts kernel" 10
     arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log

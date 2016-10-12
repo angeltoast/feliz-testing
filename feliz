@@ -160,15 +160,14 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   
     AddCodecs # Various bits
     
-    if [ ${IsInVbox} = "VirtualBox" ]; then                   # If in Virtualbox
+    if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
       case $Kernel in
-        1) TPecho "Installing dkms & linux-lts-headers for lts kernel" ""
+      1) TPecho "Installing dkms & linux-lts-headers for lts kernel" ""
           pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel
           TPecho "Installing virtualbox-guest-dkms for LTS kernel" ""
           pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log
-          
-        ;;
-        *) TPecho "Installing dkms & linux-headers for latest kernel" ""
+      ;;
+      *) TPecho "Installing dkms & linux-headers for latest kernel" ""
           pacstrap /mnt dkms linux-headers 2>> feliz.log     # Latest kernel
           TPecho "Installing virtualbox-guest-modules-arch for latest kernel" ""
           pacstrap /mnt virtualbox-guest-modules-arch 2>> feliz.log
