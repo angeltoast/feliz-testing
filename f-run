@@ -194,14 +194,21 @@ AddCodecs() {
 
 McInitCPIO() {
   TPecho "Running mkinitcpio" 10
+        
+  read -p "Debug in f-run at line 198 - Kernel = $Kernel"
+  
   case $Kernel in
-    1) arch-chroot /mnt /bin/bash mkinitcpio linux-lts 2>> feliz.log
+    1) arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log
+      
+  read -p "Debug in f-run at line 200"
+  
     ;;
-    *) arch-chroot /mnt /bin/bash mkinitcpio linux 2>> feliz.log
+    *) arch_chroot "mkinitcpio -p linux" 2>> feliz.log
+      
+  read -p "Debug in f-run at line 205"
+  
   esac
-  
-  read -p "Debug in f-run at line 203"
-  
+
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
