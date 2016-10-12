@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 28th September 2016
+# Revision date: 12th October 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -24,9 +24,9 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           40       ReflectorMirrorList  190
-# TPecho                44       LocalMirrorList      200
-# read_timed            62       InstallDM            215
+# arch_chroot           36       ReflectorMirrorList  190
+# TPecho                40       LocalMirrorList      200
+# read_timed            58       InstallDM            215
 # MountPartitions       76       InstallLuxuries      225
 # InstallKernel        142       UserAdd              325
 # AddCodecs            166       SetRootPassword      340
@@ -126,7 +126,7 @@ MountPartitions() {
     chmod 600 /mnt/swapfile >/dev/null 2>> feliz.log 
     mkswap /mnt/swapfile >/dev/null 2>> feliz.log
     swapon /mnt/swapfile >/dev/null 2>> feliz.log
-    echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
+    # echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
   fi
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
@@ -155,9 +155,6 @@ MountPartitions() {
 }
 
 InstallKernel() {   # Selected kernel and some other core systems
-  
-  # LANG=C            # Temporary addition to overcome bug in Arch man pages
-  
   case $Kernel in   # Selected kernel
     1) TPecho "Installing LTS kernel"
       pacstrap /mnt linux-lts 2>> feliz.log
@@ -193,22 +190,13 @@ AddCodecs() {
 }
 
 McInitCPIO() {
-  TPecho "Running mkinitcpio" 10
-        
-  read -p "Debug in f-run at line 198 - Kernel = $Kernel"
-  
   case $Kernel in
-    1) arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log
-      
-  read -p "Debug in f-run at line 200"
-  
-    ;;
-    *) arch_chroot "mkinitcpio -p linux" 2>> feliz.log
-      
-  read -p "Debug in f-run at line 205"
-  
+  1) TPecho "Running mkinitcpio for lts kernel" 10
+    arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log
+  ;;
+  *) TPecho "Running mkinitcpio for latest kernel" 10
+    arch_chroot "mkinitcpio -p linux" 2>> feliz.log
   esac
-
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
