@@ -42,7 +42,6 @@ DualBoot="N"      # For formatting EFI partition
 TestUEFI() { # Called at launch of Feliz script, before all other actions
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
-    FileSystem="EFI"                  # Save for partitioning messages
     # Mount efivarfs if it is not already mounted
     if [[ -z $(mount | grep /sys/firmware/efi/efivars) ]]; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
@@ -64,7 +63,6 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
         shutdown -h now
       fi
   else
-    FileSystem="BIOs"                 # Save for partitioning messages
     UEFI=0
  fi
 }

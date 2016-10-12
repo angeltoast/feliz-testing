@@ -65,9 +65,9 @@ fi
 SetKernel                              # Select kernel and device for Grub
 
 if [ ${UEFI} -eq 1 ]; then             # If installing in EFI
-  GrubDevice="EFI"
+  GrubDevice="EFI"                     # Inform grub routine at line #129
 elif [ ${AutoPart} -eq 0 ]; then       # If not auto-artition
-  SetGrubDevice                        # Call SetGrubDevice
+  SetGrubDevice                        # User chooses grub partition
 fi
 
 getkeymap                              # Select keyboard layout
@@ -134,7 +134,7 @@ if [ ${GrubDevice} = "EFI" ]; then               # Installing in UEFI environmen
     mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
   fi
   arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
-elif [ ${GrubDevice} ]; then                     # Installing in BIOS environment
+elif [ ${GrubDevice} ]; then                  # Installing in BIOS environment
   TPecho "Installing Grub to $GrubDevice" ""
   pacstrap /mnt grub 2>> feliz.log
   arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
