@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 12th October 2016
+# Revision date: 13th October 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -155,15 +155,20 @@ MountPartitions() {
 }
 
 InstallKernel() {   # Selected kernel and some other core systems
-  case $Kernel in   # Selected kernel
+  case $Kernel in
     1) TPecho "Installing LTS kernel and core systems"
     
-    #  pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
+      pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
     
-      pacstrap /mnt linux-lts 2>> feliz.log
+    read -p "Debug in f-run at line 163"
+        
+    #  pacstrap /mnt linux-lts 2>> feliz.log
     #  pacstrap /mnt linux-lts-headers 2>> feliz.log
-      TPecho "Installing core systems"
-      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+    #  TPecho "Installing core systems"
+    #  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+    
+    read -p "Debug in f-run at line 170"
+    
       ;;
     *) TPecho "Installing Latest kernel and core systems"
       pacstrap /mnt base base-devel 2>> feliz.log
@@ -193,12 +198,21 @@ AddCodecs() {
 }
 
 McInitCPIO() {
+    
+    read -p "Debug in f-run at line 202"
+    
   case $Kernel in
   1) TPecho "Running mkinitcpio for lts kernel" 10
     arch_chroot "mkinitcpio -p linux-lts" 2>> feliz.log
+    
+    read -p "Debug in f-run at line 208"
+    
   ;;
   *) TPecho "Running mkinitcpio for latest kernel" 10
     arch_chroot "mkinitcpio -p linux" 2>> feliz.log
+    
+    read -p "Debug in f-run at line 214"
+    
   esac
 }
 

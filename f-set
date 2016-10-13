@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 12th October 2016
+# Revision date: 13th October 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -581,9 +581,11 @@ FinalCheck() {
     PrintOne "These are the settings you have entered. Please check them ..."
     echo
     if [ ${UEFI} -eq 1 ]; then
-      PrintOne "   0)  Boot partition ... $EFIPartition             " 50
+      PrintOne "0)  Boot partition ... $EFIPartition             "
+      PrintMany "1)  Root partition ... $RootPartition : $RootType"
+    else
+      PrintOne "1)  Root partition ... $RootPartition : $RootType"
     fi
-    PrintOne "1)  Root partition ... $RootPartition : $RootType" 50
     if [ $SwapPartition ] || [ $SwapFile ]; then
       PrintMany "2)  Swap partition ... $SwapPartition $SwapFile"
     else
@@ -592,9 +594,10 @@ FinalCheck() {
     if [ ${#AddPartList[@]} ]; then
       Counter=0
       PrintMany "3)  Extra partitions ..."
+read -p "Debug in f-set at line 597 : AddPartList = ${#AddPartList[@]}"
       for i in ${AddPartList[@]}
       do
-        PrintMany "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}" 50
+        PrintMany "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"
         Counter=$((Counter+1))
       done
     else
@@ -606,7 +609,7 @@ FinalCheck() {
       *) PrintMany "4)  The latest kernel will be installed"
     esac
     if [ $GrubDevice ]; then
-    PrintMany "5)  Grub will be installed to $GrubDevice" 50
+    PrintMany "5)  Grub will be installed to $GrubDevice"
     else
       PrintMany "5)  No provision has been made for Grub"
     fi

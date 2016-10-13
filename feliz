@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With acknowlegements to Carl Duff and Dylan Schacht
-# Revision date: 12th October 2016
+# Revision date: 13th October 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -163,18 +163,24 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
       case $Kernel in
       1) TPecho "Installing dkms & linux-lts-headers for lts kernel" ""
+    
+    read -p "Debug in feliz at line 167"
+    
           pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel
           TPecho "Installing virtualbox-guest-dkms for LTS kernel" ""
           pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log
       ;;
       *) TPecho "Installing dkms & linux-headers for latest kernel" ""
+    
+    read -p "Debug in feliz at line 175"
+    
           pacstrap /mnt dkms linux-headers 2>> feliz.log     # Latest kernel
           TPecho "Installing virtualbox-guest-modules-arch for latest kernel" ""
           pacstrap /mnt virtualbox-guest-modules-arch 2>> feliz.log
       esac
       pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
+      arch-chroot /mnt systemctl enable vboxservice
     fi
-    arch-chroot /mnt systemctl enable vboxservice
     
     InstallLuxuries # Install DEs, WMs and DMs
     
