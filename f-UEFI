@@ -53,23 +53,53 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
  fi
 }
 
+PartitioningEFI() {
+  local Proceed=""
+  AutoPart=0 # Set flag to 'off' by default
+  while [ -z $Proceed ]
+  do
+    PrintOne "1) Manual partitioning (option not yet available)" # "Help me to partition manually"
+    PrintMany "2) Allow feliz to partition the whole device"
+    PrintMany "3) Leave it as it is"
+    echo
+    TPread "Enter the number of your selection : "
+    Proceed=$Response
+    echo
+    case $Proceed in
+      1) clear
+        print_heading
+        Proceed=""
+        continue  # Option not yet available
+        
+        tput setf 0 # Change foreground colour to black temporarily to hide error message
+        clear
+        partprobe 2>> feliz.log #Inform kernel of changes to partitions
+        tput sgr0 # Reset colour
+        ShowPartitions=$(lsblk -l | grep 'part' | awk '{print $1}')
+      ;;
+      2) AutoPartition
+      ;;
+      3) echo
+      ;;
+      *) invalid_option
+        Proceed=""
+        print_heading
+    esac
+  done
+}
+
 # 2) Allocation - user allocates existing partitions
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition
   # Uses list of available partitions in PartitionList created in ManagePartitions
+  print_heading
 	Remaining=""
 	local Counter=0
   Partition=""
 	PartitionType=""
   echo
 	PrintOne "Here are the partitions that are available."
-	PrintOne "First you should select one to use for EFI (/boot)"
-  
-  print_heading
-  Remaining=""
-  local Counter=0
-  Partition=""
-  PartitionType=""
-  PrintOne "Please now select a partition to use for your EFI /boot partition"
+	PrintOne "First you should select one to use for EFI /boot"
+	PrintOne "This must be of type vfat, and may be about 512MiB"  
   echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response

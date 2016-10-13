@@ -109,14 +109,14 @@ CheckParts() {
       PrintOne "wish. If you choose to 'Leave it as it is' the script will"
       PrintOne "next enable you to allocate the existing partitions."
       echo
-      Partitioning                      # Partitioning options    
+      PartitioningEFI                   # UEFI partitioning options    
     else                                # Installing in BIOS environment
       PrintOne "'cfdisk' is available for you to edit them, or feliz can"
       PrintOne "overwrite them with a new partition table if you wish."
       PrintOne "If you choose to 'Leave it as it is' the script will next"
       PrintOne "enable you to allocate the existing partitions."
       echo
-      Partitioning                      # Partitioning options
+      Partitioning                      # BIOS partitioning options
     fi
     MakePartitionList                   # Regenerate the array of partitions
   fi
@@ -231,41 +231,6 @@ Partitioning() {
     echo
     case $Proceed in
       1) cfdisk 2>> feliz.log
-        tput setf 0 # Change foreground colour to black temporarily to hide error message
-        clear
-        partprobe 2>> feliz.log #Inform kernel of changes to partitions
-        tput sgr0 # Reset colour
-        ShowPartitions=$(lsblk -l | grep 'part' | awk '{print $1}')
-      ;;
-      2) AutoPartition
-      ;;
-      3) echo
-      ;;
-      *) invalid_option
-        Proceed=""
-        print_heading
-    esac
-  done
-}
-
-PartitioningEFI() {
-  local Proceed=""
-  AutoPart=0 # Set flag to 'off' by default
-  while [ -z $Proceed ]
-  do
-    PrintOne "1) Manual partitioning (option not yet available)" # "Help me to partition manually"
-    PrintMany "2) Allow feliz to partition the whole device"
-    PrintMany "3) Leave it as it is"
-    echo
-    TPread "Enter the number of your selection : "
-    Proceed=$Response
-    echo
-    case $Proceed in
-      1) clear
-        print_heading
-        Proceed=""
-        continue  # Option not yet available
-        
         tput setf 0 # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log #Inform kernel of changes to partitions
@@ -530,9 +495,6 @@ AllocateRoot() {
         PrintOne "understand that not reformatting the root"
         PrintOne "partition can have unexpected consequences."
         echo
-        TypeList="ext2 ext3 ext4 btrfs"
-      else
-        TypeList="ext2 ext3 ext4 btrfs"
       fi
       # Now select a filesystem
       select_filesystem
@@ -759,7 +721,6 @@ MakePartition() { # Called by MorePartitions
     echo
   fi
   # 2) Select filesystem
-  TypeList="ext2 ext3 ext4 btrfs" # Set format types for the selected partition
   select_filesystem
   AddPartType[$ExtraPartitions]="${PartitionType}"  # Add it to AddPartType list
   # 3) Get a mountpoint
