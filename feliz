@@ -139,6 +139,9 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     pacstrap /mnt grub 2>> feliz.log
     arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
+    
+    read -p "Debug in feliz at line 143"
+    
   else                                             # No grub device selected
     echo "Not installing Grub" >> feliz.log
   fi
@@ -164,7 +167,7 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
       case $Kernel in
       1) TPecho "Installing dkms & linux-lts-headers for lts kernel" ""
     
-    read -p "Debug in feliz at line 167"
+    read -p "Debug in feliz at line 170"
     
           pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel
           TPecho "Installing virtualbox-guest-dkms for LTS kernel" ""
@@ -172,7 +175,7 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
       ;;
       *) TPecho "Installing dkms & linux-headers for latest kernel" ""
     
-    read -p "Debug in feliz at line 175"
+    read -p "Debug in feliz at line 178"
     
           pacstrap /mnt dkms linux-headers 2>> feliz.log     # Latest kernel
           TPecho "Installing virtualbox-guest-modules-arch for latest kernel" ""

@@ -613,7 +613,10 @@ AllocateSwap() {
           IsSwap=$(blkid /dev/sd* | grep 'swap' | awk '{print $1}')
           if [ -n "$IsSwap" ]; then
             print_heading
-            PrintOne "$i is already formatted as a swap partition,"
+            PrintOne "$i is already formatted as a swap partition."
+            PrintOne "Reformatting it will change the UUID, and if this swap"
+            PrintOne "partition is used by another operating system, that"
+            PrintOne "system will no longer be unable to access the partition."
             PrintOne "Do you wish to reformat it?"
             echo
             listgen1 "Yes No" "" "nodone"

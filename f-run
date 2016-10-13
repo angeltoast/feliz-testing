@@ -156,20 +156,16 @@ MountPartitions() {
 
 InstallKernel() {   # Selected kernel and some other core systems
   case $Kernel in
-    1) TPecho "Installing LTS kernel and core systems"
+  1) TPecho "Installing LTS kernel and core systems"
     
-    #  pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
-
-      pacstrap /mnt linux-lts 2>> feliz.log
-      pacstrap /mnt linux-lts-headers 2>> feliz.log
-      TPecho "Installing core systems"
-      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
+    #  This is the full list at 13th October 2016
+    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
+      
+    read -p "Debug in f-run at line 168" # Note: Check that all packages are being installed
     
-    read -p "Debug in f-run at line 168"
-    
-      ;;
-    *) TPecho "Installing Latest kernel and core systems"
-      pacstrap /mnt base base-devel 2>> feliz.log
+  ;;
+  *) TPecho "Installing Latest kernel and core systems"
+    pacstrap /mnt base base-devel 2>> feliz.log
   esac
 
   TPecho "Installing cli tools"
@@ -187,7 +183,9 @@ AddCodecs() {
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_actiond wifi-menu 2>> feliz.log
-  
+    
+    read -p "Debug in f-run at line 191"
+    
   TPecho "Installing X, Graphics, etc"
   pacstrap /mnt xorg-server xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
   
