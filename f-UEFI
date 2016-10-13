@@ -68,6 +68,7 @@ PartitioningEFI() {
     case $Proceed in
       1) clear
         print_heading
+        echo
         Proceed=""
         continue  # Option not yet available
         

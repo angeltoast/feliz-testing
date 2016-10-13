@@ -267,6 +267,9 @@ InstallLuxuries()
           TPecho "Installing the Gnome extras package"
           pacstrap /mnt gnome-extra 2>> feliz.log
         ;;
+      "JWM") TPecho "Installing the JWM window manager"
+        pacstrap /mnt jwm 2>> feliz.log
+        ;;
       "KDE") TPecho "Installing the KDE Plasma meta package"
           pacstrap /mnt plasma-meta 2>> feliz.log
           TPecho "Installing the KDE applications package"
@@ -311,7 +314,7 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
+      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "JWM" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
         ;;
       "cairo-dock") TPecho "Installing cairo-dock & cairo-dock-plug-ins"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
