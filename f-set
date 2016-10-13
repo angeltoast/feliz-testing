@@ -449,31 +449,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     # Then carry out any specific tests and add the item to the list
     SaveResult=$Result # (Because other subroutines return $Result)
     case $SaveResult in
-      "Budgie") ChooseDM
-       ;;
-      "Cinnamon") ChooseDM
-       ;;
-      "Deepin") ChooseDM
-       ;;
-      "Enlightenment") ChooseDM
-       ;;
-      "Fluxbox") ChooseDM
-        ;;
-      "Gnome") ChooseDM
-        ;;
-      "JWM") ChooseDM
-        ;;
-      "KDE") ChooseDM
-        ;;
-     "LXDE") ChooseDM
-       ;;
-      "LXQt") ChooseDM
-        ;;
-      "Mate") ChooseDM
-       ;;
-     "Openbox") ChooseDM
-       ;;
-      "Xfce") ChooseDM
+      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "JWM" | "KDE" | "LXDE" | "LXQt" |  "Mate" | "Openbox" | "Xfce") DesktopEnvironment=$SaveResult
+
        ;;
       "") continue
        ;;
@@ -485,8 +462,13 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
       LuxuriesList="${LuxuriesList} ${SaveResult}"
     fi
   done
-
-  Passed=""
+  
+  if [ -n $DesktopEnvironment ]; then   # Only call once
+    ChooseDM
+  fi
+  
+  Passed=""     # Clear the information variable
+  
 }
 
 ChooseDM() { # Choose a display manager
@@ -591,10 +573,9 @@ FinalCheck() {
     else
       PrintMany "2)  No provision has been made for swap"
     fi
-    if [ ${#AddPartList[@]} ]; then
+    if [ ${#AddPartList[@]} -gt 0 ]; then
       Counter=0
       PrintMany "3)  Extra partitions ..."
-read -p "Debug in f-set at line 597 : AddPartList = ${#AddPartList[@]}"
       for i in ${AddPartList[@]}
       do
         PrintMany "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"

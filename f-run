@@ -158,16 +158,14 @@ InstallKernel() {   # Selected kernel and some other core systems
   case $Kernel in
     1) TPecho "Installing LTS kernel and core systems"
     
-      pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
+    #  pacman -Sg base | cut -d ' ' -f 2 | sed s/^linux\$/linux-lts/g | pacstrap /mnt -
+
+      pacstrap /mnt linux-lts 2>> feliz.log
+      pacstrap /mnt linux-lts-headers 2>> feliz.log
+      TPecho "Installing core systems"
+      pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
     
-    read -p "Debug in f-run at line 163"
-        
-    #  pacstrap /mnt linux-lts 2>> feliz.log
-    #  pacstrap /mnt linux-lts-headers 2>> feliz.log
-    #  TPecho "Installing core systems"
-    #  pacstrap /mnt cryptsetup dhcpcd dialog diffutils file gettext inetutils iproute2 iputils jfsutils licenses logrotate lvm2 man-pages man-db mdadm nano netctl osprober pacman pciutils pcmciautils procps-ng psmisc reiserfsprogs s-nail sed systemd-sysvcompat tar usbutils vi which xfsprogs autoconf automake binutils bison fakeroot flex gcc groff libtool make patch pkg-config sudo 2>> feliz.log
-    
-    read -p "Debug in f-run at line 170"
+    read -p "Debug in f-run at line 168"
     
       ;;
     *) TPecho "Installing Latest kernel and core systems"
