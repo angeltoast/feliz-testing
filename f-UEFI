@@ -58,7 +58,7 @@ PartitioningEFI() {
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    PrintOne "1) Manual partitioning (option not yet available)" # "Help me to partition manually"
+    PrintOne "1) Guided manual partitioning" # "Guided manual partitioning"
     PrintMany "2) Allow feliz to partition the whole device"
     PrintMany "3) Leave it as it is"
     echo
@@ -70,7 +70,8 @@ PartitioningEFI() {
         print_heading
         echo
         Proceed=""
-        continue  # Option not yet available
+        
+        EasyEFI     # New guided manual partitioning functions
         
         tput setf 0 # Change foreground colour to black temporarily to hide error message
         clear
