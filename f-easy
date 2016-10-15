@@ -350,21 +350,16 @@ EasyHome() { # Variables: HomeSize, HomeType
   done
 }
 
-ActionEasyPart() {  # Final step
-                    # Uses the variables set in EasyBoot, EasyRoot, EasySwap
-                    # and EasyHome to create GPT partition table and all partitions
+ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
+                    # EasySwap and EasyHome to create partition table & all partitions
                     
-  WipeDevice        #  Format the drive
-  
-  TPecho "Creating boot partition"
-  
+  WipeDevice        # Format the drive
+
   # Boot partition
   Parted "mkpart ESP fat32 1MiB ${BootSize}"
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"                     # "/dev/sda1"
   
-  TPecho "Creating root partition"
-    
   # Root partition
   if [ ${RootSize: -1} = "M" ] || [ ${RootSize: -1} = "G" ]; then
     RootSize="${RootSize}iB"                        # Complete the unit description
@@ -372,9 +367,7 @@ ActionEasyPart() {  # Final step
   Parted "mkpart primary ${RootType} ${BootSize} ${RootSize}"
   RootPartition="${GrubDevice}2"                    # "/dev/sda2"
   NextStart=${RootSize}                             # Save for next partition
-  
-  TPecho "Creating swap"
-    
+
   # Swap partition
   if [ -n $SwapSize ]; then
     SwapUnit=${SwapSize: -1}
@@ -386,9 +379,7 @@ ActionEasyPart() {  # Final step
     MakeSwap="Y"
     NextStart=${SwapSize}                           # Save for next partition
   fi
-  
-  TPecho "Creating home partition"
-  
+
   # Home partition
   if [ -n $HomeSize ]; then
     if [ ${HomeSize: -1} = "M" ] || [ ${HomeSize: -1} = "G" ]; then
@@ -399,9 +390,8 @@ ActionEasyPart() {  # Final step
     Home="Y"
   fi
   
-  TPecho "Creating boot partition"
-  
   read -p "End of Easy Guided Partitioning"
+  
 }
 
 WipeDevice() { #  If necessary, format the drive ...
