@@ -381,13 +381,11 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   if [ ${BootUnit} = "G" ]; then
     BootVar=$((BootVar*1024))         # Convert to MiB
   fi
-  EndPart=$((BootVar+1))              # Add start and finish. Result is MiBs, numerical only (has no unit)
-  Parted "mkpart ESP fat32 1MiB ${EndPart}MiB"
+  EndPoint=$((BootVar+1))             # Add start and finish. Result is MiBs, numerical only (has no unit)
+  Parted "mkpart ESP fat32 1MiB ${EndPoint}MiB"
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"       # "/dev/sda1"
-  NextStart=${EndPart}                # Save for next partition
-  
-read -p "BootSize = $BootSize: BootUnit = $BootUnit: Chars = $Chars: BootVar = $BootVar: EndPart = $EndPart: NextStart = $NextStart"
+  NextStart=${EndPoint}               # Save for next partition
   
 # Root partition
 # --------------
@@ -399,20 +397,18 @@ read -p "BootSize = $BootSize: BootUnit = $BootUnit: Chars = $Chars: BootVar = $
   if [ ${RootUnit} = "G" ]; then
     RootVar=$((RootVar*1024))         # Convert to MiB
     EndPart=$((NextStart+RootVar))    # Add to previous end
-    EndPart="${EndPart}MiB"           # Add unit
+    EndPoint="${EndPart}MiB"          # Add unit
   elif [ ${RootUnit} = "M" ]; then
     EndPart=$((NextStart+RootVar))    # Add to previous end
-    EndPart="${EndPart}MiB"           # Add unit
+    EndPoint="${EndPart}MiB"          # Add unit
   elif [ ${RootUnit} = "%" ]; then
-    EndPart="100%"
+    EndPoint="100%"
   fi
   # Make the partition
-  Parted "mkpart primary ${RootType} ${NextStart}MiB ${EndPart}"
+  Parted "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
   RootPartition="${GrubDevice}2"      # "/dev/sda2"
   NextStart=${EndPart}                # Save for next partition
-  
-read -p "RootSize = $RootSize: RootUnit = $RootUnit: Chars = $Chars: RootVar = $RootVar: EndPart = $EndPart: NextStart = $NextStart"
-  
+
 # Swap partition
 # --------------
   if [ $SwapSize ]; then
@@ -424,22 +420,20 @@ read -p "RootSize = $RootSize: RootUnit = $RootUnit: Chars = $Chars: RootVar = $
     if [ ${SwapUnit} = "G" ]; then
       SwapVar=$((SwapVar*1024))       # Convert to MiB
       EndPart=$((NextStart+SwapVar))  # Add to previous end
-      EndPart="${EndPart}MiB"         # Add unit
+      EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${SwapUnit} = "M" ]; then
       EndPart=$((NextStart+SwapVar))  # Add to previous end
-      EndPart="${EndPart}MiB"         # Add unit
+      EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${SwapUnit} = "%" ]; then
-      EndPart="100%"
+      EndPoint="100%"
     fi
     # Make the partition
-    Parted "mkpart primary linux-swap ${NextStart} ${EndPart}"
+    Parted "mkpart primary linux-swap ${NextStart} ${EndPoint}"
     SwapPartition="${GrubDevice}3"    # "/dev/sda3"
     MakeSwap="Y"
     NextStart=${EndPart}              # Save for next partition
   fi
-  
-read -p "SwapSize = $SwapSize: SwapUnit = $SwapUnit: Chars = $Chars: SwapVar = $SwapVar: EndPart = $EndPart: NextStart = $NextStart"
-  
+
 # Home partition
 # --------------
   if [ $HomeSize ]; then
@@ -451,21 +445,19 @@ read -p "SwapSize = $SwapSize: SwapUnit = $SwapUnit: Chars = $Chars: SwapVar = $
     if [ ${HomeUnit} = "G" ]; then
       HomeVar=$((HomeVar*1024))       # Convert to MiB
       EndPart=$((NextStart+HomeVar))  # Add to previous end
-      EndPart="${EndPart}MiB"         # Add unit
+      EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${HomeUnit} = "M" ]; then
       EndPart=$((NextStart+HomeVar))  # Add to previous end
-      EndPart="${EndPart}MiB"         # Add unit
+      EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${HomeUnit} = "%" ]; then
-      EndPart="100%"
+      EndPoint="100%"
     fi
     # Make the partition
-    Parted "mkpart primary ${HomeType} ${NextStart} ${EndPart}"
+    Parted "mkpart primary ${HomeType} ${NextStart} ${EndPoint}"
     HomePartition="${GrubDevice}4"    # "/dev/sda4"
     Home="Y"
   fi
-  
-read -p "HomeSize = $HomeSize: HomeUnit = $HomeUnit: Chars = $Chars: HomeVar = $HomeVar: EndPart = $EndPart"
-  
+
   ShowPart1="Boot: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
   ShowPart2="Root: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Swap: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
@@ -484,9 +476,6 @@ read -p "HomeSize = $HomeSize: HomeUnit = $HomeUnit: Chars = $Chars: HomeVar = $
   echo
   PrintOne "Press any key to continue"
   read -n1
-
-# Debug - Check all variables
-read -p "BootSize $BootSize : RootSize $RootSize : SwapSize $SwapSize : HomeSize $HomeSize : HomeType $HomeType : SwapPartition $SwapPartition : SwapFile $SwapFile : RootPartition $RootPartition : RootType $RootType : AutoPart $AutoPart : UseDisk $UseDisk : DiskDetails $DiskDetails"
 
 }
 
