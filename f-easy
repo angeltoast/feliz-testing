@@ -42,9 +42,9 @@ EasyEFI() {     # Main function:
 
   print_heading
   echo
-  PrintOne "Here you can tell Feliz the size and format of the partitions you"
-  PrintOne "wish to create. When all details have been set, Feliz will create"
-  PrintOne "an EFI partition table with the partitions you have specified."
+  PrintOne "Here you can tell Feliz the size and format of the partitions you wish"
+  PrintOne "to create. When all details have been set, Feliz will wipe the disk and"
+  PrintOne "create an EFI partition table with the partitions you have specified."
   echo
   PrintOne "We begin with the /boot partition"
   echo
@@ -68,13 +68,14 @@ EasyEFI() {     # Main function:
     listgen1 "Yes No" "" "nodone"
     echo
     if [ $Response -eq 1 ]; then
+      print_heading
+      echo
       SetSwapFile # SetSwapFile is in f-part
                   # Note: Global variable SwapFile is set by SetSwapFile
                   # to desired size eg: 2G or 512M, and SwapFile is created
                   # during installation by MountPartitions in f-run
     fi
   fi
-  break
       
   if [ ${FreeSpace} -gt 5 ]; then
     EasyHome
@@ -148,16 +149,6 @@ EasyDiskSize() {  # Establish size of device in MiB
     read -p "Device has only ${FreeSpace}MiB: This is not enough for an installation"
     exit
   fi
-  
-  # Set for testing - delete after testing ##############################################
-  DiskSize="20G"
-  Chars=${#DiskSize}  # Count characters in variable
-  Unit=${DiskSize: -1}  # Save last character (eg: G)
-  Available=${DiskSize:0:Chars-1}  # Remove last character for calculations
-  # Remove any decimal point and any character following
-  Available=${Available%.*}
-  FreeSpace=$((Available*1024))  
-  #######################################################################################
 
 }
 
@@ -185,7 +176,7 @@ EasyBoot() { # Variables: BootSize
   while [ ${LoopRepeat} = "Y" ]
   do
     FreeGigs=$((FreeSpace/1024))
-    PrintOne "You have ${FreeGigs}GiB free on the chosen device."
+    PrintOne "You have ${FreeGigs}GiB available on the chosen device."
     PrintOne "All we need to set here is the size of your EFI /boot partition."  
     PrintOne "It should be no less than 512MiB and need be no larger than 1GiB"
     echo
@@ -216,7 +207,7 @@ EasyRoot() { # Variables: RootSize, RootType
     print_heading
     PrintOne "EFI boot partition: ${BootSize}"
     echo
-    PrintOne "You now have ${FreeGigs}GiB free on the chosen device."
+    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
     PrintOne "Next we need at least one more partition, for /root."  
     PrintOne "You can use all the remaining space on the device, if you"
@@ -258,7 +249,7 @@ EasySwap() { # Variables: SwapSize
     PrintOne "EFI boot partition: ${BootSize}"
     PrintOne "Root partition: ${RootType} : ${RootSize}"
     echo
-    PrintOne "You now have ${FreeGigs}GiB free on the chosen device."
+    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
     if [ ${FreeSpace} -gt 10 ]; then
       PrintOne "There is space for a /swap partition. Swap can be anything"
@@ -283,6 +274,7 @@ EasySwap() { # Variables: SwapSize
     echo
     PrintOne "Please enter the desired swap partition size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
+    echo
     TPread "Size [eg: 12G or 100% or 0]: "
     RESPONSE="${Response^^}"
     echo
@@ -321,7 +313,7 @@ EasyHome() { # Variables: HomeSize, HomeType
     PrintOne "EFI boot partition: ${BootSize}"
     PrintOne "Root partition: ${RootType} : ${RootSize}"
     echo
-    PrintOne "You now have ${FreeGigs}GiB free on the chosen device."
+    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
     PrintOne "There is space for a /home partition. You can use all"  
     PrintOne "the remaining space on the device, if you wish."
