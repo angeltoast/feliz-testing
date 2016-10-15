@@ -60,7 +60,20 @@ EasyEFI() {     # Main function:
   if [ ${FreeSpace} -gt 0 ]; then
     EasySwap
   else
-    EasySwapfile
+    PrintOne "There is no space for a /swap partition, but you can."
+    PrintOne "assign a swap-file. It is advised to allow some swap."
+    echo
+    PrintOne "Do you wish to allocate a swapfile?"
+    echo
+    listgen1 "Yes No" "" "nodone"
+    echo
+    if [ $Response -eq 1 ]; then
+      SetSwapFile # SetSwapFile is in f-part
+                  # Note: Global variable SwapFile is set by SetSwapFile
+                  # to desired size eg: 2G or 512M, and SwapFile is created
+                  # during installation by MountPartitions in f-run
+    fi
+  fi
   break
       
   if [ ${FreeSpace} -gt 5 ]; then
@@ -152,12 +165,16 @@ EasyRecalc() { # Calculate remaining disk space
   
   # Allow for 100% and strip unit from variable
   local Passed=$1
-  if [ ${Passed: -1} = "%" ]; then
-    Calculator=$FreeSpace
-  else
-    Chars=${#Passed}                    # Count characters in variable
-    Calculator=${Passed:0:Chars-1}      # Passed variable stripped of unit
-  fi
+  case ${Passed: -1} in
+    "%") Calculator=$FreeSpace
+    ;;
+    "G") Chars=${#Passed}               # Count characters in variable
+        Passed=${Passed:0:Chars-1}      # Passed variable stripped of unit
+        Calculator=$((Passed*1024))
+    ;;
+    *) Chars=${#Passed}                # Count characters in variable
+        Calculator=${Passed:0:Chars-1}   # Passed variable stripped of unit
+  esac
   # Recalculate available space
   FreeSpace=$((FreeSpace-Calculator))
   
@@ -275,7 +292,7 @@ EasySwap() { # Variables: SwapSize
         listgen1 "Yes No" "" "nodone"
         echo
         if [ $Response -eq 1 ]; then
-          EasySwapfile
+          SetSwapFile
         fi
         break
       ;;
@@ -292,18 +309,6 @@ EasySwap() { # Variables: SwapSize
     esac
   done
   # If no space remains, offer swapfile, else create swap partition
-}
-
-EasySwapfile() { # Variables: SwapSize, Swapfile (Yes)
-  if [ ${FreeSpace} -eq 0 ]; then
-    PrintOne "There is no space for a /swap partition, but you can."
-    PrintOne "assign a swap-file. It is advised to allow some swap."
-    echo
-    SetSwapFile # Note: Global variable SwapFile is set by SetSwapFile to 
-                # desired size of swapfile eg: 2G or 512M, and SwapFile is
-                # created during installation by MountPartitions in f-run
-    echo    
-  fi
 }
 
 EasyHome() { # Variables: HomeSize, HomeType
