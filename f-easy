@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 13th October 2016
+# Revision date: 15th October 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -346,9 +346,25 @@ EasyHome() { # Variables: HomeSize, HomeType
 
 ActionEasyPart() {  # Final step - Uses the variables set here to create partition table & all partitions
   
-  
-  AutoWarning
-  WipeDevice        # Format the drive
+  while :
+  do                                # Get user approval
+    print_heading
+    echo
+    PrintOne "This will erase any data on ${UseDisk}"
+    PrintOne "Are you sure you wish to continue?: "
+    echo
+    listgen1 "Yes No" "" "nodone"
+    case $Response in
+      "1" | "Y" | "y") WipeDevice   # Format the drive
+        break
+       ;;
+      "2" | "N" | "n") UseDisk=""
+        CheckParts                  # Go right back to start
+        ;;
+        *) invalid_option
+    esac
+  done
+
 
   # Boot partition
   TPecho "Creating boot partition"
@@ -392,6 +408,19 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   ShowPart3="Root:  `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
+  
+  print_heading
+  PrintOne "Partitioning of ${GrubDevice} successful"
+  PrintOne "-------------------------------------"
+  PrintMany "$ShowPart1"
+  PrintMany "$ShowPart2"
+  PrintMany "$ShowPart3"
+  PrintMany "$ShowPart4"
+  echo
+  PrintOne "You will have the opportunity to review these later."
+  echo
+  PrintOne "Press any key to continue"
+  read -n1
 
 }
 
