@@ -19,23 +19,16 @@
 #        or https://github.com/angeltoast/feliz2, or write to:
 # The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# -----------------------------------------------------------------------------------
-#                                                                                    |
-# In this module - new code for guided creation of a GPT partition table for UEFI    |
-#                                                                                    |
-# These are the first steps in coding functions specifically for UEFI and/or LVM     |
-# installations. These functions may, eventually, be dropped into other modules.     |
-#                                                                                    |
-# -----------------------------------------------------------------------------------
 
+# In this module - functions for guided creation of a GPT partition table:
 # -----------------------      ------------------------
-# Functions          Line       Functions           Line
+# Functions          Line      Functions           Line
 # -----------------------      ------------------------
-# EasyEFI             37        EasyRoot            205
-# EasyDevice          90        EasySwap            245
-# EasyDiskSize       129        EasyHome            310
-# EasyRecalc         158        ActionEasyPart      353
-# EasyBoot           178        WipeDevice          406
+# EasyEFI             37       EasyRoot            205
+# EasyDevice          90       EasySwap            245
+# EasyDiskSize       129       EasyHome            310
+# EasyRecalc         158       ActionEasyPart      353
+# EasyBoot           178       WipeDevice          406
 # -----------------------      ------------------------
 
 EasyEFI() {     # Main function:
@@ -74,10 +67,8 @@ EasyEFI() {     # Main function:
     if [ $Response -eq 1 ]; then
       print_heading
       echo
-      SetSwapFile # SetSwapFile is in f-part
-                  # Note: Global variable SwapFile is set by SetSwapFile
-                  # to desired size eg: 2G or 512M, and SwapFile is created
-                  # during installation by MountPartitions in f-run
+      SetSwapFile # Note: Global variable SwapFile is set by SetSwapFile
+                  # and SwapFile is created during installation by MountPartitions
     fi
   fi
       
@@ -353,17 +344,20 @@ EasyHome() { # Variables: HomeSize, HomeType
   done
 }
 
-ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
-                    # EasySwap and EasyHome to create partition table & all partitions
-                    
+ActionEasyPart() {  # Final step - Uses the variables set here to create partition table & all partitions
+  
+  
+  AutoWarning
   WipeDevice        # Format the drive
 
   # Boot partition
+  TPecho "Creating boot partition"
   Parted "mkpart ESP fat32 1MiB ${BootSize}"
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"                     # "/dev/sda1"
   
   # Root partition
+  TPecho "Creating root partition"
   if [ ${RootSize: -1} = "M" ] || [ ${RootSize: -1} = "G" ]; then
     RootSize="${RootSize}iB"                        # Complete the unit description
   fi
@@ -373,8 +367,8 @@ ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
 
   # Swap partition
   if [ $SwapSize ]; then
-    SwapUnit=${SwapSize: -1}
-    if [ ${SwapUnit} = "M" ] || [ ${SwapUnit} = "G" ]; then
+    TPecho "Creating swap partition"
+    if [ ${SwapSize: -1} = "M" ] || [ ${SwapSize: -1} = "G" ]; then
       SwapSize="${SwapSize}iB"                      # Complete the unit description
     fi
     Parted "mkpart primary linux-swap ${NextStart} ${SwapSize}"
@@ -385,6 +379,7 @@ ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
 
   # Home partition
   if [ $HomeSize ]; then
+    TPecho "Creating home partition"
     if [ ${HomeSize: -1} = "M" ] || [ ${HomeSize: -1} = "G" ]; then
       HomeSize="${HomeSize}iB"                      # Complete the unit description
     fi
@@ -392,20 +387,21 @@ ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
     HomePartition="${GrubDevice}4"                  # "/dev/sda2"
     Home="Y"
   fi
-  
-  read -p "End of Easy Guided Partitioning"
-  
+  ShowPart1="Boot:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart2="Swap:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart3="Root:  `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
+  AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
+
 }
 
 WipeDevice() { #  If necessary, format the drive ...
   
   TPecho "Wiping the device"
-  
   sgdisk --zap-all /dev/sda
   wipefs -a /dev/sda
   
   TPecho "Creating GPT partition table"
-  
   Parted "mklabel gpt"        # Create EFI partition table
   
 }
