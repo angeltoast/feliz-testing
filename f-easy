@@ -81,7 +81,7 @@ EasyEFI() {     # Main function:
   fi
   
   # Complete by calling ActionEasyPart
-  # ActionEasyPart
+  ActionEasyPart
   
 }
 
@@ -325,7 +325,7 @@ EasyHome() { # Variables: HomeSize, HomeType
     echo
     PrintOne "There is space for a /home partition. You can use all"  
     PrintOne "the remaining space on the device, if you wish."
-      PrintOne "If you don't want a home partition, enter 0 or leave blank"
+    PrintOne "If you don't want a home partition, enter 0 or leave blank"
     echo
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
@@ -355,16 +355,20 @@ EasyHome() { # Variables: HomeSize, HomeType
 }
 
 ActionEasyPart() {  # Final step
-                    # Use the variables set in EasyBoot, EasyRoot, EasySwap and EasyHome
-                    # to create GPT partition table and all partitions
+                    # Uses the variables set in EasyBoot, EasyRoot, EasySwap
+                    # and EasyHome to create GPT partition table and all partitions
                     
   WipeDevice        #  Format the drive
+  
+  TPecho "Creating boot partition"
   
   # Boot partition
   Parted "mkpart ESP fat32 1MiB ${BootSize}"
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"                     # "/dev/sda1"
   
+  TPecho "Creating root partition"
+    
   # Root partition
   if [ ${RootSize: -1} = "M" ] || [ ${RootSize: -1} = "G" ]; then
     RootSize="${RootSize}iB"                        # Complete the unit description
@@ -373,6 +377,8 @@ ActionEasyPart() {  # Final step
   RootPartition="${GrubDevice}2"                    # "/dev/sda2"
   NextStart=${RootSize}                             # Save for next partition
   
+  TPecho "Creating swap"
+    
   # Swap partition
   if [ -n $SwapSize ]; then
     if [ ${SwapSize: -1} = "M" ] || [ ${SwapSize: -1} = "G" ]; then
@@ -383,7 +389,9 @@ ActionEasyPart() {  # Final step
     MakeSwap="Y"
     NextStart=${SwapSize}                           # Save for next partition
   fi
-
+  
+  TPecho "Creating home partition"
+  
   # Home partition
   if [ -n $HomeSize ]; then
     if [ ${HomeSize: -1} = "M" ] || [ ${HomeSize: -1} = "G" ]; then
@@ -393,12 +401,21 @@ ActionEasyPart() {  # Final step
     HomePartition="${GrubDevice}4"                  # "/dev/sda2"
     Home="Y"
   fi
+  
+  TPecho "Creating boot partition"
+  
+  read -p "End of Easy Guided Partitioning"
 }
 
 WipeDevice() { #  If necessary, format the drive ...
   
+  TPecho "Wiping the device"
+  
   sgdisk --zap-all /dev/sda
   wipefs -a /dev/sda
+  
+  TPecho "Creating GPT partition table"
+  
   parted mklabel gpt        # Create EFI partition table
   
 }
