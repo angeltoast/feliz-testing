@@ -275,7 +275,7 @@ EasySwap() { # Variables: SwapSize
     PrintOne "Please enter the desired swap partition size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     echo
-    TPread "Size [eg: 12G or 100% or 0]: "
+    TPread "Size [eg: 2G or 100% or 0]: "
     RESPONSE="${Response^^}"
     echo
     case ${RESPONSE} in
@@ -352,6 +352,11 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   while :
   do                                # Get user approval
     print_heading
+    PrintOne "EFI boot partition: ${BootSize}"
+    PrintOne "Root partition: ${RootType} : ${RootSize}"
+    PrintOne "Swap partition: ${SwapSize}"
+    PrintOne "Home partition: ${HomeType} : ${HomeSize}"
+    echo
     PrintOne "That's all the preparation done."
     PrintOne "Feliz will now create a new partition table,"
     PrintOne "and set up the partitions you have defined."
@@ -396,7 +401,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
   if [ ${Unit} = "G" ]; then
     Var=$((Var*1024))                 # Convert to MiB
-    EndPart=$((NextStart+RootVar))    # Add to previous end
+    EndPart=$((NextStart+Var))        # Add to previous end
     EndPoint="${EndPart}MiB"          # Add unit
   elif [ ${Unit} = "M" ]; then
     EndPart=$((NextStart+Var))        # Add to previous end
@@ -444,7 +449,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
     if [ ${Unit} = "G" ]; then
       Var=$((Var*1024))               # Convert to MiB
-      EndPart=$((NextStart+HomeVar))  # Add to previous end
+      EndPart=$((NextStart+Var))  # Add to previous end
       EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${Unit} = "M" ]; then
       EndPart=$((NextStart+Var))      # Add to previous end
