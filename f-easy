@@ -33,7 +33,7 @@
 
 EasyEFI() {     # Main function:
                 # Inform user of purpose, call each step, confirm, action
-  
+
   EasyDevice    # Get details of device to use
   EasyDiskSize  # Get available space in MiB
 
@@ -71,8 +71,10 @@ EasyEFI() {     # Main function:
                   # and SwapFile is created during installation by MountPartitions
     fi
   fi
+
+  EasyRecalc "$SwapSize"  # Recalculate remaining space after adding /swap
       
-  if [ ${FreeSpace} -gt 5 ]; then
+  if [ ${FreeSpace} -gt 2 ]; then
     EasyHome
   fi
 
@@ -310,6 +312,7 @@ EasyHome() { # Variables: HomeSize, HomeType
     print_heading
     PrintOne "EFI boot partition: ${BootSize}"
     PrintOne "Root partition: ${RootType} : ${RootSize}"
+    PrintOne "Swap partition: ${SwapSize}"
     echo
     PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
@@ -349,6 +352,8 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   while :
   do                                # Get user approval
     print_heading
+    PrintOne "Feliz will now create a new partition table,"
+    PrintOne "and set up the partitions you have defined."
     echo
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
@@ -364,7 +369,6 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
         *) invalid_option
     esac
   done
-
 
   # Boot partition
   TPecho "Creating boot partition"
@@ -403,10 +407,10 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     HomePartition="${GrubDevice}4"                  # "/dev/sda2"
     Home="Y"
   fi
-  ShowPart1="Boot:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart2="Swap:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart3="Root:  `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart1="Boot: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart2="Root: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart3="Swap: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart4="Home: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
   
   print_heading
@@ -421,6 +425,9 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   echo
   PrintOne "Press any key to continue"
   read -n1
+
+# Debug - Check all variables
+read -p "BootSize $BootSize : RootSize $RootSize : SwapSize $SwapSize : HomeSize $HomeSize : HomeType $HomeType : SwapPartition $SwapPartition : SwapFile $SwapFile : RootPartition $RootPartition : RootType $RootType : AutoPart $AutoPart : UseDisk $UseDisk : DiskDetails $DiskDetails"
 
 }
 

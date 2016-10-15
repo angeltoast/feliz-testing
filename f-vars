@@ -37,7 +37,6 @@ BootSize=""               # Boot variable for EasyEFI
 RootSize=""               # Root variable for EasyEFI
 SwapSize=""               # Swap variable for EasyEFI
 HomeSize=""               # Home variable for EasyEFI
-RootType=""               # Root variable for EasyEFI
 HomeType=""               # Home variable for EasyEFI
 SwapPartition=""          # eg: /dev/sda3
 FormatSwap="N"            # User selects whether to reuse swap
