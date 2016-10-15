@@ -32,6 +32,7 @@ source f-part     # Functions concerned with allocating partitions
 source f-set      # Functions that set variables to be used during installation
 source listgen    # The two listgen functions and their required variables
 source f-UEFI     # Functions exclusive to installation on an EFI system
+source f-easy     # Guided partitioning for EFI systems
 
 Backtitle="The Feliz install scripts for Arch Linux"
 
