@@ -31,7 +31,11 @@
 # -----------------------      ------------------------
 # Functions          Line       Functions           Line
 # -----------------------      ------------------------
-# EasyEFI
+# EasyEFI             37        EasyRoot            205
+# EasyDevice          90        EasySwap            245
+# EasyDiskSize       129        EasyHome            310
+# EasyRecalc         158        ActionEasyPart      353
+# EasyBoot           178        WipeDevice          406
 # -----------------------      ------------------------
 
 EasyEFI() {     # Main function:
@@ -408,6 +412,6 @@ WipeDevice() { #  If necessary, format the drive ...
   
   TPecho "Creating GPT partition table"
   
-  parted mklabel gpt        # Create EFI partition table
+  Parted "mklabel gpt"        # Create EFI partition table
   
 }

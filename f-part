@@ -649,10 +649,6 @@ SetSwapFile() {
   done
 }
 
-Parted() {
-  parted --script /dev/${UseDisk} "$1" 2>> feliz.log
-}
-
 MorePartitions() {
   local Elements=0
   AddedToRemaining=0

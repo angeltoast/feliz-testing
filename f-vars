@@ -158,7 +158,6 @@ LongWMs[6]="Desktop panel"
 LongWMs[7]="Desktop panel"
 
 # Various functions
-
 print_heading() {
   clear
   T_COLS=`tput cols`
