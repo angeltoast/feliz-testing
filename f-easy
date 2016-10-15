@@ -377,7 +377,8 @@ ActionEasyPart() {  # Final step
     
   # Swap partition
   if [ -n $SwapSize ]; then
-    if [ ${SwapSize: -1} = "M" ] || [ ${SwapSize: -1} = "G" ]; then
+    SwapUnit=${SwapSize: -1}
+    if [ ${SwapUnit} = "M" ] || [ ${SwapUnit} = "G" ]; then
       SwapSize="${SwapSize}iB"                      # Complete the unit description
     fi
     Parted "mkpart primary linux-swap ${NextStart} ${SwapSize}"
