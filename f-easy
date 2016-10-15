@@ -84,8 +84,8 @@ EasyEFI() {     # Main function:
   if [ ${FreeSpace} -gt 5 ]; then
     EasyHome
   fi
-  
-  # Complete by calling ActionEasyPart
+
+  # Perform formatting and partitioning
   ActionEasyPart
   
 }
@@ -130,7 +130,10 @@ EasyDevice() {  # Get details of device to use
 
 EasyDiskSize() {  # Establish size of device in MiB
   # Get disk size
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # eg: 465.8G
+  # DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # eg: 465.8G
+  
+  DiskSize="20G"
+  
   Unit=${DiskSize: -1}                                          # Save last character (eg: G)
 
   # Remove last character for calculations
@@ -369,7 +372,7 @@ ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
   NextStart=${RootSize}                             # Save for next partition
 
   # Swap partition
-  if [ -n $SwapSize ]; then
+  if [ $SwapSize ]; then
     SwapUnit=${SwapSize: -1}
     if [ ${SwapUnit} = "M" ] || [ ${SwapUnit} = "G" ]; then
       SwapSize="${SwapSize}iB"                      # Complete the unit description
@@ -381,7 +384,7 @@ ActionEasyPart() {  # Final step - Uses the variables set in EasyBoot, EasyRoot,
   fi
 
   # Home partition
-  if [ -n $HomeSize ]; then
+  if [ $HomeSize ]; then
     if [ ${HomeSize: -1} = "M" ] || [ ${HomeSize: -1} = "G" ]; then
       HomeSize="${HomeSize}iB"                      # Complete the unit description
     fi
