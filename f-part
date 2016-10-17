@@ -74,7 +74,7 @@ CheckParts() {
         Partitioning                      # Partitioning options for BIOS
       fi
                                           # Terminate
-      if [ $Response = "3" ]; then
+      if [ $Response = "4" ]; then
         read_timed "Exiting to allow you to partition the device"
         shutdown -h now
       fi
@@ -114,7 +114,8 @@ CheckParts() {
       echo
       PartitioningEFI                   # UEFI partitioning options    
     else                                # Installing in BIOS environment
-      PrintOne "'cfdisk' is available for you to edit them, or feliz can"
+      PrintOne "'cfdisk' is available for you to edit them, or you can"
+      PrintOne "use the guided manual partitioning option, or Feliz can"
       PrintOne "overwrite them with a new partition table if you wish."
       PrintOne "If you choose to 'Leave it as it is' the script will next"
       PrintOne "enable you to allocate the existing partitions."
@@ -226,8 +227,9 @@ Partitioning() {
   while [ -z $Proceed ]
   do
     PrintOne "1) Open cfdisk so I can partition manually"
-    PrintMany "2) Allow feliz to partition the whole device"
-    PrintMany "3) Leave it as it is"
+    PrintMany "2) Guided manual partitioning tool"
+    PrintMany "3) Allow feliz to partition the whole device"
+    PrintMany "4) Leave it as it is"
     echo
     TPread "Enter the number of your selection : "
     Proceed=$Response
@@ -240,9 +242,11 @@ Partitioning() {
         tput sgr0 # Reset colour
         ShowPartitions=$(lsblk -l | grep 'part' | awk '{print $1}')
       ;;
-      2) AutoPartition
+      2) GuidedMBR
       ;;
-      3) echo
+      3) AutoPartition
+      ;;
+      4) echo
       ;;
       *) invalid_option
         Proceed=""
