@@ -423,7 +423,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
     if [ ${Unit} = "G" ]; then
       Var=$((Var*1024))               # Convert to MiB
-      EndPart=$((NextStart+Var))  # Add to previous end
+      EndPart=$((NextStart+Var))      # Add to previous end
       EndPoint="${EndPart}MiB"        # Add unit
     elif [ ${Unit} = "M" ]; then
       EndPart=$((NextStart+Var))      # Add to previous end
@@ -435,15 +435,15 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     Parted "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
     HomePartition="${GrubDevice}4"    # "/dev/sda4"
     Home="Y"
-    AddPartList[0]="${GrubDevice}4"                 # /dev/sda4     | add to
-    AddPartMount[0]="/home"                         # Mountpoint    | array of
-    AddPartType[0]="ext4"                           # Filesystem    | additional partitions
+    AddPartList[0]="${GrubDevice}4"   # /dev/sda4     | add to
+    AddPartMount[0]="/home"           # Mountpoint    | array of
+    AddPartType[0]="ext4"             # Filesystem    | additional partitions
   fi
   ShowPart1="Boot: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
   ShowPart2="Root: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Swap: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   ShowPart4="Home: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
-  AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
+  AutoPart=1                  # Treat as auto-partitioned. Set flag to 'on' for mounting
   print_heading
   PrintOne "Partitioning of ${GrubDevice} successful"
   PrintOne "-------------------------------------"
@@ -748,12 +748,10 @@ ActionGuided() {  # Final step - Uses the variables set here to create partition
     AddPartMount[0]="/home"           # Mountpoint    | array of
     AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
   fi
-
   ShowPart1="Root: `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
   ShowPart2="Swap: `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Home: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
-  
   print_heading
   PrintOne "Partitioning of ${GrubDevice} successful"
   PrintOne "-------------------------------------"

@@ -114,11 +114,12 @@ CheckParts() {
       echo
       PartitioningEFI                   # UEFI partitioning options    
     else                                # Installing in BIOS environment
-      PrintOne "'cfdisk' is available for you to edit them, or you can"
-      PrintOne "use the guided manual partitioning option, or Feliz can"
-      PrintOne "overwrite them with a new partition table if you wish."
-      PrintOne "If you choose to 'Leave it as it is' the script will next"
-      PrintOne "enable you to allocate the existing partitions."
+      PrintOne "'cfdisk' is available for you to edit them. Alternatively, you"
+      PrintOne "can use the guided manual partitioning option, or Feliz can"
+      PrintOne "overwrite the disk with a new partition table if you wish. Please"
+      PrintOne "note that both these options will wipe the disk - any exisiting"
+      PrintOne "data will be erased! If you choose to 'Leave it as it is' the"
+      PrintOne "script will next enable you to allocate the existing partitions."
       echo
       Partitioning                      # BIOS partitioning options
     fi
@@ -349,7 +350,6 @@ RunAutoPart() {
   Home="N"
   # Get disk size
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g)
-  
   if [ ${UEFI} -eq 1 ]; then
     UEFI_autopart
   else
@@ -358,10 +358,8 @@ RunAutoPart() {
 }
 
 BIOS_autopart() { # Partitioning for a BIOS environment
-  
   sgdisk --zap-all /dev/${UseDisk} &>> feliz.log    # Remove all existing filesystems
   wipefs -a /dev/${UseDisk} &>> feliz.log           # from the drive
-    
   Parted "mklabel msdos"                            # Create filesystem
                                                     # Note: $Grubdevice (eg: /dev/sda) set by RunAutoPart
   if [ $DiskSize -ge 40 ]; then                     # ------------- separate /home partition -------------
