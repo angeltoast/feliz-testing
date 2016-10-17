@@ -652,7 +652,7 @@ GuidedHome() { # Variables: HomeSize, HomeType
 
 ActionGuided() {  # Final step - Uses the variables set here to create partition table & all partitions
   while :
-  do                                # Get user approval
+  do                                  # Get user approval
     print_heading
     PrintOne "Root partition: ${RootType} : ${RootSize}"
     PrintOne "Swap partition: ${SwapSize}"
@@ -667,12 +667,15 @@ ActionGuided() {  # Final step - Uses the variables set here to create partition
     echo
     listgen1 "Yes No" "" "nodone"
     case $Response in
-      "1" | "Y" | "y") WipeDevice   # Format the drive
+      "1" | "Y" | "y") # WipeDevice   # Format the drive
+      
+      read -p "f-easy line #672"
+      
         Parted "mklabel msdos"        # Create mbr partition table
         break
        ;;
       "2" | "N" | "n") UseDisk=""
-        CheckParts                  # Go right back to start
+        CheckParts                    # Go right back to start
         ;;
         *) invalid_option
     esac
