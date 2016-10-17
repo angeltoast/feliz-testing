@@ -697,7 +697,7 @@ ActionGuided() {  # Final step - Uses the variables set here to create partition
   Parted "mkpart primary ext4 1MiB ${EndPoint}"
   Parted "set 1 boot on"
   RootPartition="${GrubDevice}1"      # "/dev/sda1"
-  NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
+  NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
 # Swap partition
 # --------------
