@@ -590,8 +590,11 @@ GuidedSwap() { # Variables: SwapSize
           echo
         listgen1 "Yes No" "" "nodone"
         echo
+read -p "f-easy line 593"
         if [ $Response -eq 1 ]; then
+read -p "f-easy line 595"
           SetSwapFile
+read -p "f-easy line 597"
         fi
         break
       ;;
