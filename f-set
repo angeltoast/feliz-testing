@@ -4,7 +4,6 @@
 # Developed by Elizabeth Mills
 # Revision date: 13th October 2016
 
-# Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
@@ -304,7 +303,8 @@ PickLuxuries() { # User selects any combination from a store of extras
   local Complete=0
   print_heading
   case "$LuxuriesList" in
-  "") PrintOne "Now you have the option to add extras, such as a web browser, etc"
+  "") PrintOne "Now you have the option to add extras, such as a web browser,"
+     PrintOne "desktop environment, etc, from the following categories."
      echo
     PrintOne "If you want only a base Arch installation, exit without choosing any extras."
   ;;

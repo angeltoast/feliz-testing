@@ -62,7 +62,9 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
                           # (SwapFile is created during installation by MountPartitions)
     fi
   fi
-  EasyRecalc "$SwapSize"  # Recalculate remaining space after adding /swap
+  if [ $SwapSize ]; then
+    EasyRecalc "$SwapSize"  # Recalculate remaining space after adding /swap
+  fi
   if [ ${FreeSpace} -gt 2 ]; then
     EasyHome
   fi
