@@ -113,8 +113,8 @@ MountPartitions() {
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mke2fs ${Label} -t ${RootType} ${RootPartition} &>> feliz.log
-    fi                                                  # eg: mke2fs -L Arch-Root -t ext4 /dev/sda1
+      mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
+    fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
   
@@ -183,6 +183,9 @@ InstallKernel() {   # Selected kernel and some other core systems
     # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
     
     LTSGroup=`pacman -Qgq base | sed s/^linux\$/linux-lts/g` # base group with linux-lts in place of linux
+    
+    read -p "${LTSGroup}"
+    
     PacStrap "${LTSGroup}"                                   # Install after checking not already installed
     
   ;;
