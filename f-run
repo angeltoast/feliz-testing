@@ -173,13 +173,25 @@ MountPartitions() {
 }
 
 InstallKernel() {   # Selected kernel and some other core systems
+    
+  LANG=C            # Temporary addition to overcome bug in Arch
+
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
-    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
+ 
+    # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
+    
+    LTSGroup=`pacman -Qgq base | sed s/^linux\$/linux-lts/g` # base group with linux-lts in place of linux
+    PacStrap "${LTSGroup}"                                   # Install after checking not already installed
+    
   ;;
   *) TPecho "Installing Latest kernel and core systems"
     pacstrap /mnt base base-devel 2>> feliz.log
+    GroupList "base"            # New functions. 1) Get the list of package contents 
+    Pacstrap "${PackList}"      # 2) Use the list to check that each item is not already installed
+    GroupList "base-devel"      # New functions. 1) Get the list of package contents 
+    Pacstrap "${PackList}"      # 2) Use the list to check that each item is not already installed
   esac
 
   TPecho "Installing cli tools"
