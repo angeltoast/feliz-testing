@@ -23,9 +23,9 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# invalid_option    41    KeepOrDelete        315
-# TPread            46    ShoppingList        343
-# SetKernel         61    ChooseDM            401
+# invalid_option    39    KeepOrDelete        315
+# TPread            44    ShoppingList        343
+# SetKernel         59    ChooseDM            401
 # ConfirmVbox       75    SetGrubDevice       549
 # getkeymap        100     --- Review stage ---
 # setlocale        138    FinalCheck          577

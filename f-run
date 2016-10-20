@@ -24,14 +24,14 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           36       ReflectorMirrorList  190
-# Parted                41
-# TPecho                45       LocalMirrorList      200
-# read_timed            63       InstallDM            215
-# MountPartitions       76       InstallLuxuries      225
-# InstallKernel        157       UserAdd              325
-# AddCodecs            166       SetRootPassword      340
-# McInitCPIO           181       SetUserPassword      378
+# arch_chroot           36       McInitCPIO           195
+# Parted                41       ReflectorMirrorList  205
+# PacStrap/GroupList    46       LocalMirrorList      215
+# TPecho                63       InstallDM            230
+# read_timed            81       InstallLuxuries      240
+# MountPartitions       99       UserAdd              325
+# InstallKernel        162       SetRootPassword      340
+# AddCodecs            180       SetUserPassword      378
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -40,6 +40,19 @@ arch_chroot() {  # From Lution AIS
 
 Parted() {
   parted --script /dev/${UseDisk} "$1" 2>> feliz.log
+}
+
+PacStrap() {        # New function to prevent reinstalling items
+    for item in $1  # $1 is list of packages to be installed
+    do
+      if [ -z `which /mnt ${item}` ]; then
+        pacstrap /mnt "${item}" 2>> feliz.log
+      fi
+    done
+}
+
+GroupList() {               # Make a list of items in an Arch 'group'
+  PackList=`pacman -Qgq $1` # $1 is the name of the group to be installed
 }
 
 TPecho() { # For displaying status while running on auto
@@ -170,7 +183,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   esac
 
   TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  PacStrap "btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm"
 
   # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
@@ -179,17 +192,17 @@ InstallKernel() {   # Selected kernel and some other core systems
 
 AddCodecs() {
   TPecho "Adding codecs"
-  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab flashplugin 2>> feliz.log
+  PacStrap "a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab flashplugin"
   
   TPecho "Installing Wireless Tools"
-  pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
-  pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
+  PacStrap "b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware"
+  PacStrap "iw wireless_tools wpa_supplicant"
 
   TPecho "Installing X, Graphics, etc"
-  pacstrap /mnt xorg-server xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
+  PacStrap "xorg-server xorg-server-utils xorg-xinit xorg-twm"
   
   TPecho "Installing  opensource video drivers"
-  pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
+  PacStrap "xf86-video-vesa xf86-video-nouveau xf86-input-synaptics"
 }
 
 McInitCPIO() {
@@ -253,9 +266,11 @@ InstallLuxuries()
           pacstrap /mnt cinnamon 2>> feliz.log
         ;;
       "Deepin") TPecho "Installing the Deepin desktop Environment"
-          pacstrap /mnt deepin 2>> feliz.log
+          GroupList "deepin"            # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"        # 2) Use the list to check that each item is not already installed
           TPecho "Installing the Deepin extras package"
-          pacstrap /mnt deepin-extra 2>> feliz.log
+          GroupList "deepin-extras"
+          Pacstrap "${PackList}"
           # Change the greeter line in lightdm.conf
           if [ -d /mnt/etc/lightdm ]; then
             sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
@@ -268,36 +283,46 @@ InstallLuxuries()
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
       "Gnome") TPecho "Installing the Gnome desktop Environment"
-          pacstrap /mnt gnome 2>> feliz.log
+          GroupList "gnome"       # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
           TPecho "Installing the Gnome extras package"
-          pacstrap /mnt gnome-extra 2>> feliz.log
+          GroupList "gnome-extra"
+          Pacstrap "${PackList}"
         ;;
       "KDE") TPecho "Installing the KDE Plasma meta package"
           pacstrap /mnt plasma-meta 2>> feliz.log
           TPecho "Installing the KDE applications package"
-          pacstrap /mnt kde-applications 2>> feliz.log
+          GroupList "kde-applications"
+          Pacstrap "${PackList}"
         ;;
       "LXDE") TPecho "Installing the LXDE desktop Environment"
-          pacstrap /mnt lxde 2>> feliz.log
+          GroupList "lxde"        # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
           if [ -d /mnt/etc/lxdm ]; then
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
           fi
         ;;
       "LXQt") TPecho "Installing the LXQt desktop Environment"
-        pacstrap /mnt lxqt oxygen-icons connman lxappearance xscreensaver 2>> feliz.log
+          GroupList "lxqt"        # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
+          PacStrap "oxygen-icons connman lxappearance xscreensaver"
         ;;
       "Mate") TPecho "Installing the Mate desktop Environment"
-        pacstrap /mnt mate 2>> feliz.log
+          GroupList "mate"        # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         TPecho "Installing the Mate extras package"
-        pacstrap /mnt mate-extra 2>> feliz.log
+        GroupList "mate-extra"    # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         ;;
       "Openbox") TPecho "Installing the Openbox window manager"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
       "Xfce") TPecho "Installing the Xfce desktop Environment"
-        pacstrap /mnt xfce4 2>> feliz.log
+          GroupList "xfce4"       # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         TPecho "Installing the Xfce goodies package"
-        pacstrap /mnt xfce4-goodies 2>> feliz.log
+        GroupList "xfce4-goodies" # New functions. 1) Get the list of package contents 
+          Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         ;;
       *) continue # Ignore all others on this pass
       esac
@@ -325,7 +350,7 @@ InstallLuxuries()
         pacstrap /mnt conky 2>> feliz.log
         ;;
       *) TPecho "Installing $i"
-        pacstrap /mnt $i 2>> feliz.log
+        PacStrap "$i"  # New function to check that item is not already installed
       esac
     done
   fi
