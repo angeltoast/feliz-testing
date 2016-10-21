@@ -165,7 +165,7 @@ MountPartitions() {
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                             # Prepare label
       fi
-      mke2fs ${Label} -t ${AddPartType[$Counter]} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
+      mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log # eg: mke2fs -L Arch-Home -t ext4 /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
@@ -179,28 +179,23 @@ InstallKernel() {   # Selected kernel and some other core systems
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
- 
     # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
-    
-    LTSGroup=`pacman -Qgq base | sed s/^linux\$/linux-lts/g` # base group with linux-lts in place of linux
-    
-    read -p "${LTSGroup}"
-    
-    PacStrap "${LTSGroup}"                                   # Install after checking not already installed
+    # Replaced by:
+    LTSGroup=`pacman -Qgq base | sed s/^linux\$/linux-lts/g` 2>> feliz.log # base group with linux-lts in place of linux.
+    # Note: Generating this list produces warnings. Not clear why. Redirecting errors to feliz.log
+    PacStrap "${LTSGroup}"      # Check not already installed
     
   ;;
   *) TPecho "Installing Latest kernel and core systems"
-    pacstrap /mnt base base-devel 2>> feliz.log
-    GroupList "base"            # New functions. 1) Get the list of package contents 
+    # pacstrap /mnt base base-devel 2>> feliz.log
+    GroupList "base"            # 1) Get the list of package contents 
     Pacstrap "${PackList}"      # 2) Use the list to check that each item is not already installed
-    GroupList "base-devel"      # New functions. 1) Get the list of package contents 
+    GroupList "base-devel"      # 1) Get the list of package contents 
     Pacstrap "${PackList}"      # 2) Use the list to check that each item is not already installed
   esac
 
   TPecho "Installing cli tools"
   PacStrap "btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm"
-
-  # Enable sshd
   arch_chroot "systemctl enable sshd.service" >/dev/null
 
 }
@@ -281,7 +276,7 @@ InstallLuxuries()
           pacstrap /mnt cinnamon 2>> feliz.log
         ;;
       "Deepin") TPecho "Installing the Deepin desktop Environment"
-          GroupList "deepin"            # New functions. 1) Get the list of package contents 
+          GroupList "deepin"            # 1) Get the list of package contents 
           Pacstrap "${PackList}"        # 2) Use the list to check that each item is not already installed
           TPecho "Installing the Deepin extras package"
           GroupList "deepin-extras"
@@ -298,7 +293,7 @@ InstallLuxuries()
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
       "Gnome") TPecho "Installing the Gnome desktop Environment"
-          GroupList "gnome"       # New functions. 1) Get the list of package contents 
+          GroupList "gnome"       # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
           TPecho "Installing the Gnome extras package"
           GroupList "gnome-extra"
@@ -311,32 +306,32 @@ InstallLuxuries()
           Pacstrap "${PackList}"
         ;;
       "LXDE") TPecho "Installing the LXDE desktop Environment"
-          GroupList "lxde"        # New functions. 1) Get the list of package contents 
+          GroupList "lxde"        # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
           if [ -d /mnt/etc/lxdm ]; then
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
           fi
         ;;
       "LXQt") TPecho "Installing the LXQt desktop Environment"
-          GroupList "lxqt"        # New functions. 1) Get the list of package contents 
+          GroupList "lxqt"        # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
           PacStrap "oxygen-icons connman lxappearance xscreensaver"
         ;;
       "Mate") TPecho "Installing the Mate desktop Environment"
-          GroupList "mate"        # New functions. 1) Get the list of package contents 
+          GroupList "mate"        # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         TPecho "Installing the Mate extras package"
-        GroupList "mate-extra"    # New functions. 1) Get the list of package contents 
+        GroupList "mate-extra"    # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         ;;
       "Openbox") TPecho "Installing the Openbox window manager"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
       "Xfce") TPecho "Installing the Xfce desktop Environment"
-          GroupList "xfce4"       # New functions. 1) Get the list of package contents 
+          GroupList "xfce4"       # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         TPecho "Installing the Xfce goodies package"
-        GroupList "xfce4-goodies" # New functions. 1) Get the list of package contents 
+        GroupList "xfce4-goodies" # 1) Get the list of package contents 
           Pacstrap "${PackList}"  # 2) Use the list to check that each item is not already installed
         ;;
       *) continue # Ignore all others on this pass
