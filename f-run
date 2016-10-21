@@ -43,9 +43,7 @@ Parted() {
 }
 
 PacStrap() {        # New function to prevent reinstalling items
-  
-  read -p "$1"
-  
+
     for item in $1  # $1 is list of packages to be installed
     do
       if [ -z `which \/mnt ${item}` ]; then
@@ -98,7 +96,7 @@ MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
   
   # First unmount any mounted partitions
-  umount -a ${RootPartition:0:8} 2>> feliz.log          # eg: umount -a /dev/sda1
+  # umount -a ${RootPartition:0:8} /mnt 2>> feliz.log     # eg: umount -a /dev/sda1
   # 1) Root partition  
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log # If /root filetype not set - do nothing
@@ -119,7 +117,7 @@ MountPartitions() {
       mkfs.${RootType} -f ${Label} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
-  mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
   
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
