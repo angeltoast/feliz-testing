@@ -82,7 +82,7 @@ MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
   
   # First unmount any mounted partitions
-  # umount -a ${RootPartition:0:8} /mnt 2>> feliz.log     # eg: umount -a /dev/sda1
+  umount ${RootPartition} /mnt 2>> feliz.log            # eg: umount /dev/sda1
   # 1) Root partition  
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log # If /root filetype not set - do nothing
@@ -94,13 +94,15 @@ MountPartitions() {
       btrfs-convert ${RootPartition} 2>> feliz.log      # Convert existing partition to btrfs
     elif [ $RootType = "btrfs" ]; then                  # Otherwise, for btrfs /root
       mkfs.btrfs -f ${RootPartition} 2>> feliz.log      # eg: mkfs.btrfs -f /dev/sda2
+    elif [ $RootType = "xfs" ]; then                    # Otherwise, for xfs /root
+      mkfs.xfs -f ${RootPartition} 2>> feliz.log        # eg: mkfs.xfs -f /dev/sda2
     else                                                # /root is not btrfs
       Partition=${RootPartition: -4}                    # Last 4 characters (eg: sda1)
       Label="${LabellingArray[${Partition}]}"           # Check to see if it has a label
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mkfs.${RootType} -f ${Label} ${RootPartition} 2>> feliz.log
+      mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
