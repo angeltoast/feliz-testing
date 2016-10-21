@@ -43,6 +43,9 @@ Parted() {
 }
 
 PacStrap() {        # New function to prevent reinstalling items
+  
+  read -p "$1"
+  
     for item in $1  # $1 is list of packages to be installed
     do
       if [ -z `which /mnt ${item}` ]; then
@@ -95,10 +98,10 @@ MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
   
   # First unmount any mounted partitions
-  umount ${RootPartition} /mnt >/dev/null 2>> feliz.log # eg: umount /dev/sda1 /mnt
+  umount -a ${RootPartition:0:8} 2>> feliz.log          # eg: umount -a /dev/sda1
   # 1) Root partition  
   case $RootType in
-  "") echo "Not formatting root partition" >> feliz.log   # If /root filetype not set - do nothing
+  "") echo "Not formatting root partition" >> feliz.log # If /root filetype not set - do nothing
   ;;
   *) # Otherwise, check if replacing existing ext3/4 /root partition with btrfs
     CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -113,7 +116,7 @@ MountPartitions() {
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
+      mkfs.${RootType} ${Label} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
