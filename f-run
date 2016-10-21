@@ -48,7 +48,7 @@ PacStrap() {        # New function to prevent reinstalling items
   
     for item in $1  # $1 is list of packages to be installed
     do
-      if [ -z `which /mnt ${item}` ]; then
+      if [ -z `which \/mnt ${item}` ]; then
         pacstrap /mnt "${item}" 2>> feliz.log
       fi
     done
