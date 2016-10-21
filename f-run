@@ -116,7 +116,7 @@ MountPartitions() {
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mkfs.${RootType} ${Label} ${RootPartition} 2>> feliz.log
+      mkfs.${RootType} -f ${Label} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
