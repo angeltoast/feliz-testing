@@ -379,21 +379,21 @@ partition_maker() {
 }
 
 autopart() { # Consolidated partitioning for BIOS or EFI environment
-  
-  dd if=/dev/zero of=/dev/${UseDisk} bs=512 count=1 # Remove any existing partition table
-  # sgdisk --zap-all /dev/${UseDisk} &>> feliz.log  # Remove all existing filesystems | Replaced by
-  # wipefs -a /dev/${UseDisk} &>> feliz.log         # from the drive                  | above code
 
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g) # Get disk size
   
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
+    sgdisk --zap-all /dev/${UseDisk} &>> feliz.log  # Remove all existing filesystems
+    wipefs -a /dev/${UseDisk} &>> feliz.log         # from the drive
     Parted "mklabel gpt"                            # Create new filesystem
     Parted "mkpart ESP fat32 1MiB 513MiB"           # EFI boot partition
     Parted "set 1 boot on"
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
+    dd if=/dev/zero of=/dev/${UseDisk} bs=512 count=1 # Remove any existing partition table
+    # This seems to work ok for BIOS but needs to be silenced
     Parted "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
