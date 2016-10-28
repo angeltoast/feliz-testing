@@ -362,7 +362,9 @@ partition_maker() {
   fi
   
   Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root 15GiB
-  Parted "set ${RootMount} boot on"                 # Bootable
+  if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
+    Parted "set ${RootMount} boot on"               # Bootable
+  fi
   RootPartition="${GrubDevice}${RootMount}"         # /dev/sda2
   RootType="ext4"
   StartPoint=$3                                     # Reset startpoint for home
