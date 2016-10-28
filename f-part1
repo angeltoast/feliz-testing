@@ -272,7 +272,7 @@ MakePartitionList() {
 }
 
 AutoPartition() {
-  # Called from option 2) within Partitioning()
+  # Called from Partitioning or PartitioningEFI
   AutoPart=0
   until [ ${AutoPart} -gt 0 ]
   do
@@ -386,6 +386,8 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g) # Get disk size
   
+  tput setf 0 # Change foreground colour to black temporarily to hide error message
+  clear
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all /dev/${UseDisk} &>> feliz.log  # Remove all existing filesystems
     wipefs -a /dev/${UseDisk} &>> feliz.log         # from the drive
@@ -399,6 +401,7 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     Parted "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
+  tput sgr0 # Reset colour
   
   if [ $DiskSize -ge 40 ]; then                     # ------ /swap, root and /home partitions ------
     partition_maker "${StartPoint}" "4GiB" "19GiB" "100%"
@@ -423,8 +426,10 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     ShowPart1="Swap:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
     ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
     ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-    AutoPart=1                                        # Set auto-partition flag to 'on'
   fi
+  
+  AutoPart=1                                        # Set auto-partition flag to 'on'
+  
 }
 
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}

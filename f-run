@@ -82,8 +82,6 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
 MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
   
-  # First unmount any mounted partitions
-  umount ${RootPartition} /mnt 2>> feliz.log            # eg: umount /dev/sda1
   # 1) Root partition  
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log # If /root filetype not set - do nothing

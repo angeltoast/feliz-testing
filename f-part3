@@ -57,7 +57,7 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
 
 PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   local Proceed=""
-  AutoPart=0 # Set flag to 'off' by default
+  AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
     PrintOne "1) Guided manual partitioning"
@@ -70,11 +70,11 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
     case $Proceed in
       1) print_heading
         echo
-        EasyEFI     # New guided manual partitioning functions
-        tput setf 0 # Change foreground colour to black temporarily to hide error message
+        EasyEFI                 # New guided manual partitioning functions
+        tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log #Inform kernel of changes to partitions
-        tput sgr0 # Reset colour
+        tput sgr0               # Reset colour
         ShowPartitions=$(lsblk -l | grep 'part' | awk '{print $1}')
       ;;
       2) AutoPartition
@@ -88,7 +88,6 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   done
 }
 
-# 2) Allocation - user allocates existing partitions
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition
   # Uses list of available partitions in PartitionList created in ManagePartitions
   print_heading
@@ -106,7 +105,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
   if [ $Result != "Done" ]; then
     PassPart=$Result
     SetLabel "$Result"
-    UpdateArray # Remove the selected partition from $PartitionArray[]
+    UpdateArray                 # Remove the selected partition from $PartitionArray[]
   fi
   Counter=0
   for i in ${PartitionList}
