@@ -2,23 +2,24 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 15th October 2016
+# Revision date: 21st October 2016
 
-# Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or (at
 # your option) any later version.
 
 # This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
+#      WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+#            General Public License for more details.
 
 # A copy of the GNU General Public License is available from the Feliz2
-# page at http://sourceforge.net/projects/feliz2/files
-# or https://github.com/angeltoast/feliz2, or write to:
-# The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#        page at http://sourceforge.net/projects/feliz2/files
+#        or https://github.com/angeltoast/feliz2, or write to:
+#                 The Free Software Foundation, Inc.
+#                  51 Franklin Street, Fifth Floor
+#                    Boston, MA 02110-1301 USA
 
 # In this module: functions used during installation
 # -------------------------      -------------------------
@@ -105,7 +106,7 @@ MountPartitions() {
       mke2fs ${Label} -t ${RootType} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
-  mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
+  mount ${RootPartition} /mnt &>> feliz.log             # eg: mount /dev/sda1 /mnt
   
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
@@ -170,7 +171,7 @@ InstallKernel() {   # Selected kernel and some other core systems
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
     pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
     # To be replaced by:
-    pacman -Qgq base | sed s/^linux\$/linux-lts/g > ltsgroup.txt # base group with linux-lts in place of linux.
+    echo pacman -Qgq base | sed s/^linux\$/linux-lts/g > ltsgroup.txt # base group with linux-lts in place of linux.
     # pacstrap /mnt "${LTSGroup}"
   ;;
   *) TPecho "Installing Latest kernel and core systems"

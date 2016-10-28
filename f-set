@@ -10,14 +10,16 @@
 # your option) any later version.
 
 # This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
+#      WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+#            General Public License for more details.
 
 # A copy of the GNU General Public License is available from the Feliz2
-# page at http://sourceforge.net/projects/feliz2/files
-# or https://github.com/angeltoast/feliz2, or write to:
-# The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#        page at http://sourceforge.net/projects/feliz2/files
+#        or https://github.com/angeltoast/feliz2, or write to:
+#                 The Free Software Foundation, Inc.
+#                  51 Franklin Street, Fifth Floor
+#                    Boston, MA 02110-1301 USA
 
 # In this module: functions for setting variables used during installation
 # --------------------   ------------------------
@@ -228,9 +230,10 @@ SetSubZone() {
     print_heading
     PrintOne "World Zone = $ZONE"
     echo
-    PrintOne "Please enter the first letter of your nearest"
+    PrintOne "We can search on the first letter of your nearest"
     PrintOne "major city. To change World Zone, leave empty."
-    TPread "Type a letter, or leave empty: "
+    echo
+    TPread "Please enter one letter: "
     echo
     if [ -z ${Response} ]
     then

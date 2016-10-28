@@ -2,7 +2,9 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 15th October 2016
+# Revision date: 28th October 2016 ...
+# Auto-partitioning for EFI and BIOS consolidated into one autopart function
+# using new partition_maker function for each disk size
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,15 +28,15 @@
 # Functions          Line       Functions           Line
 # -----------------------      ------------------------
 # CheckParts           40       AllocateRoot        460
-# BuildPatitionLists  130      CheckPartition      519
+# BuildPartitionLists 130       CheckPartition      519
 # Partitioning        225       AllocateSwap        527
 # MakePartitionList   259       NoPartitions        610
 # AutoPartition       272       SetSwapFile         625
-# AutoWarning         315       Parted              649
-# RunAutoPart         348       MorePartitions      653
-# BIOS_autopart       360       MakePartition       708
-# select_filesystem   421       UpdateArray         767
-# EditLabel           438       SetLabel            792
+# AutoWarning         317       Parted              649
+# partition_maker     350       MorePartitions      653
+# autopart            380       MakePartition       708
+# select_filesystem   420       UpdateArray         767
+# EditLabel           437       SetLabel            792
 # -----------------------      ------------------------
 
 CheckParts() {
@@ -322,7 +324,7 @@ AutoWarning() {
     echo
     listgen1 "Yes No" "" "nodone"
     case $Response in
-      "1" | "Y" | "y") RunAutoPart
+      "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
         PrintOne "Partitioning of ${GrubDevice} successful"
         PrintOne "-------------------------------------"
@@ -345,73 +347,70 @@ AutoWarning() {
   done
 }
 
-RunAutoPart() {
-  GrubDevice="/dev/${UseDisk}"
-  Home="N"
-  # Get disk size
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g)
-  if [ ${UEFI} -eq 1 ]; then
-    UEFI_autopart
-  else
-    BIOS_autopart
+partition_maker() {
+  
+  # $1 = StartPoint; $2 = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
+  local StartPoint=$1
+  local RootMount=1
+  if [ -n $2 ]; then
+    Parted "mkpart primary linux-swap ${StartPoint} ${2}"   # /swap
+    SwapPartition="${GrubDevice}1"                          # eg: /dev/sda1
+    MakeSwap="Y"
+    StartPoint=$2
+    RootMount=2
   fi
+  
+  Parted "mkpart primary ext4 ${StartPoint} ${3}"           # /root 15GiB
+  Parted "set ${RootMount} boot on"                         # Bootable
+  RootPartition="${GrubDevice}${RootMount}"                 # /dev/sda2
+  RootType="ext4"
+  StartPoint=$3
+  HomeMount=$((RootMount+1))  
+  
+  if [ -n $4 ]; then
+    Parted "mkpart primary ext4 ${StartPoint} ${4}"         # /home
+    AddPartList[0]="${GrubDevice}${HomeMount}"              # /dev/sda3     | add to
+    AddPartMount[0]="/home"                                 # Mountpoint    | array of
+    AddPartType[0]="ext4"                                   # Filesystem    | additional partitions
+    Home="Y"
+  fi
+  
 }
 
-BIOS_autopart() { # Partitioning for a BIOS environment
-  sgdisk --zap-all /dev/${UseDisk} &>> feliz.log    # Remove all existing filesystems
-  wipefs -a /dev/${UseDisk} &>> feliz.log           # from the drive
-  Parted "mklabel msdos"                            # Create filesystem
-                                                    # Note: $Grubdevice (eg: /dev/sda) set by RunAutoPart
-  if [ $DiskSize -ge 40 ]; then                     # ------------- separate /home partition -------------
-    Parted "mkpart primary linux-swap 1MiB 4GiB"    # /swap 4GiB
-    SwapPartition="${GrubDevice}1"                  # /dev/sda1
-    MakeSwap="Y"
-    Parted "mkpart primary ext4 4GiB 19GiB"         # /root 15GiB
-    Parted "set 2 boot on"                          # Bootable
-    RootPartition="${GrubDevice}2"                  # /dev/sda2
-    RootType="ext4"
-    Parted "mkpart primary ext4 19GiB 100%"         # /home remainder (from 21GiB)
-    AddPartList[0]="${GrubDevice}3"                 # /dev/sda3     | add to
-    AddPartMount[0]="/home"                         # Mountpoint    | array of
-    AddPartType[0]="ext4"                           # Filesystem    | additional partitions
-    Home="Y"
-  elif [ $DiskSize -ge 30 ]; then                   # ------------- separate /home partition -------------
-    Parted "mkpart primary linux-swap 1MiB 4GiB"    # /swap 4GiB
-    SwapPartition="${GrubDevice}1"                  # /dev/sda1
-    MakeSwap="Y"
-    Parted "mkpart primary ext4 4GiB 16GiB"         # /root 12GiB
-    Parted "set 2 boot on"                          # Bootable
-    RootPartition="${GrubDevice}2"                  # /dev/sda2
-    RootType="ext4"
-    Parted "mkpart primary ext4 16GiB 100%"         # /home remainder (up to 23GiB )
-    AddPartList[0]="${GrubDevice}3"                 # /dev/sda3     |  
-    AddPartMount[0]="/home"                         # Mountpoint    | array of additional partitions
-    AddPartType[0]="ext4"                           # Filesystem    |
-    Home="Y"
-  elif [ $DiskSize -ge 18 ]; then                   # --------- /swap and /root partitions only ---------
-    Parted "mkpart primary linux-swap 1MiB 4GiB"    # /swap 4GiB
-    SwapPartition="${GrubDevice}1"                  # /dev/sda1
-    MakeSwap="Y"
-    Parted "mkpart primary ext4 4GiB 100%"          # /root remainder (up to 25GiB)
-    Parted "set 2 boot on"                          # Bootable
-    RootPartition="${GrubDevice}2"                  # /dev/sda2
-    RootType="ext4"
-  elif [ $DiskSize -gt 10 ]; then                   # --------- /swap and /root partitions only ---------
-    Parted "mkpart primary linux-swap 1MiB 2GiB"    # /swap 2GiB
-    SwapPartition="${GrubDevice}1"                  # sda1
-    Parted "mkpart primary ext4 2GiB 100%"          # /root remainder (up to 15GiB)
-    Parted "set 2 boot on"                          # Bootable
-    RootPartition="${GrubDevice}2"                  # /dev/sda2
-    RootType="ext4"
-  else                                              # ---------------- No swap partition ----------------
-    # Swap file and one main partition up to 10GiB
-    Parted "mkpart primary ext4 1MiB 100%"          # /root (whole disk)
-    Parted "set 1 boot on"                          # Bootable
-    RootPartition="${GrubDevice}1"                  # /dev/sda1
-    RootType="ext4"
+autopart() { # Consolidated partitioning for BIOS or EFI environment
+  
+  # Remove any existing partition table by zeroing the first sector
+  dd if=/dev/zero of=PhysicalVolume bs=512 count=1
+  # sgdisk --zap-all /dev/${UseDisk} &>> feliz.log    # Remove all existing filesystems
+  # wipefs -a /dev/${UseDisk} &>> feliz.log           # from the drive
+
+  GrubDevice="/dev/${UseDisk}"
+  Home="N"                                          # No /home partition at this point
+  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g) # Get disk size
+  
+  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
+    Parted "mklabel gpt"                            # Create new filesystem
+    Parted "mkpart ESP fat32 1MiB 513MiB"           # EFI boot partition
+    Parted "set 1 boot on"
+    StartPoint="513MiB"                             # For next partition
+  else                                              # Installing in BIOS environment
+    Parted "mklabel msdos"                          # Create new filesystem
+    StartPoint="1MiB"                               # For next partition
+  fi
+  
+  if [ $DiskSize -ge 40 ]; then                     # ------ /swap, root and /home partitions ------
+    partition_maker "${StartPoint}" "4GiB" "19GiB" "100%"
+  elif [ $DiskSize -ge 30 ]; then                   # ------ /swap, root and /home partitions ------
+    partition_maker "${StartPoint}" "3GiB" "15GiB" "100%"
+  elif [ $DiskSize -ge 18 ]; then                   # ------ /swap and /root partitions only -------
+    partition_maker "${StartPoint}" "2GiB" "100%" ""
+  elif [ $DiskSize -gt 10 ]; then                   # ------ /swap and /root partitions only -------
+    partition_maker "${StartPoint}" "1GiB" "100%" ""
+  else                                              # ------ Swap file and /root partition only -----
+    partition_maker "${StartPoint}" "" "100%" ""
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
-  fi                                                # ---------------------------------------------------
+  fi
   ShowPart1="Swap:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
   ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
