@@ -349,29 +349,30 @@ AutoWarning() {
 
 partition_maker() {
   
-  # $1 = StartPoint; $2 = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
+  # $1 = StartPoint; $2 (if exists) = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
+  
   local StartPoint=$1
-  local RootMount=1
-  if [ -n $2 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${2}"   # /swap
-    SwapPartition="${GrubDevice}1"                          # eg: /dev/sda1
+  local RootMount=1                                       # Partition numbering
+  if [ $2 ]; then
+    Parted "mkpart primary linux-swap ${StartPoint} ${2}" # /swap
+    SwapPartition="${GrubDevice}1"                        # eg: /dev/sda1
     MakeSwap="Y"
-    StartPoint=$2
-    RootMount=2
+    StartPoint=$2                                   # Reset startpoint for root
+    RootMount=2                                     # Advance partition numbering
   fi
   
-  Parted "mkpart primary ext4 ${StartPoint} ${3}"           # /root 15GiB
-  Parted "set ${RootMount} boot on"                         # Bootable
-  RootPartition="${GrubDevice}${RootMount}"                 # /dev/sda2
+  Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root 15GiB
+  Parted "set ${RootMount} boot on"                 # Bootable
+  RootPartition="${GrubDevice}${RootMount}"         # /dev/sda2
   RootType="ext4"
-  StartPoint=$3
-  HomeMount=$((RootMount+1))  
+  StartPoint=$3                                     # Reset startpoint for home
+  HomeMount=$((RootMount+1))                        # Reset mountpoint for home
   
-  if [ -n $4 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${4}"         # /home
-    AddPartList[0]="${GrubDevice}${HomeMount}"              # /dev/sda3     | add to
-    AddPartMount[0]="/home"                                 # Mountpoint    | array of
-    AddPartType[0]="ext4"                                   # Filesystem    | additional partitions
+  if [ $4 ]; then
+    Parted "mkpart primary ext4 ${StartPoint} ${4}" # /home
+    AddPartList[0]="${GrubDevice}${HomeMount}"      # /dev/sda3     | add to
+    AddPartMount[0]="/home"                         # Mountpoint    | array of
+    AddPartType[0]="ext4"                           # Filesystem    | additional partitions
     Home="Y"
   fi
   
@@ -379,10 +380,9 @@ partition_maker() {
 
 autopart() { # Consolidated partitioning for BIOS or EFI environment
   
-  # Remove any existing partition table by zeroing the first sector
-  dd if=/dev/zero of=PhysicalVolume bs=512 count=1
-  # sgdisk --zap-all /dev/${UseDisk} &>> feliz.log    # Remove all existing filesystems
-  # wipefs -a /dev/${UseDisk} &>> feliz.log           # from the drive
+  dd if=/dev/zero of=/dev/${UseDisk} bs=512 count=1 # Remove any existing partition table
+  # sgdisk --zap-all /dev/${UseDisk} &>> feliz.log  # Remove all existing filesystems | Replaced by
+  # wipefs -a /dev/${UseDisk} &>> feliz.log         # from the drive                  | above code
 
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
@@ -415,6 +415,7 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
   ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1                                        # Set auto-partition flag to 'on'
+  
 }
 
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}
