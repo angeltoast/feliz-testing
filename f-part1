@@ -413,11 +413,18 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  ShowPart1="Swap:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-  AutoPart=1                                        # Set auto-partition flag to 'on'
   
+  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
+    ShowPart1="Boot:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+    ShowPart2="Swap:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+    ShowPart3="Root:  `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
+    ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
+  else
+    ShowPart1="Swap:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
+    ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
+    ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
+    AutoPart=1                                        # Set auto-partition flag to 'on'
+  fi
 }
 
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}
