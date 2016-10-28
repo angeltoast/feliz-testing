@@ -31,7 +31,7 @@
 # BuildPartitionLists 130       CheckPartition      519
 # Partitioning        225       AllocateSwap        527
 # MakePartitionList   259       NoPartitions        610
-# AutoPartition       272       SetSwapFile         625
+# ChooseDevice        272       SetSwapFile         625
 # AutoWarning         317       Parted              649
 # partition_maker     350       MorePartitions      653
 # autopart            380       MakePartition       708
@@ -247,7 +247,7 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM #########################
       ;;
       2) GuidedMBR
       ;;
-      3) AutoPartition
+      3) ChooseDevice
       ;;
       4) echo
       ;;
@@ -271,7 +271,7 @@ MakePartitionList() {
   BuildPartitionLists # Then rebuild
 }
 
-AutoPartition() {
+ChooseDevice() {
   # Called from Partitioning or PartitioningEFI
   AutoPart=0
   until [ ${AutoPart} -gt 0 ]
@@ -350,31 +350,36 @@ AutoWarning() {
 partition_maker() {
   
   # $1 = StartPoint; $2 (if exists) = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
-  
+
   local StartPoint=$1
-  local RootMount=1                                       # Partition numbering
+  if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
+    local MountDevice=2                             # Next partition after /boot = sda2
+  else
+    local MountDevice=1                             # In BIOS = first partition = sda1
+  fi
   if [ $2 ]; then
     Parted "mkpart primary linux-swap ${StartPoint} ${2}" # /swap
-    SwapPartition="${GrubDevice}1"                        # eg: /dev/sda1
+    SwapPartition="${GrubDevice}1"                        # BIOS=/dev/sda1 : EFI=/dev/sda2
     MakeSwap="Y"
     StartPoint=$2                                   # Reset startpoint for root
-    RootMount=2                                     # Advance partition numbering
+    MountDevice=$((MountDevice+1))                  # Advance partition numbering
   fi
   
-  Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root 15GiB
+  Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root
   if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
-    Parted "set ${RootMount} boot on"               # Bootable
+    Parted "set ${MountDevice} boot on"             # Bootable
   fi
-  RootPartition="${GrubDevice}${RootMount}"         # /dev/sda2
+  RootPartition="${GrubDevice}${MountDevice}"       # BIOS+Swap=/dev/sda2 : EFI+Swap=/dev/sda3
+                                                    # BIOS-Swap=/dev/sda1 : EFI-Swap=/dev/sda2
   RootType="ext4"
   StartPoint=$3                                     # Reset startpoint for home
-  HomeMount=$((RootMount+1))                        # Reset mountpoint for home
+  MountDevice=$((MountDevice+1))                    # Advance partition numbering
   
   if [ $4 ]; then
     Parted "mkpart primary ext4 ${StartPoint} ${4}" # /home
-    AddPartList[0]="${GrubDevice}${HomeMount}"      # /dev/sda3     | add to
-    AddPartMount[0]="/home"                         # Mountpoint    | array of
-    AddPartType[0]="ext4"                           # Filesystem    | additional partitions
+    AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3 or 4 | add to
+    AddPartMount[0]="/home"                         # Mountpoint     | array of
+    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"
   fi
   
@@ -389,27 +394,27 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   tput setf 0 # Change foreground colour to black temporarily to hide error message
   clear
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all /dev/${UseDisk} &>> feliz.log  # Remove all existing filesystems
-    wipefs -a /dev/${UseDisk} &>> feliz.log         # from the drive
+    sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
+    wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     Parted "mklabel gpt"                            # Create new filesystem
     Parted "mkpart ESP fat32 1MiB 513MiB"           # EFI boot partition
     Parted "set 1 boot on"
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
-    dd if=/dev/zero of=/dev/${UseDisk} bs=512 count=1 # Remove any existing partition table
+    dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
     # This seems to work ok for BIOS but needs to be silenced
     Parted "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
   tput sgr0 # Reset colour
   
-  if [ $DiskSize -ge 40 ]; then                     # ------ /swap, root and /home partitions ------
+  if [ $DiskSize -ge 40 ]; then                     # ------ /swap, /root and /home partitions ------
     partition_maker "${StartPoint}" "4GiB" "19GiB" "100%"
-  elif [ $DiskSize -ge 30 ]; then                   # ------ /swap, root and /home partitions ------
+  elif [ $DiskSize -ge 30 ]; then                   # ------ /swap, /root and /home partitions ------
     partition_maker "${StartPoint}" "3GiB" "15GiB" "100%"
-  elif [ $DiskSize -ge 18 ]; then                   # ------ /swap and /root partitions only -------
+  elif [ $DiskSize -ge 18 ]; then                   # ------  /swap and /root partitions only -------
     partition_maker "${StartPoint}" "2GiB" "100%" ""
-  elif [ $DiskSize -gt 10 ]; then                   # ------ /swap and /root partitions only -------
+  elif [ $DiskSize -gt 10 ]; then                   # ------  /swap and /root partitions only -------
     partition_maker "${StartPoint}" "1GiB" "100%" ""
   else                                              # ------ Swap file and /root partition only -----
     partition_maker "${StartPoint}" "" "100%" ""
