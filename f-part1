@@ -224,7 +224,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
   PARTITIONS=${Counter}
 }
 
-Partitioning() {
+Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM ####################################################
   local Proceed=""
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
