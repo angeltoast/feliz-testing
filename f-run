@@ -171,7 +171,7 @@ InstallKernel() {   # Selected kernel and some other core systems
 
     # To be replaced by:
     pacstrap /mnt $(pacman -Qgq base | sed s/^linux\$/linux-lts/g) # base group with linux-lts in place of linux
-    # -----------------
+    read -p "Debug stop for lts kernel - press enter" # -----------------
   ;;
   *) TPecho "Installing Latest kernel and core systems"
     pacstrap /mnt base 2>> feliz.log
