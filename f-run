@@ -162,22 +162,18 @@ MountPartitions() {
 
 InstallKernel() {   # Selected kernel and some other core systems
 
-  LANG=C            # Temporary addition to overcome bug in Arch
-
-  # List contents of base group to temp.fileA to check against base-devel group (*)
-  pacman -Qgq base > temp.fileA 2>> feliz.log
+  LANG=C            # To overcome bug in Arch
 
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
-    # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
-    # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
-
     pacstrap /mnt $(pacman -Qgq base | sed s/^linux\$/linux-lts/g) 2>> feliz.log # Install base group with linux-lts in place of linux
   ;;
   *) TPecho "Installing Latest kernel and core systems"
     pacstrap /mnt base 2>> feliz.log
   esac
 
+  # List contents of base group to temp.fileA to check against base-devel group (*)
+  pacman -Qgq base > temp.fileA 2>> feliz.log
   # List contents of base-devel group to temp.fileB to compare with base group (*)
   pacman -Qgq base-devel > temp.fileB 2>> feliz.log
 
