@@ -163,26 +163,32 @@ MountPartitions() {
 InstallKernel() {   # Selected kernel and some other core systems
 
   LANG=C            # Temporary addition to overcome bug in Arch
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
+
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
     # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
-pacman -Qgq base | sed s/^linux\$/linux-lts/g
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
+# --------------------------------------------------------------------------------------------------------------
+pacman -Qgq base | sed s/^linux\$/linux-lts/g > temp.file 2>> feliz.log # Save to check against base-devel (*)
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # Remove all these read lines!!!
     # To be replaced by:
     pacstrap /mnt $(pacman -Qgq base | sed s/^linux\$/linux-lts/g) 2>> feliz.log # base group with linux-lts in place of linux
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # -----------------
   ;;
   *) TPecho "Installing Latest kernel and core systems"
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # -----------------
+pacman -Qgq base > temp.file 2>> feliz.log                              # To check against base-devel (*)
+read -p "f-run line $LINENO Debug stop for latest kernel - press enter" # -----------------
     pacstrap /mnt base 2>> feliz.log
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # -----------------
   esac
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
-  pacstrap /mnt base-devel 2>> feliz.log
-read -p "f-run line $LINENO Debug stop for lts kernel - press enter" # -----------------
-
+pacman -Qgq base-devel >> temp.file 2>> feliz.log                       # Combine to compare with base group (*)
+cat temp.file | sort | uniq > sorted.file                               # Remove duplicates
+cat sorted.file                                                         # Check the file
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # -----------------
+  pacstrap /mnt $(cat sorted.file) 2>> feliz.log                        # Use contents of file
+read -p "f-run line $LINENO Debug stop for lts kernel - press enter"    # -----------------
+# --------------------------------------------------------------------------------------------------------------
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
