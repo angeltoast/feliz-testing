@@ -165,31 +165,12 @@ InstallKernel() {   # Selected kernel and some other core systems
   LANG=C            # To overcome bug in Arch
 
   case $Kernel in
-  1) TPecho "Installing LTS kernel and core systems"
-    pacstrap /mnt $(pacman -Qgq base | sed s/^linux\$/linux-lts/g) 2>> feliz.log # Install base group with linux-lts in place of linux
+  1) TPecho "Installing LTS kernel plus core systems and base-devel"
+    pacstrap /mnt $(pacman -Qgq base | sed s/^linux\$/linux-lts/g) base-devel 2>> feliz.log # base group with linux-lts
   ;;
-  *) TPecho "Installing Latest kernel and core systems"
-    pacstrap /mnt base 2>> feliz.log
+  *) TPecho "Installing Latest kernel plus core systems and base-devel"
+    pacstrap /mnt base base-devel 2>> feliz.log
   esac
-
-  # List contents of base group to temp.fileA to check against base-devel group (*)
-  pacman -Qgq base > temp.fileA 2>> feliz.log
-  # List contents of base-devel group to temp.fileB to compare with base group (*)
-  pacman -Qgq base-devel > temp.fileB 2>> feliz.log
-
-  # Compare temp.fileB with temp.fileA - if item is not in temp.fileA, save it to BaseDevel variable
-  BaseDevel=""
-  for item in $(cat temp.fileB); do
-    Compare=$(cat temp.fileA | grep -w "${item}")
-    case $Compare in
-    "") BaseDevel="${BaseDevel} ${item}"
-      ;;
-    *) continue
-    esac
-  done
-
-read -p "pacstrap /mnt ${BaseDevel} 2>> feliz.log"    # Check the variable for debugging
-  pacstrap /mnt ${BaseDevel} 2>> feliz.log            # Use contents of file
 
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
