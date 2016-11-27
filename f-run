@@ -307,7 +307,8 @@ InstallLuxuries()
 
     # Install Yaourt
     TPecho "Installing Yaourt"
-    if [ $(arch) = "x86_64" ]; then                             # New: Identify 64 bit architecture
+    arch=$(uname -m)
+    if [ ${arch} = "x86_64" ]; then                     # New: Identify 64 bit architecture
       echo "[multilib]" >> /mnt/etc/pacman.conf 2>> feliz.log   # For installed system
       echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf 2>> feliz.log
       echo "[multilib]" >> /etc/pacman.conf 2>> feliz.log       # For installer
