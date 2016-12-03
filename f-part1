@@ -70,9 +70,9 @@ CheckParts() {
       PrintOne "wish. If you choose to do nothing now, the script will"
       PrintOne "terminate to allow you to partition in some other way."
       echo
-      if [ ${UEFI} -eq 1 ]; then  
-        PartitioningEFI                   # Partitioning options for EFI 
-      else 
+      if [ ${UEFI} -eq 1 ]; then
+        PartitioningEFI                   # Partitioning options for EFI
+      else
         Partitioning                      # Partitioning options for BIOS
       fi
                                           # Terminate
@@ -114,7 +114,7 @@ CheckParts() {
       PrintOne "If you choose to 'Leave it as it is' the script will"
       PrintOne "next enable you to allocate the existing partitions."
       echo
-      PartitioningEFI                   # UEFI partitioning options    
+      PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
       PrintOne "'cfdisk' is available for you to edit them. Alternatively, you"
       PrintOne "can use the guided manual partitioning option, or Feliz can"
@@ -130,7 +130,7 @@ CheckParts() {
 }
 
 BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display, then to prepare partition arrays for selection for root, swap and others
-  
+
   # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
     # First an array of all partitions up to sd*99
     #                           |includes word | select 1st field | cut /dev/ | remove colon
@@ -153,7 +153,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
       done
       Counter=$((Counter+1))
     done
-  
+
   # 2) Find all up to sd*99 with LABEL | select 1st field | remove /dev/ | remove colon
   ListLabelledIDs=$(blkid /dev/sd* | grep LABEL | awk '{print $1}' | cut -c 6- | sed s/://g)
   # If at least one labelled partition found, get a matching list of labels (remove quotes)
@@ -176,7 +176,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
     Counter=$((Counter+1))
   done
   local HowManyLabelled="${#Labelled[@]}"
-  
+
   # 3) Find any partitions flagged as bootable
   ListAll=$(sfdisk -l | grep /dev | grep '*' | awk '{print $1}' | cut -c 6-)
   declare -a Flagged
@@ -322,7 +322,7 @@ AutoWarning() {
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     echo
-    listgen1 "Yes No" "" "nodone"
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
@@ -348,7 +348,7 @@ AutoWarning() {
 }
 
 partition_maker() {
-  
+
   # $1 = StartPoint; $2 (if exists) = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
 
   local StartPoint=$1
@@ -364,7 +364,7 @@ partition_maker() {
     StartPoint=$2                                   # Reset startpoint for root
     MountDevice=$((MountDevice+1))                  # Advance partition numbering
   fi
-  
+
   Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root
   if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
     Parted "set ${MountDevice} boot on"             # Bootable
@@ -374,7 +374,7 @@ partition_maker() {
   RootType="ext4"
   StartPoint=$3                                     # Reset startpoint for home
   MountDevice=$((MountDevice+1))                    # Advance partition numbering
-  
+
   if [ $4 ]; then
     Parted "mkpart primary ext4 ${StartPoint} ${4}" # /home
     AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3 or 4 | add to
@@ -382,7 +382,7 @@ partition_maker() {
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"
   fi
-  
+
 }
 
 autopart() { # Consolidated partitioning for BIOS or EFI environment
@@ -390,7 +390,7 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed s/G//g) # Get disk size
-  
+
   tput setf 0 # Change foreground colour to black temporarily to hide error message
   clear
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
@@ -407,7 +407,7 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     StartPoint="1MiB"                               # For next partition
   fi
   tput sgr0 # Reset colour
-  
+
   if [ $DiskSize -ge 40 ]; then                     # ------ /swap, /root and /home partitions ------
     partition_maker "${StartPoint}" "4GiB" "19GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /swap, /root and /home partitions ------
@@ -421,7 +421,7 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  
+
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     ShowPart1="Boot:  `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
     ShowPart2="Swap:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
@@ -432,9 +432,9 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     ShowPart2="Root:  `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
     ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   fi
-  
+
   AutoPart=1                                        # Set auto-partition flag to 'on'
-  
+
 }
 
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}
@@ -481,11 +481,11 @@ EditLabel() {
 AllocateRoot() {
   # Display partitions for user-selection
   # Uses list of all available partitions in PartitionList
-  
+
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the EFI /boot partition
   fi
-  
+
   print_heading
   Remaining=""
   local Counter=0
@@ -596,7 +596,7 @@ AllocateSwap() {
             PrintOne "system will no longer be unable to access the partition."
             PrintOne "Do you wish to reformat it?"
             echo
-            listgen1 "Yes No" "" "nodone"
+            DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
             case $Response in
               "1" | "Y" | "y") MakeSwap="Y"
               ;;
@@ -635,7 +635,7 @@ NoPartitions() { # There are no unallocated partitions
   PrintOne "but you can allocate a swap file, if you wish."
   Message="Create a swap file?: "
   echo
-  listgen1 "Yes No" "" "nodone"
+  DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
   case $Response in
     "1" | "Y" | "y") SetSwapFile
       SwapPartition=""

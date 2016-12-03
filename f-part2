@@ -20,7 +20,7 @@
 # The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # In this module - functions for guided creation of a GPT partition table:
-# -----------------------    ------------------------    -----------------------      
+# -----------------------    ------------------------    -----------------------
 # EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
 # EasyEFI             33     EasyRoot            179     GuidedMBR          468
@@ -53,7 +53,7 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
     echo
     PrintOne "Do you wish to allocate a swapfile?"
     echo
-    listgen1 "Yes No" "" "nodone"
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -160,7 +160,7 @@ EasyBoot() { # Variables: BootSize
   do
     FreeGigs=$((FreeSpace/1024))
     PrintOne "You have ${FreeGigs}GiB available on the chosen device."
-    PrintOne "All we need to set here is the size of your EFI /boot partition."  
+    PrintOne "All we need to set here is the size of your EFI /boot partition."
     PrintOne "It should be no less than 512MiB and need be no larger than 1GiB"
     echo
     TPread "Enter size (M = Megabytes, G = Gigabytes) [eg: 512M or 1G]: "
@@ -192,7 +192,7 @@ EasyRoot() { # Variables: RootSize, RootType
     echo
     PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
-    PrintOne "Next we need at least one more partition, for /root."  
+    PrintOne "Next we need at least one more partition, for /root."
     PrintOne "You can use all the remaining space on the device, if you"
     PrintOne "wish, although you may want to leave some room for a swap"
     PrintOne "partition, and perhaps also a home partition. The root partition"
@@ -251,7 +251,7 @@ EasySwap() { # Variables: SwapSize
       PrintOne "Swap can be anything from 1MiB upwards, but generally it"
       PrintOne "is not necessary to exceed 4GiB. You can assign all the"
       PrintOne "remaining space on the device, if you wish: just enter 100%"
-      echo    
+      echo
     fi
     PrintOne "If you don't want a swap partition, enter 0 or leave blank"
     echo
@@ -264,7 +264,7 @@ EasySwap() { # Variables: SwapSize
     case ${RESPONSE} in
       "" | 0) PrintOne "Do you wish to allocate a swapfile?"
           echo
-        listgen1 "Yes No" "" "nodone"
+        DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
         echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -299,7 +299,7 @@ EasyHome() { # Variables: HomeSize, HomeType
     echo
     PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
-    PrintOne "There is space for a /home partition. You can use all"  
+    PrintOne "There is space for a /home partition. You can use all"
     PrintOne "the remaining space on the device, if you wish."
     PrintOne "If you don't want a home partition, enter 0 or leave blank"
     echo
@@ -346,7 +346,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     echo
-    listgen1 "Yes No" "" "nodone"
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       "1" | "Y" | "y") WipeDevice   # Format the drive
         Parted "mklabel gpt"        # Create EFI partition table
@@ -373,7 +373,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"       # "/dev/sda1"
   NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
-  
+
 # Root partition
 # --------------
   # Calculate end-point
@@ -492,7 +492,7 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
     echo
     PrintOne "Do you wish to allocate a swapfile?"
     echo
-    listgen1 "Yes No" "" "nodone"
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -520,7 +520,7 @@ GuidedRoot() { # Variables: RootSize, RootType
     print_heading
     PrintOne "You have ${FreeGigs}GiB available on the chosen device."
     echo
-    PrintOne "First we need to create a /root partition. You can"  
+    PrintOne "First we need to create a /root partition. You can"
     PrintOne "use all the space on the device, if you wish, although"
     PrintOne "you may want to leave some room for a swap partition,"
     PrintOne "and perhaps also a home partition. The root partition"
@@ -579,7 +579,7 @@ GuidedSwap() { # Variables: SwapSize
       PrintOne "from 512MiB upwards, but generally not less than 1GiB, and it"
       PrintOne "is not usually necessary to exceed 4GiB. You can assign all"
       PrintOne "remaining space on the device, if you wish: just enter 100%"
-      echo    
+      echo
     fi
     PrintOne "If you don't want a swap partition, enter 0 or leave blank"
     echo
@@ -592,7 +592,7 @@ GuidedSwap() { # Variables: SwapSize
     case ${RESPONSE} in
       "" | 0) PrintOne "Do you wish to allocate a swapfile?"
           echo
-        listgen1 "Yes No" "" "nodone"
+        DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
         echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -626,7 +626,7 @@ GuidedHome() { # Variables: HomeSize, HomeType
     echo
     PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     echo
-    PrintOne "There is space for a /home partition. You can use all"  
+    PrintOne "There is space for a /home partition. You can use all"
     PrintOne "the remaining space on the device, if you wish."
     PrintOne "If you don't want a home partition, enter 0 or leave blank"
     echo
@@ -672,7 +672,7 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     echo
-    listgen1 "Yes No" "" "nodone"
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       "1" | "Y" | "y") Parted "mklabel msdos"  # Create mbr partition table
         break
@@ -685,7 +685,7 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
   done
 
 # Root partition
-# -------------- 
+# --------------
   # Calculate end-point
   Unit=${RootSize: -1}                # Save last character of root (eg: G)
   Chars=${#RootSize}                  # Count characters in root variable

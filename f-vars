@@ -172,4 +172,5 @@ print_heading() {
   tput cup 1 $((($T_COLS/2)-20))
   printf "~ $Backtitle ~\n"
   printf "%$(tput cols)s\n"|tr ' ' '-'
+  cursor_row=3                          # Save cursor row after heading
 }

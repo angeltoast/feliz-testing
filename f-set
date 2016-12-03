@@ -39,8 +39,13 @@
 # --------------------    -----------------------
 
 invalid_option() { # (from AUI scripts)
-  echo
+  Echo
   read_timed "Invalid entry. Try again ..." 1
+}
+
+Echo() {
+  echo "$1"
+  cursor_row=$((cursor_row+1))
 }
 
 TPread() { # Aligned prompt for user-entry
@@ -56,18 +61,19 @@ TPread() { # Aligned prompt for user-entry
   fi
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
+  cursor_row=$((cursor_row+1))
 }
 
 SetKernel() {
   print_heading
-  echo
+  Echo
   PrintOne "Choose your kernel"
   PrintOne "The Long-Term-Support kernel (LTS) offers stabilty,"
   PrintOne "while the Latest kernel has all the new features."
   PrintOne "If in doubt, choose LTS."
-  echo
+  Echo
   local Counter=0
-  listgen1 "LTS Latest" "Kernels" "nodone"
+  listgen1 "LTS Latest" "Kernels" "nocancel"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
@@ -79,11 +85,11 @@ ConfirmVbox() {
     PrintOne "It appears that feliz is running in Virtualbox."
     PrintOne "If it is, feliz can install Virtualbox guest"
     PrintOne "utilities and make appropriate settings for you."
-    echo
+    Echo
     PrintOne "Install Virtualbox guest utilities?: "
-    echo
-    listgen1 "Yes No" "" "nodone"
-    echo
+    Echo
+    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+    Echo
     case $Response in
       1) IsInVbox="VirtualBox"
         Retry="N"
@@ -98,23 +104,23 @@ ConfirmVbox() {
 
 getkeymap() {
   print_heading
-  echo
+  Echo
   PrintOne "Let's try to find your keyboard"
   Repeat=1
   while [ $Repeat -eq 1 ]
   do
-    echo
+    Echo
     PrintOne "If you know the code for your keyboard layout, enter"
     PrintOne "it now. If not, try entering an abbreviation for your"
     PrintOne "country or language and a list will be displayed ..."
-    echo
+    Echo
     TPread "(eg: 'atari' or 'us'): "
     local Term="${Response,,}"
-    echo
+    Echo
     ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
     case ${ListKbs} in
       "") print_heading
-        echo
+        Echo
         PrintOne "No keyboards found containing '$Term'"
         PrintOne "Try again"
         continue
@@ -143,9 +149,9 @@ setlocale() {
   InvalidEntry=1
   while [ $InvalidEntry -eq 1 ]
   do
-    echo
+    Echo
     PrintOne "Please enter a two-letter code for your country or language."
-    echo
+    Echo
     TPread "$SearchPrompt"
     print_heading
     if [ -z ${Response} ]
@@ -153,7 +159,7 @@ setlocale() {
       invalid_option
       print_heading
     else
-      echo
+      Echo
       searchterm="${Response,,}"
       LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
       if [ ${#LocaleList[@]} -eq 0 ]
@@ -173,9 +179,9 @@ setlocale() {
         print_heading
         continue
       fi
-      PrintOne "Choose your locale from this list, or 'Try_again': "
-      echo
-      listgen1 "${localelist}" "" "Try_again"
+      PrintOne "Choose your locale from this list, or 'Cancel' to try again: "
+      Echo
+      listgen1 "${localelist}" "" ""
       case $Result in
       "Try_again") print_heading
           continue
@@ -200,15 +206,15 @@ SetTimeZone() {
     PrintOne "To set the system clock, please first"
     PrintOne "choose the World Zone of your location."
     Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
-    echo
+    Echo
     zones=""
     for x in ${Zones[@]}
     do
       zones="$zones $x"
     done
-    listgen1 "${zones}" "World_Zones" "nodone"
+    listgen1 "${zones}" "World_Zones" "nocancel"
     ZONE=$Result
-    echo
+    Echo
     case $Result in
       "UTC") SUBZONE=""
           print_heading
@@ -220,7 +226,7 @@ SetTimeZone() {
       read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
     esac
   done
-  echo
+  Echo
 }
 
 SetSubZone() {
@@ -229,12 +235,12 @@ SetSubZone() {
   do
     print_heading
     PrintOne "World Zone = $ZONE"
-    echo
+    Echo
     PrintOne "We can search on the first letter of your nearest"
     PrintOne "major city. To change World Zone, leave empty."
-    echo
+    Echo
     TPread "Please enter one letter: "
-    echo
+    Echo
     if [ -z ${Response} ]
     then
       SetTimeZone
@@ -256,9 +262,9 @@ SetSubZone() {
     fi
     print_heading
     PrintOne "Now choose your city from this list"
-    PrintOne "... or try again if it is not there"
-    echo
-    listgen1 "$subzones" "" "Try_again"
+    PrintOne "... or 'Cancel' to try again if it is not there"
+    Echo
+    listgen1 "$subzones" "" ""
     case $Result in
       "Try_again") break
       ;;
@@ -273,7 +279,7 @@ UserName() {
   PrintOne "Enter a name for the primary user of the new system."
   PrintOne "If you don't create a username here, a default user"
   PrintOne "called 'archie' will be set up"
-  echo
+  Echo
   TPread "User Name: "
   Entered=${Response,,}
   case $Entered in
@@ -290,7 +296,7 @@ SetHostname() {
   PrintOne "A hostname is needed. This will be a unique name to identify"
   PrintOne "your device on a network. If you do not enter one, the"
   PrintOne "default hostname of 'arch-linux' will be used."
-  echo
+  Echo
   TPread "Enter a hostname for your computer: "
   Entered=${Response,,}
   case $Entered in
@@ -308,15 +314,15 @@ PickLuxuries() { # User selects any combination from a store of extras
   case "$LuxuriesList" in
   "") PrintOne "Now you have the option to add extras, such as a web browser,"
      PrintOne "desktop environment, etc, from the following categories."
-     echo
+     Echo
     PrintOne "If you want only a base Arch installation, exit without choosing any extras."
   ;;
   *) PrintOne "You can add more items, or select items to delete."
   esac
-  echo
+  Echo
   while [ $Complete -eq 0 ]
   do
-    listgen1 "${CategoriesList}" "Categories" "Done"
+    listgen1 "${CategoriesList}" "Categories" ""
     Category=$Response
     if [ $Result = "Done" ]; then
       break
@@ -324,10 +330,10 @@ PickLuxuries() { # User selects any combination from a store of extras
       ShoppingList
       print_heading
       PrintOne "Added so far:: ${LuxuriesList}"
-      echo
+      Echo
       PrintOne "You can now choose from any of the other lists,"
       PrintOne "or choose <Done> to finish this part of the setup"
-      echo
+      Echo
     fi
   done
   if [ -n "${LuxuriesList}" ]; then
@@ -344,7 +350,7 @@ KeepOrDelete() {
   do
     print_heading
     Message="$Bagged is already in your shopping list.\n"
-    listgen1 "Keep Delete" "$Bagged" "nodone"
+    DisplayButtons "Yes/No" "[ Keep ] [ Delete ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       1) Validated="Y"
         Temp="$LuxuriesList"
@@ -371,7 +377,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   do
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
-    echo
+    Echo
      # $Category passed here is number of item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;
@@ -457,7 +463,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
        ;;
       "") continue
        ;;
-      *) echo
+      *) Echo
     esac
     if [ ${SaveResult} = "libreoffice" ]; then
       LuxuriesList="${LuxuriesList} libreoffice-fresh"
@@ -467,7 +473,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   done
 
   Passed=""     # Clear the information variable
-  
+
 }
 
 ChooseDM() { # Choose a display manager
@@ -481,8 +487,8 @@ ChooseDM() { # Choose a display manager
       PrintOne "If in doubt, choose LightDM."
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually."
-      echo
-      listgen1 "${DMList}" "Display_Manager/Greeter" "None"
+      Echo
+      listgen1 "${DMList}" "Display_Manager/Greeter" ""
       Reply=$Response
       for item in ${DMList}
       do
@@ -514,11 +520,11 @@ ChooseDM() { # Choose a display manager
       print_heading
       PrintOne "Display manager is already set as: $DisplayManager."
       PrintOne "Only one display manager can be active"
-      echo
+      Echo
       PrintOne "Do you wish to change it?: "
-      echo
-      listgen1 "Yes No" "" "nodone"
-      echo
+      Echo
+      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      Echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
         Greeter=""                    # and greeter
@@ -537,8 +543,8 @@ SetGrubDevice() {
   PrintOne "Note that if you do not select a device, Grub"
   PrintOne "will not be installed, and you will have to make"
   PrintOne "alternative arrangements for booting your new system."
-  echo
-  listgen1 "${DevicesList}" "Devices" "None"
+  Echo
+  listgen1 "${DevicesList}" "Devices" ""
   Reply=$Response
   for i in ${DevicesList}
   do
@@ -560,7 +566,7 @@ FinalCheck() {
   do
     print_heading
     PrintOne "These are the settings you have entered. Please check them ..."
-    echo
+    Echo
     if [ ${UEFI} -eq 1 ]; then
       PrintOne "0)  Boot partition ... $EFIPartition             "
       PrintMany "1)  Root partition ... $RootPartition : $RootType"
@@ -611,7 +617,7 @@ FinalCheck() {
     PrintMany "     User = '$UserName'"
     PrintMany "12) The following extras have been selected ..."
     PrintOne "${LuxuriesList}"
-    echo
+    Echo
     PrintOne "Press [Enter] to install with these settings, or"
     Response=20
     TPread "enter an item number if you wish to change it: "
@@ -669,12 +675,12 @@ ManualSettings() {
   do
     print_heading
     PrintOne "Enter number for data to change, or [Enter] to finish:"
-    echo
+    Echo
     PrintOne "1) Hostname (currently $HostName)"
     PrintMany "2) Username (currently $UserName)"
-    echo
+    Echo
     TPread "Enter the number of your selection : "
-    echo
+    Echo
     case $Response in
       1) TPread "Enter new Hostname (currently $HostName) : "
          HostName=$Response

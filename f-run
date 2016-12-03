@@ -45,10 +45,6 @@ Parted() {
 
 TPecho() { # For displaying status while running on auto
   echo
-  CurrentTime=$(date +%s)
-  Difference=$(( $CurrentTime-$StartTime ))
-  DIFFMIN=$(( $Difference/60 ))
-  DIFFSEC=$(( $Difference % 60 ))
   T_COLS=`tput cols`
   EMPTY="     "
   lov=${#1}
@@ -76,7 +72,8 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
     EMPTY=""
   fi
   read -t ${tim} -p "$EMPTY $1"
-  echo
+  cursor_row=$((cursor_row+1))
+  Echo
 }
 
 MountPartitions() {
@@ -180,7 +177,7 @@ InstallKernel() {   # Selected kernel and some other core systems
 
 AddCodecs() {
   TPecho "Adding codecs"
-  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab flashplugin
+  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab
 
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware
@@ -312,7 +309,7 @@ InstallLuxuries()
       # For installed system
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf 2>> feliz.log
       # For installer
-      echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf 2>> feliz.log
+      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf 2>> feliz.log
     fi
     # For installed system
     echo -e "\n[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /mnt/etc/pacman.conf 2>> feliz.log
