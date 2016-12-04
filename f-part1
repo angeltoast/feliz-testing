@@ -2,9 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 28th October 2016 ...
-# Auto-partitioning for EFI and BIOS consolidated into one autopart function
-# using new partition_maker function for each disk size
+# Revision date: 4th December 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

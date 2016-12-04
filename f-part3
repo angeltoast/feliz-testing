@@ -1,12 +1,8 @@
 #!/bin/bash
 
-# UEFIcode - Functions and variables for installing on UEFI systems
-# -------------------------------------------------------------
-
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 28th October 2016 ...
-# This file was renamed from f-UEFA; UEFI_autopart removed (now covered by consolidated 'autopart'
+# Revision date: 4th December 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

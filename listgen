@@ -9,22 +9,23 @@
 # your option) any later version.
 
 # This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
+#      WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+#            General Public License for more details.
 
 # A copy of the GNU General Public License is available from the Feliz2
-# page at http://sourceforge.net/projects/feliz2/files
-# or https://github.com/angeltoast/feliz2, or write to:
-# The Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#        page at http://sourceforge.net/projects/feliz2/files
+#        or https://github.com/angeltoast/feliz2, or write to:
+#                 The Free Software Foundation, Inc.
+#                  51 Franklin Street, Fifth Floor
+#                    Boston, MA 02110-1301 USA
 
-# See listgen.manual for further guidance
-
-#
-# Both functions return the name of the selected item using global variable $Result
-# and item number as global variable $Response
+# Functions return the text of the selected item as global variable $Result
+# and the selected item number as global variable $Response
 # Window width and height are adjusted according to content
-#
+
+# See listgen.manual for guidance on the use of these functions
+
 # In this module:
 # Functions for providing an intuitive interface without using Dialog
 # --------------------   ------------------------
@@ -51,9 +52,9 @@ invalid_option() {
 
 print_heading() {   # Always use this function to clear the screen
   clear
-  T_COLS=`tput cols`                    # Get width of terminal
-  tput cup 0 $((($T_COLS/2)-10))        # Move the cursor to left of center
-  printf "~ $Backtitle ~\n"             # Display backtitle
+  T_COLS=$(tput cols)                   # Get width of terminal
+  tput cup 0 $(((T_COLS/2)-10))         # Move the cursor to left of center
+  printf "%-s\n" "$Backtitle"       # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
 }
