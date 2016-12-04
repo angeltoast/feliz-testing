@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Developed by Elizabeth Mills
-# Revision date: 3rd December 2016
+# Revision date: 4th December 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ invalid_option() {
 print_heading() {   # Always use this function to clear the screen
   clear
   T_COLS=`tput cols`                    # Get width of terminal
-  tput cup 0 $((($T_COLS/2)-5))         # Move the cursor to center backtitle
+  tput cup 0 $((($T_COLS/2)-10))        # Move the cursor to left of center
   printf "~ $Backtitle ~\n"             # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading

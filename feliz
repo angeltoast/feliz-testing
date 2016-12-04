@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With acknowlegements to Carl Duff and Dylan Schacht
-# Revision date: 27th November 2016 ...
+# Revision date: 4th December 2016 ...
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ PickLuxuries                           # Add extra applications
 
 if [ $Scope != "Basic" ]; then         # If any extra apps have been added
 
-  if [ -n $DesktopEnvironment ]; then
+  if [ -n "$DesktopEnvironment" ]; then
     ChooseDM
   fi
 
