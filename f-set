@@ -38,26 +38,26 @@
 # PickLuxuries     280    AddExtras           736
 # --------------------    -----------------------
 
-invalid_option() { # (from AUI scripts)
+invalid_option() {
   Echo
   read_timed "Invalid entry. Try again ..." 1
 }
 
-Echo() {
-  Echo "$1"
+Echo() { # Use in place of echo for all screen display
+  echo "$1"
   cursor_row=$((cursor_row+1))
 }
 
 TPread() { # Aligned prompt for user-entry
   # $1 = prompt ... Returns result through $Response
-  T_COLS=`tput cols`
+  T_COLS=$(tput cols)
   lov=${#1}
   if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(( ($T_COLS - $lov) / 2 ))
+    stpt=$(( (T_COLS - lov) / 2 ))
   elif [ ${lov} -gt ${T_COLS} ]; then
     stpt=0
   else
-    stpt=$(( ($T_COLS - 10) / 2 ))
+    stpt=$(( (T_COLS - 10) / 2 ))
   fi
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
@@ -117,7 +117,7 @@ getkeymap() {
     TPread "(eg: 'atari' or 'us'): "
     local Term="${Response,,}"
     Echo
-    ListKbs=`cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`
+    ListKbs=$(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
     case ${ListKbs} in
       "") print_heading
         Echo
@@ -161,11 +161,11 @@ setlocale() {
     else
       Echo
       searchterm="${Response,,}"
-      LocaleList=(`cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
+      LocaleList=$(cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
       if [ ${#LocaleList[@]} -eq 0 ]
       then
         SEARCHTERM="${Response^^}"
-        LocaleList=(`cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g'`);
+        LocaleList=$(cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
       fi
       local Counter=0
       localelist=""
@@ -205,7 +205,7 @@ SetTimeZone() {
     print_heading
     PrintOne "To set the system clock, please first"
     PrintOne "choose the World Zone of your location."
-    Zones=(`timedatectl list-timezones | sed 's/\/.*$//' | uniq`)
+    Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
     Echo
     zones=""
     for x in ${Zones[@]}
@@ -230,7 +230,7 @@ SetTimeZone() {
 }
 
 SetSubZone() {
-  SubZones=(`timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///'`)
+  SubZones=$(timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///')
   while [ $Complete -eq 0 ]
   do
     print_heading

@@ -133,7 +133,7 @@ DisplayButtons() {
 
   if [ $button_count -eq 0 ]; then              # Error exit
     echo "listgen-sgi line $LINENO - No buttons specified" > feliz.log
-    break
+    return 1
   fi
 
   # Prepare display
