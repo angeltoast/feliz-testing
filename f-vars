@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 15th October 2016
+# Revision date: 1st December 2016
 
 # Please read the introduction in the README file
 # This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,12 @@ declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /ho
 declare -a AddPartType    # Array of format type for the same partitions eg: ext4
 declare -a PartitionArray # Array of long identifiers
 declare -a NewArray       # For copying any array
+declare -a NewArray       # For copying any array
+
+declare -a button_start   # Used in listgen
+declare -a button_text    # Used in listgen
+declare -a button_len     # Used in listgen
+
 declare -A LabellingArray # Associative array of user labels for partitions
 declare -A Labelled       # Associative array of labelled partitions
 declare -A FileSystem     # Associative array of filesystem types (ext* swap)
@@ -84,6 +90,18 @@ Result=""
 helpMESSAGE=""            # Used by help system
 declare -a Options        # For listgen functions
 
+# ---- Partitioning ----
+PartitioningOptions="cfdisk guided auto leave"
+LongPart[1]="Open cfdisk so I can partition manually"
+LongPart[2]="Guided manual partitioning tool"
+LongPart[3]="Allow feliz to partition the whole device"
+LongPart[4]="Leave it as it is"
+# EFI
+EFIPartitioningOptions="guided auto leave"
+LongPartE[1]="Guided manual partitioning tool"
+LongPartE[2]="Allow feliz to partition the whole device"
+LongPartE[3]="Leave it as it is"
+
 # ---- Arrays for extra Applications ----
 CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
 Categories[1]="Accessories"
@@ -95,82 +113,68 @@ Categories[6]="Office"
 Categories[7]="Programming"
 Categories[8]="Window_Managers"
 # Accessories
-Accessories="brasero conky gnome-calculator gedit gparted nautilus gnome-terminal"
-LongAccs[1]="Disc burning application from Gnome"
-LongAccs[2]="Desktop time and system information"
-LongAccs[3]="Calculator for your taskbar"
-LongAccs[4]="The text editor from Gnome"
-LongAccs[5]="Tool to make/delete/resize partitions"
-LongAccs[6]="The file-manager from Gnome"
-LongAccs[7]="The Gnome terminal emulator"
+Accessories="brasero conky gedit gparted"
+LongAccs[1]="Brasero - Disc burning application from Gnome"
+LongAccs[2]="Conky   - Desktop time and system information"
+LongAccs[3]="Gedit   - The text editor from Gnome"
+LongAccs[4]="Gparted - Tool to make/delete/resize partitions"
 # Desktops
 Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate Xfce"
-LongDesk[1]="Modern desktop focusing on simplicity & elegance"
-LongDesk[2]="Slick DE from the Mint team      "
-LongDesk[3]="The Deepin Desktop Environment"
-LongDesk[4]="Full-featured, modern DE"
-LongDesk[5]="Plasma 5 and accessories pack"
-LongDesk[6]="Traditional, lightweight DE"
-LongDesk[7]="Lightweight and modern Qt DE"
-LongDesk[8]="Traditional DE from the Mint team"
-LongDesk[9]="Lightweight, highly configurable DE"
+LongDesk[1]="Budgie   - Modern desktop focusing on simplicity & elegance"
+LongDesk[2]="Cinnamon - Slick DE from the Mint team      "
+LongDesk[3]="Deepin   - The Deepin Desktop Environment"
+LongDesk[4]="Gnome    - Full-featured, modern DE"
+LongDesk[5]="KDE      - Plasma 5 and accessories pack"
+LongDesk[6]="LXDE     - Traditional, lightweight DE"
+LongDesk[7]="LXQt     - Lightweight and modern Qt DE"
+LongDesk[8]="Mate     - Traditional DE from the Mint team"
+LongDesk[9]="Xfce     - Lightweight, highly configurable DE"
 # Graphical
 Graphical="evince gimp imagemagick gthumb simple-scan xsane"
-LongGraph[1]="Reader for PDF & other document formats"
-LongGraph[2]="Advanced image editing suite"
-LongGraph[3]="Command-line image manipulation"
-LongGraph[4]="Image viewer & basic editor"
-LongGraph[5]="A simple scanner GUI"
-LongGraph[6]="Full-featured GTK-based sane frontend"
+LongGraph[1]="Evince      - Reader for PDF & other document formats"
+LongGraph[2]="GIMP        - Advanced image editing suite"
+LongGraph[3]="Imagemagick - Command-line image manipulation"
+LongGraph[4]="Gthumb      - Image viewer & basic editor"
+LongGraph[5]="Simple-scan - A simple scanner GUI"
+LongGraph[6]="Xsane       - Full-featured GTK-based sane frontend"
 # Internet
 Internet="chromium epiphany filezilla firefox qbittorrent thunderbird transmission-gtk"
-LongNet[1]="Open source web browser from Google     "
-LongNet[2]="Gnome WebKitGTK+ browser (aka Web)"
-LongNet[3]="Fast & reliable FTP, FTPS & SFTP client"
-LongNet[4]="Extensible browser from Mozilla"
-LongNet[5]="Open source BitTorrent client"
-LongNet[6]="Feature-rich email client from Mozilla"
-LongNet[7]="Easy-to-use BitTorrent client"
+LongNet[1]="Chromium     - Open source web browser from Google     "
+LongNet[2]="Epiphany     - Gnome WebKitGTK+ browser (aka Web)"
+LongNet[3]="Filezilla    - Fast & reliable FTP, FTPS & SFTP client"
+LongNet[4]="Firefox      - Extensible browser from Mozilla"
+LongNet[5]="Qbittorrent  - Open source BitTorrent client"
+LongNet[6]="Thunderbird  - Feature-rich email client from Mozilla"
+LongNet[7]="Transmission - Easy-to-use BitTorrent client"
 # Multimedia
 Multimedia="avidemux-gtk banshee handbrake openshot vlc xfburn"
-LongMulti[1]="Easy-to-use video editor               "
-LongMulti[2]="Feature-rich audio player"
-LongMulti[3]="Simple yet powerful video transcoder"
-LongMulti[4]="Easy-to-use non-linear video editor"
-LongMulti[5]="Middleweight video player"
-LongMulti[6]="GUI CD burner"
+LongMulti[1]="Avidemix  - Easy-to-use video editor               "
+LongMulti[2]="Banshee   - Feature-rich audio player"
+LongMulti[3]="Handbrake - Simple yet powerful video transcoder"
+LongMulti[4]="Openshot  - Easy-to-use non-linear video editor"
+LongMulti[5]="VLC       - Middleweight video player"
+LongMulti[6]="Xfburn    - GUI CD burner"
 # Office
 Office="abiword gnumeric libreoffice orage scribus"
-LongOffice[1]="Full-featured word processor        "
-LongOffice[2]="Spreadsheet program from GNOME"
-LongOffice[3]="Open-source office software suite"
-LongOffice[4]="Calendar & task manager (incl with Xfce)"
-LongOffice[5]="Desktop publishing program"
+LongOffice[1]="Abiword     - Full-featured word processor        "
+LongOffice[2]="Gnumeric    - Spreadsheet program from GNOME"
+LongOffice[3]="LibreOffice - Open-source office software suite"
+LongOffice[4]="Orage       - Calendar & task manager (incl with Xfce)"
+LongOffice[5]="Cribus      - Desktop publishing program"
 # Programming
 Programming="bluefish codeblocks emacs geany git netbeans"
-LongProg[1]="GTK+ IDE with support for Python plugins  "
-LongProg[2]="Open source & cross-platform C/C++ IDE"
-LongProg[3]="Extensible, customizable text editor"
-LongProg[4]="Advanced text editor & IDE"
-LongProg[5]="Open source distributed version control system"
-LongProg[6]="Integrated development environment (IDE)"
+LongProg[1]="Bluefish   - GTK+ IDE with support for Python plugins  "
+LongProg[2]="CodeBlocks - Open source & cross-platform C/C++ IDE"
+LongProg[3]="Emacs      - Extensible, customizable text editor"
+LongProg[4]="Geany      - Advanced text editor & IDE"
+LongProg[5]="Git        - Open source distributed version control system"
+LongProg[6]="Netbeans   - Integrated development environment (IDE)"
 # WindowManagers
 WindowManagers="Enlightenment Fluxbox Openbox cairo-dock docky fbpanel tint2"
-LongWMs[1]="Window manager and toolkit"
-LongWMs[2]="Light, fast and versatile WM"
-LongWMs[3]="Lightweight, powerful & configurable stacking WM"
-LongWMs[4]="Customizable dock & launcher application"
-LongWMs[5]="For opening applications & managing windows"
-LongWMs[6]="Desktop panel"
-LongWMs[7]="Desktop panel"
-
-# Various functions
-
-print_heading() {
-  clear
-  T_COLS=`tput cols`
-  tput cup 1 $((($T_COLS/2)-20))
-  printf "~ $Backtitle ~\n"
-  printf "%$(tput cols)s\n"|tr ' ' '-'
-  cursor_row=3                          # Save cursor row after heading
-}
+LongWMs[1]="Enlightenment - Window manager and toolkit"
+LongWMs[2]="Fluxbox       - Light, fast and versatile WM"
+LongWMs[3]="Openbox       - Lightweight, powerful & configurable stacking WM"
+LongWMs[4]="Cairo         - Customizable dock & launcher application"
+LongWMs[5]="Docky         - For opening applications & managing windows"
+LongWMs[6]="Fbpanel       - Desktop panel"
+LongWMs[7]="Tint2         - Desktop panel"

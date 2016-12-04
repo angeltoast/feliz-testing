@@ -31,13 +31,14 @@
 # Function        Line
 # --------------------   ------------------------
 # invalid_option   46    Also used outside listgen - check in case duplicated
+# print_heading    52
 # PrintOne         50    Retained for backwards compatibility
 # PrintMany        62     ---- " ---- " ---- " ---- " ----
 # first_item       52    Prints first item of a menu
 # subsequent_item  63    Prints successive menu items
 # PrintRev         69    Reverses text colour
-# DisplayButtons   78    Prints a row of buttons. Receives 3 arguments: Type (Menu, Yes/No); Button string; Message string
-# ActiveMenu      140    Controls the highlighting of menu items. Receives 1 argument - Type (Menu, Yes/No)
+# DisplayButtons   78    Prints a row of buttons. 3 arguments: Type; Button string; Message string
+# ActiveMenu      140    Controls the highlighting of menu items. 1 argument - Type (Menu, Yes/No)
 # listgen1        243    Generates a simple menu of one-word items
 # listgen2        298    Generates a menu of multi-word items
 # --------------------   ------------------------
@@ -48,6 +49,15 @@ invalid_option() {
   cursor_row=$((cursor_row+1))
 }
 
+print_heading() {   # Always use this function to clear the screen
+  clear
+  T_COLS=`tput cols`                    # Get width of terminal
+  tput cup 0 $((($T_COLS/2)-5))         # Move the cursor to center backtitle
+  printf "~ $Backtitle ~\n"             # Display backtitle
+  printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
+  cursor_row=3                          # Save cursor row after heading
+}
+
 PrintOne() { # Aligned text according to screen size
   width=$(tput cols)
   EMPTY=" "
@@ -56,11 +66,11 @@ PrintOne() { # Aligned text according to screen size
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  echo "$EMPTY $1"
+  Echo "$EMPTY $1"
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
-  echo "$EMPTY $1"
+  Echo "$EMPTY $1"
 }
 
 first_item() { # Aligned text according to screen size
@@ -121,7 +131,7 @@ DisplayButtons() {
   done
 
   if [ $button_count -eq 0 ]; then              # Error exit
-    echo "listgen-sgi line $LINENO - No buttons specified"
+    echo "listgen-sgi line $LINENO - No buttons specified" > feliz.log
     break
   fi
 

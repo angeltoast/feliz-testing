@@ -44,7 +44,7 @@ invalid_option() { # (from AUI scripts)
 }
 
 Echo() {
-  echo "$1"
+  Echo "$1"
   cursor_row=$((cursor_row+1))
 }
 
