@@ -44,7 +44,7 @@ invalid_option() {
 }
 
 Echo() { # Use in place of echo for all screen display
-  echo "$1"
+  printf "%-s\n" "$1"
   cursor_row=$((cursor_row+1))
 }
 
