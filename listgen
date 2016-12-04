@@ -103,10 +103,6 @@ PrintRev() {  # Receives numeric argument of item number
 DisplayButtons() {
   # Receives 3 arguments: 1) Type (Menu, Yes/No); 2) Button string; 3) Message string
   # Uses arrays declared in f-var
-echo "$1"
-echo "$2"
-echo "$3"
-read -p "DisplayButtons line $LINENO"
   local Len=${#2}               # Measure length of button string
   button_count=0
   button_end=0
@@ -157,8 +153,6 @@ read -p "DisplayButtons line $LINENO"
   tput cup $cursor_row $first_button_start  # Reposition cursor
   button_row=$cursor_row                    # Save row position of buttons
   printf "%-s\n" "$2"                       # Print buttons
-echo $cursor_row
-read -p "DisplayButtons line $LINENO"
   cursor_row=$((cursor_row+1))              # Advance cursor row after buttons
   Echo
   lov=${#3}                                 # Length of message
@@ -167,8 +161,6 @@ read -p "DisplayButtons line $LINENO"
   else
     message_start=1
   fi
-echo $cursor_row
-read -p "DisplayButtons line $LINENO"
   tput cup $cursor_row $message_start       # Reposition cursor
   Echo "$3"                                 # Print message
 }
