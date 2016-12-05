@@ -271,7 +271,7 @@ ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
 listgen1() { # Simple listing alternative to the bash 'select' function
   # Arguments:
   # 1) Primary file (string of single-word references)
-  # 2) Optional one-word --title
+  # 2) No longer used
   # 3) Optional hiding of [ Cancel ] ("nocancel")
   # Read listgen.manual for full details
   local Complete=0
@@ -321,7 +321,7 @@ listgen1() { # Simple listing alternative to the bash 'select' function
 listgen2() { # Advanced menuing function with extended descriptions
   # Arguments:
   # 1) Primary file (string of single-word references)
-  # 2) An optional one-word menu heading (which will be underlined on display)
+  # 2) Not used in interactive menus
   # 3) Optional hiding of [ Cancel ] ("nocancel")
   # 4) Secondary file (the name {only} of the array containing long descriptions)
   # Read listgen.manual for full details
@@ -336,7 +336,6 @@ listgen2() { # Advanced menuing function with extended descriptions
     PrimaryFile="$1"
     name=$4[@]
     LongDescription=("${!name}")
-    Echo
     # First find length of longest item to create padding for use in reverse colour
     Max=$(echo $PrimaryFile | wc -w)
     for (( i=0; i < $Max; ++i ))
