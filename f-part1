@@ -306,9 +306,7 @@ AutoWarning() {
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     Echo
-read -p "AutoWarning line $LINENO"
     DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
-read -p "AutoWarning line $LINENO"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
@@ -334,9 +332,7 @@ read -p "AutoWarning line $LINENO"
 }
 
 partition_maker() {
-
   # $1 = StartPoint; $2 (if exists) = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
-
   local StartPoint=$1
   if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
     local MountDevice=2                             # Next partition after /boot = sda2
@@ -510,6 +506,7 @@ AllocateRoot() {
   done
   PartitionList=$Remaining      # Replace original PartitionList with remaining options
 
+echo "${PartitionArray}"
 read -p "${PartitionList}"
 
 }
@@ -774,7 +771,7 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
     fi
   done
   # Then copy NewArray into PartitionArray
-  Counter=0
+  local Counter=0
   for p in "${NewArray[@]}"
   do
     PartitionArray[${Counter}]=${NewArray[$Counter]}
