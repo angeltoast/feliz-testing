@@ -163,6 +163,7 @@ DisplayButtons() {
   fi
   tput cup $cursor_row $message_start       # Reposition cursor
   Echo "$3"                                 # Print message
+  ActiveMenu $1
 }
 
 ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
@@ -205,9 +206,8 @@ ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
             Result=""
           fi
         else
-        read -p "$Counter"
           if [ $selected_button -eq 1 ]; then
-            Response=$Counter
+            Response=$((Counter+1))
             Result="${ListgenArray[${Counter}]}"
           else
             Response=0
@@ -319,7 +319,7 @@ listgen1() { # Simple listing alternative to the bash 'select' function
     else
       DisplayButtons "Menu" "[ Ok ] [ Cancel ]" "Use arrow keys to move. [Enter] to select"
     fi
-    ActiveMenu "Menu"
+  #  ActiveMenu "Menu"
   done
 }
 
@@ -378,6 +378,6 @@ listgen2() { # Advanced menuing function with extended descriptions
     else
       DisplayButtons "Menu" "[ Ok ] [ Cancel ]" "Use arrow keys to move. [Enter] to select"
     fi
-    ActiveMenu "Menu"
+  #  ActiveMenu "Menu"
   done
 }
