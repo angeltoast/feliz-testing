@@ -163,7 +163,7 @@ DisplayButtons() {
   fi
   tput cup $cursor_row $message_start       # Reposition cursor
   Echo "$3"                                 # Print message
-  ActiveMenu $1
+  ActiveMenu "$1"
 }
 
 ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)

@@ -40,10 +40,18 @@
 
 invalid_option() {
   Echo
-  read_timed "Invalid entry. Try again ..." 1
+  read_timed "Invalid entry. Please try again ..." 1
+}
+
+not_found() {
+  Echo
+  read_timed "Not found. Please try again ..." 1
 }
 
 Echo() { # Use in place of echo for all screen display
+  if [ $cursor_row -ge $(tput lines) ]; then
+    print_heading
+  fi
   printf "%-s\n" "$1"
   cursor_row=$((cursor_row+1))
 }
@@ -153,19 +161,20 @@ setlocale() {
     PrintOne "Please enter a two-letter code for your country or language."
     Echo
     TPread "$SearchPrompt"
-    print_heading
     if [ -z ${Response} ]
     then
       invalid_option
-      print_heading
     else
       Echo
-      searchterm="${Response,,}"
-      LocaleList=$(cat /etc/locale.gen | grep ${searchterm}....UTF-8 | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
-      if [ ${#LocaleList[@]} -eq 0 ]
-      then
-        SEARCHTERM="${Response^^}"
-        LocaleList=$(cat /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | sed 's/\..*$//' | sed  '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
+      SEARCHTERM="${Response^^}"              # Set to all uppercase
+      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | awk '{print $2}' | uniq)
+      if [ ${#LocaleList[@]} -eq 0 ]; then    # Nothing found in uppercase
+        searchterm="${Response,,}"            # Try lowercase
+        LocaleList=$(grep ${SEARCHTERM}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | awk '{print $2}' | uniq)
+        if [ ${#LocaleList[@]} -eq 0 ]; then  # Still nothing
+          not_found                           # Inform user
+          continue
+        fi
       fi
       local Counter=0
       localelist=""
@@ -175,10 +184,10 @@ setlocale() {
         Counter=$((Counter+1))
       done
       if [ $Counter -eq 0 ]; then
-        invalid_option
-        print_heading
+        not_found
         continue
       fi
+      print_heading
       PrintOne "Choose your locale from this list, or 'Cancel' to try again: "
       Echo
       listgen1 "${localelist}" "" ""
