@@ -86,8 +86,7 @@ Response=""
 Result=""
 
 # Miscellaneous
-Backtitle="~ The Feliz install scripts for Arch Linux ~"
-helpMESSAGE=""            # Used by help system
+Backtitle="Feliz2 Arch Linux installation script"
 declare -a Options        # For listgen functions
 
 # ---- Partitioning ----
