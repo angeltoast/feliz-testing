@@ -472,7 +472,13 @@ AllocateRoot() {
   Reply=$Response
   PassPart=$Result
   SetLabel "$Result"
+
+read -p "PartitionArray before update = ${PartitionArray}"
+
   UpdateArray # Remove the selected partition from $PartitionArray[]
+
+read -p "PartitionArray after update = ${PartitionArray}"
+
   Counter=0
   for i in ${PartitionList}
   do
@@ -505,10 +511,6 @@ AllocateRoot() {
     fi
   done
   PartitionList=$Remaining      # Replace original PartitionList with remaining options
-
-echo "${PartitionArray}"
-read -p "${PartitionList}"
-
 }
 
 CheckPartition() {
