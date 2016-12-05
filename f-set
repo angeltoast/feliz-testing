@@ -26,7 +26,7 @@
 # Function        Line   Function            Line
 # --------------------   ------------------------
 # invalid_option    39    KeepOrDelete        315
-# TPread            44    ShoppingList        343
+# TPread            44    ShoppingList        376
 # SetKernel         59    ChooseDM            401
 # ConfirmVbox       75    SetGrubDevice       549
 # getkeymap        100     --- Review stage ---
@@ -380,8 +380,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   do
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
-    # $Category passed here is number of item in CategoriesList
-    Headline=${Categories[$Category]}
+    Echo
+    PrintOne "${Categories[$Category]}" # $Category is number of item in CategoriesList
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
     case $Category in
@@ -390,21 +390,21 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
            LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
            (( Counter+=1 ))
           done
-         listgen2 "$Accessories" "${Headline}" "" "LongAccs1"
+         listgen2 "$Accessories" "" "" "LongAccs1"
        ;;
        2) for i in ${Desktops}
           do
            LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
            (( Counter+=1 ))
           done
-         listgen2 "$Desktops" "${Headline}" "" "LongDesk1"
+         listgen2 "$Desktops" "" "" "LongDesk1"
        ;;
        3) for i in ${Graphical}
           do
             LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
            (( Counter+=1 ))
           done
-           listgen2 "$Graphical" "${Headline}" "" "LongGraph1"
+           listgen2 "$Graphical" "" "" "LongGraph1"
        ;;
        4) for i in ${Internet}
           do
@@ -418,28 +418,28 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
             LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
             (( Counter+=1 ))
           done
-          listgen2 "$Multimedia" "${Headline}" "" "LongMulti1"
+          listgen2 "$Multimedia" "" "" "LongMulti1"
        ;;
        6) for i in ${Office}
           do
             LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
             (( Counter+=1 ))
           done
-          listgen2 "$Office" "${Headline}" "" "LongOffice1"
+          listgen2 "$Office" "" "" "LongOffice1"
        ;;
        7) for i in ${Programming}
           do
             LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
             (( Counter+=1 ))
           done
-          listgen2 "$Programming" "${Headline}" "" "LongProg1"
+          listgen2 "$Programming" "" "" "LongProg1"
        ;;
        8) for i in ${WindowManagers}
           do
             LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
             (( Counter+=1 ))
           done
-          listgen2 "$WindowManagers" "${Headline}" "" "LongWMs1"
+          listgen2 "$WindowManagers" "" "" "LongWMs1"
       ;;
       *) break
     esac
@@ -473,9 +473,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
       LuxuriesList="${LuxuriesList} ${SaveResult}"
     fi
   done
-
   Passed=""     # Clear the information variable
-
 }
 
 ChooseDM() { # Choose a display manager
@@ -490,7 +488,7 @@ ChooseDM() { # Choose a display manager
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually."
       Echo
-      listgen1 "${DMList}" "Display_Manager/Greeter" ""
+      listgen1 "${DMList}" "" ""
       Reply=$Response
       for item in ${DMList}
       do

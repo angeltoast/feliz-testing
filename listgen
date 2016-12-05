@@ -166,7 +166,7 @@ DisplayButtons() {
   ActiveMenu "$1"
 }
 
-ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
+ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listgen1 or listgen2)
   local Counter=0
   if [ $1 = "Yes/No" ]; then        # Prevent vertical cursor movement
     cursor_bottom=0
@@ -205,10 +205,22 @@ ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
             Response=2
             Result=""
           fi
-        else
+        else  # ie: menu
           if [ $selected_button -eq 1 ]; then
             Response=$((Counter+1))
-            Result="${ListgenArray[${Counter}]}"
+            if [ $CalledBy = "listgen2" ]; then
+              Compare=1
+              for i in $PrimaryFile
+              do
+                if [ $Compare -eq $Response ]; then
+                  Result="$i"
+                  break
+                fi
+                Compare=$((Compare+1))
+              done
+            else
+              Result="${ListgenArray[${Counter}]}"
+            fi
           else
             Response=0
             Result="Exit"
@@ -307,6 +319,7 @@ listgen1() { # Simple listing alternative to the bash 'select' function
       ListgenArray[$Counter]=$i   # Save to array for menu actions
       Counter=$((Counter+1))
     done
+    CalledBy="listgen1"
     cursor_bottom=$((cursor_row-1))
     if [ $3 ] && [ $3 = "nocancel" ]; then
       DisplayButtons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
@@ -326,7 +339,6 @@ listgen2() { # Advanced menuing function with extended descriptions
   local Complete=0
   Padding=" "
   MaxLen=2
-
   while [ $Complete -eq 0 ]
   do
     Result=""
@@ -358,6 +370,7 @@ listgen2() { # Advanced menuing function with extended descriptions
         subsequent_item "${LongDescription[${i}]}"
       fi
     done
+    CalledBy="listgen2"
     cursor_bottom=$((cursor_row-1))
     if [ $3 ] && [ $3 = "nocancel" ]; then
       DisplayButtons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"

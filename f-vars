@@ -88,6 +88,7 @@ Result=""
 # Miscellaneous
 Backtitle="Feliz2 Arch Linux installation script"
 declare -a Options        # For listgen functions
+PrimaryFile=""
 
 # ---- Partitioning ----
 PartitioningOptions="cfdisk guided auto leave"
@@ -119,15 +120,15 @@ LongAccs[3]="Gedit   - The text editor from Gnome"
 LongAccs[4]="Gparted - Tool to make/delete/resize partitions"
 # Desktops
 Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate Xfce"
-LongDesk[1]="Budgie   - Modern desktop focusing on simplicity & elegance"
-LongDesk[2]="Cinnamon - Slick DE from the Mint team      "
-LongDesk[3]="Deepin   - The Deepin Desktop Environment"
-LongDesk[4]="Gnome    - Full-featured, modern DE"
-LongDesk[5]="KDE      - Plasma 5 and accessories pack"
-LongDesk[6]="LXDE     - Traditional, lightweight DE"
-LongDesk[7]="LXQt     - Lightweight and modern Qt DE"
-LongDesk[8]="Mate     - Traditional DE from the Mint team"
-LongDesk[9]="Xfce     - Lightweight, highly configurable DE"
+LongDesk[1]="Modern desktop focusing on simplicity & elegance"
+LongDesk[2]="Slick DE from the Mint team      "
+LongDesk[3]="The Deepin Desktop Environment"
+LongDesk[4]="Full-featured, modern DE"
+LongDesk[5]="Plasma 5 and accessories pack"
+LongDesk[6]="Traditional, lightweight DE"
+LongDesk[7]="Lightweight and modern Qt DE"
+LongDesk[8]="Traditional DE from the Mint team"
+LongDesk[9]="Lightweight, highly configurable DE"
 # Graphical
 Graphical="evince gimp imagemagick gthumb simple-scan xsane"
 LongGraph[1]="Evince      - Reader for PDF & other document formats"
