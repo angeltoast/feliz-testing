@@ -67,11 +67,11 @@ PrintOne() { # Aligned text according to screen size
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  Echo -e "$EMPTY $1"
+  Echo "$EMPTY $1"
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
-  Echo -e "$EMPTY $1"
+  Echo "$EMPTY $1"
 }
 
 first_item() { # Aligned text according to screen size
