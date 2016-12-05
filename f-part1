@@ -111,7 +111,6 @@ CheckParts() {
       PrintOne "will wipe the disk - any exisiting data will be erased!"
       PrintOne "If you choose to 'Leave it as it is' the script will"
       PrintOne "next enable you to allocate the existing partitions."
-      Echo
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
       PrintOne "'cfdisk' is available for you to edit them. Alternatively, you"
@@ -120,7 +119,6 @@ CheckParts() {
       PrintOne "note that both these options will wipe the disk - any exisiting"
       PrintOne "data will be erased! If you choose to 'Leave it as it is' the"
       PrintOne "script will next enable you to allocate the existing partitions."
-      Echo
       Partitioning                      # BIOS partitioning options
     fi
     MakePartitionList                   # Regenerate the array of partitions
@@ -222,7 +220,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
   PARTITIONS=${Counter}
 }
 
-Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM ####################################################
+Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
   local Proceed=""
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
@@ -285,20 +283,13 @@ ChooseDevice() {
       while [ -z $UseDisk ]
       do
         print_heading
-        PrintOne "There are $Counter devices available"
-        PrintOne "Which do you wish to use for installation?"
+        PrintOne "These are the available devices."
+        PrintOne "Which do you wish to use for this installation?"
         PrintOne "(Remember, this is auto-partition, and any data"
-        PrintOne "on the chosen device will be lost)"
-        Echo
-        Counter=0
-        for i in $DiskDetails
-        do
-          Counter=$((Counter+1))
-          PrintOne "$Counter) $i"
-        done
-        Echo
-        TPread "Enter the number of your selection: "
-        UseDisk="${Drives[$Response]}"
+        PrintOne "on the chosen device will be destroyed)"
+
+        listgen1 "$DiskDetails"
+        UseDisk="${Result}"
         AutoWarning
       done
     else
@@ -518,6 +509,9 @@ AllocateRoot() {
     fi
   done
   PartitionList=$Remaining      # Replace original PartitionList with remaining options
+
+read -p "${PartitionList}"
+
 }
 
 CheckPartition() {
@@ -551,7 +545,7 @@ AllocateSwap() {
   CopyArray[${Counter}]="Swapfile"
   PrintOne "If you skip this step, no swap will be allocated."
   Echo
-  listgen2 "$PickFrom" "Partitions" "" "CopyArray"
+  listgen2 "$PickFrom" "" "" "CopyArray"
   Reply=$Response # Number of selected item
   if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
     PassPart=$Result

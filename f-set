@@ -318,7 +318,8 @@ PickLuxuries() { # User selects any combination from a store of extras
   local Complete=0
   print_heading
   case "$LuxuriesList" in
-  "") PrintOne "Now you have the option to add extras, such as a web browser,\ndesktop environment, etc, from the following categories.\n"
+  "") PrintOne "Now you have the option to add extras, such as a web browser,"
+    PrintOne "desktop environment, etc, from the following categories."
     PrintOne "If you want only a base Arch installation, exit without choosing any extras."
   ;;
   *) PrintOne "You can add more items, or select items to delete."
@@ -333,8 +334,9 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       ShoppingList
       print_heading
-      PrintOne "Added so far:: ${LuxuriesList}\n"
-      PrintOne "You can now choose from any of the other lists,\nor choose [ Exit ] to finish this part of the setup.\n"
+      PrintOne "Added so far:: ${LuxuriesList}"
+      PrintOne "You can now choose from any of the other lists,"
+      PrintOne "or choose [ Exit ] to finish this part of the setup."
     fi
   done
   if [ -n "${LuxuriesList}" ]; then
@@ -350,7 +352,7 @@ KeepOrDelete() {
   until [ $Validated = "Y" ]
   do
     print_heading
-    Message="$Bagged is already in your shopping list.\n"
+    Message="$Bagged is already in your shopping list."
     DisplayButtons "Yes/No" "[ Keep ] [ Delete ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       1) Validated="Y"
@@ -377,7 +379,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   while [ $Complete -eq 0 ]
   do
     print_heading
-    PrintOne "Added so far: ${LuxuriesList}\n"
+    PrintOne "Added so far: ${LuxuriesList}"
     # $Category passed here is number of item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;

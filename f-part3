@@ -32,7 +32,7 @@ DualBoot="N"      # For formatting EFI partition
 # Line   Function      Purpose
 # ---- ------------    ---------------------------------------------------------
 #  41  TestUEFI        Test environment; set UEFI variable
-#  58  PartitioningEFI Menu options - THIS TO BE EXPANDED TO INCLUDE LVM ##################################
+#  58  PartitioningEFI Menu options - THIS TO BE EXPANDED TO INCLUDE LVM
 #  55  AllocateEFI     Offers list of partitions for user to select EFI /boot
 #  94  UEFI_autopart   REMOVED - Now use consolidated 'autopart' in f-part1
 # ---- ------------    ---------------------------------------------------------
