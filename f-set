@@ -164,10 +164,10 @@ setlocale() {
     else
       Echo
       SEARCHTERM="${Response^^}"              # Set to all uppercase
-      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | awk '{print $2}' | uniq)
+      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | uniq)
       if [ ${#LocaleList[@]} -eq 0 ]; then    # Nothing found in uppercase
         searchterm="${Response,,}"            # Try lowercase
-        LocaleList=$(grep ${SEARCHTERM}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | awk '{print $2}' | uniq)
+        LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | uniq)
         if [ ${#LocaleList[@]} -eq 0 ]; then  # Still nothing
           not_found                           # Inform user
           continue
@@ -185,7 +185,7 @@ setlocale() {
         continue
       fi
       print_heading
-      PrintOne "Choose your locale from this list, or 'Cancel' to try again: "
+      PrintOne "Choose your locale from this list, or 'Exit' to try again: "
       Echo
       listgen1 "${localelist}" "" ""
       case $Result in
@@ -268,7 +268,7 @@ SetSubZone() {
     fi
     print_heading
     PrintOne "Now choose your city from this list"
-    PrintOne "... or 'Cancel' to try again if it is not there"
+    PrintOne "... or 'Exit' to try again if it is not there"
     Echo
     listgen1 "$subzones" "" ""
     case $Result in
@@ -318,9 +318,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   local Complete=0
   print_heading
   case "$LuxuriesList" in
-  "") PrintOne "Now you have the option to add extras, such as a web browser,"
-     PrintOne "desktop environment, etc, from the following categories."
-     Echo
+  "") PrintOne "Now you have the option to add extras, such as a web browser,\ndesktop environment, etc, from the following categories.\n"
     PrintOne "If you want only a base Arch installation, exit without choosing any extras."
   ;;
   *) PrintOne "You can add more items, or select items to delete."
@@ -328,18 +326,15 @@ PickLuxuries() { # User selects any combination from a store of extras
   Echo
   while [ $Complete -eq 0 ]
   do
-    listgen1 "${CategoriesList}" "Categories" ""
+    listgen1 "${CategoriesList}" "" ""
     Category=$Response
-    if [ $Result = "Done" ]; then
+    if [ $Result = "Exit" ]; then
       break
     else
       ShoppingList
       print_heading
-      PrintOne "Added so far:: ${LuxuriesList}"
-      Echo
-      PrintOne "You can now choose from any of the other lists,"
-      PrintOne "or choose <Done> to finish this part of the setup"
-      Echo
+      PrintOne "Added so far:: ${LuxuriesList}\n"
+      PrintOne "You can now choose from any of the other lists,\nor choose [ Exit ] to finish this part of the setup.\n"
     fi
   done
   if [ -n "${LuxuriesList}" ]; then
@@ -382,9 +377,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   while [ $Complete -eq 0 ]
   do
     print_heading
-    PrintOne "Added so far: ${LuxuriesList}"
-    Echo
-     # $Category passed here is number of item in CategoriesList
+    PrintOne "Added so far: ${LuxuriesList}\n"
+    # $Category passed here is number of item in CategoriesList
     Headline=${Categories[$Category]}
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
@@ -447,8 +441,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
       ;;
       *) break
     esac
-    Passed="Choose your next item" # Loop until user selects "Done"
-    if [ $Result = "Done" ]; then
+    Passed="Choose your next item" # Loop until user selects "Exit"
+    if [ $Result = "Exit" ]; then
       break
     fi
     AddToList="Y"
@@ -544,24 +538,20 @@ SetGrubDevice() {
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')";
   print_heading
   GrubDevice=""
-  Counter=0
+  local Counter=0
   PrintOne "Select the device where Grub is to be installed."
   PrintOne "Note that if you do not select a device, Grub"
   PrintOne "will not be installed, and you will have to make"
   PrintOne "alternative arrangements for booting your new system."
   Echo
-  listgen1 "${DevicesList}" "Devices" ""
+  listgen1 "${DevicesList}" "" ""
   Reply=$Response
   for i in ${DevicesList}
   do
     Item=$i
     Counter=$((Counter+1))
     if [ $Counter -eq $Reply ]; then
-      if [ $Item = "$Done" ]; then
-        GrubDevice=""
-      else
-        GrubDevice=$Item
-      fi
+      GrubDevice=$Item
       break
     fi
   done

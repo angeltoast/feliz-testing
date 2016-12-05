@@ -94,7 +94,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
   Echo
   listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
   Reply=$Response
-  if [ $Result != "Done" ]; then
+  if [ $Result != "Exit" ]; then
     PassPart=$Result
     SetLabel "$Result"
     UpdateArray                 # Remove the selected partition from $PartitionArray[]

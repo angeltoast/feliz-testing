@@ -67,11 +67,11 @@ PrintOne() { # Aligned text according to screen size
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  Echo "$EMPTY $1"
+  Echo -e "$EMPTY $1"
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
-  Echo "$EMPTY $1"
+  Echo -e "$EMPTY $1"
 }
 
 first_item() { # Aligned text according to screen size
@@ -211,7 +211,7 @@ ActiveMenu() {  # Receives 1 argument - Type (Menu, Yes/No)
             Result="${ListgenArray[${Counter}]}"
           else
             Response=0
-            Result="Cancel"
+            Result="Exit"
           fi
         fi
         tput cnorm
@@ -272,17 +272,16 @@ listgen1() { # Simple listing alternative to the bash 'select' function
   # Arguments:
   # 1) Primary file (string of single-word references)
   # 2) No longer used
-  # 3) Optional hiding of [ Cancel ] ("nocancel")
+  # 3) Optional hiding of [ Exit ] ("nocancel")
   # Read listgen.manual for full details
   local Complete=0
   Padding=" "
   MaxLen=2
   while [ $Complete -eq 0 ]
   do
-    local Done=$3
     local Counter=0
     MenuList=$1
-    # First find length of longest item to create padding for use in reverse colour
+    # Find length of longest item to create padding for use in reverse colour
     for i in $MenuList
     do
       Counter=$((Counter+1))
@@ -312,9 +311,8 @@ listgen1() { # Simple listing alternative to the bash 'select' function
     if [ $3 ] && [ $3 = "nocancel" ]; then
       DisplayButtons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
     else
-      DisplayButtons "Menu" "[ Ok ] [ Cancel ]" "Use arrow keys to move. [Enter] to select"
+      DisplayButtons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
     fi
-  #  ActiveMenu "Menu"
   done
 }
 
@@ -322,7 +320,7 @@ listgen2() { # Advanced menuing function with extended descriptions
   # Arguments:
   # 1) Primary file (string of single-word references)
   # 2) Not used in interactive menus
-  # 3) Optional hiding of [ Cancel ] ("nocancel")
+  # 3) Optional hiding of [ Exit ] ("nocancel")
   # 4) Secondary file (the name {only} of the array containing long descriptions)
   # Read listgen.manual for full details
   local Complete=0
@@ -331,7 +329,6 @@ listgen2() { # Advanced menuing function with extended descriptions
 
   while [ $Complete -eq 0 ]
   do
-    local Done=$3
     Result=""
     PrimaryFile="$1"
     name=$4[@]
@@ -365,8 +362,7 @@ listgen2() { # Advanced menuing function with extended descriptions
     if [ $3 ] && [ $3 = "nocancel" ]; then
       DisplayButtons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
     else
-      DisplayButtons "Menu" "[ Ok ] [ Cancel ]" "Use arrow keys to move. [Enter] to select"
+      DisplayButtons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
     fi
-  #  ActiveMenu "Menu"
   done
 }
