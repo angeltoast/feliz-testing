@@ -470,12 +470,12 @@ AllocateRoot() {
   Echo
   listgen2 "$PartitionList" "" "nocancel" "PartitionArray"
   Reply=$Response
-  PassPart=$Result
-  SetLabel "$Result"
+  PassPart=${Result:0:4}
+  SetLabel "$PassPart"
 
 read -p "PartitionArray before update = ${PartitionArray}"
 
-  UpdateArray # Remove the selected partition from $PartitionArray[]
+  UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
 
 read -p "PartitionArray after update = ${PartitionArray}"
 
@@ -547,7 +547,7 @@ AllocateSwap() {
   listgen2 "$PickFrom" "" "" "CopyArray"
   Reply=$Response # Number of selected item
   if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
-    PassPart=$Result
+    PassPart=${Result:0:4}
   fi
   Echo
   Counter=0
@@ -589,7 +589,7 @@ AllocateSwap() {
             EditLabel "$PassPart"
             SetLabel "$PassPart"
           fi
-          UpdateArray # Remove the selected partition from $PartitionArray[]
+          UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
       esac
     else
       if [ $i != "Done" ] && [ $i != Swapfile ]; then
@@ -661,9 +661,9 @@ MorePartitions() {
     Echo
     listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
     if [ $Result != "Done" ]; then
-      PassPart=$Result
+      PassPart=${Result:0:4}
       SetLabel "$Result"
-      UpdateArray # Remove the selected partition from $PartitionArray[]
+      UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
     fi
     Echo
     for Part in ${PartitionList} # Iterate through the list
@@ -759,6 +759,8 @@ MakePartition() { # Called by MorePartitions
 
 UpdateArray() { # Remove the selected partition from $PartitionArray[]
   # Called by AllocateRoot, AllocateSwap and MorePartitions
+  # Receives a partition ("sda9") as argument
+  local PassPart="$1"
   local Counter=0
   declare -a NewArray  # Empty NewArray
   # Build NewArray excluding the partition selected in the calling function
