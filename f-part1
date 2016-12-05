@@ -242,7 +242,7 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM #########################
       ;;
       3) ChooseDevice
       ;;
-      4) printf
+      4) echo "Manual partition allocation" > feliz.log
       ;;
       *) invalid_option
         Proceed=""
