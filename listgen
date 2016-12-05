@@ -280,11 +280,6 @@ listgen1() { # Simple listing alternative to the bash 'select' function
   while [ $Complete -eq 0 ]
   do
     local Done=$3
-    if [ $2 ]; then
-      first_item "$2"
-      Underscore=$(echo $2 | sed 's/./-/g')
-      subsequent_item "$Underscore"
-    fi
     local Counter=0
     MenuList=$1
     # First find length of longest item to create padding for use in reverse colour
@@ -342,11 +337,6 @@ listgen2() { # Advanced menuing function with extended descriptions
     name=$4[@]
     LongDescription=("${!name}")
     Echo
-    if [ $2 ]; then
-      first_item $2
-      Underscore=$(echo $2 | sed 's/./-/g')
-      subsequent_item "$Underscore"
-    fi
     # First find length of longest item to create padding for use in reverse colour
     Max=$(echo $PrimaryFile | wc -w)
     for (( i=0; i < $Max; ++i ))
