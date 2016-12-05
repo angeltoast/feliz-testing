@@ -472,13 +472,7 @@ AllocateRoot() {
   Reply=$Response
   PassPart=${Result:0:4}
   SetLabel "$PassPart"
-
-read -p "PartitionArray before update = ${PartitionArray}"
-
   UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
-
-read -p "PartitionArray after update = ${PartitionArray}"
-
   Counter=0
   for i in ${PartitionList}
   do
@@ -546,7 +540,7 @@ AllocateSwap() {
   Echo
   listgen2 "$PickFrom" "" "" "CopyArray"
   Reply=$Response # Number of selected item
-  if [ $Result != "Swapfile" ] && [ $Result != "Done" ]; then # Short ID of selected item
+  if [ $Result != "Swapfile" ] && [ $Result != "Exit" ]; then # Short ID of selected item
     PassPart=${Result:0:4}
   fi
   Echo
@@ -557,7 +551,7 @@ AllocateSwap() {
     if [ $Counter -eq $Reply ]
     then
       case $i in
-        "Done") SwapPartition=""
+        "Exit") SwapPartition=""
               break
         ;;
         "Swapfile") SetSwapFile
@@ -592,7 +586,7 @@ AllocateSwap() {
           UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
       esac
     else
-      if [ $i != "Done" ] && [ $i != Swapfile ]; then
+      if [ $i != "Exit" ] && [ $i != Swapfile ]; then
         Remaining="$Remaining $i" # Add next available partition
       fi
     fi
@@ -657,10 +651,10 @@ MorePartitions() {
     Remaining=""
     PrintOne "The following partitions remain unallocated."
     PrintOne "If you wish to use one, select it from the list,"
-    PrintOne "or choose 'Done' to finish partitioning."
+    PrintOne "or choose [ Exit ] to finish partitioning."
     Echo
-    listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
-    if [ $Result != "Done" ]; then
+    listgen2 "$PartitionList" "" "" "PartitionArray"
+    if [ $Result != "Exit" ]; then
       PassPart=${Result:0:4}
       SetLabel "$Result"
       UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
@@ -670,20 +664,20 @@ MorePartitions() {
     do
       Partition=""
       PartitionType=""
-      if [ $Part = $Result ] && [ $Result != "Done" ]; then
+      if [ $Part = $Result ] && [ $Result != "Exit" ]; then
         Partition="/dev/$Part"
         MakePartition # Call complete details
         Label="${Labelled[${PassPart}]}"
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      elif [ $Part != "Done" ]; then   # Part is not selected and not 'Done'
+      elif [ $Part != "Exit" ]; then   # Part is not selected and not 'Exit'
         Remaining="$Remaining $Part" # Add unused partition to temp list
         AddedToRemaining=$(($AddedToRemaining+1))
       fi
     done
     PartitionList=$Remaining  # Replace original PartitionList with temp list
-    if [ $Result = "Done" ]; then
+    if [ $Result = "Exit" ]; then
       Elements=0
       break
     else
@@ -706,7 +700,7 @@ MakePartition() { # Called by MorePartitions
   AddPartList[$ExtraPartitions]="${Partition}"
   CheckPartition   # Before going to select_filesystem, check the partition
   if [ ${CurrentType} ]; then
-    PrintOne "You can choose to leave it as it is, by selecting 'Done', but not"
+    PrintOne "You can choose to leave it as it is, by selecting [ Exit ], but not"
     PrintOne "reformatting an existing partition can have unexpected consequences."
     Echo
   fi
