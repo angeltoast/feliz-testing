@@ -194,8 +194,8 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
       printf "%-${button_len[2]}s" "${button_text[2]}"  # Highlight first button
       tput sgr0                                         # Restore colour settings
     fi
-    # read -rsn1 KeyPress
-    case $(read -rsn1) in                               # Capture key press
+    read -rsn1 KeyPress
+    case $KeyPress in                               # Capture key press
       "") # Ok/Return pressed
         if [ $1 = "Yes/No" ]; then
           if [ $selected_button -eq 1 ]; then
