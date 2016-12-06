@@ -495,11 +495,13 @@ AllocateRoot() {
         RootType="ext4"
       else
         RootType="${PartitionType}"
-      Label="${Labelled[${PassPart}]}"
-      if [ -n "${Label}" ]; then
-        EditLabel $PassPart
+        Label="${Labelled[${PassPart}]}"
+        if [ -n "${Label}" ]; then
+          EditLabel $PassPart
+        fi
       fi
-      fi
+read -p "AllocateRoot line $LINENO $RootType"
+      break
     else
       Remaining="$Remaining $i" # Add next available partition
     fi

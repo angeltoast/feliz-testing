@@ -169,7 +169,6 @@ DisplayButtons() {
 ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listgen1 or listgen2)
   tput civis &
   local Counter=0
-  local Exit=0
   selected_button=1
   if [ $1 = "Yes/No" ]; then        # Prevent vertical cursor movement
     cursor_bottom=0
@@ -181,7 +180,7 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
     tput cup $cursor_row $stpt      # Move cursor to selected position
     PrintRev "$Counter"             # Print top item in reverse colour
   fi
-  while [ $Exit -eq 0 ]
+  while :
   do
     if [ $selected_button -eq 1 ]; then
       tput cup $button_row $first_button_start          # Move cursor to button position
@@ -195,7 +194,7 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
       tput sgr0                                         # Restore colour settings
     fi
     read -rsn1 KeyPress
-    case $KeyPress in                               # Capture key press
+    case "${KeyPress}" in                               # Capture key press
       "") # Ok/Return pressed
         if [ $1 = "Yes/No" ]; then
           if [ $selected_button -eq 1 ]; then
