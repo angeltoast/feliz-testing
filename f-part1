@@ -423,7 +423,7 @@ select_filesystem() { # User chooses filesystem from list in global variable ${T
   for i in ${TypeList}
   do
     Counter=$((Counter+1))
-read -p "select_filesystem line #LINENO Response=$Response"
+read -p "select_filesystem line $LINENO Response=$Response"
     if [ $Counter -eq $Response ]
     then
       PartitionType=$i

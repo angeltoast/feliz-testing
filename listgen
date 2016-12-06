@@ -323,6 +323,9 @@ listgen1() { # Simple listing alternative to the bash 'select' function
     else
       DisplayButtons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
     fi
+read -p "listgen1 line $LINENO"
+break
+
   done
 }
 
