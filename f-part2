@@ -324,6 +324,7 @@ EasyHome() { # Variables: HomeSize, HomeType
           print_heading
           select_filesystem
           HomeType=${PartitionType}
+read -p "Home partition: ${HomeType} : ${HomeSize}"
           break
         fi
     esac

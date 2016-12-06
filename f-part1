@@ -30,7 +30,7 @@
 # Partitioning        225       AllocateSwap        527
 # MakePartitionList   259       NoPartitions        610
 # ChooseDevice        272       SetSwapFile         625
-# AutoWarning         317       Parted              649
+# AutoWarning         317
 # partition_maker     350       MorePartitions      653
 # autopart            380       MakePartition       708
 # select_filesystem   420       UpdateArray         767
