@@ -92,7 +92,7 @@ subsequent_item() { # Subsequent item(s) in an aligned list
 }
 
 PrintRev() {  # Receives numeric argument of item number
-  tput rev &                                   # Reverse colour
+  tput rev                                     # Reverse colour
   ItemLen=${#ListgenArray[${1}]}
   Spaces=$((MaxLen-ItemLen))
   Padding="$(printf '%*s' "$Spaces")"          # Pad with spaces to make length
@@ -187,12 +187,12 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
       tput cup $button_row $first_button_start          # Move cursor to button position
       tput rev                                          # Reverse colour
       printf "%-${button_len[1]}s" "${button_text[1]}"  # Highlight first button
-      tput sgr0 &                                       # Restore colour settings
+      tput sgr0                                         # Restore colour settings
     else
       tput cup $button_row $second_button_start         # Move cursor to button position
       tput rev                                          # Reverse colour
       printf "%-${button_len[2]}s" "${button_text[2]}"  # Highlight first button
-      tput sgr0 &                                       # Restore colour settings
+      tput sgr0                                         # Restore colour settings
     fi
     # read -rsn1 KeyPress
     case $(read -rsn1) in                               # Capture key press
@@ -226,13 +226,8 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
             Result="Exit"
           fi
         fi
-        tput cnorm &
-        Complete=1
+        tput cnorm
         break
-      ;;
-      ^C) # Ctrl+C
-        tput cnorm &
-        exit
       ;;
       A) # Up arrow:
         if [ $cursor_row -gt $cursor_top ]; then            # Not already at top
@@ -258,10 +253,10 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
         if [ $selected_button -eq 1 ]; then
           tput cup $button_row $first_button_start          # Move cursor to ok button position
           printf "%-${button_len[1]}s" "${button_text[1]}"  # Unhighlight ok button
-          tput rev &                                        # Reverse colour
+          tput rev                                          # Reverse colour
           tput cup $button_row $second_button_start         # Move cursor to exit button position
           printf "%-${button_len[2]}s" "${button_text[2]}"  # Highlight exit button
-          tput sgr0 &                                       # Reset
+          tput sgr0                                         # Reset
           tput cup $cursor_row $stpt                        # return cursor to menu row
           selected_button=2                                 # Set button variable
         fi
@@ -270,10 +265,10 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
         if [ $selected_button -eq 2 ]; then
           tput cup $button_row $second_button_start         # Move cursor to second button
           printf "%-${button_len[2]}s" "${button_text[2]}"  # Unhighlight second button
-          tput rev &                                        # Reverse colour
+          tput rev                                          # Reverse colour
           tput cup $button_row $first_button_start          # Move cursor to first button position
           printf "%-${button_len[1]}s" "${button_text[1]}"  # Highlight ok button
-          tput sgr0 &                                       # Reset
+          tput sgr0                                         # Reset
           tput cup $cursor_row $stpt                        # return cursor to menu row
           selected_button=1
         fi
@@ -290,10 +285,9 @@ listgen1() { # Simple listing alternative to the bash 'select' function
   # 2) No longer used
   # 3) Optional hiding of [ Exit ] ("nocancel")
   # Read listgen.manual for full details
-  local Complete=0
   Padding=" "
   MaxLen=2
-  while [ $Complete -eq 0 ]
+  while :
   do
     local Counter=0
     MenuList=$1
@@ -340,10 +334,9 @@ listgen2() { # Advanced menuing function with extended descriptions
   # 3) Optional hiding of [ Exit ] ("nocancel")
   # 4) Secondary file (the name {only} of the array containing long descriptions)
   # Read listgen.manual for full details
-  local Complete=0
   Padding=" "
   MaxLen=2
-  while [ $Complete -eq 0 ]
+  while :
   do
     Result=""
     PrimaryFile="$1"
