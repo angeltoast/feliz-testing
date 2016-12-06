@@ -121,22 +121,21 @@ getkeymap() {
     local Term="${Response,,}"
     Echo
     ListKbs=$(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
-    if [ !${ListKbs} ] || [ -z ${ListKbs} ]; then
-        print_heading
-        Echo
-        PrintOne "No keyboards found containing '$Term'"
-        PrintOne "Please try again"
-        continue
-    else
+    if [ ${ListKbs} ]; then  # If a match or matches found
       listgen1 "$ListKbs" "" "Retry"
       if [ ${Result} = "Exit" ]; then
         Countrykbd="us"
-        break
       else
         Countrykbd="${Result}"
-        loadkeys ${Countrykbd} 2>> feliz.log
-        break
       fi
+      loadkeys ${Countrykbd} 2>> feliz.log
+      break
+    else
+      print_heading
+      Echo
+      PrintOne "No keyboards found containing '$Term'"
+      PrintOne "Please try again"
+      continue
     fi
   done
   print_heading
