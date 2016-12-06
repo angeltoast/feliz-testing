@@ -83,8 +83,7 @@ SetKernel() {
 }
 
 ConfirmVbox() {
-  Retry="Y"
-  until [ $Retry = "N" ]
+  while :
   do
     print_heading
     PrintOne "It appears that feliz is running in Virtualbox."
@@ -97,13 +96,13 @@ ConfirmVbox() {
     Echo
     case $Response in
       1) IsInVbox="VirtualBox"
-        Retry="N"
       ;;
       "") invalid_option
+        continue
       ;;
       *) IsInVbox=""
-        Retry="N"
     esac
+    return 0
   done
 }
 
@@ -111,8 +110,7 @@ getkeymap() {
   print_heading
   Echo
   PrintOne "Let's try to find your keyboard"
-  Repeat=1
-  while [ $Repeat -eq 1 ]
+  while :
   do
     Echo
     PrintOne "If you know the code for your keyboard layout, enter"
@@ -123,23 +121,23 @@ getkeymap() {
     local Term="${Response,,}"
     Echo
     ListKbs=$(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
-    case ${ListKbs} in
-      "") print_heading
+    if [ -z ${ListKbs} ] || [ ${ListKbs} = "" ]; then
+        print_heading
         Echo
         PrintOne "No keyboards found containing '$Term'"
-        PrintOne "Try again"
+        PrintOne "Please try again"
         continue
-        ;;
-      *) listgen1 "$ListKbs" "Keyboards" "Retry"
-    esac
-    case ${Result} in
-    "Retry") print_heading
-      continue
-      ;;
-    *) Repeat=0
-      Countrykbd="${Result}"
-      loadkeys ${Countrykbd} 2>> feliz.log
-    esac
+    else
+      listgen1 "$ListKbs" "" "Retry"
+      if [ ${Result} = "Exit" ]; then
+        Countrykbd="us"
+        break
+      else
+        Countrykbd="${Result}"
+        loadkeys ${Countrykbd} 2>> feliz.log
+        break
+      fi
+    fi
   done
   print_heading
   read_timed "The keyboard is now set to: '$Countrykbd'" 1
@@ -151,8 +149,7 @@ setlocale() {
   PrintOne "Next we will try to find your locale. This will"
   PrintOne "be used to set fonts and language, and to find"
   PrintOne "the best mirrors for downloading your system"
-  InvalidEntry=1
-  while [ $InvalidEntry -eq 1 ]
+  while :
   do
     Echo
     PrintOne "Please enter a two-letter code for your country or language."
@@ -163,6 +160,7 @@ setlocale() {
       invalid_option
     else
       Echo
+      Response="$Response:0:2"                # Make sure only two characters
       SEARCHTERM="${Response^^}"              # Set to all uppercase
       LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | uniq)
       if [ ${#LocaleList[@]} -eq 0 ]; then    # Nothing found in uppercase
@@ -195,7 +193,6 @@ setlocale() {
       *) CountryLocale="${Result}.UTF-8"
         CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result
         break
-        break
       esac
     fi
     print_heading
@@ -205,8 +202,7 @@ setlocale() {
 }
 
 SetTimeZone() {
-  Complete=0
-  while [ $Complete -eq 0 ]
+  while :
   do
     print_heading
     PrintOne "To set the system clock, please first"
@@ -218,26 +214,32 @@ SetTimeZone() {
     do
       zones="$zones $x"
     done
-    listgen1 "${zones}" "World_Zones" "nocancel"
+    listgen1 "${zones}" "" "nocancel"
     ZONE=$Result
     Echo
     case $Result in
       "UTC") SUBZONE=""
           print_heading
           read_timed "Zone set to: '$ZONE'" 1
-          Complete=1
+          return 0
+      ;;
+      "Exit") continue
       ;;
       *) SetSubZone
-      print_heading
-      read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
+        if [ $? -eq 1 ]
+          continue
+        else
+        print_heading
+        read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
+        return 0
+      fi
     esac
   done
-  Echo
 }
 
 SetSubZone() {
   SubZones=$(timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///')
-  while [ $Complete -eq 0 ]
+  while :
   do
     print_heading
     PrintOne "World Zone = $ZONE"
@@ -251,7 +253,8 @@ SetSubZone() {
     then
       SetTimeZone
     else
-      Zone2="${Response^^}"
+      Response="$Response:0:1"  # In case user enters more than one letter
+      Zone2="${Response^^}"     # Convert the first letter to upper case
     fi
     subzones=""
     local Counter=0
@@ -268,15 +271,15 @@ SetSubZone() {
     fi
     print_heading
     PrintOne "Now choose your city from this list"
-    PrintOne "... or 'Exit' to try again if it is not there"
+    PrintOne "... or [ Exit ] to try again if it is not there"
     Echo
     listgen1 "$subzones" "" ""
     case $Result in
-      "Try_again") break
+      "Exit") return 1
       ;;
       *) SUBZONE=$Result
     esac
-    Complete=1
+    return 0
   done
 }
 
@@ -315,7 +318,6 @@ SetHostname() {
 
 PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
-  local Complete=0
   print_heading
   case "$LuxuriesList" in
   "") PrintOne "Now you have the option to add extras, such as a web browser,"
@@ -325,7 +327,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   *) PrintOne "You can add more items, or select items to delete."
   esac
   Echo
-  while [ $Complete -eq 0 ]
+  while :
   do
     listgen1 "${CategoriesList}" "" ""
     Category=$Response
@@ -348,15 +350,14 @@ PickLuxuries() { # User selects any combination from a store of extras
 
 KeepOrDelete() {
   Bagged="$1"
-  Validated="N"
-  until [ $Validated = "Y" ]
+  while :
   do
     print_heading
     Message="$Bagged is already in your shopping list."
     DisplayButtons "Yes/No" "[ Keep ] [ Delete ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
-      1) Validated="Y"
-        Temp="$LuxuriesList"
+      1) Temp="$LuxuriesList"
+        break
       ;;
       2) Validated="Y"
         Temp=""
@@ -366,6 +367,7 @@ KeepOrDelete() {
             Temp="$Temp $lux"
           fi
         done
+        break
       ;;
       *) invalid_option
     esac
@@ -374,9 +376,8 @@ KeepOrDelete() {
 }
 
 ShoppingList() { # Called by PickLuxuries after a category has been chosen.
-  local Complete=0
   Passed="Choose your first item"
-  while [ $Complete -eq 0 ]
+  while :
   do
     print_heading
     PrintOne "Added so far: ${LuxuriesList}"
@@ -665,9 +666,7 @@ FinalCheck() {
 }
 
 ManualSettings() {
-  Retry="Y"
-  Response=3
-  while [ $Retry = "Y" ]
+  while :
   do
     print_heading
     PrintOne "Enter number for data to change, or [Enter] to finish:"
@@ -684,8 +683,7 @@ ManualSettings() {
       2) TPread "Enter new username to be created (currently $UserName) : "
          UserName=$Response
         ;;
-      *) Retry="N"
-         break
+      *) return 0
     esac
   done
 }
