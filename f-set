@@ -120,7 +120,8 @@ getkeymap() {
     TPread "(eg: 'atari' or 'us'): "
     local Term="${Response,,}"
     Echo
-    if [ $(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g') ]; then  # If a match or matches found
+    ListKbs=$(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
+    if [ ${ListKbs} != "" ]; then  # If a match or matches found
       listgen1 "$ListKbs" "" "Retry"
       if [ ${Result} = "Exit" ]; then
         Countrykbd="us"
