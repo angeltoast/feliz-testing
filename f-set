@@ -112,19 +112,22 @@ getkeymap() {
   PrintOne "Let's try to find your keyboard"
   while :
   do
-    Echo
-    PrintOne "If you know the code for your keyboard layout, enter"
-    PrintOne "it now. If not, try entering an abbreviation for your"
-    PrintOne "country or language and a list will be displayed ..."
+    PrintOne "If you know the code for your keyboard layout, please enter"
+    PrintOne "it now. If not, try entering a two-letter abbreviation for"
+    PrintOne "your country or language and a list will be displayed. If"
+    PrintOne "your keyboard is not listed, select [ Exit ] to try again."
     Echo
     TPread "(eg: 'atari' or 'us'): "
     local Term="${Response,,}"
     Echo
-    ListKbs=$(cat keymaps.list | grep ${Term} | sed 's/\..*$//' | sed '/@/d' | awk '{print $1}' | uniq | sed 's/#//g')
-    if [ ${ListKbs} != "" ]; then  # If a match or matches found
-      listgen1 "$ListKbs" "" "Retry"
+    ListKbs=$(cat keymaps.list | grep ${Term})
+    if [ -n "${ListKbs}" ]; then  # If a match or matches found
+      print_heading
+      listgen1 "$ListKbs" "" ""
       if [ ${Result} = "Exit" ]; then
-        Countrykbd="us"
+        print_heading
+        Echo
+        continue
       else
         Countrykbd="${Result}"
       fi
