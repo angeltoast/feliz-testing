@@ -241,9 +241,6 @@ SetTimeZone() {
 
 SetSubZone() {
   SubZones=$(timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///')
-
-read -p "${SubZones}"
-
   while :
   do
     print_heading
@@ -258,19 +255,13 @@ read -p "${SubZones}"
     then
       SetTimeZone
     else
-      Response="$Response:0:1"  # In case user enters more than one letter
+      Response="${Response:0:1}"  # In case user enters more than one letter
       Zone2="${Response^^}"     # Convert the first letter to upper case
-
-read -p "$Zone2"
-
     fi
     subzones=""
     local Counter=0
     for x in ${SubZones[@]}
     do
-
-read -p "$x"
-
       if [ ${x:0:1} = ${Zone2} ]; then    # 1 character at position 0 in string $x
         subzones="$subzones $x"
         Counter=$((Counter+1))
