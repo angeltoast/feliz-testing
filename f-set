@@ -38,11 +38,6 @@
 # PickLuxuries     280    AddExtras           736
 # --------------------    -----------------------
 
-invalid_option() {
-  Echo
-  read_timed "Invalid entry. Please try again ..." 1
-}
-
 not_found() {
   Echo
   read_timed "Not found. Please try again ..." 1

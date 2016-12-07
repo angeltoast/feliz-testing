@@ -505,6 +505,7 @@ AllocateRoot() {
       Remaining="$Remaining $i" # Add next available partition
     fi
   done
+read -p "f-part1 line $LINENO ${Remaining}"
   PartitionList=$Remaining      # Replace original PartitionList with remaining options
 }
 

@@ -627,8 +627,8 @@ GuidedHome() { # Variables: HomeSize, HomeType
     PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
     Echo
     PrintOne "There is space for a /home partition. You can use all"
-    PrintOne "the remaining space on the device, if you wish."
-    PrintOne "If you don't want a home partition, enter 0 or leave blank"
+    PrintOne "the remaining space on the device, if you wish. If"
+    PrintOne "you don't want a home partition, enter 0 or leave blank"
     Echo
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
@@ -729,15 +729,9 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
     NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
   fi
 
-echo "$HomeSize $HomeType"
-read -p "$LINENO Entering '# Home Partition'"
-
 # Home partition
 # --------------
   if [ $HomeSize ]; then
-
-read -p "$LINENO Entering '# Home Partition"
-
     # Calculate end-point
     Unit=${HomeSize: -1}              # Save last character of home (eg: G)
     Chars=${#HomeSize}                # Count characters in home variable
