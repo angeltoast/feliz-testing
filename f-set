@@ -165,14 +165,6 @@ setlocale() {
       Response="${Response:0:2}"              # Make sure only two characters
       SEARCHTERM="${Response^^}"              # Set to all uppercase
       LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)
-    #  if [ -z ${LocaleList} ]; then           # Nothing found in uppercase
-    #    searchterm="${SEARCHTERM,,}"            # Try lowercase
-    #    LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)
-    #    if [ -z ${LocaleList} ]; then         # Still nothing
-    #      not_found                           # Inform user
-    #      continue
-    #    fi
-    #  fi
       local Counter=0
       localelist=""
       for l in ${LocaleList[@]}
@@ -193,11 +185,12 @@ setlocale() {
       done
       localelist="${Newlist}"
       print_heading
-      PrintOne "Choose your language from this list, or [ Exit ] to try again: "
       Echo
+      PrintOne "Now please choose your language from this list,"
+      PrintOne "or [ Exit ] to try again."
       listgen1 "${localelist}" "" ""
       case $Result in
-      "Exit") print_heading
+      "Exit") Echo
       ;;
       *) CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
         CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result
@@ -235,13 +228,13 @@ SetTimeZone() {
       "Exit") continue
       ;;
       *) SetSubZone
-        if [ $? -eq 1 ]
+        if [ $Return = "Exit" ]; then
           continue
         else
-        print_heading
-        read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
-        return 0
-      fi
+          print_heading
+          read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
+          return 0
+        fi
     esac
   done
 }
@@ -284,11 +277,11 @@ SetSubZone() {
     Echo
     listgen1 "$subzones" "" ""
     case $Result in
-      "Exit") return 1
+      "Exit") SUBZONE=""
       ;;
       *) SUBZONE=$Result
     esac
-    return 0
+    break
   done
 }
 
