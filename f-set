@@ -146,7 +146,7 @@ getkeymap() {
 }
 
 setlocale() {
-  SearchPrompt=" (for example: GB or en): "
+  SearchPrompt=" (for example: GB or PT): "
   print_heading
   PrintOne "Next we will try to find your locale. This will"
   PrintOne "be used to set fonts and language, and to find"
@@ -154,7 +154,7 @@ setlocale() {
   while :
   do
     Echo
-    PrintOne "Please enter a two-letter code for your country or language."
+    PrintOne "Please enter a two-letter code for your country."
     Echo
     TPread "$SearchPrompt"
     if [ -z ${Response} ]
@@ -162,17 +162,17 @@ setlocale() {
       invalid_option
     else
       Echo
-      Response="$Response:0:2"                # Make sure only two characters
+      Response="${Response:0:2}"              # Make sure only two characters
       SEARCHTERM="${Response^^}"              # Set to all uppercase
-      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | uniq)
-      if [ ${#LocaleList[@]} -eq 0 ]; then    # Nothing found in uppercase
-        searchterm="${Response,,}"            # Try lowercase
-        LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | uniq)
-        if [ ${#LocaleList[@]} -eq 0 ]; then  # Still nothing
-          not_found                           # Inform user
-          continue
-        fi
-      fi
+      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)
+    #  if [ -z ${LocaleList} ]; then           # Nothing found in uppercase
+    #    searchterm="${SEARCHTERM,,}"            # Try lowercase
+    #    LocaleList=$(grep ${searchterm}....UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)
+    #    if [ -z ${LocaleList} ]; then         # Still nothing
+    #      not_found                           # Inform user
+    #      continue
+    #    fi
+    #  fi
       local Counter=0
       localelist=""
       for l in ${LocaleList[@]}
@@ -184,15 +184,22 @@ setlocale() {
         not_found
         continue
       fi
+      Counted=$(echo $localelist | wc -w)
+      Newlist=""
+      for (( i=1; i <= Counted; ++i ))
+      do
+        loc=$(echo $localelist | awk "{print \$$i}")
+        Newlist="$Newlist ${loc:0:2}"
+      done
+      localelist="${Newlist}"
       print_heading
-      PrintOne "Choose your locale from this list, or 'Exit' to try again: "
+      PrintOne "Choose your language from this list, or [ Exit ] to try again: "
       Echo
       listgen1 "${localelist}" "" ""
       case $Result in
-      "Try_again") print_heading
-          continue
+      "Exit") print_heading
       ;;
-      *) CountryLocale="${Result}.UTF-8"
+      *) CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
         CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result
         break
       esac
