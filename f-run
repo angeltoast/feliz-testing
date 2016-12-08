@@ -25,14 +25,14 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           36       McInitCPIO           195
-# Parted                41       ReflectorMirrorList  205
-#                                LocalMirrorList      215
+# arch_chroot           36       ReflectorMirrorList  205
+# Parted                41       LocalMirrorList      215
 # TPecho                63       InstallDM            230
 # read_timed            81       InstallLuxuries      240
 # MountPartitions       99       UserAdd              325
 # InstallKernel        162       SetRootPassword      340
 # AddCodecs            180       SetUserPassword      378
+# McInitCPIO           195       Restart
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -431,3 +431,40 @@ SetUserPassword() {
     fi
   done
 }
+
+Restart() {
+  print_heading
+  Echo
+  PrintOne "Congratulations, installation is complete."
+  Media=$(lsblk -l | grep media | awk '/feliz/ || /FELIZ/ || /Feliz/ {print $1}') # Short reference
+  MediaList="shutdown"
+  for i in ${Media}
+  do
+    MediaList="$MediaList $i"
+  done
+  MediaList="$MediaList Exit"
+  Echo
+  declare -a Details                                # Array for details
+  Details[0]="Shutdown the computer"
+  local Counter=1
+  GetDetails=$(lsblk -l | grep media | awk '/feliz/ || /FELIZ/ || /Feliz/ {print $7}')
+  for i in ${GetDetails}
+  do
+    Details[${Counter}]="Eject $i then reboot"
+    Counter=$((Counter+1))
+  done
+  Details[${Counter}]="Just exit the installer"
+  Counter=$((Counter+1))
+  PrintOne "What would you like to do now?"
+  listgen2 "${MediaList}" "" "nocancel" "Details"
+  Echo
+  case $Response in
+    1) shutdown -h now
+    ;;
+    ${Counter}) Echo "Thanks for using Feliz"
+    ;;
+    *) eject ${Result}
+  esac
+
+}
+
