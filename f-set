@@ -104,7 +104,7 @@ ConfirmVbox() {
 getkeymap() {
   print_heading
   Echo
-  PrintOne "Let's try to find your keyboard"
+  PrintOne "Let's try to find your keyboard layout"
   while :
   do
     PrintOne "If you know the code for your keyboard layout, please enter"
@@ -118,6 +118,7 @@ getkeymap() {
     ListKbs=$(cat keymaps.list | grep ${Term})
     if [ -n "${ListKbs}" ]; then  # If a match or matches found
       print_heading
+      PrintOne "Select your keyboard, or [ Exit ] to try again"
       listgen1 "$ListKbs" "" ""
       if [ ${Result} = "Exit" ]; then
         print_heading
