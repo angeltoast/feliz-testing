@@ -503,7 +503,7 @@ AllocateRoot() {
           EditLabel $PassPart
         fi
       fi
-      break
+      # break             # Debug
     else
       Remaining="$Remaining $i" # Add next available partition
     fi
