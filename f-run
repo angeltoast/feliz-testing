@@ -437,7 +437,7 @@ Restart() {
   Echo
   PrintOne "Congratulations, installation is complete."
   MediaList="shutdown"
-  for i in "$(lsblk -l | grep -i feliz | awk '{print $1}')" # Short reference
+  for i in "$(lsblk -l | grep media | awk '{print $1}')" # Short reference
   do
     MediaList="$MediaList $i"
   done
@@ -446,7 +446,7 @@ Restart() {
   declare -a Details                                        # Array for details
   Details[0]="Shutdown the computer"
   local Counter=1
-  for i in "$(lsblk -l | grep -i feliz | awk '{print $7}')" # Details
+  for i in "$(lsblk -l | grep media | awk '{print $7}')" # Details
   do
     Details[${Counter}]="Eject $i then reboot"
     Counter=$((Counter+1))

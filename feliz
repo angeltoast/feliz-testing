@@ -99,6 +99,7 @@ fi
 
 FinalCheck                             # Allow user to change any variables
 
+print_heading
 read_timed "That's all we need to start installation." 1
 read_timed "You may get a message saying that a partition" 1
 read_timed "was previously mounted, and asking if you want" 1

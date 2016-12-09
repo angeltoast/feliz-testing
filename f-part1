@@ -225,7 +225,7 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    listgen2 "$PartitioningOptions" "Partitioning" "" "LongPart"
+    listgen2 "$PartitioningOptions" "" "nocancel" "LongPart"
     Proceed=$Response
     Echo
     case $Proceed in
@@ -715,6 +715,7 @@ MakePartition() { # Called by MorePartitions
   LoopRepeat="Y"
   while [ ${LoopRepeat} = "Y" ]
   do
+    print_heading
     Echo
     PrintOne "Enter a mountpoint for ${Partition} ..."
     TPread "(eg: /home) ... /"
