@@ -636,7 +636,7 @@ GuidedHome() { # Variables: HomeSize, HomeType
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: ${FreeGigs}G or 100% or 0]: "
+    TPread "Size [eg: 100% or 0]: "
     RESPONSE="${Response^^}"
     Echo
     case ${RESPONSE} in

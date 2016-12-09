@@ -165,7 +165,7 @@ setlocale() {
       localelist=""
       for l in ${LocaleList[@]}
       do
-        localelist="${localelist} $l"
+        localelist="${localelist} $l" # Convert to text list
         Counter=$((Counter+1))
       done
       if [ $Counter -eq 0 ]; then
@@ -180,16 +180,35 @@ setlocale() {
         Newlist="$Newlist ${loc:0:2}"
       done
       localelist="${Newlist}"
+      choosefrom=""
+      Newlist=""
+      for l in ${localelist}
+      do
+        Item="$(grep $l\$ languages.list | awk '{print $1}')"
+        if [ -n $Item ]; then
+        choosefrom="$choosefrom $Item"
+        newlist="$newlist $l"
+        fi
+      done
       print_heading
       Echo
       PrintOne "Now please choose your language from this list,"
       PrintOne "or [ Exit ] to try again."
-      listgen1 "${localelist}" "" ""
+      listgen1 "${choosefrom}" "" ""
       case $Result in
       "Exit") Echo
       ;;
-      *) CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
-        CountryCode=${Result:3:2}                     # 2 characters from position 3 in $Result
+      *) Counted=1
+        for l in ${localelist}
+        do
+          if [ $Counted -eq $Response ]; then
+            Item="$l"
+            break
+          fi
+          Counted=$((Counted+1))
+        done
+        CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
+        CountryCode=${CountryLocale:3:2}                     # 2 characters from position 3
         break
       esac
     fi
