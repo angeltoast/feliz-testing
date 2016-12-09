@@ -112,7 +112,7 @@ getkeymap() {
     PrintOne "your country or language and a list will be displayed. If"
     PrintOne "your keyboard is not listed, select [ Exit ] to try again."
     Echo
-    TPread "(eg: 'atari' or 'us'): "
+    TPread "(eg: 'dvorak' or 'us'): "
     local Term="${Response,,}"
     Echo
     ListKbs=$(cat keymaps.list | grep ${Term})

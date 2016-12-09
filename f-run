@@ -150,8 +150,8 @@ MountPartitions() {
       btrfs-convert ${id} 2>> feliz.log
     elif [ ${AddPartType[$Counter]} = "btrfs" ]; then
       mkfs.btrfs -f ${id} 2>> feliz.log &>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
-    elif [ $RootType = "xfs" ]; then                    # Otherwise, for xfs /root
-      mkfs.xfs -f ${RootPartition} 2>> feliz.log        # eg: mkfs.xfs -f /dev/sda2
+    elif [ ${AddPartType[$Counter]} = "xfs" ]; then
+      mkfs.xfs -f ${id} 2>> feliz.log                   # eg: mkfs.xfs -f /dev/sda2
     elif [ ${AddPartType[$Counter]} != "" ]; then
       Partition=${id: -4}                               # Last 4 characters of ${id}
       Label="${LabellingArray[${Partition}]}"
@@ -437,10 +437,10 @@ SetUserPassword() {
 Restart() {
   print_heading
   Echo
-  PrintOne "Congratulations, installation is complete."
+  read_timed "Congratulations, installation is complete." 1
   Echo
-  PrintOne "Feliz will now shut the computer down, to allow"
-  PrintOne "you to remove the installation media before rebooting."
+  read_timed "Feliz will now shut the computer down, to allow" 1
+  read_timed "you to remove the installation media before rebooting." 1
   shutdown -h now
 }
 
