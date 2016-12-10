@@ -25,17 +25,18 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# invalid_option    39    KeepOrDelete        315
-# TPread            44    ShoppingList        376
-# SetKernel         59    ChooseDM            401
-# ConfirmVbox       75    SetGrubDevice       549
-# getkeymap        100     --- Review stage ---
-# setlocale        138    FinalCheck          577
-# SetTimeZone      195    ManualSettings      682
-# SetSubZone       208    ChangeRootPartition 708
-# Username         248    ChangeSwapPartition 716
-# Hostname         264    ChangePartitions    724
-# PickLuxuries     280    AddExtras           736
+# not_found         42    KeepOrDelete        423
+# Echo              47    ShoppingList        450
+# TPread            52    ChooseDM            552
+# SetKernel         68    SetGrubDevice       609
+# ConfirmVbox       81
+# getkeymap        105     --- Review stage ---
+# setlocale        145    FinalCheck          633
+# SetTimeZone      276    ManualSettings      740
+# SetSubZone       312    ChangeRootPartition 763
+# Username         358    ChangeSwapPartition 771
+# Hostname         374    ChangePartitions    779
+# PickLuxuries     391    AddExtras           791
 # --------------------    -----------------------
 
 not_found() {
@@ -150,7 +151,7 @@ setlocale() {
     PrintOne "Next we will try to find your locale. This will"
     PrintOne "be used to set fonts and language, and to find"
     PrintOne "the best mirrors for downloading your system"
-    if [ -n "$City" ]; then                         # If subzone found  ...
+    if [ $City ] && [ -n "$City" ]; then            # If subzone found  ...
       cityfile=$(cat cities.list | grep "$City")    # Try to find $City in cities.list
                                                     # The characters up to the ':' are the city name
                                                     # cityname=$(echo "${cityfile%%:*}")
@@ -180,6 +181,10 @@ setlocale() {
       fi
     fi
     LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)      # Find all matching entries in locale.gen
+    if [ ! $LocaleList ]; then                      # Total lack of data
+      not_found
+      continue
+    fi
     local Counter=0                                 # This will be a table of locales in the
     localelist=""                                   # form cy_GB en_GB gd_GB ...
     for l in ${LocaleList[@]}
@@ -198,7 +203,10 @@ setlocale() {
       loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i item from localelist to Newlist
       Newlist="$Newlist ${loc:0:2}"                 # First two characters are language code
     done
-    if [ $i -eq 2 ]; then                           # Only one language code found
+    if [ $i -lt 2 ]; then                           # No language code found
+      not_found
+      continue
+    elif [ $i -lt 3 ]; then                         # Only one language code found
       Echo
       Item=$(echo ${Newlist} | xargs)               # Trim leading and trailing spaces
       Language="$(grep $Item\$ languages.list | awk '{print $1}')"
@@ -233,16 +241,16 @@ setlocale() {
     Rows=$((Rows-2))                  # Available (printable) rows
     for l in ${localelist}
     do
-      if [ $Counter -ge $Rows ]; then # Don't allow number of items exceed printable rows
-        break
+      if [ $Counter -ge $Rows ]; then                         # Don't allow number of items
+        break                                                 # to exceed printable rows
       else
-        Item="$(grep $l\$ languages.list | awk '{print $1}')" # Find the language (if it exists
+        Item="$(grep $l\$ languages.list | awk '{print $1}')" # Find the language (if it exists)
         if [ $Item ]; then
-          if [ ${SEARCHTERM} = "IN" ] && ([ $Item = "Kashmiri" ] || [ $Item = "Punjabi" ] || [ $Item = "Assamese" ]  || [ $Item = "Sindhi" ]  || [ $Item = "Korean" ]); then # Exclude minority languages in India
-            continue
+          if [ ${SEARCHTERM} = "IN" ] && ([ $Item = "Kashmiri" ] || [ $Item = "Punjabi" ] || [ $Item = "Assamese" ]  || [ $Item = "Sindhi" ]  || [ $Item = "Korean" ]); then
+            continue                                          # Exclude minority languages in India
           else
-            choosefrom="$choosefrom $Item"                      # Create a list of languages for user
-            Newlist="$Newlist $l"                               # ... and a matching list of codes
+            choosefrom="$choosefrom $Item"                    # Create a list of languages for user
+            Newlist="$Newlist $l"                             # ... and a matching list of codes
           fi
         fi
         Counter=$((Counter+1))

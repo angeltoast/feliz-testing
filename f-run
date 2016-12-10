@@ -420,8 +420,9 @@ Restart() {
   Echo
   read_timed "Congratulations, installation is complete." 1
   Echo
-  read_timed "Feliz will now shut the computer down, to allow" 1
-  read_timed "you to remove the installation media before rebooting." 1
+  read_timed "The computer will now shut down, so you can" 1
+  read_timed "remove the installation media before rebooting." 1
+  Echo
   shutdown -h now
 }
 
