@@ -181,10 +181,6 @@ setlocale() {
       fi
     fi
     LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)      # Find all matching entries in locale.gen
-    if [ ! $LocaleList ]; then                      # Total lack of data
-      not_found
-      continue
-    fi
     local Counter=0                                 # This will be a table of locales in the
     localelist=""                                   # form cy_GB en_GB gd_GB ...
     for l in ${LocaleList[@]}
@@ -300,17 +296,17 @@ SetTimeZone() {
       "UTC") SUBZONE=""
           print_heading
           read_timed "Zone set to: '$ZONE'" 1
-          return 0
+          break
       ;;
       "Exit") continue
       ;;
       *) SetSubZone
-        if [ $Return = "Exit" ]; then
+        if [ $SUBZONE = "" ]; then
           continue
         else
           print_heading
           read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
-          return 0
+          break
         fi
     esac
   done
@@ -323,10 +319,12 @@ SetSubZone() {
     print_heading
     PrintOne "World Zone = $ZONE"
     Echo
-    PrintOne "We can search on the first letter of your nearest"
-    PrintOne "major city. To change World Zone, leave empty."
+    PrintOne "For oceans (Atlantic, Indian, or Pacific) we can search"
+    PrintOne "for your island, or for landmasses, we can search for"
+    PrintOne "you nearest major city. Just enter the first letter of."
+    PrintOne "your island or city. To change World Zone, leave blank."
     Echo
-    TPread "Please enter one letter: "
+    TPread "Please enter the initial letter: "
     Echo
     if [ -z ${Response} ]
     then
@@ -345,7 +343,7 @@ SetSubZone() {
       fi
     done
     if [ ${Counter} -eq 0 ]; then
-      invalid_option
+      not_found
       continue
     fi
     print_heading
