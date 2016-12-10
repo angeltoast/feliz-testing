@@ -143,79 +143,133 @@ getkeymap() {
 
 setlocale() {
   SearchPrompt=" (for example: GB or PT): "
-  print_heading
-  PrintOne "Next we will try to find your locale. This will"
-  PrintOne "be used to set fonts and language, and to find"
-  PrintOne "the best mirrors for downloading your system"
+  City=$SUBZONE                                     # Use a copy of $SUBZONE set in SetTimeZone
   while :
   do
-    Echo
-    PrintOne "Please enter a two-letter code for your country."
-    Echo
-    TPread "$SearchPrompt"
-    if [ -z ${Response} ]
-    then
-      invalid_option
-    else
+    print_heading
+    PrintOne "Next we will try to find your locale. This will"
+    PrintOne "be used to set fonts and language, and to find"
+    PrintOne "the best mirrors for downloading your system"
+    if [ -n "$City" ]; then                         # If subzone found  ...
+      cityfile=$(cat cities.list | grep "$City")    # Try to find $City in cities.list
+                                                    # The characters up to the ':' are the city name
+                                                    # cityname=$(echo "${cityfile%%:*}")
+      SEARCHTERM=$(echo "${cityfile##*:}")          # The characters after the ':' are the country code
+      SEARCHTERM=${SEARCHTERM:0:2}                  # Ensure no trailing spaces
       Echo
-      Response="${Response:0:2}"              # Make sure only two characters
-      SEARCHTERM="${Response^^}"              # Set to all uppercase
-      LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)
-      local Counter=0
-      localelist=""
-      for l in ${LocaleList[@]}
-      do
-        localelist="${localelist} $l" # Convert to text list
-        Counter=$((Counter+1))
-      done
-      if [ $Counter -eq 0 ]; then
-        not_found
+      PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
+      PrintOne "Shall we use this as your locale?"  # Allow user to confirm
+      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      if [ $Response -eq 2 ]; then
+        City=""
         continue
       fi
-      Counted=$(echo $localelist | wc -w)
-      Newlist=""
-      for (( i=1; i <= Counted; ++i ))
-      do
-        loc=$(echo $localelist | awk "{print \$$i}")
-        Newlist="$Newlist ${loc:0:2}"
-      done
-      localelist="${Newlist}"
-      choosefrom=""
-      Newlist=""
-      for l in ${localelist}
-      do
-        Item="$(grep $l\$ languages.list | awk '{print $1}')"
-        if [ -n $Item ]; then
-        choosefrom="$choosefrom $Item"
-        newlist="$newlist $l"
-        fi
-      done
-      print_heading
+    else                                            # If not found, user will have to enter country code
       Echo
-      PrintOne "Now please choose your language from this list,"
-      PrintOne "or [ Exit ] to try again."
-      listgen1 "${choosefrom}" "" ""
-      case $Result in
-      "Exit") Echo
-      ;;
-      *) Counted=1
-        for l in ${localelist}
-        do
-          if [ $Counted -eq $Response ]; then
-            Item="$l"
-            break
-          fi
-          Counted=$((Counted+1))
-        done
+      PrintOne "Please enter a two-letter code for your country."
+      Echo
+      TPread "$SearchPrompt"                        # Could be GB or gb
+      if [ -z ${Response} ]
+      then
+        invalid_option
+        continue
+      else
+        Echo
+        Response="${Response:0:2}"                  # Make sure only two characters
+        SEARCHTERM="${Response^^}"                  # Set to all uppercase
+      fi
+    fi
+    LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)      # Find all matching entries in locale.gen
+    local Counter=0                                 # This will be a table of locales in the
+    localelist=""                                   # form cy_GB en_GB gd_GB ...
+    for l in ${LocaleList[@]}
+    do
+      localelist="${localelist} $l"                 # Add each item to text list for handling
+      Counter=$((Counter+1))
+    done
+    if [ $Counter -eq 0 ]; then                     # If none found, try again
+      not_found
+      continue
+    fi
+    Counted=$(echo $localelist | wc -w)             # Count number of words in $localelist
+    Newlist=""
+    for (( i=1; i <= Counted; ++i ))                # Get list of all languages for locale
+    do
+      loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i item from localelist to Newlist
+      Newlist="$Newlist ${loc:0:2}"                 # First two characters are language code
+    done
+    if [ $i -eq 2 ]; then                           # Only one language code found
+      Echo
+      Item=$(echo ${Newlist} | xargs)               # Trim leading and trailing spaces
+      Language="$(grep $Item\$ languages.list | awk '{print $1}')"
+      PrintOne "Only one language found for your location: $Language"
+      PrintOne "Shall we use this as your language?"  # Allow user to confirm
+      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      if [ $Response -eq 2 ]; then
+        City=""
+        continue
+      else
         CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
         CountryCode=${CountryLocale:3:2}                     # 2 characters from position 3
         break
-      esac
+      fi
+    else
+      localelist="${Newlist}"
     fi
+    Newlist=""
+    Prev="xyz"
+    for l in $localelist                                    # Remove any duplicates
+    do
+      if [ $l != $Prev ]; then
+        Newlist="$Newlist $l"
+        Prev=$l
+      fi
+    done
+    localelist="${Newlist}"                                 # Copy to working variable
+    choosefrom=""
+    Newlist=""
+    Counter=0                         # Prepare to limit length of file
+    local Rows=$(tput lines)          # to ensure list doesn't over-run
+    Rows=$((Rows-2))                  # Available (printable) rows
+    for l in ${localelist}
+    do
+      if [ $Counter -ge $Rows ]; then # Don't allow number of items exceed printable rows
+        break
+      else
+        Item="$(grep $l\$ languages.list | awk '{print $1}')" # Find the language (if it exists
+        if [ $Item ]; then
+          if [ ${SEARCHTERM} = "IN" ] && ([ $Item = "Kashmiri" ] || [ $Item = "Punjabi" ] || [ $Item = "Assamese" ]  || [ $Item = "Sindhi" ]  || [ $Item = "Korean" ]); then # Exclude minority languages in India
+            continue
+          else
+            choosefrom="$choosefrom $Item"                      # Create a list of languages for user
+            Newlist="$Newlist $l"                               # ... and a matching list of codes
+          fi
+        fi
+        Counter=$((Counter+1))
+      fi
+    done
+    localelist="${Newlist}"                                   # Ensure that localelist matches choosefrom
     print_heading
+    PrintOne "Now please choose your language from this list, or [ Exit ] to try again."
+    listgen1 "${choosefrom}" "nomessage" ""
+    case $Result in
+    "Exit") Echo
+    ;;
+    *) Counted=1
+      for l in ${localelist}
+      do
+        if [ $Counted -eq $Response ]; then
+          break
+        fi
+        Counted=$((Counted+1))
+      done
+      CountryLocale="${l}_${SEARCHTERM}.UTF-8"
+      CountryCode=${CountryLocale:3:2}                        # 2 characters from position 3
+      break
+    esac
   done
   print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # 5 characters from position 0 in $CountryLocale
+  read_timed "Locale is set to: ${CountryLocale:0:5}" 1       # 5 characters from position 0 in $CountryLocale
 }
 
 SetTimeZone() {
