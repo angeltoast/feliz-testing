@@ -337,24 +337,40 @@ SetSubZone() {
     ;;
     "Arctic") SUBZONE="Longyearbyen"
     ;;
-    "Atlantic") SelectSubzone
+    "Atlantic") PrintOne "Now we need to find your location in the $ZONE"
+      PrintOne "ocean. Please enter the first letter of the island"
+      PrintOne "or group where you are located."
+      SelectSubzone
     ;;
     "Australia") SelectSubzone
     ;;
-    "Indian") SelectSubzone
+    "Indian") PrintOne "Now we need to find your location in the $ZONE"
+      PrintOne "ocean. Please enter the first letter of the island"
+      PrintOne "or group where you are located."
+      SelectSubzone
     ;;
     "Pacific") PrintOne "Now we need to find your location in the $ZONE"
       PrintOne "ocean. Please enter the first letter of the island"
       PrintOne "or group where you are located."
     ;;
-    *) PrintOne "Now we need to find your location in $ZONE"
-      PrintOne "Please enter the first letter of your nearest major city."
+    "America") America
+        if [ $SUBZONE ]; then
+          break
+        else
+          print_heading
+          PrintOne "Ok, now we can search on the first"
+          PrintOne "letter of your nearest major city"
+          Echo
+        fi
+    ;;
+    *) PrintOne "Now we need to find your location in $ZONE - Please"
+      PrintOne "enter the first letter of your nearest major city."
     esac
     case $SUBZONE in
     "Exit") SUBZONE=""
        break
     ;;
-    "") PrintOne "To change World Zone, leave blank."
+    "") PrintOne "To change the World Zone, leave blank."
       Echo
     ;;
     *) break
@@ -394,6 +410,64 @@ SetSubZone() {
     esac
     break
   done
+}
+
+America() {
+  SUBZONE=""      # Make sure this variable is empty
+  print_heading
+  PrintOne "Are you in any of these states?"
+  SubList=""      # Start an empty list
+  Previous=""     # Prepare to save previous record
+  local Toggle="First"
+  for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
+  do
+    if [ $Previous ] && [ $i = $Previous ] && [ $Toggle = "First" ]; then # First reccurance
+      SubList="$SubList $i"
+      Toggle="Second"
+    elif [ $Previous ] && [ $i != $Previous ] && [ $Toggle = "Second" ]; then # 1st occ after prev group
+      Toggle="First"
+      Previous=$i
+    else                                                                  # Subsequent occurances
+      Previous=$i
+    fi
+  done
+  SubGroup=""
+  SubList="$SubList None_of_these"        # Add a decline option
+  listgen1 "$SubList"
+  case $Result in
+  "None_of_these") Echo                   # No subgroup. Hand back to calling function
+  ;;
+  *) SubGroup=$Result                     # Save subgroup for next function
+    ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
+    DoCities
+  esac
+}
+
+DoCities() {
+  print_heading
+  Cities=""
+  case $SubGroup in
+  "") # No subgroup selected. Here we are working on the second field - cities without a subgroup
+      for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
+      do
+        Cities="$Cities $i"
+      done
+  ;;
+  *) # Here we are working on the third field - cities within the chosen subgroup
+      for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $3}')
+      do
+        Cities="$Cities $i"
+      done
+  esac
+
+  PrintOne "Please select a city from this list"
+
+  listgen1 "$Cities"
+  case $Result in
+  "Exit") SetTimeZone
+  ;;
+  *) SUBZONE=$Result
+  esac
 }
 
 UserName() {
