@@ -88,7 +88,7 @@ ConfirmVbox() {
     Echo
     PrintOne "Install Virtualbox guest utilities?: "
     Echo
-    DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+    Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
     Echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -160,7 +160,7 @@ setlocale() {
       Echo
       PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
       PrintOne "Shall we use this as your locale?"  # Allow user to confirm
-      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
       if [ $Response -eq 2 ]; then
         City=""
         continue
@@ -204,11 +204,11 @@ setlocale() {
       continue
     elif [ $i -lt 3 ]; then                         # Only one language code found
       Echo
-      Item=$(echo ${Newlist} | xargs)               # Trim leading and trailing spaces
-      Language="$(grep $Item\$ languages.list | awk '{print $1}')"
+      Item=$(echo ${Newlist} | xargs)               # Trim any leading and trailing spaces
+      Language="$(grep $Item\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
       PrintOne "Only one language found for your location: $Language"
       PrintOne "Shall we use this as your language?"  # Allow user to confirm
-      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
       if [ $Response -eq 2 ]; then
         City=""
         continue
@@ -240,7 +240,7 @@ setlocale() {
       if [ $Counter -ge $Rows ]; then                         # Don't allow number of items
         break                                                 # to exceed printable rows
       else
-        Item="$(grep $l\$ languages.list | awk '{print $1}')" # Find the language (if it exists)
+        Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')" # Find the language (if it exists)
         if [ $Item ]; then
           if [ ${SEARCHTERM} = "IN" ] && ([ $Item = "Kashmiri" ] || [ $Item = "Punjabi" ] || [ $Item = "Assamese" ]  || [ $Item = "Sindhi" ]  || [ $Item = "Korean" ]); then
             continue                                          # Exclude minority languages in India
@@ -277,7 +277,8 @@ setlocale() {
 }
 
 SetTimeZone() {
-  while :
+  SUBZONE=""
+  while [ -z $SUBZONE ]
   do
     print_heading
     PrintOne "To set the system clock, please first"
@@ -301,33 +302,68 @@ SetTimeZone() {
       "Exit") continue
       ;;
       *) SetSubZone
-        if [ $SUBZONE = "" ]; then
-          continue
-        else
-          print_heading
+        case $SUBZONE in
+        "Exit") SUBZONE=""
+            continue
+        ;;
+        "") continue
+        ;;
+        *) print_heading
           read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
           break
-        fi
+        esac
     esac
   done
 }
 
+SelectSubzone() {
+  print_heading
+    PrintOne "Now choose your location from this list"
+    PrintOne "... or [ Exit ] to try again if it is not there"
+    Echo
+    listgen1 "$SubZones" "" ""
+    SUBZONE=$Result
+}
+
 SetSubZone() {
-  SubZones=$(timedatectl list-timezones | grep ${ZONE} | sed 's/^.*\///')
+  SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')
+  SUBZONE=""
   while :
   do
     print_heading
-    PrintOne "World Zone = $ZONE"
     Echo
-    PrintOne "For oceans (Atlantic, Indian, or Pacific) we can search"
-    PrintOne "for your island, or for landmasses, we can search for"
-    PrintOne "you nearest major city. Just enter the first letter of."
-    PrintOne "your island or city. To change World Zone, leave blank."
-    Echo
+    case $ZONE in
+    "Antarctica") SelectSubzone
+    ;;
+    "Arctic") SUBZONE="Longyearbyen"
+    ;;
+    "Atlantic") SelectSubzone
+    ;;
+    "Australia") SelectSubzone
+    ;;
+    "Indian") SelectSubzone
+    ;;
+    "Pacific") PrintOne "Now we need to find your location in the $ZONE"
+      PrintOne "ocean. Please enter the first letter of the island"
+      PrintOne "or group where you are located."
+    ;;
+    *) PrintOne "Now we need to find your location in $ZONE"
+      PrintOne "Please enter the first letter of your nearest major city."
+    esac
+    case $SUBZONE in
+    "Exit") SUBZONE=""
+       break
+    ;;
+    "") PrintOne "To change World Zone, leave blank."
+      Echo
+    ;;
+    *) break
+    esac
     TPread "Please enter the initial letter: "
     Echo
     if [ -z ${Response} ]
     then
+      SUBZONE=""
       SetTimeZone
     else
       Response="${Response:0:1}"  # In case user enters more than one letter
@@ -347,7 +383,7 @@ SetSubZone() {
       continue
     fi
     print_heading
-    PrintOne "Now choose your city from this list"
+    PrintOne "Now choose your nearest location from this list"
     PrintOne "... or [ Exit ] to try again if it is not there"
     Echo
     listgen1 "$subzones" "" ""
@@ -431,7 +467,7 @@ KeepOrDelete() {
   do
     print_heading
     Message="$Bagged is already in your shopping list."
-    DisplayButtons "Yes/No" "[ Keep ] [ Delete ]" "Use arrow keys to move. [Enter] to select"
+    Buttons "Yes/No" "[ Keep ] [ Delete ]" "Use arrow keys to move. [Enter] to select"
     case $Response in
       1) Temp="$LuxuriesList"
         break
@@ -601,7 +637,7 @@ ChooseDM() { # Choose a display manager
       Echo
       PrintOne "Do you wish to change it?: "
       Echo
-      DisplayButtons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
       Echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable

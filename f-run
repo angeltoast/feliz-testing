@@ -63,7 +63,6 @@ TPecho() { # For displaying status while running on auto
 
 MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
-
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log            # eg: umount /dev/sda1
   # 1) Root partition
@@ -85,18 +84,16 @@ MountPartitions() {
       if [ -n "${Label}" ]; then                        # If it has a label ...
         Label="-L ${Label}"                             # ... prepare to use it
       fi
-      mkfs.${RootType} ${Label} ${RootPartition} 2>> feliz.log
+      mkfs.${RootType} -f ${Label} ${RootPartition} 2>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
-
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
     mkfs.fat -F32 ${EFIPartition} 2> error.log          # Format EFI boot partition
     mkdir /mnt/boot                                     # Make mountpoint
     mount ${EFIPartition} /mnt/boot                     # Mount it
   fi
-
   # 3) Swap
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log                            # Make sure any existing swap cleared

@@ -38,7 +38,7 @@
 # first_item       52    Prints first item of a menu
 # subsequent_item  63    Prints successive menu items
 # PrintRev         69    Reverses text colour
-# DisplayButtons   78    Prints a row of buttons. 3 arguments: Type; Button string; Message string
+# Buttons          78    Prints a row of buttons. 3 arguments: Type; Button string; Message string
 # ActiveMenu      140    Controls the highlighting of menu items. 1 argument - Type (Menu, Yes/No)
 # listgen1        243    Generates a simple menu of one-word items
 # listgen2        298    Generates a menu of multi-word items
@@ -116,7 +116,7 @@ PrintRev() {  # Receives numeric argument of item number
   tput sgr0 	                                 # Reset colour
 }
 
-DisplayButtons() {
+Buttons() {
   # Receives 3 arguments: 1) Type (Menu, Yes/No); 2) Button string; 3) Message string
   # Uses arrays declared in f-var
   local Len=${#2}               # Measure length of button string
@@ -344,11 +344,11 @@ listgen1() { # Simple listing alternative to the bash 'select' function
     CalledBy="listgen1"
     cursor_bottom=$((cursor_row-1))
     case $3 in
-    "nocancel") DisplayButtons "Menu" "[ Ok ]" "$Message"
+    "nocancel") Buttons "Menu" "[ Ok ]" "$Message"
     ;;
-    "") DisplayButtons "Menu" "[ Ok ] [ Exit ]" "$Message"
+    "") Buttons "Menu" "[ Ok ] [ Exit ]" "$Message"
     ;;
-    *) DisplayButtons "Menu" "[ Ok ] [ $3 ]" "$Message"
+    *) Buttons "Menu" "[ Ok ] [ $3 ]" "$Message"
     esac
     break
   done
@@ -397,9 +397,9 @@ listgen2() { # Advanced menuing function with extended descriptions
     CalledBy="listgen2"
     cursor_bottom=$((cursor_row-1))
     if [ $3 ] && [ $3 = "nocancel" ]; then
-      DisplayButtons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
     else
-      DisplayButtons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
     fi
     return 0
   done
