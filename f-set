@@ -401,8 +401,7 @@ SetSubZone() {
     print_heading
     PrintOne "Now choose your nearest location from this list"
     PrintOne "... or [ Exit ] to try again if it is not there"
-    Echo
-    listgen1 "$subzones" "" ""
+    listgen1 "$subzones" "nomessage" ""
     case $Result in
       "Exit") SUBZONE=""
       ;;
@@ -459,9 +458,7 @@ DoCities() {
         Cities="$Cities $i"
       done
   esac
-
   PrintOne "Please select a city from this list"
-
   listgen1 "$Cities"
   case $Result in
   "Exit") SetTimeZone
