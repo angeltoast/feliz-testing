@@ -28,7 +28,7 @@
 # arch_chroot           36       ReflectorMirrorList  205
 # Parted                41       LocalMirrorList      215
 # TPecho                63       InstallDM            230
-# read_timed            81       InstallLuxuries      240
+#                                InstallLuxuries      240
 # MountPartitions       99       UserAdd              325
 # InstallKernel        162       SetRootPassword      340
 # AddCodecs            180       SetUserPassword      378

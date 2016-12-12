@@ -103,180 +103,6 @@ ConfirmVbox() {
   done
 }
 
-getkeymap() {
-  print_heading
-  Echo
-  PrintOne "Let's try to find your keyboard layout"
-  while :
-  do
-    PrintOne "If you know the code for your keyboard layout, please enter"
-    PrintOne "it now. If not, try entering a two-letter abbreviation for"
-    PrintOne "your country or language and a list will be displayed. If"
-    PrintOne "your keyboard is not listed, select [ Exit ] to try again."
-    Echo
-    TPread "(eg: 'dvorak' or 'us'): "
-    local Term="${Response,,}"
-    Echo
-    ListKbs=$(cat keymaps.list | grep ${Term})
-    if [ -n "${ListKbs}" ]; then  # If a match or matches found
-      print_heading
-      PrintOne "Select your keyboard, or [ Exit ] to try again"
-      listgen1 "$ListKbs" "" ""
-      if [ ${Result} = "Exit" ]; then
-        print_heading
-        Echo
-        continue
-      else
-        Countrykbd="${Result}"
-      fi
-      loadkeys ${Countrykbd} 2>> feliz.log
-      break
-    else
-      print_heading
-      Echo
-      PrintOne "No keyboards found containing '$Term'"
-      PrintOne "Please try again"
-      continue
-    fi
-  done
-  print_heading
-  read_timed "The keyboard is now set to: '$Countrykbd'" 1
-}
-
-setlocale() {
-  SearchPrompt=" (for example: GB or PT): "
-  City=$SUBZONE                                     # Use a copy of $SUBZONE set in SetTimeZone
-  while :
-  do
-    print_heading
-    PrintOne "Next we will try to find your locale. This will"
-    PrintOne "be used to set fonts and language, and to find"
-    PrintOne "the best mirrors for downloading your system"
-    if [ $City ] && [ -n "$City" ]; then            # If subzone found  ...
-      cityfile=$(cat cities.list | grep "$City")    # Try to find $City in cities.list
-                                                    # The characters up to the ':' are the city name
-                                                    # cityname=$(echo "${cityfile%%:*}")
-      SEARCHTERM=$(echo "${cityfile##*:}")          # The characters after the ':' are the country code
-      SEARCHTERM=${SEARCHTERM:0:2}                  # Ensure no trailing spaces
-      if [ $SEARCHTERM ]; then
-        Echo
-        PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
-        PrintOne "Shall we use this as your locale?"  # Allow user to confirm
-        Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
-      else
-        Response=2
-      fi
-      if [ $Response -eq 2 ]; then
-        City=""
-        continue
-      fi
-    else                                            # If not found, user will have to enter country code
-      Echo
-      PrintOne "Please enter a two-letter code for your country."
-      Echo
-      TPread "$SearchPrompt"                        # Could be GB or gb
-      if [ -z ${Response} ]
-      then
-        invalid_option
-        continue
-      else
-        Echo
-        Response="${Response:0:2}"                  # Make sure only two characters
-        SEARCHTERM="${Response^^}"                  # Set to all uppercase
-      fi
-    fi
-    LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)      # Find all matching entries in locale.gen
-    local Counter=0                                 # This will be a table of locales in the
-    localelist=""                                   # form cy_GB en_GB gd_GB ...
-    for l in ${LocaleList[@]}
-    do
-      localelist="${localelist} $l"                 # Add each item to text list for handling
-      Counter=$((Counter+1))
-    done
-    if [ $Counter -eq 0 ]; then                     # If none found, try again
-      not_found
-      continue
-    fi
-    Counted=$(echo $localelist | wc -w)             # Count number of words in $localelist
-    Newlist=""
-    for (( i=1; i <= Counted; ++i ))                # Get list of all languages for locale
-    do
-      loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i item from localelist to Newlist
-      Newlist="$Newlist ${loc:0:2}"                 # First two characters are language code
-    done
-    if [ $i -lt 2 ]; then                           # No language code found
-      not_found
-      continue
-    elif [ $i -lt 3 ]; then                         # Only one language code found
-      Echo
-      Item=$(echo ${Newlist} | xargs)               # Trim any leading and trailing spaces
-      Language="$(grep $Item\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
-      PrintOne "Only one language found for your location: $Language"
-      PrintOne "Shall we use this as your language?"  # Allow user to confirm
-      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
-      if [ $Response -eq 2 ]; then
-        City=""
-        continue
-      else
-        CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
-        CountryCode=${CountryLocale:3:2}                     # 2 characters from position 3
-        break
-      fi
-    else
-      localelist="${Newlist}"
-    fi
-    Newlist=""
-    Prev="xyz"
-    for l in $localelist                                    # Remove any duplicates
-    do
-      if [ $l != $Prev ]; then
-        Newlist="$Newlist $l"
-        Prev=$l
-      fi
-    done
-    localelist="${Newlist}"                                 # Copy to working variable
-    choosefrom=""
-    Newlist=""
-    Counter=0                         # Prepare to limit length of file
-    local Rows=$(tput lines)          # to ensure list doesn't over-run
-    Rows=$((Rows-2))                  # Available (printable) rows
-    for l in ${localelist}
-    do
-      Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')" # Find the language
-      if [ $Item ]; then
-        choosefrom="$choosefrom $Item"                    # Create a list of languages for user
-        Newlist="$Newlist $l"                             # ... and a matching list of codes
-      fi
-      Counter=$((Counter+1))
-    done
-    localelist="${Newlist}"                               # Ensure that localelist matches choosefrom
-    print_heading
-    PrintOne "Now please choose your language from this list, or [ Exit ] to try again."
-    if [ $Counter -ge $Rows ]; then
-      listgenx "${choosefrom}" "nomessage" ""            # Alternative (numbered) list
-    else
-      listgen1 "${choosefrom}" "nomessage" ""
-    fi
-    case $Result in
-    "Exit") Echo
-    ;;
-    *) Counted=1
-      for l in ${localelist}
-      do
-        if [ $Counted -eq $Response ]; then
-          break
-        fi
-        Counted=$((Counted+1))
-      done
-      CountryLocale="${l}_${SEARCHTERM}.UTF-8"
-      CountryCode=${CountryLocale:3:2}                        # 2 characters from position 3
-      break
-    esac
-  done
-  print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:5}" 1       # 5 characters from position 0 in $CountryLocale
-}
-
 SetTimeZone() {
   SUBZONE=""
   while [ -z $SUBZONE ]
@@ -456,6 +282,202 @@ DoCities() { # Specifically for America, which has subgroups
   ;;
   *) SUBZONE=$Result
   esac
+}
+
+setlocale() {
+  SearchPrompt=" (for example: GB or PT): "
+  City=$SUBZONE                                     # Use a copy of $SUBZONE set in SetTimeZone
+  while :
+  do
+    print_heading
+    PrintOne "Next we will try to find your locale. This will"
+    PrintOne "be used to set fonts and language, and to find"
+    PrintOne "the best mirrors for downloading your system"
+    if [ $City ] && [ -n "$City" ]; then            # If subzone found  ...
+      cityfile=$(cat cities.list | grep "$City")    # Try to find $City in cities.list
+                                                    # The characters up to the ':' are the city name
+                                                    # cityname=$(echo "${cityfile%%:*}")
+      SEARCHTERM=$(echo "${cityfile##*:}")          # The characters after the ':' are the country code
+      SEARCHTERM=${SEARCHTERM:0:2}                  # Ensure no trailing spaces
+      if [ $SEARCHTERM ]; then
+        Echo
+        PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
+        PrintOne "Shall we use this as your locale?"  # Allow user to confirm
+        Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      else
+        Response=2
+      fi
+      if [ $Response -eq 2 ]; then
+        City=""
+        continue
+      fi
+    else                                            # If not found, user will have to enter country code
+      Echo
+      PrintOne "Please enter a two-letter code for your country."
+      Echo
+      TPread "$SearchPrompt"                        # Could be GB or gb
+      if [ -z ${Response} ]
+      then
+        invalid_option
+        continue
+      else
+        Echo
+        Response="${Response:0:2}"                  # Make sure only two characters
+        SEARCHTERM="${Response^^}"                  # Set to all uppercase
+      fi
+    fi
+    LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq)      # Find all matching entries in locale.gen
+    local Counter=0                                 # This will be a table of locales in the
+    localelist=""                                   # form cy_GB en_GB gd_GB ...
+    for l in ${LocaleList[@]}
+    do
+      localelist="${localelist} $l"                 # Add each item to text list for handling
+      Counter=$((Counter+1))
+    done
+    if [ $Counter -eq 0 ]; then                     # If none found, try again
+      not_found
+      continue
+    fi
+    Counted=$(echo $localelist | wc -w)             # Count number of words in $localelist
+    Newlist=""
+    for (( i=1; i <= Counted; ++i ))                # Get list of all languages for locale
+    do
+      loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i item from localelist to Newlist
+      Newlist="$Newlist ${loc:0:2}"                 # First two characters are language code
+    done
+    if [ $i -lt 2 ]; then                           # No language code found
+      not_found
+      continue
+    elif [ $i -lt 3 ]; then                         # Only one language code found
+      Echo
+      Item=$(echo ${Newlist} | xargs)               # Trim any leading and trailing spaces
+      Language="$(grep $Item\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
+      PrintOne "Only one language found for your location: $Language"
+      PrintOne "Shall we use this as your language?"  # Allow user to confirm
+      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      if [ $Response -eq 2 ]; then
+        City=""
+        continue
+      else
+        CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
+        CountryCode=${CountryLocale:3:2}                     # 2 characters from position 3
+        break
+      fi
+    else
+      localelist="${Newlist}"
+    fi
+    Newlist=""
+    Prev="xyz"
+    for l in $localelist                                    # Remove any duplicates
+    do
+      if [ $l != $Prev ]; then
+        Newlist="$Newlist $l"
+        Prev=$l
+      fi
+    done
+    localelist="${Newlist}"                                 # Copy to working variable
+    choosefrom=""
+    Newlist=""
+    Counter=0                         # Prepare to limit length of file
+    local Rows=$(tput lines)          # to ensure list doesn't over-run
+    Rows=$((Rows-2))                  # Available (printable) rows
+    for l in ${localelist}
+    do
+      Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')" # Find the language
+      if [ $Item ]; then
+        choosefrom="$choosefrom $Item"                    # Create a list of languages for user
+        Newlist="$Newlist $l"                             # ... and a matching list of codes
+      fi
+      Counter=$((Counter+1))
+    done
+    localelist="${Newlist}"                               # Ensure that localelist matches choosefrom
+    print_heading
+    PrintOne "Now please choose your language from this list, or [ Exit ] to try again."
+    if [ $Counter -ge $Rows ]; then
+      listgenx "${choosefrom}" "nomessage" ""            # Alternative (numbered) list
+    else
+      listgen1 "${choosefrom}" "nomessage" ""
+    fi
+    case $Result in
+    "Exit") Echo
+    ;;
+    *) Counted=1
+      for l in ${localelist}
+      do
+        if [ $Counted -eq $Response ]; then
+          break
+        fi
+        Counted=$((Counted+1))
+      done
+      CountryLocale="${l}_${SEARCHTERM}.UTF-8"
+      CountryCode=${CountryLocale:3:2}                        # 2 characters from position 3
+      break
+    esac
+  done
+  print_heading
+  read_timed "Locale is set to: ${CountryLocale:0:5}" 1       # 5 characters from start $CountryLocale
+}
+
+getkeymap() {
+  print_heading
+  Echo
+  Countrykbd=""
+  country="${CountryLocale,,}"
+  case ${country:3:2} in
+  "gb") Term="uk"
+  ;;
+  *) Term="${country:3:2}"
+  esac
+  ListKbs=$(cat keymaps.list | grep ${Term})
+  PrintOne "Let's try to find your keyboard layout"
+  while [ -z $Countrykbd ]
+  do
+    if [ ${#ListKbs[@]} -gt 0 ]; then  # If the search based on user location found match or matches
+      Echo
+      PrintOne "The following keyboards match your location. You can"
+      PrintOne "choose one, or [ Exit ] to search for alternatives"
+      listgen1 "$ListKbs" "" ""
+      if [ ${Result} = "Exit" ]; then
+        ListKbs=""
+        print_heading
+        Echo
+        continue
+      else
+        Countrykbd="${Result}"
+      fi
+      loadkeys ${Countrykbd} 2>> feliz.log
+      continue
+    fi
+    PrintOne "If you know the code for your keyboard layout, please enter"
+    PrintOne "it now. If not, try entering a two-letter abbreviation for"
+    PrintOne "your country or language and a list will be displayed. If"
+    PrintOne "your keyboard is not listed, select [ Exit ] to try again."
+    Echo
+    TPread "(eg: 'dvorak' or 'us'): "
+    local Term="${Response,,}"
+    Echo
+    ListKbs=$(cat keymaps.list | grep ${Term})
+    if [ -n "${ListKbs}" ]; then  # If a match or matches found
+      print_heading
+      PrintOne "Select your keyboard, or [ Exit ] to try again"
+      listgen1 "$ListKbs" "" ""
+      if [ ${Result} = "Exit" ]; then
+        print_heading
+        Echo
+        continue
+      else
+        Countrykbd="${Result}"
+      fi
+      loadkeys ${Countrykbd} 2>> feliz.log
+    else
+      print_heading
+      Echo
+      PrintOne "No keyboards found containing '$Term'"
+      PrintOne "Please try again"
+    fi
+  done
+  print_heading
+  read_timed "The keyboard is now set to: '$Countrykbd'" 1
 }
 
 UserName() {
