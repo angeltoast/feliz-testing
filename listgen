@@ -404,3 +404,54 @@ listgen2() { # Advanced menuing function with extended descriptions
     return 0
   done
 }
+
+listgenx() { # Simple listing alternative to the bash 'select' function
+# This version for numbered list - retained for 'difficult' situations
+local Complete=0
+while [ $Complete -eq 0 ]
+do
+  local Done=$3
+  local Counter=0
+  MenuList=$1
+  for i in $MenuList
+  do
+    Counter=$((Counter+1))
+    if [ $Counter -eq 1 ]; then
+      PrintOne "$Counter) $i"
+    else
+      PrintMany "$Counter) $i"
+    fi
+    ConvertToArray[$Counter]=$i
+  done
+  case $Done in
+    "") Counter=$((Counter+1))
+        Done="Exit"
+        PrintMany "$Counter) Exit"
+    ;;
+    "nodone") Done=""
+    ;;
+    *) Counter=$((Counter+1))
+        PrintMany "$Counter) ${Done}"
+  esac
+  TPread "Please enter the number of your selection: "
+  case $Response in
+    '') Result="Exit"
+        Complete=1
+    ;;
+    *[!0-9]*) invalid_option
+    ;;
+    *) if [ ${Response} -gt ${Counter} ] || [ ${Response} -lt 1 ]; then
+        invalid_option
+      elif [ ${Response} -eq ${Counter} ] && [ -z $Done ]; then
+        Result=${ConvertToArray[${Response}]}
+        Complete=1
+      elif [ ${Response} -eq ${Counter} ]; then
+        Result="$Done"
+        Complete=1
+      else
+        Result=${ConvertToArray[${Response}]}
+        Complete=1
+      fi
+  esac
+done
+}

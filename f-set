@@ -25,18 +25,19 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# not_found         42    KeepOrDelete        423
-# Echo              47    ShoppingList        450
-# TPread            52    ChooseDM            552
-# SetKernel         68    SetGrubDevice       609
-# ConfirmVbox       81
-# getkeymap        105     --- Review stage ---
-# setlocale        145    FinalCheck          633
-# SetTimeZone      276    ManualSettings      740
-# SetSubZone       312    ChangeRootPartition 763
-# Username         358    ChangeSwapPartition 771
-# Hostname         374    ChangePartitions    779
-# PickLuxuries     391    AddExtras           791
+# not_found         42    SetHostname         487
+# Echo              47    PickLuxuries        504
+# TPread            52    KeepOrDelete        536
+# SetKernel         68    ShoppingList        563
+# ConfirmVbox       81    ChooseDM            665
+# getkeymap        105    SetGrubDevice       722
+# setlocale        145     --- Review stage ---
+# SetTimeZone      279    FinalCheck          746
+# SelectSubZone    319    ManualSettings      853
+# SetSubZone       328    ChangeRootPartition 876
+# America          415    ChangeSwapPartition 884
+# DoCities         446    ChangePartitions    892
+# Username         471    AddExtras           904
 # --------------------    -----------------------
 
 not_found() {
@@ -157,10 +158,14 @@ setlocale() {
                                                     # cityname=$(echo "${cityfile%%:*}")
       SEARCHTERM=$(echo "${cityfile##*:}")          # The characters after the ':' are the country code
       SEARCHTERM=${SEARCHTERM:0:2}                  # Ensure no trailing spaces
-      Echo
-      PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
-      PrintOne "Shall we use this as your locale?"  # Allow user to confirm
-      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      if [ $SEARCHTERM ]; then
+        Echo
+        PrintOne "Country code: $SEARCHTERM found from your city: ${City}."
+        PrintOne "Shall we use this as your locale?"  # Allow user to confirm
+        Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      else
+        Response=2
+      fi
       if [ $Response -eq 2 ]; then
         City=""
         continue
@@ -237,25 +242,21 @@ setlocale() {
     Rows=$((Rows-2))                  # Available (printable) rows
     for l in ${localelist}
     do
-      if [ $Counter -ge $Rows ]; then                         # Don't allow number of items
-        break                                                 # to exceed printable rows
-      else
-        Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')" # Find the language (if it exists)
-        if [ $Item ]; then
-          if [ ${SEARCHTERM} = "IN" ] && ([ $Item = "Kashmiri" ] || [ $Item = "Punjabi" ] || [ $Item = "Assamese" ]  || [ $Item = "Sindhi" ]  || [ $Item = "Korean" ]); then
-            continue                                          # Exclude minority languages in India
-          else
-            choosefrom="$choosefrom $Item"                    # Create a list of languages for user
-            Newlist="$Newlist $l"                             # ... and a matching list of codes
-          fi
-        fi
-        Counter=$((Counter+1))
+      Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')" # Find the language
+      if [ $Item ]; then
+        choosefrom="$choosefrom $Item"                    # Create a list of languages for user
+        Newlist="$Newlist $l"                             # ... and a matching list of codes
       fi
+      Counter=$((Counter+1))
     done
-    localelist="${Newlist}"                                   # Ensure that localelist matches choosefrom
+    localelist="${Newlist}"                               # Ensure that localelist matches choosefrom
     print_heading
     PrintOne "Now please choose your language from this list, or [ Exit ] to try again."
-    listgen1 "${choosefrom}" "nomessage" ""
+    if [ $Counter -ge $Rows ]; then
+      listgenx "${choosefrom}" "nomessage" ""            # Alternative (numbered) list
+    else
+      listgen1 "${choosefrom}" "nomessage" ""
+    fi
     case $Result in
     "Exit") Echo
     ;;
@@ -283,132 +284,79 @@ SetTimeZone() {
     print_heading
     PrintOne "To set the system clock, please first"
     PrintOne "choose the World Zone of your location."
-    Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq)
+    Zones=$(timedatectl list-timezones | sed 's/\/.*$//' | uniq) # Ten world zones
     Echo
     zones=""
-    for x in ${Zones[@]}
+    for x in ${Zones[@]}                      # Convert to space-separated list
     do
       zones="$zones $x"
     done
-    listgen1 "${zones}" "" "nocancel"
+    listgen1 "${zones}" "" "nocancel"         # Allow user to select one
     ZONE=$Result
     Echo
-    case $Result in
+    case $Result in                           # UTC requires no subzone
       "UTC") SUBZONE=""
           print_heading
-          read_timed "Zone set to: '$ZONE'" 1
+          read_timed "Zone set to: '$ZONE'" 1 # Display and exit
           break
       ;;
-      "Exit") continue
-      ;;
-      *) SetSubZone
-        case $SUBZONE in
+      *) SetSubZone                           # Call subzone function
+        case $SUBZONE in                      # If user elects to change zone
         "Exit") SUBZONE=""
             continue
-        ;;
-        "") continue
-        ;;
-        *) print_heading
+      ;;
+      "") continue                            # ... or if escape, etc
+      ;;
+      *) print_heading                        # Should be complete
           read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
-          break
         esac
+    esac
+  done
+}
+
+SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
+  SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')
+  Ocean=0
+  SUBZONE=""
+  while [ -z $SUBZONE ]
+  do
+    case $ZONE in
+    "Antarctica") SelectSubzone
+    ;;
+    "Arctic") SUBZONE="Longyearbyen"
+    ;;
+    "Atlantic") Ocean=1
+      SelectSubzone
+    ;;
+    "Australia") Ocean=1
+      SelectSubzone
+    ;;
+    "Indian") Ocean=1
+      SelectSubzone
+    ;;
+    "Pacific") Ocean=1
+      SelectSubzone
+    ;;
+    "America") America
+     ;;
+    *)  SelectSubzone
     esac
   done
 }
 
 SelectSubzone() {
   print_heading
-    PrintOne "Now choose your location from this list"
-    PrintOne "... or [ Exit ] to try again if it is not there"
-    Echo
-    listgen1 "$SubZones" "" ""
-    SUBZONE=$Result
-}
-
-SetSubZone() {
-  SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')
-  SUBZONE=""
-  while :
-  do
-    print_heading
-    Echo
-    case $ZONE in
-    "Antarctica") SelectSubzone
-    ;;
-    "Arctic") SUBZONE="Longyearbyen"
-    ;;
-    "Atlantic") PrintOne "Now we need to find your location in the $ZONE"
-      PrintOne "ocean. Please enter the first letter of the island"
-      PrintOne "or group where you are located."
-      SelectSubzone
-    ;;
-    "Australia") SelectSubzone
-    ;;
-    "Indian") PrintOne "Now we need to find your location in the $ZONE"
-      PrintOne "ocean. Please enter the first letter of the island"
-      PrintOne "or group where you are located."
-      SelectSubzone
-    ;;
-    "Pacific") PrintOne "Now we need to find your location in the $ZONE"
+  case $Ocean in
+  1) PrintOne "Now we need to find your location in the $ZONE"
       PrintOne "ocean. Please enter the first letter of the island"
       PrintOne "or group where you are located."
     ;;
-    "America") America
-        if [ $SUBZONE ]; then
-          break
-        else
-          print_heading
-          PrintOne "Ok, now we can search on the first"
-          PrintOne "letter of your nearest major city"
-          Echo
-        fi
-    ;;
-    *) PrintOne "Now we need to find your location in $ZONE - Please"
-      PrintOne "enter the first letter of your nearest major city."
-    esac
-    case $SUBZONE in
-    "Exit") SUBZONE=""
-       break
-    ;;
-    "") PrintOne "To change the World Zone, leave blank."
-      Echo
-    ;;
-    *) break
-    esac
-    TPread "Please enter the initial letter: "
-    Echo
-    if [ -z ${Response} ]
-    then
-      SUBZONE=""
-      SetTimeZone
-    else
-      Response="${Response:0:1}"  # In case user enters more than one letter
-      Zone2="${Response^^}"     # Convert the first letter to upper case
-    fi
-    subzones=""
-    local Counter=0
-    for x in ${SubZones[@]}
-    do
-      if [ ${x:0:1} = ${Zone2} ]; then    # 1 character at position 0 in string $x
-        subzones="$subzones $x"
-        Counter=$((Counter+1))
-      fi
-    done
-    if [ ${Counter} -eq 0 ]; then
-      not_found
-      continue
-    fi
-    print_heading
-    PrintOne "Now choose your nearest location from this list"
-    PrintOne "... or [ Exit ] to try again if it is not there"
-    listgen1 "$subzones" "nomessage" ""
-    case $Result in
-      "Exit") SUBZONE=""
-      ;;
-      *) SUBZONE=$Result
-    esac
-    break
-  done
+  *) PrintOne "Now we need to find your location in $ZONE"
+    PrintOne "Please enter the first letter of your nearest major city"
+  esac
+  PrintOne "... or leave blank to select another world zone"
+  Echo
+  FindCity
 }
 
 America() {
@@ -434,15 +382,58 @@ America() {
   SubList="$SubList None_of_these"        # Add a decline option
   listgen1 "$SubList"
   case $Result in
-  "None_of_these") Echo                   # No subgroup. Hand back to calling function
+  "None_of_these") SelectSubzone          # No subgroup, call general city function
+  ;;
+  "Exit") SetTimeZone
   ;;
   *) SubGroup=$Result                     # Save subgroup for next function
     ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
-    DoCities
+    DoCities                              # City function for subgroups
   esac
 }
 
-DoCities() {
+FindCity() {  # Called by SelectSubzone
+  TPread "Please enter the initial letter: "
+  Echo
+  if [ -z ${Response} ]
+  then
+    SUBZONE=""
+    SetTimeZone
+  else
+    Response="${Response:0:1}"        # In case user enters more than one letter
+    Zone2="${Response^^}"             # Convert the first letter to upper case
+  fi
+  subzones=""
+  local Rows=$(tput lines)            # Used to allow for longer (numbered) lists
+  Rows=$((Rows-6))                    # Available (printable) rows
+  local Counter=0
+  for x in ${SubZones[@]}             # Search long list of subzones that match ZONE
+  do                                  # to find those that start with user's letter
+    if [ ${x:0:1} = ${Zone2} ]; then  # If first character in subzone matches ...
+      subzones="$subzones $x"         # Save to list
+      Counter=$((Counter+1))
+    fi
+  done
+  if [ ${Counter} -eq 0 ]; then       # None found
+    not_found
+    continue
+  fi
+  print_heading
+  PrintOne "Now choose your nearest location from this list"
+  PrintOne "... or [ Exit ] to try again if it is not there"
+  if [ $Counter -ge $Rows ]; then
+    listgenx "$subzones" "" ""
+  else
+    listgen1 "$subzones" "nomessage" ""
+  fi
+  case $Result in
+    "Exit") SUBZONE=""
+    ;;
+    *) SUBZONE=$Result
+  esac
+}
+
+DoCities() { # Specifically for America, which has subgroups
   print_heading
   Cities=""
   case $SubGroup in
