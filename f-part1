@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 4th December 2016
+# Revision date: 22nd December 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -608,6 +608,7 @@ AllocateSwap() {
 }
 
 NoPartitions() { # There are no unallocated partitions
+  print_heading
   PrintOne "There are no partitions available for swap,"
   PrintOne "but you can allocate a swap file, if you wish."
   Message="Create a swap file?: "

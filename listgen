@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Developed by Elizabeth Mills
-# Revision date: 6th December 2016
+# Revision date: 22nd December 2016
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@ invalid_option() {
 }
 
 print_heading() {   # Always use this function to clear the screen
+  tput sgr0         # Make sure colour inversion is reset
   clear
   T_COLS=$(tput cols)                   # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
@@ -405,8 +406,8 @@ listgen2() { # Advanced menuing function with extended descriptions
   done
 }
 
-listgenx() { # Calling function creates a file: input.file before calling listgenx
-              # input.file must be one record per line
+listgenx() { # Calling function creates input.file before calling listgenx
+             # input.file must be one record per line
 
              # This version of listgen is to create numbered lists for 'difficult'
              # situations. Calling function can send optional 'Headline' string as
@@ -497,8 +498,8 @@ listgenx() { # Calling function creates a file: input.file before calling listge
         fi
       done
 
-      if [ $((PageWidth+ColumnWidth)) -lt $terminal_width ]; then # Page is not full
-        PageWidth=$((PageWidth+ColumnWidth))  # Add column width to page width accumulator
+      if [ $((PageWidth+ColumnWidth+1)) -lt $terminal_width ]; then # Page is not full
+        PageWidth=$((PageWidth+ColumnWidth+1))  # Add column width to page width accumulator
         Page="$Page $column"                  # and append the column number to this page
       fi
 
@@ -571,7 +572,6 @@ PrintPage() {
   PageWidth=${PageWidths[${PageNumber}]}        # Full width of this page
   column_start=$(( terminal_centre - (PageWidth/2) -3 ))
   cursor_row=$top_row                           # Start at top row
-
   while :
   do
     local Counter=1
@@ -596,7 +596,8 @@ PrintPage() {
     tput cup $((bottom_row+1)) 0                    # Then back to row below bottom row
     TPread "Please enter the number of your selection: "
     case $Response in
-    '' | "Exit" | "exit") return 0                  # Quit without selecting anything
+    '' | "Exit" | "exit") Result="Exit"
+      return 0                  # Quit without selecting anything
     ;;
     "<") return 1                                   # Previous page, if valid
     ;;

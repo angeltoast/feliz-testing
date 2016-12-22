@@ -2,24 +2,40 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 15th December 2016
+# Revision date: 22nd December 2016
 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation - either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+#      WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#            General Public License for more details.
+
+# A copy of the GNU General Public License is available from the Feliz2
+#        page at http://sourceforge.net/projects/feliz2/files
+#        or https://github.com/angeltoast/feliz2, or write to:
+#                 The Free Software Foundation, Inc.
+#                  51 Franklin Street, Fifth Floor
+#                    Boston, MA 02110-1301 USA
 # In this module: functions for setting variables used during installation
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# not_found         42    PickLuxuries        426
-# Echo              47    KeepOrDelete        458
-# TPread            52    ShoppingList        485
-# SetKernel         68    ChooseDM            587
-# ConfirmVbox       81    SetGrubDevice       644
-# SetTimeZone      105     --- Review stage ---
-# SetSubZone       142    FinalCheck          668
-# America          160    ManualSettings      775
-# setlocale        197    ChangeRootPartition 798
-# getkeymap        331    ChangeSwapPartition 806
-# Username         393    ChangePartitions    814
-# SetHostname      409    AddExtras           826
+# not_found         41    SetHostname         441
+# Echo              46    PickLuxuries        458
+# TPread            51    KeepOrDelete        490
+# SetKernel         67    ShoppingList        517
+# ConfirmVbox       80    ChooseDM            619
+# SetTimeZone      104    SetGrubDevice       676
+# SetSubZone       140     --- Review stage ---
+# America          183    FinalCheck          699
+# setlocale        222    ManualSettings      829
+# SearchKeyboards  390    ChangeSwapPartition 837
+# getkeymap        359    ChangePartitions    845
+# Username         425    AddExtras           857
 # --------------------    -----------------------
 
 not_found() {
@@ -109,13 +125,11 @@ SetTimeZone() {
           break
       ;;
       *) SetSubZone                           # Call subzone function
-        case $SUBZONE in                      # If user elects to change zone
-        "Exit") SUBZONE=""
-          continue
+        case $Result in                       # If user quits
+        "Exit" | "") SUBZONE=""
         ;;
-        "") continue                            # ... or if escape, etc
-        ;;
-        *) print_heading                        # Should be complete
+        *) SUBZONE="$Result"
+          print_heading
           read_timed "Zone and Subzone set to: '$ZONE/$SUBZONE'" 1
         esac
     esac
@@ -129,7 +143,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   Instructionx="Please choose your nearest location in $ZONE $Ocean, or type Exit to go back"
   Instructiony="Please choose your nearest location in $ZONE $Ocean, or [Exit] to go back"
 
-  while [ -z $SUBZONE ]
+  while :
   do
     case $ZONE in
     "Arctic") SUBZONE="Longyearbyen"
@@ -137,39 +151,32 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
     "Antarctica" | "Australia") print_heading
       PrintOne ="Please choose your nearest location in ${ZONE}, or [Exit] to go back"
       listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')"
-      if [ $Response = "Exit" ] || [ $Response = "" ]; then
-        break
-      else
-        SUBZONE="$Result"
+      if [ $Result = "Exit" ] || [ $Result = "" ]; then
+        SetTimeZone
       fi
     ;;
     "Atlantic" | "Indian") print_heading
       PrintOne ="Please choose your nearest location in $ZONE Ocean, or [Exit] to go back"
       listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')"
-      if [ $Response = "Exit" ] || [ $Response = "" ]; then
-        break
-      else
-        SUBZONE="$Result"
+      if [ $Result = "Exit" ] || [ $Result = "" ]; then
+        SetTimeZone
       fi
     ;;
     "Pacific") timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///' > input.file
       listgenx "Please choose your nearest location in $ZONE Ocean, or type Exit to go back"
-      if [ $Response = "Exit" ] || [ $Response = "" ]; then
-        break
-      else
-        SUBZONE="$Result"
+      if [ $Result = "Exit" ] || [ $Result = "" ]; then
+        SetTimeZone
       fi
     ;;
     "America") America
      ;;
     *) timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///' > input.file  # List of subzones
       listgenx "Please choose your nearest location in ${ZONE}, or type Exit to go back"
-      if [ $Response = "Exit" ] || [ $Response = "" ]; then
-        break
-      else
-        SUBZONE="$Result"
+      if [ $Result = "Exit" ] || [ $Result = "" ]; then
+        SetTimeZone
       fi
     esac
+    break
   done
 }
 
@@ -199,7 +206,6 @@ America() {
   case $Result in
   "None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | tr '/' ' ' | awk '{print $2}' > input.file
     listgenx "$Instruction"
-    SUBZONE=$Result
   ;;
   '' | "Exit") SetTimeZone
   ;;
@@ -207,21 +213,18 @@ America() {
     print_heading
     PrintOne "Please choose your nearest location in $ZONE or Exit to go back"
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/${SubGroup} | tr '/' ' ' | awk '{print $NF}')"
-    case $Result in
-    '' | "Exit") SetTimeZone
-    ;;
-    *) SUBZONE=$Result
-    esac
+    if [ $Result = "" ] || [ $Result = "Exit" ]; then
+      SetTimeZone
+    fi
   esac
 }
 
-setlocale() { # Completely rewritten using new matching country-code in cities.list
-              # This will make it possible (at last!) to match ZONE/SUBZONE to country-code,
-              # and hence to the list of languages generated from /etc/locale.gen in the
-              # form: en_GB
+setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to country-code,
+              # and hence to the list of languages generated from /etc/locale.gen
   SearchPrompt=" (for example: GB or PT): "
   ZoneID="${ZONE}/${SUBZONE}"         # Use a copy of zones set in SetTimeZone (eg: Europe/London)
-  while :
+  CountryLocale=""
+  while [ -z $CountryLocale ]
   do
     location=$(grep "$ZoneID" cities.list)  # Find location in cities.list
     SEARCHTERM=$(echo "${location}" | awk -F':' '{ print $2 }' ) # field $2 is the country code
@@ -231,7 +234,10 @@ setlocale() { # Completely rewritten using new matching country-code in cities.l
     print_heading
     LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq) # Find all matching entries in locale.gen
                                                # This will be a table of locales in the form: en_GB
-    HowMany=$(echo $LocaleList | wc -w)
+    HowMany=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | sed 's/\..*$//' | sed 's/#//g' | awk '{print $1}' | sort | uniq | wc -w)
+
+    Rows=$(tput lines)                        # to ensure menu doesn't over-run
+    Rows=$((Rows-4))                                # Available (printable) rows
     case $HowMany in
     0) # offer English, French, Spanish
       Echo
@@ -252,20 +258,24 @@ setlocale() { # Completely rewritten using new matching country-code in cities.l
         *) Result="Exit"
         esac
 
-        if [ $Result != "Exit" ]; then
+        if [ $Result = "Exit" ]; then
+          AllLanguages
+          if [ $Result = "Exit" ]; then
+            SetTimeZone
+          else
+            CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
+            CountryCode=${CountryLocale:3:2}            # 2 characters from position 3
+          fi
+        else
           CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
           CountryCode=${CountryLocale:3:2}            # 2 characters from position 3
-          break 3
-        else
-          break 2
         fi
       fi
     ;;
-    1) # First get full name from languages.list
-      Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
+    1) # First get full language name from languages.list
+      Item="${LocaleList:0:2}"     # First two characters of the record in locale.gen (eg: en)
+      Language="$(grep :$Item languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
       Echo
-      Item=$(echo ${Newlist} | xargs)               # Trim any leading and trailing spaces
-      Language="$(grep $Item\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
       PrintOne "Only one language found for your location: $Language"
       PrintOne "Shall we use this as your language?" # Allow user to confirm
       Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
@@ -275,83 +285,102 @@ setlocale() { # Completely rewritten using new matching country-code in cities.l
       else
         CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
         CountryCode=${CountryLocale:3:2}            # 2 characters from position 3
-        break
       fi
     ;;
     *) # Check the short code for each language against long names in language.list
-      local Counter=0
-      localelist=""
-      for l in ${LocaleList[@]}                       # Convert to space-separated list
-      do
-        localelist="${localelist} $l"                 # Add each item to text list for handling
-        Counter=$((Counter+1))
-      done
-      if [ $Counter -eq 0 ]; then                     # If none found, try again
-        not_found
-        SetTimeZone
-      fi
-      Counted=$(echo $localelist | wc -w)             # Count number of words in $localelist
-      Newlist=""                                      # Prepare to make list of language names from codes
-      for (( i=1; i <= Counted; ++i ))
-      do                                              # For each item in localelist (eg: en_GB)
-        loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i-th item from localelist
-        Newlist="$Newlist ${loc:0:2}"                 # Add first two characters (language code) to list
-      done
-      # If more than one language found
-      localelist="${Newlist}"                         # Save the list to continue
-      Newlist=""                                      # Prepare new empty list
-      Prev="xyz"                                      # Arbitrary comparison
-      for l in $localelist                            # Remove any duplicates
-      do
-        if [ $l != $Prev ]; then
-          Newlist="$Newlist $l"
-          Prev=$l
-        fi
-      done
-      localelist="${Newlist}"                         # Copy to working variable
-      choosefrom=""
-      Newlist=""                                      # Empty new list again
-      Counter=0                                       # Prepare to limit length of file
-      local Rows=$(tput lines)                        # to ensure menu doesn't over-run
-      Rows=$((Rows-4))                                # Available (printable) rows
-      for l in ${localelist}
-      do                                              # Find the language in languages.list
-        Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
-        if [ $Item ]; then                            # If found
-          choosefrom="$choosefrom $Item"              # Add to list of languages for user
-          Newlist="$Newlist $l"                       # ... and a matching list of codes
-        fi
-        Counter=$((Counter+1))
-      done
-      localelist="${Newlist}"                         # Ensure that localelist matches choosefrom
-      if [ $Counter -ge $Rows ]; then                 # Too many to display in menu, so use listgenx
-        echo $ChooseFrom > input.file                 # Prepare file for listgenx to display numbered list
-        listgenx "Now please choose your language from this list, or [ Exit ] to try again."
-        Language=grep "$Result" languages.list
+      if [ $HowMany -ge $Rows ]; then                 # Too many to display in menu, so use listgenx
+
+        # Make a shortlist of language codes
+        rm input.file
+        ShortList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | awk '{print $2}' | cut -c 1-2 | uniq)
+        for l in ${ShortList}
+        do
+          grep "$l$" languages.list >> input.file
+        done
+        listgenx "Now please choose your language from this list, or type 'Exit' to try again."
       else
+        local Counter=0
+        localelist=""
+        for l in ${LocaleList[@]}                       # Convert to space-separated list
+        do
+          localelist="${localelist} $l"                 # Add each item to text list for handling
+          Counter=$((Counter+1))
+        done
+        if [ $Counter -eq 0 ]; then                     # If none found, try again
+          not_found
+          SetTimeZone
+        fi
+        Counted=$(echo $localelist | wc -w)             # Count number of words in $localelist
+        Newlist=""                                      # Prepare to make list of language names from codes
+        for (( i=1; i <= Counted; ++i ))
+        do                                              # For each item in localelist (eg: en_GB)
+          loc=$(echo $localelist | awk "{print \$$i}")  # Save the $i-th item from localelist
+          Newlist="$Newlist ${loc:0:2}"                 # Add first two characters (language code) to list
+        done
+        # If more than one language found
+        localelist="${Newlist}"                         # Save the list to continue
+        Newlist=""                                      # Prepare new empty list
+        Prev="xyz"                                      # Arbitrary comparison
+        for l in $localelist                            # Remove any duplicates
+        do
+          if [ $l != $Prev ]; then
+            Newlist="$Newlist $l"
+            Prev=$l
+          fi
+        done
+        localelist="${Newlist}"                         # Copy to working variable
+        choosefrom=""
+        Newlist=""                                      # Empty new list again
+        Counter=0                                       # Prepare to limit length of file
+        for l in ${localelist}
+        do                                              # Find the language in languages.list
+          Item="$(grep $l\$ languages.list | awk 'BEGIN { FS = ":"; OFS = ":" } {print $1}')"
+          if [ $Item ]; then                            # If found
+            choosefrom="$choosefrom $Item"              # Add to list of languages for user
+            Newlist="$Newlist $l"                       # ... and a matching list of codes
+          fi
+          Counter=$((Counter+1))
+        done
+        localelist="${Newlist}"                         # Ensure that localelist matches choosefrom
         print_heading
         PrintOne "Now please choose your language from this list, or [ Exit ] to try again."
-        listgen1 "${choosefrom}" "nomessage" ""       # Menu if less than one screenful
+        listgen1 "${choosefrom}" "nomessage" ""         # Menu if less than one screenful
+        Result=$(grep $Result languages.list)           # Lookup the result in languages file
+        Result=${Result: -2:2}                          # Just the last two characters
       fi
-      case $Result in
-      "Exit") SetTimeZone
-      ;;
-      *) Counted=1
-        for l in ${localelist}
-        do
-          if [ $Counted -eq $Response ]; then
-            break
-          fi
-          Counted=$((Counted+1))
-        done
-        CountryLocale="${l}_${SEARCHTERM}.UTF-8"
-        CountryCode=${CountryLocale:3:2}              # 2 characters from position 3
-        break
-      esac
+    esac
+    case $Result in
+    "Exit" | "") AllLanguages
+        if [ $Result = "Exit" ]; then
+          SetTimeZone
+        else
+          CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
+          CountryCode=${CountryLocale:3:2}              # 2 characters from position 3
+        fi
+    ;;
+    *) loc=${Result: -2:2}
+      CountryLocale="${loc}_${SEARCHTERM}.UTF-8"
+      CountryCode=${CountryLocale:3:2}                  # 2 characters from position 3
     esac
   done
   print_heading
-  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # 5 characters from start $CountryLocale
+  read_timed "Locale is set to: ${CountryLocale:0:5}" 1 # 5 characters from start of $CountryLocale
+}
+
+AllLanguages() {
+  while :
+  do
+    print_heading
+    Echo
+    cat languages.list > input.file                 # Prepare file for listgenx to display all languages
+    listgenx "Please choose your language from this list, or type 'Exit' to start again."
+    if [ $Result = "" ] || [ $Result = "Exit" ]; then
+      SetTimeZone
+    else
+      Result="${Result: -2:2}"
+      break
+    fi
+  done
 }
 
 getkeymap() {
@@ -363,22 +392,47 @@ getkeymap() {
   *) Term="${country:3:2}"
   esac
   ListKbs=$(cat keymaps.list | grep ${Term})
+  Found=$(cat keymaps.list | grep ${Term} | wc -l)  # Count records
   while [ -z $Countrykbd ]
   do
     print_heading
     Echo
-    if [ ${#ListKbs[@]} -gt 0 ]; then  # If the search based on user location found match or matches
-      PrintOne "The following keyboards match your location. You can"
-      PrintOne "choose one, or [ Exit ] to search for alternatives"
-      listgen1 "$ListKbs" "" ""
-      if [ ${Result} = "Exit" ]; then
-        SearchKeyboards
-      else
-        Countrykbd="${Result}"
-      fi
+    case $Found in
+    0)  # If the search found no matches
+      read_timed "Sorry, no keyboards found based on your location" 2
+      SearchKeyboards
+    ;;
+    1)  # If the search found one match
+      PrintOne "Only one keyboard found based on your location"
+      PrintOne "Do you wish to accept this? Select [ No ] to search for alternatives"
+      Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+      case ${Result} in
+      "Exit"|"exit"|"") SearchKeyboards
+      ;;
+      *) Countrykbd="${Result}"
+      esac
       loadkeys ${Countrykbd} 2>> feliz.log
-      continue
-    fi
+    ;;
+    *) # If the search found multiple matches
+      if [ $Found -ge $Rows ]; then
+        rm input.file
+        for i in $ListKbs
+        do
+          echo $i >> input.file
+        done
+        listgenx "Please choose one of the following, or type 'Exit' to search for alternatives"
+      else
+        PrintOne "The following keyboards match your location. You can"
+        PrintOne "choose one, or [ Exit ] to search for alternatives"
+        listgen1 "$ListKbs" "" ""
+      fi
+      case ${Result} in
+      "Exit"|"exit"|"") SearchKeyboards
+      ;;
+      *) Countrykbd="${Result}"
+      esac
+      loadkeys ${Countrykbd} 2>> feliz.log
+    esac
   done
   print_heading
   read_timed "The keyboard is now set to: '$Countrykbd'" 1
