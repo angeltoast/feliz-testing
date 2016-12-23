@@ -415,11 +415,11 @@ SetUserPassword() {
 Restart() {
   print_heading
   Echo
-  read_timed "Congratulations, installation is complete." 1
+  PrintOne "Congratulations, installation is complete."
   Echo
-  read_timed "The computer will now shut down, so you can" 1
-  read_timed "remove the installation media before rebooting." 1
-  Echo
+  PrintOne "The computer will now shut down, so you can"
+  PrintOne "remove the installation media before rebooting."
+  read_timed
   shutdown -h now
 }
 
