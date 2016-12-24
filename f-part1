@@ -638,6 +638,7 @@ SetSwapFile() {
       SwapFile=""
     else
       SwapFile=$RESPONSE
+      print_heading
       break
     fi
   done
