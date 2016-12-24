@@ -413,13 +413,15 @@ getkeymap() {
       loadkeys ${Countrykbd} 2>> feliz.log
     ;;
     *) # If the search found multiple matches
+      Rows=$(tput lines)                          # to ensure menu doesn't over-run
+      Rows=$((Rows-4))                            # Available (printable) rows
       if [ $Found -ge $Rows ]; then
         rm input.file
         for i in $ListKbs
         do
           echo $i >> input.file
         done
-        listgenx "Please choose one of the following, or type 'Exit' to search for alternatives"
+        listgenx "Choose one of the following keyboards, or type 'Exit' to enter manually"
       else
         PrintOne "The following keyboards match your location. You can"
         PrintOne "choose one, or [ Exit ] to search for alternatives"
