@@ -72,7 +72,7 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
 }
 
 EasyDevice() {            # Get details of device to use from all connected devices
-  DiskDetails=$(lsblk -l | grep 'disk' | awk '{print $1}')  # eg: sda
+  DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=0
   CountDisks=0
