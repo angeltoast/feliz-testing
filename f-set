@@ -92,11 +92,11 @@ Text="$1"
 
 RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1) # Get line number of text in english.lan
 
-if [ $RecordNumber ]; then                                  # If found
-  Result="$(head -n $RecordNumber $Language | tail -n 1)"   # Read item from target file
-else
-  Result="$Text"
-fi
+case $RecordNumber in                                  # If found
+"" | 0) Result="$Text"
+;;
+*) Result="$(head -n ${RecordNumber} ${Language} | tail -n 1)"   # Read item from target file
+esac
 
 }
 

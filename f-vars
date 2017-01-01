@@ -46,7 +46,7 @@ PrintOne() { # Text is translated, then aligned according to content and screen 
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  Echo "$EMPTY $1"
+  Echo "$EMPTY $Text"
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
