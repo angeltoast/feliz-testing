@@ -88,18 +88,15 @@ else
   Language=english.lan
 fi
 
-Result="Some text"
 Text="$1"
 
-RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1)  # Get the line number of the text in english.lan
+RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1) # Get line number of text in english.lan
 
-if [ $RecordNumber ]; then                             # If found
-  Result=$(head -n $RecordNumber $Language | tail -1)  # Read item from target file into global variable Result
+if [ $RecordNumber ]; then                                  # If found
+  Result="$(head -n $RecordNumber $Language | tail -n 1)"   # Read item from target file
 else
   Result="$Text"
 fi
-
-echo $RecordNumber
 
 }
 
