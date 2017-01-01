@@ -27,6 +27,7 @@
 # not_found         41    SetHostname         441
 # Echo              46    PickLuxuries        458
 # TPread            51    KeepOrDelete        490
+# SetLanguage
 # SetKernel         67    ShoppingList        517
 # ConfirmVbox       80    ChooseDM            619
 # SetTimeZone      104    SetGrubDevice       676
@@ -43,8 +44,8 @@ not_found() {
   read_timed "Not found. Please try again ..." 1
 }
 
-Echo() { # Use in place of echo for all screen display
-  printf "%-s\n" "$1"
+Echo() { # Use in place of echo for all null text
+  printf "%-s\n" " "
   cursor_row=$((cursor_row+1))
 }
 
@@ -62,6 +63,44 @@ TPread() { # Aligned prompt for user-entry
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
   cursor_row=$((cursor_row+1))
+}
+
+SetLanguage() {
+  print_heading
+  listgen1 "$(ls *.lan | cut -d'.' -f1)"
+  case $Result in
+  '' | 'Exit') Language=english.lan
+  ;;
+  *) Language="${Result}.lan"
+  esac
+}
+
+Translate() { # Called by ReadOne & ReadMany
+# The first language file english.lan has been created,
+# with all calls to PrintOne and PrintMany recorded.
+# Each language file must match this exactly.
+
+# Receives 2 arguments: $1 is text to be translated; $2 is target language
+
+if [ $2 ]; then
+  Language=$2
+else
+  Language=english.lan
+fi
+
+Result="Some text"
+Text="$1"
+
+RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1)  # Get the line number of the text in english.lan
+
+if [ $RecordNumber ]; then                             # If found
+  Result=$(head -n $RecordNumber $Language | tail -1)  # Read item from target file into global variable Result
+else
+  Result="$Text"
+fi
+
+echo $RecordNumber
+
 }
 
 SetKernel() {
@@ -138,7 +177,6 @@ SetTimeZone() {
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
 
-  # SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///') # Not used
   SUBZONE=""
 
   while :
@@ -393,6 +431,9 @@ getkeymap() {
   esac
   ListKbs=$(cat keymaps.list | grep ${Term})
   Found=$(cat keymaps.list | grep ${Term} | wc -l)  # Count records
+  if [ ! $Found ]; then
+    Found=0
+  fi
   while [ -z $Countrykbd ]
   do
     print_heading
@@ -512,7 +553,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
   print_heading
   case "$LuxuriesList" in
-  "") PrintOne "Now you have the option to add extras, such as a web browser,"
+  '') PrintOne "Now you have the option to add extras, such as a web browser,"
     PrintOne "desktop environment, etc, from the following categories."
     PrintOne "If you want only a base Arch installation, exit without choosing any extras."
   ;;
@@ -528,7 +569,7 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       ShoppingList
       print_heading
-      PrintOne "Added so far:: ${LuxuriesList}"
+      PrintOne "Added so far: ${LuxuriesList}"
       PrintOne "You can now choose from any of the other lists,"
       PrintOne "or choose [ Exit ] to finish this part of the setup."
     fi

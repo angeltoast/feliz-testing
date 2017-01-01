@@ -132,8 +132,8 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
     #                           |includes word | select 1st field | cut /dev/ | remove colon
     ListTypeIDs=$(blkid /dev/sd* | grep ' TYPE' | cut -d':' -f1 | cut -d'/' -f3)
     # Then a matching array of types
-    #                         |includes word |  select last field   | remove TYPE | remove quotes
-    ListTypes=$(blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -c 6- | sed s/\"//g)
+    #                          |includes TYPE |  select last field   | remove TYPE & quotes
+    ListTypes=$(blkid /dev/sd* | grep ' TYPE' | awk '{print $(NF-1)}' | cut -d'"' -f2)
     # Add records from those two indexed arrays into the associative array
     local Counter=0
     for i in ${ListTypeIDs}
@@ -174,7 +174,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
   local HowManyLabelled="${#Labelled[@]}"
 
   # 3) Find any partitions flagged as bootable
-  ListAll=$(sfdisk -Ll | grep /dev | grep '*' | cut -d' ' -f1 | cut -d'/' -f3)
+  ListAll=$(sfdisk -l | grep /dev | grep '*' | cut -d' ' -f1 | cut -d'/' -f3)
   declare -a Flagged
   Counter=0
   for i in $ListAll
@@ -314,7 +314,7 @@ AutoWarning() {
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
         PrintOne "Partitioning of ${GrubDevice} successful"
-        PrintOne "-------------------------------------"
+        Echo
         PrintMany "$ShowPart1"
         PrintMany "$ShowPart2"
         PrintMany "$ShowPart3"
@@ -723,7 +723,7 @@ MakePartition() { # Called by MorePartitions
     # Check that entry includes '/'
     CheckInput=${Response:0:1}        # First character of ${Response}
     case ${CheckInput} in
-      "") PrintOne "You must enter a valid mountpoint"
+      '') PrintOne "You must enter a valid mountpoint"
           PartMount=""
           ;;
       *) if [ ${CheckInput} != "/" ]; then
@@ -793,9 +793,6 @@ local HowMany="${#PartitionArray[@]}"
 local x=0
 until [ ${x} -eq ${HowMany} ]
 do
-
-read -p "SetLabel at line $LINENO in f-part1 ... ${PartitionArray[${x}]}"
-
   CompareID=$(echo ${PartitionArray[${x}]} | awk '{print $1}')
   if [ -z ${CompareID} ]; then
     x=$((x+1))

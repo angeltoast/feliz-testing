@@ -349,25 +349,23 @@ UserAdd() {
 
 SetRootPassword() {
   print_heading
-  echo
+  Echo
   PrintOne "Success!"
-  echo
+  Echo
   PrintOne "Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
-  echo
-  PrintOne "-----------------------"
-  echo
+  Echo
   PrintOne "Finally we need to set passwords ..."
-  echo
+  Echo
   PrintOne "Note that you will not be able to "
   PrintOne "see passwords as you enter them ..."
-  echo
+  Echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
     read -s -p "Enter a password for root: " Pass1
-    echo
+    Echo
     read -s -p "Re-enter password for root: " Pass2
-    echo
+    Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
       read_timed "Passwords cannot be blank. Try again ..." 1
@@ -386,14 +384,14 @@ SetRootPassword() {
 }
 
 SetUserPassword() {
-  echo
+  Echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
     read -s -p "Enter a password for $UserName: " Pass1
-    echo
+    Echo
     read -s -p "Re-enter password for $UserName: " Pass2
-    echo
+    Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
       read_timed "Passwords cannot be blank. Try again ..." 1
@@ -406,7 +404,7 @@ SetUserPassword() {
       Repeat="N"
     else
       print_heading
-      echo "Passwords don't match. Try again"
+      PrintOne "Passwords don't match. Try again"
       continue
     fi
   done
