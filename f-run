@@ -147,6 +147,10 @@ InstallKernel() {   # Selected kernel and some other core systems
 
   LANG=C            # Temporary addition to overcome bug in Arch
 
+  TPecho "Updating keys"
+  pacman-key --init # And this trying to solve keys issue
+  pacman-key --populate archlinux
+
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
