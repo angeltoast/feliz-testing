@@ -233,9 +233,6 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
     HowMany=$(echo $LocaleList | wc -w)   # Count them
     Rows=$(tput lines)       # Ensure menu doesn't over-run
     Rows=$((Rows-4))         # Available (printable) rows
-
-read -p "setlocale on f-set at line $LINENO : $SEARCHTERM $HowMany $LocaleList $Rows"
-
     case $HowMany in         # Offer language options for the selected country
     0) print_heading
       Echo

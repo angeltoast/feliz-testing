@@ -148,8 +148,10 @@ InstallKernel() {   # Selected kernel and some other core systems
   LANG=C            # Temporary addition to overcome bug in Arch
 
   TPecho "Updating keys"
+  pacman-db-upgrade
   pacman-key --init # And this trying to solve keys issue
   pacman-key --populate archlinux
+  pacman-key --refresh-keys
 
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
