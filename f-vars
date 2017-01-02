@@ -91,14 +91,12 @@ SetLanguage() {
 }
 
 Translate() { # Called by ReadOne & ReadMany and by other functions as required
-              # Receives 2 arguments: $1 is text to be translated; $2 is target language
-  if [ $2 ]; then
-    Language=$2
-  else
-    Language=english.lan
-  fi
+              # $1 is text to be translated
   Text="$1"
   RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1) # Get line number of text in english.lan
+
+  read -p "Translate line #$LINENO $RecordNumber $Text"
+
   case $RecordNumber in
   "" | 0) Result="$Text"                                        # If not found, use English
   ;;

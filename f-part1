@@ -309,8 +309,8 @@ AutoWarning() {
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     Echo
-    Translate "Use arrow keys to move. [Enter] to select" "$Language"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+    Translate "Use arrow keys to move. [Enter] to select" "${Language}"
+    Buttons "Yes/No" "[ Yes ] [ No ]" "${Result}"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
