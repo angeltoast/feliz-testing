@@ -38,7 +38,7 @@ print_heading() {   # Always use this function to clear the screen
 PrintOne() { # Text is translated, then aligned according to content and screen size
   Text="$1"
   if [ ! $2 ]; then                 # Don't translate if $2
-    Translate "$Text" "$Language"
+    Translate "$Text"
     Text="$Result"
   fi
   width=$(tput cols)
@@ -54,7 +54,7 @@ PrintOne() { # Text is translated, then aligned according to content and screen 
 PrintMany() { # Subsequent item(s) in an aligned list
   Text="$1"
   if [ ! $2 ]; then                 # Don't translate if $2
-    Translate "$Text" "$Language"
+    Translate "$Text"
     Text="$Result"
   fi
   Echo "$EMPTY $Text"
@@ -86,9 +86,9 @@ SetLanguage() {
   print_heading
   listgen1 "$(ls *.lan | cut -d'.' -f1)"
   case $Result in
-  "" | "Exit") Language=english.lan
+  "" | "Exit") LanguageFile=english.lan
   ;;
-  *) Language="${Result}.lan"
+  *) LanguageFile="${Result}.lan"
   esac
 }
 
@@ -98,9 +98,9 @@ Translate() { # Called by ReadOne & ReadMany and by other functions as required
   # Get line number of text in english.lan | restrict to first find | display only number
   RecordNumber=$(grep -n "$Text" english.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
-  "" | 0) Result="$Text"                                        # If not found, use English
+  "" | 0) Result="$Text"  # If not found, use English
   ;;
-  *) Result="$(head -n ${RecordNumber} ${Language} | tail -n 1)"  # Read item from target file
+  *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target file
   esac
 }
 
@@ -151,7 +151,7 @@ CountryLocale=""          # eg: en_GB.UTF-8
 Countrykbd=""             # eg: uk
 ZONE=""                   # eg: Europe For time
 SUBZONE=""                # eg: London
-Language="english.lan"    # For translation
+LanguageFile="english.lan" # For translation
 RecordNumber=0            # Used during translation
 
 # Desktop environment, display manager and greeter variables

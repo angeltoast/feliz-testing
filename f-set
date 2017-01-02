@@ -219,24 +219,23 @@ America() {
 }
 
 setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to country-code,
-                        # ... and hence to the list of languages generated from /etc/locale.gen
+              # ... and hence to the list of languages generated from /etc/locale.gen
   ZoneID="${ZONE}/${SUBZONE}"         # Use a copy of zones set in SetTimeZone (eg: Europe/London)
   CountryLocale=
   while [ -z $CountryLocale ]
   do
-  #  location=$(grep "$ZoneID" cities.list)      # Find location in cities.list
-  #  SEARCHTERM=$(echo "${location}" | awk -F':' '{ print $2 }' ) # field $2 is the country code (eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)  # Find in cities.list (field $2 is the country code, eg: GB)
     SEARCHTERM=${SEARCHTERM:0:2}                # Ensure no trailing spaces
-
     print_heading
     # Find all matching entries in locale.gen # This will be a table of locales in the form: en_GB
     LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | cut -d' ' -f2 | cut -d'.' -f1 | sort | uniq)
     HowMany=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | cut -d' ' -f2 | cut -d'.' -f1 | sort | uniq | wc -w)   # Count them
+    Rows=$(tput lines)       # Ensure menu doesn't over-run
+    Rows=$((Rows-4))         # Available (printable) rows
 
-    Rows=$(tput lines)                          # to ensure menu doesn't over-run
-    Rows=$((Rows-4))                            # Available (printable) rows
-    case $HowMany in                            # Offer language options for the selected country
+read -p "setlocale on f-set at line $LINENO : $SEARCHTERM $HowMany $LocaleList $Rows"
+
+    case $HowMany in         # Offer language options for the selected country
     0) print_heading
       Echo
       PrintOne "No language has been found for your location."
