@@ -97,9 +97,9 @@ CheckParts() {
     for part in ${PartitionList}
     do
       if [ $Counter = 0 ]; then
-        PrintOne "${PartitionArray[$Counter]}" "x"
+        PrintOne "${PartitionArray[$Counter]}"
       else
-        PrintMany "${PartitionArray[$Counter]}" "x"
+        PrintMany "${PartitionArray[$Counter]}"
       fi
       Counter=$((Counter+1))
     done
@@ -309,17 +309,17 @@ AutoWarning() {
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?: "
     Echo
-    Translate "Use arrow keys to move. [Enter] to select" "${Language}"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "${Result}"
+    Translate "Use arrow keys to move. [Enter] to select"
+    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
         PrintOne "Partitioning of ${GrubDevice} successful"
         Echo
-        PrintMany "$ShowPart1" "x"
-        PrintMany "$ShowPart2" "x"
-        PrintMany "$ShowPart3" "x"
-        PrintMany "$ShowPart4" "x"
+        PrintMany "$ShowPart1"
+        PrintMany "$ShowPart2"
+        PrintMany "$ShowPart3"
+        PrintMany "$ShowPart4"
         Echo
         PrintOne "You will have the opportunity to review these later."
         Echo
@@ -573,7 +573,8 @@ AllocateSwap() {
             PrintOne "system will no longer be unable to access the partition."
             PrintOne "Do you wish to reformat it?"
             Echo
-            Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+            Translate "Use arrow keys to move. [Enter] to select"
+            Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
             case $Response in
               "1" | "Y" | "y") MakeSwap="Y"
               ;;
@@ -613,7 +614,8 @@ NoPartitions() { # There are no unallocated partitions
   PrintOne "but you can allocate a swap file, if you wish."
   Message="Create a swap file?: "
   Echo
-  Buttons "Yes/No" "[ Yes ] [ No ]" "Use arrow keys to move. [Enter] to select"
+  Translate "Use arrow keys to move. [Enter] to select"
+  Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
   case $Response in
     "1" | "Y" | "y") SetSwapFile
       SwapPartition=""
