@@ -224,12 +224,13 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
   CountryLocale=
   while [ -z $CountryLocale ]
   do
-    SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)  # Find in cities.list (field $2 is the country code, eg: GB)
+    # Find in cities.list (field $2 is the country code, eg: GB)
+    SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
     SEARCHTERM=${SEARCHTERM:0:2}                # Ensure no trailing spaces
     print_heading
     # Find all matching entries in locale.gen # This will be a table of locales in the form: en_GB
-    LocaleList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | cut -d' ' -f2 | cut -d'.' -f1 | sort | uniq)
-    HowMany=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | grep -v "@" | cut -d' ' -f2 | cut -d'.' -f1 | sort | uniq | wc -w)   # Count them
+    LocaleList=$(grep "\#" /etc/locale.gen | grep ${SEARCHTERM}.UTF-8 | cut -d'.' -f1 | sort | uniq | cut -d'#' -f2 | cut -d' ' -f2)
+    HowMany=$(echo $LocaleList | wc -w)   # Count them
     Rows=$(tput lines)       # Ensure menu doesn't over-run
     Rows=$((Rows-4))         # Available (printable) rows
 
