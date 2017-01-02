@@ -80,6 +80,32 @@ invalid_option() {
   read_timed "          Invalid entry. Please try again ...                     " 1
 }
 
+SetLanguage() {
+  print_heading
+  listgen1 "$(ls *.lan | cut -d'.' -f1)"
+  case $Result in
+  "" | "Exit") Language=english.lan
+  ;;
+  *) Language="${Result}.lan"
+  esac
+}
+
+Translate() { # Called by ReadOne & ReadMany and by other functions as required
+              # Receives 2 arguments: $1 is text to be translated; $2 is target language
+  if [ $2 ]; then
+    Language=$2
+  else
+    Language=english.lan
+  fi
+  Text="$1"
+  RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1) # Get line number of text in english.lan
+  case $RecordNumber in
+  "" | 0) Result="$Text"                                        # If not found, use English
+  ;;
+  *) Result="$(head -n ${RecordNumber} ${Language} | tail -n 1)"  # Read item from target file
+  esac
+}
+
 # 2) Declaration of variables and arrays
 
 # Partition variables and arrays
@@ -127,6 +153,8 @@ CountryLocale=""          # eg: en_GB.UTF-8
 Countrykbd=""             # eg: uk
 ZONE=""                   # eg: Europe For time
 SUBZONE=""                # eg: London
+Language="english.lan"    # For translation
+RecordNumber=0            # Used during translation
 
 # Desktop environment, display manager and greeter variables
 DesktopEnvironment=""     # eg: xfce

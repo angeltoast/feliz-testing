@@ -28,6 +28,7 @@
 # Echo              46    PickLuxuries        458
 # TPread            51    KeepOrDelete        490
 # SetLanguage
+# Translate
 # SetKernel         67    ShoppingList        517
 # ConfirmVbox       80    ChooseDM            619
 # SetTimeZone      104    SetGrubDevice       676
@@ -63,41 +64,6 @@ TPread() { # Aligned prompt for user-entry
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
   cursor_row=$((cursor_row+1))
-}
-
-SetLanguage() {
-  print_heading
-  listgen1 "$(ls *.lan | cut -d'.' -f1)"
-  case $Result in
-  '' | 'Exit') Language=english.lan
-  ;;
-  *) Language="${Result}.lan"
-  esac
-}
-
-Translate() { # Called by ReadOne & ReadMany
-# The first language file english.lan has been created,
-# with all calls to PrintOne and PrintMany recorded.
-# Each language file must match this exactly.
-
-# Receives 2 arguments: $1 is text to be translated; $2 is target language
-
-if [ $2 ]; then
-  Language=$2
-else
-  Language=english.lan
-fi
-
-Text="$1"
-
-RecordNumber=$(grep -n "$Text" english.lan | cut -d':' -f1) # Get line number of text in english.lan
-
-case $RecordNumber in                                  # If found
-"" | 0) Result="$Text"
-;;
-*) Result="$(head -n ${RecordNumber} ${Language} | tail -n 1)"   # Read item from target file
-esac
-
 }
 
 SetKernel() {
