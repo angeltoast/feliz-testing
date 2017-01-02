@@ -97,9 +97,9 @@ CheckParts() {
     for part in ${PartitionList}
     do
       if [ $Counter = 0 ]; then
-        PrintOne "${PartitionArray[$Counter]}"
+        PrintOne "${PartitionArray[$Counter]}" "x"
       else
-        PrintMany "${PartitionArray[$Counter]}"
+        PrintMany "${PartitionArray[$Counter]}" "x"
       fi
       Counter=$((Counter+1))
     done
@@ -316,10 +316,10 @@ AutoWarning() {
         print_heading
         PrintOne "Partitioning of ${GrubDevice} successful"
         Echo
-        PrintMany "$ShowPart1"
-        PrintMany "$ShowPart2"
-        PrintMany "$ShowPart3"
-        PrintMany "$ShowPart4"
+        PrintMany "$ShowPart1" "x"
+        PrintMany "$ShowPart2" "x"
+        PrintMany "$ShowPart3" "x"
+        PrintMany "$ShowPart4" "x"
         Echo
         PrintOne "You will have the opportunity to review these later."
         Echo

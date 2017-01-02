@@ -37,8 +37,10 @@ print_heading() {   # Always use this function to clear the screen
 
 PrintOne() { # Text is translated, then aligned according to content and screen size
   Text="$1"
-  Translate "$Text" "$Language"
-  Text="$Result"
+  if [ ! $2 ]; then                 # Don't translate if $2
+    Translate "$Text" "$Language"
+    Text="$Result"
+  fi
   width=$(tput cols)
   EMPTY=" "
   lov=${#Text}
@@ -46,16 +48,16 @@ PrintOne() { # Text is translated, then aligned according to content and screen 
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  echo "$EMPTY $Text"
-  cursor_row=$((cursor_row+1))
+  Echo "$EMPTY $Text"
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
   Text="$1"
-  Translate "$Text" "$Language"
-  Text="$Result"
-  echo "$EMPTY $Text"
-  cursor_row=$((cursor_row+1))
+  if [ ! $2 ]; then                 # Don't translate if $2
+    Translate "$Text" "$Language"
+    Text="$Result"
+  fi
+  Echo "$EMPTY $Text"
 }
 
 read_timed() { # Timed display - $1 = text to display; $2 = duration
