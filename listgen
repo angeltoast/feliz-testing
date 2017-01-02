@@ -31,11 +31,11 @@
 # --------------------   ------------------------
 # Function        Line
 # --------------------   ------------------------
-# Heading          70    Print a heading
-# first_item       95    Prints first item of a menu
-# subsequent_item 106    Prints successive menu items
-# PrintRev        112    Reverses text colour
-# Buttons         121    Prints a row of buttons. 3 arguments: Type; Button string; Message string
+# Heading          47    Print a heading
+# first_item       60    Prints first item of a menu
+# subsequent_item  71    Prints successive menu items
+# PrintRev         77    Reverses text colour
+# Buttons          86    Prints a row of buttons. 3 arguments: Type; Button string; Message string
 # ActiveMenu      191    Controls the highlighting of menu items. 1 argument = Type (Menu, Yes/No)
 # listgen1        303    Generates a simple menu of one-word items
 # listgen2        360    Generates a menu of multi-word items
@@ -85,19 +85,18 @@ PrintRev() {  # Receives numeric argument of item number
 
 Buttons() {
   # Receives 3 arguments: 1) Type (Menu, Yes/No); 2) Button string; 3) Message string
-  # Uses arrays declared in f-var
-  local Len=${#2}               # Measure length of button string
+  local Len=${#2}                             # Measure length of button string
   button_count=0
   button_end=0
   this_button_start=0
-  for (( i=1; i <= Len; ++i ))  # Go through the string counting button delimiters
+  for (( i=1; i <= Len; ++i ))                # Go through the string counting button delimiters
   do
     x=$(echo $2 | cut -c $i)
     if [ $x ] && [ $x = "[" ]; then
-      button_count=$((button_count+1))    # Increment the button counter
-      if [ $button_count -eq 1 ]; then    # Currently limited to two buttons
-        button_start[${button_count}]=$i  # Save start position in the string
-        this_button_start=$i              # Retain start position for end calculation
+      button_count=$((button_count+1))        # Increment the button counter
+      if [ $button_count -eq 1 ]; then        # Currently limited to two buttons
+        button_start[${button_count}]=$i      # Save start position in the string
+        this_button_start=$i                  # Retain start position for end calculation
       else
         button_start[${button_count}]=$((i-1))  # Save start position in the string
         this_button_start=$i                    # Save position for end calculation

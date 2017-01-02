@@ -44,8 +44,8 @@ not_found() {
   read_timed "Not found. Please try again ..." 1
 }
 
-Echo() { # Use in place of echo for all null text
-  printf "%-s\n" " "
+Echo() { # Use in place of 'echo' for basic text print
+  printf "%-s\n" "$1"
   cursor_row=$((cursor_row+1))
 }
 
