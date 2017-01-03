@@ -118,18 +118,12 @@ SetTimeZone() {
       zones="$zones $x"
     done
     listgen1 "${zones}" "" "nocancel"         # Allow user to select one
-
-read -p "f-set line $LINENO Result = $Result"
-
     ZONE=$Result
     Echo
     case $Result in
       "") continue
       ;;
       *) SetSubZone                           # Call subzone function
-
-read -p "f-set line $LINENO Result = $Result"
-
         case $Result in                       # If user quits
         "Exit" | "") SUBZONE=
         ;;
@@ -169,17 +163,8 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   "America") America
    ;;
   *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file  # List of subzones
-
-read -p "f-set line $LINENO"
-
     Translate "Please choose your nearest location in ${ZONE}, or type Exit to go back"
-
-read -p "f-set line $LINENO"
-
     listgenx "$Result"
-
-read -p "f-set line $LINENO Result = $Result"
-
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
