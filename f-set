@@ -24,19 +24,19 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# not_found         41    SetHostname         441
-# Echo              46    PickLuxuries        458
-# TPread            51    KeepOrDelete        490
-# SetLanguage
-# SetKernel         67    ShoppingList        517
-# ConfirmVbox       80    ChooseDM            619
-# SetTimeZone      104    SetGrubDevice       676
-# SetSubZone       140     --- Review stage ---
-# America          183    FinalCheck          699
-# setlocale        222    ManualSettings      829
-# SearchKeyboards  390    ChangeSwapPartition 837
-# getkeymap        359    ChangePartitions    845
-# Username         425    AddExtras           857
+# not_found         41    SetHostname         491
+# Echo              46    PickLuxuries        508
+# TPread            51    KeepOrDelete        540
+# SetKernel         67    ShoppingList        568
+# ConfirmVbox       80    ChooseDM            670
+# SetTimeZone      105    SetGrubDevice       728
+# SetSubZone       137     --- Review stage ---
+# America          173    FinalCheck          752
+# setlocale        211    ManualSettings      859
+# AllLanguages     363    ChangeRootPartition 882
+# getkeymap        380    ChangeSwapPartition 890
+# SearchKeyboards  441    ChangePartitions    898
+# Username         475    AddExtras           910
 # --------------------    -----------------------
 
 not_found() {
@@ -63,16 +63,6 @@ TPread() { # Aligned prompt for user-entry
   EMPTY="$(printf '%*s' $stpt)"
   read -p "$EMPTY $1" Response
   cursor_row=$((cursor_row+1))
-}
-
-SetLanguage() {
-  print_heading
-  listgen1 "$(ls *.lan | cut -d'.' -f1)"
-  case $Result in
-  '' | 'Exit') Language=english.lan
-  ;;
-  *) Language="${Result}.lan"
-  esac
 }
 
 SetKernel() {
@@ -242,13 +232,13 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       PrintOne "No language has been found for your location."
       PrintOne "Would you like to use one of the following?"
       Translate "Use arrow keys to move. [Enter] to select"
-      listgen1 "English French Spanish" "$Result" "No"
-      case $Result in
-      "English") Item="en"
+      listgen1 "English French Spanish" "$Result"
+      case $Response in
+      1) Item="en"
       ;;
-      "French") Item="fr"
+      2) Item="fr"
       ;;
-      "Spanish") Item="es"
+      3) Item="es"
       ;;
       *) City=""
         AllLanguages
@@ -351,18 +341,16 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         listgen1 "${choosefrom}" "nomessage" ""         # Menu if less than one screenful
       fi
       case $Result in
-      "Exit" | "") AllLanguages
-          if [ $Result = "Exit" ]; then
-            SetTimeZone
-          else
-            CountryLocale="${Result}_${SEARCHTERM}.UTF-8"
-            CountryCode=${CountryLocale:3:2}              # 2 characters from position 3
-          fi
+      "Exit" | "exit" | "") SetTimeZone
       ;;
-      *) Language=$(grep $Result languages.list)          # Lookup the result in languages file
-        loc=${Language: -2:2}                             # Just the last two characters
-        CountryLocale="${loc}_${SEARCHTERM}.UTF-8"
-        CountryCode=${CountryLocale:3:2}                  # 2 characters from position 3
+      *) Language=$(grep $Result languages.list)        # Lookup the result in languages file
+        if [ $Language ]; then
+          loc=${Language: -2:2}                         # Just the last two characters
+          CountryLocale="${loc}_${SEARCHTERM}.UTF-8"
+          CountryCode=${CountryLocale:3:2}              # 2 characters from position 3
+        else
+          SetTimeZone
+        fi
       esac
     esac
   done

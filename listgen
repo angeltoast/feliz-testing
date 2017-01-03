@@ -264,13 +264,13 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
 listgen1() { # Simple listing alternative to the bash 'select' function
   # Arguments:
   # 1) Primary file (string of single-word references)
-  # 2) No longer used - experimenting with 'nomessage'
+  # 2) May be a translated message or 'nomessage'
   # 3) Optional hiding of [ Exit ] ("nocancel")
   # Read listgen.manual for full details
   case $2 in
-    "nomessage") Message="$2"
+    "nomessage") Message=
     ;;
-    *) Message="Use arrow keys to move. [Enter] to select"
+    *) Message="$2"
   esac
   Padding=" "
   MaxLen=2
