@@ -387,8 +387,6 @@ listgenx() { # Calling function creates input.file before calling listgenx
   total_items=$(cat input.file | wc -l)
   LastItem="$(tail -n 1 input.file)"
 
-read -p "listgen line $LINENO"
-
   Heading
   # Establish terminal size
   terminal_width=$(tput cols)             # Start with full terminal width
@@ -400,6 +398,8 @@ read -p "listgen line $LINENO"
   bottom_row=$((terminal_height-4))       # Leave space for footer
   items_in_column=$((bottom_row-top_row)) # Number of items in each column
 
+read -p "listgen line $LINENO"
+
   # Prepare an array of columns
   declare -a Columns                      # Prepare an array to hold all prepared columns
   declare -a ColumnWidths                 # And one for their widths
@@ -408,6 +408,9 @@ read -p "listgen line $LINENO"
   RecordNumber=0                          # Initialise record-counting variable
   while [ $RecordNumber -le $total_items  ] # ....... Outer loop for entire file #####
   do
+
+read -p "listgen line $LINENO"
+
     TestLen=0                             # Set length-testing variable for column
     Column=""                             # Start column string variable
     for (( line=1; line <= $items_in_column; ++line )) # ......... Column loop #####
@@ -430,8 +433,6 @@ read -p "listgen line $LINENO"
     Column=""                                     # Empty the string for next column
   done # ........ End of file loop #####
 
-read -p "listgen line $LINENO"
-
   # Now build all pages, before proceeding to page-handling in SelectPage()
   declare -a Pages  # Each element of this array will hold a list of the columns forming the page
   declare -a PageWidths  # Each element of this array will hold total width of columns forming the page
@@ -441,8 +442,6 @@ read -p "listgen line $LINENO"
   ColumnWidth=0
   RecordCounter=0   # For numbering
   LastPage=0        #
-
-read -p "listgen line $LINENO"
 
   while :
   do
@@ -455,8 +454,6 @@ read -p "listgen line $LINENO"
         PageNumber=$((PageNumber+1))          # Then set next page, advance page counter, and
         Page=""                               # Empty string for next list of columns
       fi
-
-read -p "listgen line $LINENO"
 
       ColumnWidth=0
       # Loop through each $Columns[@] to test the length of each string
