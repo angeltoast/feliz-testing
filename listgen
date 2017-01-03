@@ -371,6 +371,8 @@ listgen2() { # Advanced menuing function with extended descriptions
 listgenx() { # Calling function creates input.file before calling listgenx
              # input.file must be one record per line
 
+read -p "listgen line $LINENO Arg1 = $1 Arg2 = $2"
+
              # This version of listgen is to create numbered lists for 'difficult'
              # situations. Calling function can send optional 'Headline' string as
              # $1 and optional limit on length of any item as $2
