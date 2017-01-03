@@ -386,6 +386,9 @@ listgenx() { # Calling function creates input.file before calling listgenx
   fi
   total_items=$(cat input.file | wc -l)
   LastItem="$(tail -n 1 input.file)"
+
+read -p "listgen line $LINENO"
+
   Heading
   # Establish terminal size
   terminal_width=$(tput cols)             # Start with full terminal width
@@ -427,6 +430,8 @@ listgenx() { # Calling function creates input.file before calling listgenx
     Column=""                                     # Empty the string for next column
   done # ........ End of file loop #####
 
+read -p "listgen line $LINENO"
+
   # Now build all pages, before proceeding to page-handling in SelectPage()
   declare -a Pages  # Each element of this array will hold a list of the columns forming the page
   declare -a PageWidths  # Each element of this array will hold total width of columns forming the page
@@ -436,6 +441,8 @@ listgenx() { # Calling function creates input.file before calling listgenx
   ColumnWidth=0
   RecordCounter=0   # For numbering
   LastPage=0        #
+
+read -p "listgen line $LINENO"
 
   while :
   do
@@ -449,6 +456,8 @@ listgenx() { # Calling function creates input.file before calling listgenx
         Page=""                               # Empty string for next list of columns
       fi
 
+read -p "listgen line $LINENO"
+
       ColumnWidth=0
       # Loop through each $Columns[@] to test the length of each string
       for item in ${Columns[${column}]}
@@ -459,10 +468,14 @@ listgenx() { # Calling function creates input.file before calling listgenx
         fi
       done
 
+read -p "listgen line $LINENO"
+
       if [ $((PageWidth+ColumnWidth+1)) -lt $terminal_width ]; then # Page is not full
         PageWidth=$((PageWidth+ColumnWidth+1))  # Add column width to page width accumulator
         Page="$Page $column"                  # and append the column number to this page
       fi
+
+read -p "listgen line $LINENO"
 
       if [ $column -eq $NumberOfColumns ]; then # Last column
         LastPage=$PageNumber
@@ -475,6 +488,8 @@ listgenx() { # Calling function creates input.file before calling listgenx
 
   PageNumber=1    # Start at first page
   SelectPage      # Switch between pages
+
+read -p "listgen line $LINENO"
 
 }
 

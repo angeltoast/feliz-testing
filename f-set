@@ -173,6 +173,9 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
 read -p "f-set line $LINENO"
 
     Translate "Please choose your nearest location in ${ZONE}, or type Exit to go back"
+
+read -p "f-set line $LINENO"
+
     listgenx "$Result"
 
 read -p "f-set line $LINENO Result = $Result"
