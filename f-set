@@ -172,6 +172,9 @@ read -p "f-set line $LINENO ZONE = $ZONE"
       SetTimeZone
     fi
   esac
+
+read -p "f-set line $LINENO Result = $Result SUBZONE = $SUBZONE"
+
 }
 
 America() {
