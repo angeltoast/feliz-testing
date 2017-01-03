@@ -389,6 +389,9 @@ listgenx() { # Calling function creates input.file before calling listgenx
 read -p "listgen line $LINENO"
 
   Heading
+
+read -p "listgen line $LINENO"
+
   # Establish terminal size
   terminal_width=$(tput cols)             # Start with full terminal width
   terminal_width=$((terminal_width-4))    # Allow for two characters margin each side
