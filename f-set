@@ -124,6 +124,9 @@ SetTimeZone() {
       "") continue
       ;;
       *) SetSubZone                           # Call subzone function
+
+read -p "f-set line $LINENO Result = $Result"
+
         case $Result in                       # If user quits
         "Exit" | "") SUBZONE=
         ;;
