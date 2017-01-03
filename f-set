@@ -136,6 +136,9 @@ SetTimeZone() {
 }
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
+
+read -p "f-set line $LINENO ZONE = $ZONE"
+
   case $ZONE in
   "Arctic") Result="Longyearbyen"
   ;;
