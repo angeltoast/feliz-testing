@@ -27,6 +27,16 @@
 # See listgen.manual for guidance on the use of these functions
 
 # In this module:
+
+# All variables used by listgen initialised here
+declare -a Options        # For listgen functions
+Response=""
+Result=""
+Backtitle="Feliz2 - Arch Linux installation script"
+Ok="Ok"
+Exit="Exit"
+Instructions="Use arrow keys to move. Enter to select"
+
 # Functions for providing an intuitive interface without using Dialog
 # --------------------   ------------------------
 # Function        Line
@@ -306,9 +316,9 @@ listgen1() { # Simple listing alternative to the bash 'select' function
     case $3 in
     "nocancel") Buttons "Menu" "[ Ok ]" "$Message"
     ;;
-    "") Buttons "Menu" "[ Ok ] [ Exit ]" "$Message"
+    "") Buttons "Menu" "[ $Ok ] [ $Exit ]" "$Message"
     ;;
-    *) Buttons "Menu" "[ Ok ] [ $3 ]" "$Message"
+    *) Buttons "Menu" "[ $Ok ] [ $3 ]" "$Message"
     esac
     break
   done
@@ -357,9 +367,9 @@ listgen2() { # Advanced menuing function with extended descriptions
     CalledBy="listgen2"
     cursor_bottom=$((cursor_row-1))
     if [ $3 ] && [ $3 = "nocancel" ]; then
-      Buttons "Menu" "[ Ok ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Menu" "[ $Ok ]" "$Instructions"
     else
-      Buttons "Menu" "[ Ok ] [ Exit ]" "Use arrow keys to move. [Enter] to select"
+      Buttons "Menu" "[ $Ok ] [ $Exit ]" "$Instructions"
     fi
     return 0
   done

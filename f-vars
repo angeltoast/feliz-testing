@@ -111,8 +111,18 @@ SetLanguage() {
   ;;
   *) LanguageFile="${Result}.lan"
   esac
-  Translate "Feliz2 - Arch Linux installation script"
+  Translate "Feliz2 - Arch Linux installation script" # Translate listgen variables
   Backtitle="$Result"
+  Translate "Ok"
+  Ok="$Result"
+  Translate "Exit"
+  Exit="$Result"
+  Translate "Use arrow keys to move. Enter to select"
+  Instructions="${Result}"
+  Translate "Yes"
+  Yes="$Result"
+  Translate "No"
+  No="$Result"
 }
 
 Translate() { # Called by ReadOne & ReadMany and by other functions as required
@@ -188,13 +198,9 @@ HostName=""               # eg: arch-linux
 UserName=""               # eg: archie
 Scope=""                  # Installation scope ... 'Full' or 'Basic'
 
-# Global user input variables
-Response=""
-Result=""
+
 
 # Miscellaneous
-Backtitle="Feliz2 - Arch Linux installation script"
-declare -a Options        # For listgen functions
 PrimaryFile=""
 
 # ---- Partitioning ----

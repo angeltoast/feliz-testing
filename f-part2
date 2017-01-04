@@ -53,12 +53,7 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
     Echo
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
-    Translate "Yes"
-    Y="$Result"
-    Translate "No"
-    N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     Echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -275,12 +270,7 @@ EasySwap() { # Variables: SwapSize
     case ${RESPONSE} in
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
-        Translate "Yes"
-        Y="$Result"
-        Translate "No"
-        N="$Result"
-        Translate "Use arrow keys to move. [Enter] to select"
-        Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+        Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
         Echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -364,12 +354,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?" ":"
     Echo
-    Translate "Yes"
-    Y="$Result"
-    Translate "No"
-    N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     case $Response in
       "1" | "Y" | "y") WipeDevice   # Format the drive
         Parted "mklabel gpt"        # Create EFI partition table
@@ -515,12 +500,7 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
     Echo
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
-    Translate "Yes"
-    Y="$Result"
-    Translate "No"
-    N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     Echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -625,12 +605,7 @@ GuidedSwap() { # Variables: SwapSize
     case ${RESPONSE} in
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
-        Translate "Yes"
-        Y="$Result"
-        Translate "No"
-        N="$Result"
-        Translate "Use arrow keys to move. [Enter] to select"
-        Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+        Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
         Echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -711,12 +686,7 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
     PrintOne "This will erase any data on ${UseDisk}"
     PrintOne "Are you sure you wish to continue?"
     Echo
-    Translate "Yes"
-    Y="$Result"
-    Translate "No"
-    N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     case $Response in
       "1" | "Y" | "y") Parted "mklabel msdos"  # Create mbr partition table
         break

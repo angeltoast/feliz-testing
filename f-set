@@ -88,12 +88,7 @@ ConfirmVbox() {
     Echo
     PrintOne "Install Virtualbox guest utilities?"
     Echo
-    Translate "Yes"
-    Y="$Result"
-    Translate "No"
-    N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     Echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -240,8 +235,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Echo
       PrintOne "No language has been found for your location"
       PrintOne "Would you like to use one of the following?"
-      Translate "Use arrow keys to move. [Enter] to select"
-      listgen1 "English French Spanish" "$Result"
+      listgen1 "English French Spanish" "$Instructions"
       case $Response in
       1) Item="en"
       ;;
@@ -271,12 +265,8 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Echo
       PrintOne "Only one language found for your location" ": $Language"
       PrintOne "Shall we use this as your language?"  # Allow user to confirm
-      Translate "Yes"
-      Y="$Result"
-      Translate "No"
-      N="$Result"
-      Translate "Use arrow keys to move. [Enter] to select"
-      Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+
+      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
       if [ $Result = "$N" ]; then
         City=""
         AllLanguages
@@ -413,12 +403,7 @@ getkeymap() {
     1)  # If the search found one match
       PrintOne "Only one keyboard found based on your location"
       PrintOne "Do you wish to accept this? Select No to search for alternatives"
-      Translate "Yes"
-      Y="$Result"
-      Translate "No"
-      N="$Result"
-      Translate "Use arrow keys to move. [Enter] to select"
-      Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
       case ${Result} in
       "Exit"|"exit"|""|"$N") SearchKeyboards
       ;;
@@ -567,8 +552,7 @@ KeepOrDelete() {
     Y="$Result"
     Translate "Delete"
     N="$Result"
-    Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "Result"
+    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Instructions"
     case $Response in
       1) Temp="$LuxuriesList"
         break
@@ -796,12 +780,7 @@ ChooseDM() { # Choose a display manager
       Echo
       PrintOne "Do you wish to change it?"
       Echo
-      Translate "Yes"
-      Y="$Result"
-      Translate "No"
-      N="$Result"
-      Translate "Use arrow keys to move. [Enter] to select"
-      Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
+      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
       Echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
