@@ -316,9 +316,9 @@ AutoWarning() {
     PrintOne "Are you sure you wish to continue?"
     Echo
     Translate "Yes"
-    Y="Result"
+    Y="$Result"
     Translate "No"
-    N="Result"
+    N="$Result"
     Translate "Use arrow keys to move. [Enter] to select"
     Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     case $Response in
@@ -629,9 +629,9 @@ NoPartitions() { # There are no unallocated partitions
   Message="Create a swap file?"
   Echo
   Translate "Yes"
-  Y="Result"
+  Y="$Result"
   Translate "No"
-  N="Result"
+  N="$Result"
   Translate "Use arrow keys to move. [Enter] to select"
   Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
   case $Response in

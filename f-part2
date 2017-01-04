@@ -54,9 +54,9 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
     Translate "Yes"
-    Y="Result"
+    Y="$Result"
     Translate "No"
-    N="Result"
+    N="$Result"
     Translate "Use arrow keys to move. [Enter] to select"
     Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     Echo
@@ -276,9 +276,9 @@ EasySwap() { # Variables: SwapSize
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
         Translate "Yes"
-        Y="Result"
+        Y="$Result"
         Translate "No"
-        N="Result"
+        N="$Result"
         Translate "Use arrow keys to move. [Enter] to select"
         Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
         Echo
@@ -365,9 +365,9 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     PrintOne "Are you sure you wish to continue?" ":"
     Echo
     Translate "Yes"
-    Y="Result"
+    Y="$Result"
     Translate "No"
-    N="Result"
+    N="$Result"
     Translate "Use arrow keys to move. [Enter] to select"
     Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     case $Response in
@@ -516,9 +516,9 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
     Translate "Yes"
-    Y="Result"
+    Y="$Result"
     Translate "No"
-    N="Result"
+    N="$Result"
     Translate "Use arrow keys to move. [Enter] to select"
     Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     Echo
@@ -626,9 +626,9 @@ GuidedSwap() { # Variables: SwapSize
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
         Translate "Yes"
-        Y="Result"
+        Y="$Result"
         Translate "No"
-        N="Result"
+        N="$Result"
         Translate "Use arrow keys to move. [Enter] to select"
         Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
         Echo
@@ -712,9 +712,9 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
     PrintOne "Are you sure you wish to continue?"
     Echo
     Translate "Yes"
-    Y="Result"
+    Y="$Result"
     Translate "No"
-    N="Result"
+    N="$Result"
     Translate "Use arrow keys to move. [Enter] to select"
     Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     case $Response in
