@@ -232,6 +232,7 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
       LongPart[${Counter}]="$Result"
       Counter=$((Counter+1))
     done
+    Echo
     listgen2 "$PartitioningOptions" "" "nocancel" "LongPart"
     Proceed=$Response
     Echo
@@ -297,6 +298,7 @@ ChooseDevice() {
         PrintOne "Which do you wish to use for this installation?"
         PrintOne "(Remember, this is auto-partition, and any data"
         PrintOne "on the chosen device will be destroyed)"
+        Echo
         listgen1 "$DiskDetails"
         UseDisk="${Result}"
         AutoWarning
