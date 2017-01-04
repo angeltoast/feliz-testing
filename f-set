@@ -119,7 +119,8 @@ SetTimeZone() {
     zones=""
     for x in ${Zones[@]}                      # Convert to space-separated list
     do
-      zones="$zones $x"
+      Translate "$x"                          # Translate
+      zones="$zones $Result"
     done
     listgen1 "${zones}" "" "nocancel"         # Allow user to select one
     ZONE=$Result
@@ -449,7 +450,8 @@ getkeymap() {
     esac
   done
   print_heading
-  read_timed "The keyboard is now set to: '$Countrykbd'" 1
+  Translate "The keyboard is now set to"
+  read_timed "${Result}: '$Countrykbd'" 1
 }
 
 SearchKeyboards() {
@@ -603,7 +605,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongAccs[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongAccs[${Counter}]="$Result"
+            LongAccs[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Accessories}
@@ -617,7 +619,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongDesk[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongDesk[${Counter}]="$Result"
+            LongDesk[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Desktops}
@@ -631,7 +633,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongGraph[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongGraph[${Counter}]="$Result"
+            LongGraph[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Graphical}
@@ -645,7 +647,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongNet[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongNet[${Counter}]="$Result"
+            LongNet[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Internet}
@@ -659,7 +661,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongMulti[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongMulti[${Counter}]="$Result"
+            LongMulti[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Multimedia}
@@ -673,7 +675,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongOffice[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongOffice[${Counter}]="$Result"
+            LongOffice[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Office}
@@ -687,7 +689,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongProg[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongProg[${Counter}]="$Result"
+            LongProg[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${Programming}
@@ -701,7 +703,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           for Option in "${LongWMs[@]}"  # Translate all elements
           do
             Translate "$Option"
-            LongWMs[${Counter}]="$Result"
+            LongWMs[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
         for i in ${WindowManagers}

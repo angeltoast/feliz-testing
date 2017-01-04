@@ -42,6 +42,7 @@ se creará
 Se necesita un nombre de host. Este será un nombre único para identificar
 Su dispositivo en una red. Si no introduce uno, el
 Se usará el nombre de host predeterminado de 'arch-linux'
+Ingrese un nombre de host para su computadora
 Ahora tiene la opción de agregar extras, como un navegador web
 Ambiente de escritorio, etc, de las siguientes categorías
 Si desea sólo una instalación de Arch base, salga sin elegir ningún extras
@@ -284,3 +285,13 @@ Ligero, potente y apilable configurable WM
 Aplicación de muelle y lanzador personalizable
 Para abrir aplicaciones y administrar ventanas
 Panel de escritorio
+África
+America
+Antártida
+Ártico
+Asia
+atlántico
+Australia
+Europa
+indio
+Pacífico

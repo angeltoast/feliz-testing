@@ -42,6 +42,7 @@ will be created
 A hostname is needed. This will be a unique name to identify
 your device on a network. If you do not enter one, the
 default hostname of 'arch-linux' will be used
+Enter a hostname for your computer
 Now you have the option to add extras, such as a web browser
 desktop environment, etc, from the following categories
 If you want only a base Arch installation, exit without choosing any extras
@@ -63,7 +64,7 @@ alternative arrangements for booting your new system
 These are the settings you have entered. Please check them
 Press Enter to install with these settings, or
 Enter number for data to change, or Enter to finish
-1) Hostname (currently
+Hostname (currently
 If you are uncertain about partitioning, you should read the Arch Wiki
 There are no partitions on the device, and at least
 two partitions are needed - one for EFI /boot, and
@@ -284,3 +285,13 @@ Lightweight, powerful & configurable stacking WM
 Customizable dock & launcher application
 For opening applications & managing windows
 Desktop panel
+Africa
+America
+Antarctica
+Arctic
+Asia
+Atlantic
+Australia
+Europe
+Indian
+Pacific
