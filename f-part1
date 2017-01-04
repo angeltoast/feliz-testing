@@ -225,6 +225,13 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
+    local Counter=1
+    for Option in "${LongPart[@]}"
+    do
+      Translate "$Option"
+      LongPart[${Counter}]="$Result"
+      Counter=$((Counter+1))
+    done
     listgen2 "$PartitioningOptions" "" "nocancel" "LongPart"
     Proceed=$Response
     Echo

@@ -1,4 +1,5 @@
 # English language file by Elizabeth Audrey Mills
+Feliz2 - Arch Linux installation script
 Choose your kernel
 Choose an item
 The Long-Term-Support kernel (LTS) offers stabilty,
@@ -219,3 +220,67 @@ Please enter the number of your selection
 Use arrow keys to move. Enter to select
 Please press Enter to continue
 Locale is set to
+Open cfdisk so I can partition manually
+Guided manual partitioning tool
+Allow feliz to partition the whole device
+Leave it as it is
+Accessories
+Desktop_Environments
+Graphical
+Internet
+Multimedia
+Office
+Programming
+Window_Managers
+Disc burning application from Gnome
+Desktop time and system information
+Handy desktop calculator
+Tool to make/delete/resize partitions
+Handy lightweight text editor from LXDE
+Lightweight terminal emulator from LXDE
+The file manager from LXDE
+Modern desktop focusing on simplicity & elegance
+Slick DE from the Mint team
+The Deepin Desktop Environment
+Full-featured, modern DE
+Plasma 5 and accessories pack
+Traditional, lightweight DE
+Lightweight and modern Qt DE
+Traditional DE from the Mint team
+Lightweight, highly configurable DE
+Reader for PDF & other document formats
+Advanced image editing suite
+Command-line image manipulation
+Image viewer & basic editor
+A simple scanner GUI
+Full-featured GTK-based sane frontend
+Open source web browser from Google
+Gnome WebKitGTK+ browser (aka Web)
+Fast & reliable FTP, FTPS & SFTP client
+Extensible browser from Mozilla
+Open source BitTorrent client
+Feature-rich email client from Mozilla
+Easy-to-use BitTorrent client
+Easy-to-use video editor
+Feature-rich audio player
+Simple yet powerful video transcoder
+Easy-to-use non-linear video editor
+Middleweight video player
+GUI CD burner
+Full-featured word processor
+Spreadsheet program from GNOME
+Open-source office software suite
+Calendar & task manager (incl with Xfce)
+Desktop publishing program
+GTK+ IDE with support for Python plugins
+Open source & cross-platform C/C++ IDE
+Extensible, customizable text editor
+Advanced text editor & IDE
+Open source distributed version control system
+Integrated development environment (IDE)
+Window manager and toolkit
+Light, fast and versatile WM
+Lightweight, powerful & configurable stacking WM
+Customizable dock & launcher application
+For opening applications & managing windows
+Desktop panel

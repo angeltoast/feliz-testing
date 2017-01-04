@@ -66,14 +66,14 @@ PrintMany() { # Subsequent item(s) in an aligned list
               # Then prints aligned according to content and screen size
   Translate "$1"              # Always translate $1
   Text="$Result"
-  if [ $2 ]; then             # Don't translate $2
+  if [ "$2" ]; then           # Don't translate $2
     Text="$Text $2"
   fi
-  if [ $3 ]; then             # Translate $3
+  if [ "$3" ]; then           # Translate $3
     Translate "$Text"
     Text="$Text $Result"
   fi
-  if [ $4 ]; then             # Don't translate $4
+  if [ "$4" ]; then           # Don't translate $4
     Text="$Text $4"
   fi
   Echo "$EMPTY $Text"
@@ -111,6 +111,8 @@ SetLanguage() {
   ;;
   *) LanguageFile="${Result}.lan"
   esac
+  Translate "Feliz2 - Arch Linux installation script"
+  Backtitle="$Result"
 }
 
 Translate() { # Called by ReadOne & ReadMany and by other functions as required
@@ -191,7 +193,7 @@ Response=""
 Result=""
 
 # Miscellaneous
-Backtitle="Feliz2 Arch Linux installation script"
+Backtitle="Feliz2 - Arch Linux installation script"
 declare -a Options        # For listgen functions
 PrimaryFile=""
 
