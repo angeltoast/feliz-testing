@@ -37,7 +37,7 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
   Echo
   PrintOne "Here you can tell Feliz the size and format of the partitions you wish"
   PrintOne "to create. When all details have been set, Feliz will wipe the disk and"
-  PrintOne "create an EFI partition table with the partitions you have specified."
+  PrintOne "create an EFI partition table with the partitions you have specified"
   Echo
   PrintOne "We begin with the /boot partition"
   Echo
@@ -48,13 +48,17 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
   if [ ${FreeSpace} -gt 0 ]; then
     EasySwap
   else
-    PrintOne "There is no space for a /swap partition, but you can."
-    PrintOne "assign a swap-file. It is advised to allow some swap."
+    PrintOne "There is no space for a /swap partition, but you can"
+    PrintOne "assign a swap-file. It is advised to allow some swap"
     Echo
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
+    Translate "Yes"
+    Y="Result"
+    Translate "No"
+    N="Result"
     Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     Echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -88,17 +92,18 @@ EasyDevice() {            # Get details of device to use from all connected devi
     while [ -z $UseDisk ]
     do
       print_heading
-      PrintOne "There are $Counter devices available"
+      PrintOne "There are" "$Counter" "devices available"
       PrintOne "Which do you wish to use for installation?"
       Echo
       Counter=0
       for i in $DiskDetails
       do
         Counter=$((Counter+1))
-        PrintOne "$Counter) $i"
+        PrintOne "" "$Counter) $i"
       done
       Echo
-      TPread "Enter the number of your selection: "
+      Translate "Please enter the number of your selection"
+      TPread "${Result}: "
       UseDisk="${Drives[$Response]}"
     done
   fi
@@ -124,18 +129,20 @@ EasyDiskSize() {                # Establish size of device in MiB
   fi
   # 5) Warn user if space is limited
   if [ ${FreeSpace} -lt 2048 ]; then      # If less than 2GiB
-    PrintOne "Your device has only ${FreeSpace}MiB: This is not enough for an installation"
+    PrintOne "Your device has only" "${FreeSpace}MiB:" "This is not enough for an installation"
     read -p "Please press [Enter] - the installer will shut down"
     shutdown -h now
   elif [ ${FreeSpace} -lt 4096 ]; then    # If less than 4GiB
-    PrintOne "Your device has only ${FreeSpace}MiB: This is just enough for a basic"
+    PrintOne "Your device has only" "${FreeSpace}MiB:" "This is just enough for a basic"
     PrintOne "installation, but you should choose light applications only, and"
-    PrintOne "you may run out of space during installation or at some later time."
-    TPread "Please press [Enter] to continue"
+    PrintOne "you may run out of space during installation or at some later time"
+    Translate "Please press [Enter] to continue"
+    TPread "${Result}"
   elif [ ${FreeSpace} -lt 8192 ]; then    # If less than 8GiB
-    PrintOne "Your device has ${FreeSpace}MiB: This is enough for"
-    PrintOne "installation, but you should choose light applications only."
-    TPread "Please press [Enter] to continue"
+    PrintOne "Your device has" "${FreeSpace}MiB:" "This is enough for"
+    PrintOne "installation, but you should choose light applications only"
+    Translate "Please press [Enter] to continue"
+    TPread "${Result}"
   fi
 }
 
@@ -160,11 +167,12 @@ EasyBoot() { # Variables: BootSize
   while [ ${LoopRepeat} = "Y" ]
   do
     FreeGigs=$((FreeSpace/1024))
-    PrintOne "You have ${FreeGigs}GiB available on the chosen device."
-    PrintOne "All we need to set here is the size of your EFI /boot partition."
+    PrintOne "You have" "${FreeGigs}GiB" "available on the chosen device"
+    PrintOne "All we need to set here is the size of your EFI /boot partition"
     PrintOne "It should be no less than 512MiB and need be no larger than 1GiB"
     Echo
-    TPread "Enter size (M = Megabytes, G = Gigabytes) [eg: 512M or 1G]: "
+    Translate "Size"
+    TPread "${Result} (M = Megabytes, G = Gigabytes) [eg: 512M or 1G]: "
     RESPONSE="${Response^^}"
     # Check that entry includes 'M or G'
     CheckInput=${RESPONSE: -1}
@@ -189,11 +197,11 @@ EasyRoot() { # Variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     print_heading
-    PrintOne "EFI boot partition: ${BootSize}"
+    PrintOne "EFI boot partition:" "${BootSize}"
     Echo
-    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You now have" "${FreeGigs}GiB" "available on the chosen device"
     Echo
-    PrintOne "Next we need at least one more partition, for /root."
+    PrintOne "Next we need at least one more partition, for /root"
     PrintOne "You can use all the remaining space on the device, if you"
     PrintOne "wish, although you may want to leave some room for a swap"
     PrintOne "partition, and perhaps also a home partition. The root partition"
@@ -202,7 +210,8 @@ EasyRoot() { # Variables: RootSize, RootType
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: 12G or 100%]: "
+    Translate "Size"
+    TPread "${Result} [eg: 12G or 100%]: "
     RESPONSE="${Response^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
@@ -230,25 +239,25 @@ EasySwap() { # Variables: SwapSize
   do
     # Clear display, show /boot and available space
     print_heading
-    PrintOne "EFI boot partition: ${BootSize}"
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
+    PrintOne "EFI boot partition:" "${BootSize}"
+    PrintOne "Root partition:" "${RootType} : ${RootSize}"
     Echo
-    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You now have" "${FreeGigs}GiB" "available on the chosen device."
     Echo
     if [ ${FreeSpace} -gt 10 ]; then
       PrintOne "There is space for a /swap partition. Swap can be anything"
       PrintOne "from 512MiB upwards, but generally it is not necessary to exceed"
-      PrintOne "4GiB. You may want to leave some room for a home partition."
+      PrintOne "4GiB. You may want to leave some room for a home partition"
       Echo
     elif [ ${FreeSpace} -gt 5 ]; then
-      PrintOne "There is space for a /swap partition."
+      PrintOne "There is space for a /swap partition"
       PrintOne "Swap can be anything from 1MiB upwards, but generally it"
       PrintOne "is not necessary to exceed 4GiB. You can assign more, up"
       PrintOne "to all the remaining space on the device, if you wish, but"
-      PrintOne "you may want to leave room for a small home partition."
+      PrintOne "you may want to leave room for a small home partition"
       Echo
     else
-      PrintOne "There is just space for a /swap partition."
+      PrintOne "There is just space for a /swap partition"
       PrintOne "Swap can be anything from 1MiB upwards, but generally it"
       PrintOne "is not necessary to exceed 4GiB. You can assign all the"
       PrintOne "remaining space on the device, if you wish: just enter 100%"
@@ -259,14 +268,19 @@ EasySwap() { # Variables: SwapSize
     PrintOne "Please enter the desired swap partition size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: 2G or 100% or 0]: "
+    Translate "Size"
+    TPread "$Result [eg: 2G or 100% or 0]: "
     RESPONSE="${Response^^}"
     Echo
     case ${RESPONSE} in
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
+        Translate "Yes"
+        Y="Result"
+        Translate "No"
+        N="Result"
         Translate "Use arrow keys to move. [Enter] to select"
-        Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+        Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
         Echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -296,20 +310,21 @@ EasyHome() { # Variables: HomeSize, HomeType
     # Clear display, show /boot and available space
     print_heading
 
-    PrintOne "EFI boot partition: ${BootSize}"
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
-    PrintOne "Swap partition: ${SwapSize}"
+    PrintOne "EFI boot partition:" "${BootSize}"
+    PrintOne "Root partition:" "${RootType} : ${RootSize}"
+    PrintOne "Swap partition:" "${SwapSize}"
     Echo
-    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You now have" "${FreeGigs}GiB" "available on the chosen device."
     Echo
     PrintOne "There is space for a /home partition. You can use all"
-    PrintOne "the remaining space on the device, if you wish."
+    PrintOne "the remaining space on the device, if you wish"
     PrintOne "If you don't want a home partition, enter 0 or leave blank"
     Echo
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: ${FreeGigs}G or 100% or 0]: "
+    Translate "Size"
+    TPread "$Result [eg: ${FreeGigs}G or 100% or 0]: "
     RESPONSE="${Response^^}"
     Echo
     case ${RESPONSE} in
@@ -337,20 +352,24 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   while :
   do                                # Get user approval
     print_heading
-    PrintOne "EFI boot partition: ${BootSize}"
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
-    PrintOne "Swap partition: ${SwapSize}"
-    PrintOne "Home partition: ${HomeType} : ${HomeSize}"
+    PrintOne "EFI boot partition:" "${BootSize}"
+    PrintOne "Root partition:" "${RootType} : ${RootSize}"
+    PrintOne "Swap partition:" "${SwapSize}"
+    PrintOne "Home partition:" "${HomeType} : ${HomeSize}"
     Echo
-    PrintOne "That's all the preparation done."
-    PrintOne "Feliz will now create a new partition table,"
-    PrintOne "and set up the partitions you have defined."
+    PrintOne "That's all the preparation done"
+    PrintOne "Feliz will now create a new partition table"
+    PrintOne "and set up the partitions you have defined"
     Echo
     PrintOne "This will erase any data on ${UseDisk}"
-    PrintOne "Are you sure you wish to continue?: "
+    PrintOne "Are you sure you wish to continue?" ":"
     Echo
+    Translate "Yes"
+    Y="Result"
+    Translate "No"
+    N="Result"
     Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     case $Response in
       "1" | "Y" | "y") WipeDevice   # Format the drive
         Parted "mklabel gpt"        # Create EFI partition table
@@ -454,16 +473,17 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   ShowPart4="Home: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1                  # Treat as auto-partitioned. Set flag to 'on' for mounting
   print_heading
-  PrintOne "Partitioning of ${GrubDevice} successful"
+  PrintOne "Partitioning of" "${GrubDevice}" "successful"
   Echo
-  PrintOne "$ShowPart1"
-  PrintMany "$ShowPart2"
-  PrintMany "$ShowPart3"
-  PrintMany "$ShowPart4"
+  PrintOne "" "$ShowPart1"
+  PrintMany "" "$ShowPart2"
+  PrintMany "" "$ShowPart3"
+  PrintMany "" "$ShowPart4"
   Echo
-  PrintOne "You will have the opportunity to review these later."
+  PrintOne "You will have the opportunity to review these later"
   Echo
-  Buttons "Yes/No" "[ Ok ]" "Press [Enter] to continue"
+  Translate "Press [Enter] to continue"
+  Buttons "Yes/No" "[ Ok ]" "$Result"
 }
 
 WipeDevice() {                # Format the drive for EFI
@@ -481,7 +501,7 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
   PrintOne "Here you can tell Feliz the size and format of the partitions you wish"
   PrintOne "to create. This facility is restricted to creating /root, /swap and /home"
   PrintOne "(if desired). When all details have been set, Feliz will wipe the disk and"
-  PrintOne "create a new GPT partition table with the partitions you have specified."
+  PrintOne "create a new GPT partition table with the partitions you have specified"
   Echo
   PrintOne "We begin with the /root partition"
   Echo
@@ -490,13 +510,17 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
   if [ ${FreeSpace} -gt 0 ]; then
     GuidedSwap
   else
-    PrintOne "There is no space for a /swap partition, but you can."
-    PrintOne "assign a swap-file. It is advised to allow some swap."
+    PrintOne "There is no space for a /swap partition, but you can"
+    PrintOne "assign a swap-file. It is advised to allow some swap"
     Echo
     PrintOne "Do you wish to allocate a swapfile?"
     Echo
+    Translate "Yes"
+    Y="Result"
+    Translate "No"
+    N="Result"
     Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     Echo
     if [ $Response -eq 1 ]; then
       print_heading
@@ -522,18 +546,19 @@ GuidedRoot() { # Variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     print_heading
-    PrintOne "You have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You have" "${FreeGigs}GiB" "available on the chosen device."
     Echo
     PrintOne "First we need to create a /root partition. You can"
     PrintOne "use all the space on the device, if you wish, although"
-    PrintOne "you may want to leave some room for a swap partition,"
+    PrintOne "you may want to leave some room for a swap partition"
     PrintOne "and perhaps also a home partition. The root partition"
     PrintOne "should not be less than 8GiB - ideally more, up to 20GiB"
     Echo
     PrintOne "Please enter the desired size in Gigabytes, or"
     PrintOne "to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: 12G or 100%]: "
+    Translate "Size"
+    TPread "$Result [eg: 12G or 100%]: "
     RESPONSE="${Response^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
@@ -548,7 +573,7 @@ GuidedRoot() { # Variables: RootSize, RootType
       RootSize=$RESPONSE
       Partition="/root"
       print_heading
-      PrintOne "${RootSize} allocated to /root"
+      PrintOne "" "${RootSize}" "allocated to /root"
       select_filesystem
       RootType=${PartitionType}
       break
@@ -564,22 +589,22 @@ GuidedSwap() { # Variables: SwapSize
   do
     # Clear display, show /root and available space
     print_heading
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
+    PrintOne "Root partition" ": ${RootType} : ${RootSize}"
     Echo
-    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You now have" "${FreeGigs}GiB" "available on the chosen device."
     Echo
     if [ ${FreeSpace} -gt 10 ]; then
       PrintOne "There is space for a /swap partition. Swap can be"
       PrintOne "anything from 512MiB upwards, but generally not less"
-      PrintOne "than 1GiB, and it is not usually necessary to exceed 4GiB."
-      PrintOne "You may want to leave some room for a home partition."
+      PrintOne "than 1GiB, and it is not usually necessary to exceed 4GiB"
+      PrintOne "You may want to leave some room for a home partition"
       Echo
     elif [ ${FreeSpace} -gt 5 ]; then
       PrintOne "There is space for a /swap partition. Swap can be anything"
       PrintOne "from 512MiB upwards, but generally not less than 1GiB, and it"
-      PrintOne "is not usually necessary to exceed 4GiB. You can assign more,"
+      PrintOne "is not usually necessary to exceed 4GiB. You can assign more"
       PrintOne "up to all the remaining space on the device, if you wish, but"
-      PrintOne "you may want to leave room for a small home partition."
+      PrintOne "you may want to leave room for a small home partition"
       Echo
     else
       PrintOne "There is just space for a /swap partition. Swap can be anything"
@@ -593,14 +618,19 @@ GuidedSwap() { # Variables: SwapSize
     PrintOne "Please enter the desired swap partition size"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: 2G or 100% or 0]: "
+    Translate "Size"
+    TPread "$Result [eg: 2G or 100% or 0]: "
     RESPONSE="${Response^^}"
     Echo
     case ${RESPONSE} in
       '' | 0) PrintOne "Do you wish to allocate a swapfile?"
           Echo
+        Translate "Yes"
+        Y="Result"
+        Translate "No"
+        N="Result"
         Translate "Use arrow keys to move. [Enter] to select"
-        Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+        Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
         Echo
         if [ $Response -eq 1 ]; then
           SetSwapFile
@@ -628,10 +658,10 @@ GuidedHome() { # Variables: HomeSize, HomeType
   do
     # Clear display, show /root, /swap and available space
     print_heading
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
-    PrintOne "Swap partition: ${SwapSize}"
+    PrintOne "Root partition:" "${RootType} : ${RootSize}"
+    PrintOne "Swap partition:" "${SwapSize}"
     Echo
-    PrintOne "You now have ${FreeGigs}GiB available on the chosen device."
+    PrintOne "You now have" "${FreeGigs}GiB" "available on the chosen device"
     Echo
     PrintOne "There is space for a /home partition. You can use all"
     PrintOne "the remaining space on the device, if you wish. If"
@@ -640,7 +670,8 @@ GuidedHome() { # Variables: HomeSize, HomeType
     PrintOne "Please enter the desired size in Gigabytes"
     PrintOne "or, to allocate all the remaining space, enter: 100%"
     Echo
-    TPread "Size [eg: 100% or 0]: "
+    Translate "Size"
+    TPread "${Result} [eg: 100% or 0]: "
     RESPONSE="${Response^^}"
     Echo
     case ${RESPONSE} in
@@ -656,7 +687,7 @@ GuidedHome() { # Variables: HomeSize, HomeType
           HomeSize=$RESPONSE
           Partition="/home"
           print_heading
-          PrintOne "${RootSize} of remaining space allocated to /home"
+          PrintOne "" "${RootSize}" "of remaining space allocated to /home"
           select_filesystem
           HomeType=${PartitionType}
           break
@@ -669,19 +700,23 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
   while :
   do                                  # Get user approval
     print_heading
-    PrintOne "Root partition: ${RootType} : ${RootSize}"
-    PrintOne "Swap partition: ${SwapSize}"
-    PrintOne "Home partition: ${HomeType} : ${HomeSize}"
+    PrintOne "Root partition:" "${RootType} : ${RootSize}"
+    PrintOne "Swap partition:" "${SwapSize}"
+    PrintOne "Home partition:" "${HomeType} : ${HomeSize}"
     Echo
     PrintOne "That's all the preparation done."
-    PrintOne "Feliz will now create a new partition table,"
-    PrintOne "and set up the partitions you have defined."
+    PrintOne "Feliz will now create a new partition table"
+    PrintOne "and set up the partitions you have defined"
     Echo
     PrintOne "This will erase any data on ${UseDisk}"
-    PrintOne "Are you sure you wish to continue?: "
+    PrintOne "Are you sure you wish to continue?"
     Echo
+    Translate "Yes"
+    Y="Result"
+    Translate "No"
+    N="Result"
     Translate "Use arrow keys to move. [Enter] to select"
-    Buttons "Yes/No" "[ Yes ] [ No ]" "$Result"
+    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
     case $Response in
       "1" | "Y" | "y") Parted "mklabel msdos"  # Create mbr partition table
         break
@@ -768,13 +803,14 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
   ShowPart3="Home: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
   AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
   print_heading
-  PrintOne "Partitioning of ${GrubDevice} successful"
+  PrintOne "Partitioning of" "${GrubDevice}" "successful"
   Echo
-  PrintOne "$ShowPart1"
-  PrintMany "$ShowPart2"
-  PrintMany "$ShowPart3"
+  PrintOne "" "$ShowPart1"
+  PrintMany "" "$ShowPart2"
+  PrintMany "" "$ShowPart3"
   Echo
-  PrintOne "You will have the opportunity to review these later."
+  PrintOne "You will have the opportunity to review these later"
   Echo
-  Buttons "Yes/No" "[ Ok ]" "Press [Enter] to continue"
+  Translate "Press [Enter] to continue"
+  Buttons "Yes/No" "[ Ok ]" "$Return"
 }

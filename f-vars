@@ -35,11 +35,20 @@ print_heading() {   # Always use this function to clear the screen
   cursor_row=3                          # Save cursor row after heading
 }
 
-PrintOne() { # Text is translated, then aligned according to content and screen size
-  Text="$1"
-  if [ ! $2 ]; then                 # Don't translate if $2
+PrintOne() {  # Receives up to 4 arguments
+              # Translates alternate arguments, assembled into $Text
+              # Then prints aligned according to content and screen size
+  Translate "$1"              # Always translate $1
+  Text="$Result"
+  if [ "$2" ]; then           # Don't translate $2
+    Text="$Text $2"
+  fi
+  if [ "$3" ]; then           # Translate $3
     Translate "$Text"
-    Text="$Result"
+    Text="$Text $Result"
+  fi
+  if [ "$4" ]; then           # Don't translate $4
+    Text="$Text $4"
   fi
   width=$(tput cols)
   EMPTY=" "
@@ -52,10 +61,20 @@ PrintOne() { # Text is translated, then aligned according to content and screen 
 }
 
 PrintMany() { # Subsequent item(s) in an aligned list
-  Text="$1"
-  if [ ! $2 ]; then                 # Don't translate if $2
+              # Receives up to 4 arguments
+              # Translates alternate arguments, assembled into $Text
+              # Then prints aligned according to content and screen size
+  Translate "$1"              # Always translate $1
+  Text="$Result"
+  if [ $2 ]; then             # Don't translate $2
+    Text="$Text $2"
+  fi
+  if [ $3 ]; then             # Translate $3
     Translate "$Text"
-    Text="$Result"
+    Text="$Text $Result"
+  fi
+  if [ $4 ]; then             # Don't translate $4
+    Text="$Text $4"
   fi
   Echo "$EMPTY $Text"
 }
@@ -84,6 +103,8 @@ invalid_option() {
 
 SetLanguage() {
   print_heading
+  PrintOne "" "Language/Idioma/Língua/Langue/Sprache/Limba/Język"
+  Echo
   listgen1 "$(ls *.lan | cut -d'.' -f1)"
   case $Result in
   "" | "Exit") LanguageFile=english.lan
