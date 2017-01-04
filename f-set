@@ -411,7 +411,7 @@ getkeymap() {
     ;;
     1)  # If the search found one match
       PrintOne "Only one keyboard found based on your location"
-      PrintOne "Do you wish to accept this? Select [ No ] to search for alternatives"
+      PrintOne "Do you wish to accept this? Select No to search for alternatives"
       Translate "Yes"
       Y="$Result"
       Translate "No"
@@ -522,7 +522,8 @@ SetHostname() {
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  Translate "Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  CategoriesList="$Result"
   print_heading
   case "$LuxuriesList" in
   '') PrintOne "Now you have the option to add extras, such as a web browser"

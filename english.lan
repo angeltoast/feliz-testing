@@ -2,9 +2,9 @@
 Feliz2 - Arch Linux installation script
 Choose your kernel
 Choose an item
-The Long-Term-Support kernel (LTS) offers stabilty,
+The Long-Term-Support kernel (LTS) offers stabilty
 while the Latest kernel has all the new features
-If in doubt, choose LTS.
+If in doubt, choose LTS
 It appears that feliz is running in Virtualbox
 If it is, feliz can install Virtualbox guest
 utilities and make appropriate settings for you
@@ -25,7 +25,7 @@ Shall we use this as your language?
 Now please choose your language from this list
 or Exit to try again
 Only one keyboard found based on your location
-Do you wish to accept this? Select [ No ] to search for alternatives
+Do you wish to accept this? Select No to search for alternatives
 The following keyboards match your location. You can
 choose one, or Exit to search for alternatives
 If you know the code for your keyboard layout, please enter
