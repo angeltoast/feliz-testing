@@ -584,9 +584,9 @@ AllocateSwap() {
             PrintOne "Do you wish to reformat it?"
             Echo
             Translate "Yes"
-            Y="Result"
+            Y="$Result"
             Translate "No"
-            N="Result"
+            N="$Result"
             Translate "Use arrow keys to move. [Enter] to select"
             Buttons "Yes/No" "[ $Y ] [ $N ]" "$Result"
             case $Response in
