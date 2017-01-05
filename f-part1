@@ -90,7 +90,7 @@ CheckParts() {
     BuildPartitionLists                   # Generate an array of partitions - this is a first call
   else                                    # Partitions exist
     print_heading
-    PrintOne "Here is a list of available partitions on all connected devices"
+    PrintOne "Here is a list of available partitions"
     Echo
     BuildPartitionLists                   # Generate an array of partitions - this is a first call
     Counter=0
@@ -113,12 +113,13 @@ CheckParts() {
       PrintOne "next enable you to allocate the existing partitions"
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
-      PrintOne "'cfdisk' is available for you to edit them. Alternatively, you"
-      PrintOne "can use the guided manual partitioning option, or Feliz can"
-      PrintOne "overwrite the disk with a new partition table if you wish. Please"
-      PrintOne "note that both these options will wipe the disk - any exisiting"
-      PrintOne "data will be erased! If you choose to 'Leave it as it is' the"
-      PrintOne "script will next enable you to allocate the existing partitions"
+      PrintOne "'cfdisk' is available for you to edit them. Alternatively"
+      PrintOne "you can use the guided manual partitioning option, or"
+      PrintOne "Feliz can overwrite the disk with a new partition table"
+      PrintOne "if you wish. Please note that both these options will wipe"
+      PrintOne "the disk - any exisiting data will be erased! If you"
+      PrintOne "choose to 'Leave it as it is' the script will next enable"
+      PrintOne "you to allocate the existing partitions"
       Partitioning                      # BIOS partitioning options
     fi
     MakePartitionList                   # Regenerate the array of partitions

@@ -78,18 +78,20 @@ Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
 o Feliz pode automaticamente criar as partições para você, se você
 desejar. Se você escolher nao fazer nada agora, o script irá
 encerrar para permitir a partição de alguma outra forma
-Aqui está uma lista das partições disponíveis em todos os dispositivos conectados
+Aqui está uma lista das partições disponíveis
 Existe uma opção de particionamento manual guiada, ou o Feliz
 pode automaticamente criar uma nova tabela de partição GPT para
 você, se for o seu desejo. Observe que ambas as opções irão
 limpar o disco - quaisquer dados existentes serão apagados!
 Se você optar por "Deixar como está", o script
 permitirá que você aloque as partições existentes.
-O 'cfdisk' está disponível para você editá-las. Como alternativa, você pode usar
-a opção de particionamento manual guiado, ou o Feliz pode substituir o disco com
-uma nova tabela de partição, se desejar. Observe que ambas as opções irão limpar
-o disco - quaisquer dados existentes serão apagados! Se você optar
-por "Deixar como está", o script permitirá que você aloque as partições existentes
+O 'cfdisk' está disponível para você editá-las. Como alternativa,
+você pode usar a opção de particionamento manual guiado, ou o
+Feliz pode substituir o disco com uma nova tabela de partição,
+se desejar. Observe que ambas as opções irão limpar
+o disco - quaisquer dados existentes serão apagados! Se você
+optar por "Deixar como está", o script permitirá que
+você aloque as partições existentes
 Estes são os dispositivos disponíveis
 Qual você deseja usar para esta instalação?
 (Lembre-se, isto é auto-partição, e quaisquer
