@@ -107,6 +107,7 @@ Seleccione ahora el sistema de archivos para
 No se recomienda mezclar el sistema de archivos btrfs con otros
 La partición que ha elegido está etiquetada
 Si desea guardar esa etiqueta, escriba 1
+Introduzca 1, 2 o una nueva etiqueta
 Seleccione ahora una partición para usarla como root
 Usted puede elegir dejarlo como está, pero debe
 Entender que no reformatear la raíz

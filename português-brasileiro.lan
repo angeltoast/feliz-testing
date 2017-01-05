@@ -37,7 +37,7 @@ Alternativamente, digite 'Sair' para iniciar novamente
 Selecione seu teclado, ou Sair para tentar novamente
 Nenhum teclado encontrado contendo '$Term'
 Por favor, tente novamente
-Digite um nome para o usuário primário do novo sistema.
+Digite um nome para o usuário primário do novo sistema
 Se você não criar um usuário aqui, um usuário padrão
 chamado 'archie' será configurado
 será criado
@@ -75,7 +75,7 @@ uma para /root. Uma opção para particionamento manual guiado
 e a criação de uma tabela de partição EFI foi adicionada
 ou você pode sair agora para usar uma ferramenta externa.
 Alternativamente, uma partição é necessária para o diretório root
-Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou 
+Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
 o Feliz pode automaticamente criar as partições para você, se você
 desejar. Se você escolher nao fazer nada agora, o script irá
 encerrar para permitir a partição de alguma outra forma
@@ -85,10 +85,10 @@ pode automaticamente criar uma nova tabela de partição GPT para
 você, se for o seu desejo. Observe que ambas as opções irão
 limpar o disco - quaisquer dados existentes serão apagados!
 Se você optar por "Deixar como está", o script
-permitirá que você aloque as partições existentes.
-O 'cfdisk' está disponível para você editá-las. Como alternativa,
+permitirá que você aloque as partições existentes
+O 'cfdisk' está disponível para você editá-las. Como alternativa
 você pode usar a opção de particionamento manual guiado, ou o
-Feliz pode substituir o disco com uma nova tabela de partição,
+Feliz pode substituir o disco com uma nova tabela de partição
 se desejar. Observe que ambas as opções irão limpar
 o disco - quaisquer dados existentes serão apagados! Se você
 optar por "Deixar como está", o script permitirá que
@@ -106,7 +106,8 @@ Pressione qualquer tecla para continuar
 Selecione agora o sistema de arquivos para
 Não é recomendado misturar o sistema de arquivos btrfs com outros
 A partição que você escolheu é rotulada
-Se você deseja manter esse rótulo, digite 1            
+Se você deseja manter esse rótulo, digite 1
+
 Selecione agora uma partição para usar como root
 Você pode optar por deixá-la como está, mas
 deve entender que não reformatar a partição root
@@ -114,22 +115,22 @@ pode ter consequências inesperadas
 A partição selecionada
 está atualmente formatada para
 Reformatando irá remover todos os dados atualmente sobre ela
-Selecione uma partição para o swap daqueles que permanecem,
+Selecione uma partição para o swap daqueles que permanecem
 ou você pode alocar um arquivo de swap
 Atenção: btrfs não suporta arquivos de swap
 Se você ignorar essa etapa, nenhum swap será alocado
 Já está formatado como uma partição swap
 A reformatação mudará o UUID e se esta partição de swap
-for utilizada por outro sistema operacional,
+for utilizada por outro sistema operacional
 esse sistema deixará de poder acessar à partição
 Deseja reformatá-la?
 Não há partições disponíveis para o swap, mas
-você pode alocar um arquivo de swap, se desejar.
+você pode alocar um arquivo de swap, se desejar
 Alocar o tamanho do seu arquivo de swap (M = Megabytes, G = Gigabytes)
 As partições a seguir permanecem não alocadas
 Se você desejar usar um, selecione-o na lista
 ou escolha Sair para concluir o particionamento
-Você pode optar por deixá-la como está, selecionando Sair,
+Você pode optar por deixá-la como está, selecionando Sair
 mas não reformatar uma partição existente pode ter consequências inesperadas
 Digite um ponto de montagem para
 Você deve digitar um ponto de montagem válido
@@ -151,7 +152,7 @@ Seu dispositivo tem
 Isso é suficiente para
 Você tem
 disponível no dispositivo escolhido
-Tudo o que precisamos definir aqui é o tamanho da sua partição /boot EFI.
+Tudo o que precisamos definir aqui é o tamanho da sua partição /boot EFI
 Ela não deve ser inferior a 512MiB e não precisa ser maior do que 1GiB
 para que o tamanho correto seja definido
 Você agora tem
@@ -164,7 +165,7 @@ o ideal é até 20GiB
 Digite o tamanho desejado ou
 para alocar todo o espaço restante, insira: 100%
 Há espaço para uma partição /swap
-A swap pode ser qualquer coisa de 512MiB para cima,
+A swap pode ser qualquer coisa de 512MiB para cima
 mas não é necessário exceder 4GiB
 Você pode querer deixar algum espaço para uma partição home
 Há apenas espaço para uma partição /swap
@@ -172,9 +173,9 @@ Partição de boot EFI
 Feliz criará agora uma nova tabela de partições
 e configurará as partições que definiu
 Particionamento bem sucedido!
-para criar. Esta facilidade é restrita a criar /root, /swap e /home(se desejar).
-Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e criará uma
-nova tabela de partição GPT com as partições que você especificou
+para criar. Esta facilidade é restrita a criar /root, /swap e /home(se desejar)
+Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e
+criará uma nova tabela de partição GPT com as partições que você especificou
 Uma partição /root é necessária
 alocado para /root
 Partição root
@@ -196,8 +197,8 @@ Note que você não será capaz de
 ver as senhas que você digitar
 As senhas não coincidem. Tente novamente
 Redigite uma senha para
-Parabéns! A instalação está completa.
-Reinicialização do desligamento
+Parabéns! A instalação está completa
+Reinicialização desligamento
 Partição de boot
 Partição swap
 Nenhum fornecimento foi feito para o swap

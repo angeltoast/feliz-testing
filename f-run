@@ -437,7 +437,7 @@ Restart() {
   ;;
   2) reboot
   ;;
-  *) Exit
+  *) exit
   esac
 }
 

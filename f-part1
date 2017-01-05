@@ -315,14 +315,18 @@ AutoWarning() {
   do
     print_heading
     Echo
-    PrintOne "This will erase any data on" "${UseDisk}"
+    Translate "This will erase any data on"
+    PrintOne "$Result" "${UseDisk}"
     PrintOne "Are you sure you wish to continue?"
     Echo
     Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
         print_heading
-        PrintOne "Partitioning of" "${GrubDevice}" "successful"
+        Translate "successful"
+        P2="$Result"
+        Translate "Partitioning of"
+        PrintOne "$Result" "${GrubDevice} $P2"
         Echo
         PrintMany "" "$ShowPart1"
         PrintMany "" "$ShowPart2"
@@ -450,13 +454,15 @@ EditLabel() {
     # Inform the user and accept input
     print_heading
     Echo
-    PrintOne "The partition you have chosen is labelled" "'${Label}'"
+    Translate "The partition you have chosen is labelled"
+    PrintOne "$Result" "'${Label}'"
     Echo
     PrintOne "If you wish to keep that label, enter 1            "
     PrintMany "If you wish to delete the label, enter 2"
     PrintMany "If you wish to enter a new label, type it at the prompt"
     Echo
-    TPread "Enter 1, 2 or a new label: "
+    Translate "Enter 1, 2 or a new label"
+    TPread "$Result" ": "
     # Save to the -A array
     case $Response in
       1) LabellingArray[$PartitionID]=$Label
