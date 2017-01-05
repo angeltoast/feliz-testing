@@ -427,9 +427,14 @@ Restart() {
   Echo
   PrintOne "Congratulations, installation is complete"
   Echo
-  PrintOne "The computer will now shut down, so you can"
-  PrintOne "remove the installation media before rebooting"
-  read_timed
-  shutdown -h now
+  Translate "Shutdown Reboot"
+  listgen1 "$Result" "" ""
+  case $Response in
+  1) shutdown -h now
+  ;;
+  2) reboot
+  ;;
+  *) Exit
+  esac
 }
 

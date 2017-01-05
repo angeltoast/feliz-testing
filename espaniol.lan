@@ -65,7 +65,7 @@ No se instalará, y usted tendrá que hacer
 Arreglos alternativos para arrancar tu nuevo sistema
 Estos son los ajustes que ha introducido. Por favor, compruébalo
 Pulse Intro para instalar con estos ajustes, o
-Introduzca el número para que los datos cambien o Intro para finalizar
+Introduzca el número para que los datos cambien
 1) Nombre de host (actualmente
 Si no está seguro acerca de la partición, debe leer el Wiki Arch
 No hay particiones en el dispositivo y al menos
@@ -194,8 +194,7 @@ Tenga en cuenta que no podrá
 Ver contraseñas al entrar en ellas
 Las contraseñas no coinciden. Inténtalo de nuevo
 Felicitaciones, la instalación está completa
-El ordenador se apagará, para que pueda
-Quite el medio de instalación antes de reiniciar
+Apagar Reiniciar
 Partición de arranque
 Intercambiar partición
 No se han hecho previsiones para

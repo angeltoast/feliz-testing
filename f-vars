@@ -35,20 +35,14 @@ print_heading() {   # Always use this function to clear the screen
   cursor_row=3                          # Save cursor row after heading
 }
 
-PrintOne() {  # Receives up to 4 arguments
-              # Translates alternate arguments, assembled into $Text
-              # Then prints aligned according to content and screen size
-  Translate "$1"              # Always translate $1
-  Text="$Result"
-  if [ "$2" ]; then           # Don't translate $2
-    Text="$Text $2"
-  fi
-  if [ "$3" ]; then           # Translate $3
-    Translate "$Text"
-    Text="$Text $Result"
-  fi
-  if [ "$4" ]; then           # Don't translate $4
-    Text="$Text $4"
+PrintOne() {  # Receives up to 2 arguments
+              # If $2 contains anything, don't translate $1
+              # Then print aligned according to content and screen size
+  if [ ! "$2" ]; then
+    Translate "$1"
+    Text="$Result"
+  else
+    Text="$1 $2"
   fi
   width=$(tput cols)
   EMPTY=" "
@@ -60,21 +54,14 @@ PrintOne() {  # Receives up to 4 arguments
   Echo "$EMPTY $Text"
 }
 
-PrintMany() { # Subsequent item(s) in an aligned list
-              # Receives up to 4 arguments
-              # Translates alternate arguments, assembled into $Text
-              # Then prints aligned according to content and screen size
-  Translate "$1"              # Always translate $1
-  Text="$Result"
-  if [ "$2" ]; then           # Don't translate $2
-    Text="$Text $2"
-  fi
-  if [ "$3" ]; then           # Translate $3
-    Translate "$3"
-    Text="$Text $Result"
-  fi
-  if [ "$4" ]; then           # Don't translate $4
-    Text="$Text $4"
+PrintMany() { # Receives up to 2 arguments
+              # If $2 contains anything, don't translate $1
+              # Then print aligned according to content and screen size
+  if [ ! "$2" ]; then
+    Translate "$1"
+    Text="$Result"
+  else
+    Text="$1 $2"
   fi
   Echo "$EMPTY $Text"
 }
@@ -103,7 +90,7 @@ invalid_option() {
 
 SetLanguage() {
   print_heading
-  PrintOne "" "Language/Idioma/Língua/Langue/Sprache/Limba/Język"
+  PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
   listgen1 "$(ls *.lan | cut -d'.' -f1)"
   case $Result in

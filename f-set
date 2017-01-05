@@ -73,8 +73,7 @@ SetKernel() {
   PrintOne "while the Latest kernel has all the new features"
   PrintOne "If in doubt, choose LTS"
   Echo
-  local Counter=0
-  listgen1 "LTS Latest" "Kernels" "nocancel"
+  listgen1 "LTS Latest" "" "nocancel"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
@@ -511,7 +510,7 @@ SetHostname() {
 
 PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList=""
-  for category in "Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers
   do
     Translate "$category"
     CategoriesList="$CategoriesList $Result"
@@ -826,59 +825,81 @@ FinalCheck() {
     PrintOne "These are the settings you have entered. Please check them" "..."
     Echo
     if [ ${UEFI} -eq 1 ]; then
-      PrintOne "" "0) " "Boot partition" "... $EFIPartition             "
-      PrintMany "" "1) " "Root partition" "... $RootPartition : $RootType"
+      Translate "Boot partition"
+      PrintOne "0)  $Result " "... $EFIPartition                       "
+      Translate "Root partition"
+      PrintMany "1)  $Result" "... $RootPartition : $RootType"
     else
-      PrintOne "" "1) " "Root partition" "... $RootPartition : $RootType"
+      Translate "Root partition"
+      PrintOne "1)  $Result" "... $RootPartition : $RootType           "
     fi
     if [ $SwapPartition ] || [ $SwapFile ]; then
-      PrintMany "" "2) " "Swap partition" "... $SwapPartition $SwapFile"
+      Translate "Swap partition"
+      PrintMany "2) $Result" "... $SwapPartition $SwapFile"
     else
-      PrintMany "" "2) " "No provision has been made for swap"
+      Translate "No provision has been made for swap"
+      PrintMany "2) " "$Result"
     fi
     if [ ${#AddPartList[@]} -gt 0 ]; then
       Counter=0
-      PrintMany "" "3) " "Extra partitions" "..."
+      Translate "Extra partitions"
+      PrintMany "3) $Result" "..."
       for i in ${AddPartList[@]}
       do
-        PrintMany "" "     ${AddPartMount[$Counter]} : ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"
+        PrintMany "     ${AddPartMount[$Counter]} " ": ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"
         Counter=$((Counter+1))
       done
     else
-      PrintMany "" "3) " "No additional partitions have been allocated"
+      Translate "No additional partitions have been allocated"
+      PrintMany "3) " "$Result"
     fi
     case $Kernel in
-      1) PrintMany "" "4) " "The LTS kernel will be installed"
+      1) Translate "The LTS kernel will be installed"
+        PrintMany "4) " "$Result"
       ;;
-      *) PrintMany "" "4) " "The latest kernel will be installed"
+      *) Translate "The latest kernel will be installed"
+        PrintMany "4) " "$Result"
     esac
     if [ $GrubDevice ]; then
-    PrintMany "" "5) " "Grub will be installed to" "$GrubDevice"
+      Translate "Grub will be installed to"
+      PrintMany "5) $Result" "$GrubDevice"
     else
-      PrintMany "" "5) " "No provision has been made for Grub"
+      Translate "No provision has been made for Grub"
+      PrintMany "5) " "$Result"
     fi
-    PrintMany "" "6) " "Zone/subZone will be" "$ZONE/$SUBZONE"
-    PrintMany "" "7) " "Locale will be set to" "$CountryLocale"
-    PrintMany "" "8) " "Keyboard is" "$Countrykbd"
+      Translate "Zone/subZone will be"
+      PrintMany "6)  $Result" "$ZONE/$SUBZONE"
+      Translate "Locale will be set to"
+      PrintMany "7)  $Result" "$CountryLocale"
+      Translate "Keyboard is"
+      PrintMany "8)  $Result" "$Countrykbd"
     case ${IsInVbox} in
-      "VirtualBox") PrintMany "" "9) " "Virtualbox guest utilities will be installed"
+      "VirtualBox") Translate "Virtualbox guest utilities will be installed"
+      PrintMany "9) " "$Result"
       ;;
-      *) PrintMany "" "9) " "Virtualbox guest utilities will not be installed"
+      *) Translate "Virtualbox guest utilities will not be installed"
+      PrintMany "9) " "$Result"
     esac
     if [ -z $DisplayManager ]; then
-      PrintMany "" "10) " "No Display Manager selected"
+      Translate "No Display Manager selected"
+      PrintMany "10)" "$Result"
     else
-      PrintMany "" "10) " "Display Manager" " = $DisplayManager"
+      Translate "Display Manager"
+      PrintMany "10) $Result" " = $DisplayManager"
     fi
-    PrintMany "" "11) " "Root and user settings" "..."
-    PrintMany "" "     " "Hostname" "= '$HostName'"
-    PrintMany "" "     " "User" "= '$UserName'"
-    PrintMany "" "12) " "The following extras have been selected" "..."
-    PrintOne "" "${LuxuriesList}"
+    Translate "Root and user settings"
+    PrintMany "11) $Result" "..."
+    Translate "Hostname"
+    PrintMany "      $Result" "= '$HostName'"
+    Translate "User"
+    PrintMany "      $Result" "= '$UserName'"
+    Translate "The following extras have been selected"
+    PrintMany "12) $Result" "..."
+    PrintOne "${LuxuriesList}" ""
     Echo
-    PrintOne "Press [Enter] to install with these settings, or"
+    PrintOne "Press Enter to install with these settings, or"
     Response=20
-    Translate "enter an item number if you wish to change it"
+    Translate "Enter number for data to change"
     TPread "${Result}: "
     Change=$Response
     case $Change in
