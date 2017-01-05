@@ -358,12 +358,15 @@ SetRootPassword() {
   Echo
   PrintOne "Success!"
   Echo
-  PrintOne "Finished installing in" "${DIFFMIN}:${DIFFSEC}" "minutes"
+  Translate "minutes"
+  mins="$Result"
+  Translate "Finished installing in"
+  PrintOne "$Result" "${DIFFMIN}:${DIFFSEC} $mins"
   Echo
-  PrintOne "Finally we need to set passwords" "..."
+  PrintOne "Finally we need to set passwords"
   Echo
   PrintOne "Note that you will not be able to"
-  PrintOne "see passwords as you enter them" "..."
+  PrintOne "see passwords as you enter them"
   Echo
   Repeat="Y"
   while [ $Repeat = "Y" ]

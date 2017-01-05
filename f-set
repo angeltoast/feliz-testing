@@ -505,7 +505,8 @@ SetHostname() {
     ;;
     *) HostName=${Entered}
   esac
-  PrintOne "Hostname" "=" "" "$HostName"
+  Translate "Hostname"
+  PrintOne "$Result" "= $HostName"
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
@@ -533,7 +534,8 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       ShoppingList
       print_heading
-      PrintOne "Added so far" ":" "" "${LuxuriesList}"
+      Translate "Added so far"
+      PrintOne "$Result" ": ${LuxuriesList}"
       PrintOne "You can now choose from any of the other lists"
       PrintOne "or choose Exit to finish this part of the setup"
     fi
@@ -835,7 +837,7 @@ FinalCheck() {
     fi
     if [ $SwapPartition ] || [ $SwapFile ]; then
       Translate "Swap partition"
-      PrintMany "2) $Result" "... $SwapPartition $SwapFile"
+      PrintMany "2)  $Result" "... $SwapPartition $SwapFile"
     else
       Translate "No provision has been made for swap"
       PrintMany "2) " "$Result"
@@ -862,7 +864,7 @@ FinalCheck() {
     esac
     if [ $GrubDevice ]; then
       Translate "Grub will be installed to"
-      PrintMany "5) $Result" "$GrubDevice"
+      PrintMany "5)  $Result" "$GrubDevice"
     else
       Translate "No provision has been made for Grub"
       PrintMany "5) " "$Result"
