@@ -47,7 +47,8 @@ default hostname of 'arch-linux' will be used
 Enter a hostname for your computer
 Now you have the option to add extras, such as a web browser
 desktop environment, etc, from the following categories
-If you want only a base Arch installation, exit without choosing any extras
+If you want only a base Arch installation
+exit without choosing any extras
 You can add more items, or select items to delete
 Added so far
 You can now choose from any of the other lists
@@ -85,7 +86,7 @@ you, if you wish. Please note that both these options
 will wipe the disk - any exisiting data will be erased!
 If you choose to 'Leave it as it is' the script will
 next enable you to allocate the existing partitions
-'cfdisk' is available for you to edit them. Alternatively,
+'cfdisk' is available for you to edit them. Alternatively
 you can use the guided manual partitioning option, or
 Feliz can overwrite the disk with a new partition table
 if you wish. Please note that both these options will wipe

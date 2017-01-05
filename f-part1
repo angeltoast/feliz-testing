@@ -428,7 +428,8 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
 
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}
   local Counter=0
-  PrintOne "Please now select the file system for" "${Partition}"
+  Translate "Please now select the file system for"
+  PrintOne "$Result" "${Partition}"
   PrintOne "It is not recommended to mix the btrfs file-system with others"
   Echo
   listgen1 "${TypeList}" "" ""
@@ -525,7 +526,11 @@ CheckPartition() {
   print_heading
   CurrentType=$(file -sL ${Partition} | grep "ext" | cut -c26-30)
   if [ ${CurrentType} ]; then
-    PrintOne "The selected partition" "${Partition}" "is currently formatted to" "${CurrentType}"
+    Translate "The selected partition"
+    P1="$Result"
+    Translate "is currently formatted to"
+    P2="$Result"
+    PrintOne "$P1 ${Partition}" "$P2 ${CurrentType}"
     PrintOne "Reformatting it will remove all data currently on it"
   fi
 }

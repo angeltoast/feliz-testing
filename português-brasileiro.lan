@@ -47,7 +47,8 @@ máquina 'arch-linux' será usado
 Digite um nome para o seu computador
 Agora você tem a opção de adicionar extras, como um navegador web
 ambiente desktop, etc, a partir das seguintes categorias
-Se você deseja somente a instalação base do Arch, saia sem escolher qualquer extra
+Se você deseja somente a instalação base do Arch
+saia sem escolher qualquer extra
 Você pode adicionar mais itens ou selecionar itens para apagar
 Adicionado até agora
 Agora você pode escolher a partir de qualquer das outras listas
@@ -229,13 +230,13 @@ Ferramenta de particionamento manual guiado
 Permitir o Feliz particionar todo o dispositivo
 Deixe como está
 Acessórios
-Ambientes de trabalho
+Ambientes_de_trabalho
 Gráficos
 Internet
 Multimídia
 Office
 Programação
-Gerenciadores de Janela
+Gerenciadores_de_Janela
 Aplicativo de gravação de disco do Gnome
 Hora da área de trabalho e informação do sistema
 Calculadora acessível da área de trabalho
