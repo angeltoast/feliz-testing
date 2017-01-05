@@ -436,7 +436,7 @@ getkeymap() {
     esac
   done
   print_heading
-  Translate "The keyboard is now set to"
+  Translate "Keyboard is"
   read_timed "${Result}: '$Countrykbd'" 1
 }
 
@@ -510,8 +510,12 @@ SetHostname() {
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  Translate "Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
-  CategoriesList="$Result"
+  CategoriesList=""
+  for category in "Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers"
+  do
+    Translate "$category"
+    CategoriesList="$CategoriesList $Result"
+  done
   print_heading
   case "$LuxuriesList" in
   '') PrintOne "Now you have the option to add extras, such as a web browser"
@@ -741,7 +745,7 @@ ChooseDM() { # Choose a display manager
       Greeter=""
       DMList="GDM LightDM LXDM sddm SLIM XDM"
       print_heading
-      PrintOne "A display manager provides a graphical login screen."
+      PrintOne "A display manager provides a graphical login screen"
       PrintOne "If in doubt, choose LightDM"
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"

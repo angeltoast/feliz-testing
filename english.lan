@@ -37,7 +37,7 @@ Alternatively, enter 'Exit' to start again
 Select your keyboard, or Exit to try again
 No keyboards found containing '$Term'
 Please try again
-Enter a name for the primary user of the new system.
+Enter a name for the primary user of the new system
 If you don't create a username here, a default user
 called 'archie' will be set up
 will be created
@@ -187,10 +187,10 @@ First you should select one to use for EFI /boot
 This must be of type vfat, and may be about 512MiB
 Success!
 Finished installing in
-minutes and
-seconds
+minutes
+Enter a password for
 Finally we need to set passwords
-Note that you will not be able to 
+Note that you will not be able to
 see passwords as you enter them
 Passwords don't match. Try again
 Congratulations, installation is complete

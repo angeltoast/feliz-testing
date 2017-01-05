@@ -70,7 +70,7 @@ PrintMany() { # Subsequent item(s) in an aligned list
     Text="$Text $2"
   fi
   if [ "$3" ]; then           # Translate $3
-    Translate "$Text"
+    Translate "$3"
     Text="$Text $Result"
   fi
   if [ "$4" ]; then           # Don't translate $4

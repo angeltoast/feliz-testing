@@ -358,23 +358,26 @@ SetRootPassword() {
   Echo
   PrintOne "Success!"
   Echo
-  PrintOne "Finished installing in $DIFFMIN minutes and $DIFFSEC seconds"
+  PrintOne "Finished installing in" "${DIFFMIN}:${DIFFSEC}" "minutes"
   Echo
-  PrintOne "Finally we need to set passwords ..."
+  PrintOne "Finally we need to set passwords" "..."
   Echo
-  PrintOne "Note that you will not be able to "
-  PrintOne "see passwords as you enter them ..."
+  PrintOne "Note that you will not be able to"
+  PrintOne "see passwords as you enter them" "..."
   Echo
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for root: " Pass1
+    Translate "Enter a password for"
+    read -s -p "$Result root: " Pass1
     Echo
-    read -s -p "Re-enter password for root: " Pass2
+    Translate "Re-enter a password for"
+    read -s -p "$Result root: " Pass2
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      Translate "Passwords cannot be blank. Try again"
+      read_timed "$Result ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -394,13 +397,16 @@ SetUserPassword() {
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    read -s -p "Enter a password for $UserName: " Pass1
+    Translate "Enter a password for"
+    read -s -p "$Result $UserName: " Pass1
     Echo
-    read -s -p "Re-enter password for $UserName: " Pass2
+    Translate "Re-enter a password for"
+    read -s -p "$Result $UserName: " Pass2
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      read_timed "Passwords cannot be blank. Try again ..." 1
+      Translate "Passwords cannot be blank. Try again"
+      read_timed "$Result ..." 1
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -419,10 +425,10 @@ SetUserPassword() {
 Restart() {
   print_heading
   Echo
-  PrintOne "Congratulations, installation is complete."
+  PrintOne "Congratulations, installation is complete"
   Echo
   PrintOne "The computer will now shut down, so you can"
-  PrintOne "remove the installation media before rebooting."
+  PrintOne "remove the installation media before rebooting"
   read_timed
   shutdown -h now
 }
