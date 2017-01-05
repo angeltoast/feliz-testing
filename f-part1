@@ -604,11 +604,13 @@ AllocateSwap() {
   done
   print_heading
   if [ $SwapPartition ]; then
-    read_timed "$SwapPartition will be used for swap" 1
+    Translate "Swap partition"
+    read_timed "$Result = $SwapPartition" 1
   elif [ $SwapFile ]; then
-    read_timed "A swap file of ${SwapFile} will be allocated." 1
+    read_timed "Swap file = ${SwapFile}" 1
   else
-    read_timed "No swap option has been allocated." 1
+    Translate "No provision has been made for swap"
+    read_timed "$Result" 1
   fi
   Echo
   PartitionList=$Remaining  # Replace original PartitionList with remaining options

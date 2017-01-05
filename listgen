@@ -565,7 +565,7 @@ PrintPage() {
     TPread "${Message}: "
     case $Response in
     '' | "Exit" | "exit") Result="Exit"
-      return 0                  # Quit without selecting anything
+      return 0                      # Quit without selecting anything
     ;;
     "<") return 1                                   # Previous page, if valid
     ;;
