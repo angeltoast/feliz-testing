@@ -29,12 +29,12 @@ ou Sair para tentar novamente
 Apenas um teclado encontrado com base na sua localização
 Deseja aceitar este? Selecione Não para procurar alternativos
 Os teclados a seguir correspondem à sua localização. Você pode
-escolher um, ou Sair para procurar alternativas
+escolher um ou tecle Sair para procurar alternativos
 Se souber o código do seu layout do teclado, digite
 isso agora. Se não, tente digitar uma abreviatura de duas letras
 para o seu país ou idioma e uma lista será exibida
-Alternativamente, digite 'Sair' para iniciar novamente
-Selecione seu teclado, ou Sair para tentar novamente
+Alternativamente, tecle 'Sair' para iniciar novamente
+Selecione seu teclado, ou tecle Sair para tentar novamente
 Nenhum teclado encontrado contendo '$Term'
 Por favor, tente novamente
 Digite um nome para o usuário primário do novo sistema
@@ -46,7 +46,7 @@ seu dispositivo numa rede. Se você não digitar um, o nome padrão da
 máquina 'arch-linux' será usado
 Digite um nome para o seu computador
 Agora você tem a opção de adicionar extras, como um navegador web
-ambiente desktop, etc, a partir das seguintes categorias
+ambiente desktop, etc..., a partir das seguintes categorias
 Se você deseja somente a instalação base do Arch
 saia sem escolher qualquer extra
 Você pode adicionar mais itens ou selecionar itens para apagar
@@ -55,17 +55,17 @@ Agora você pode escolher a partir de qualquer das outras listas
 ou escolha Sair para terminar esta parte da configuração
 Um gerenciador de exibição fornece uma tela de login gráfica
 Se tiver dúvida, escolha o LightDM
-Se você não instalar um gerenciador de exibiçãoi, você terá que
+Se você não instalar um gerenciador de exibição, você terá que
 iniciar o ambiente de trabalho manualmente
 O gerenciador de exibição já está definido como
 Somente um gerenciador de exibição pode estar ativo
 Gostaria de alterá-lo?
 Selecione o dispositivo onde o Grub deve ser instalado
 Note que se você não selecionar um dispositivo, o Grub
-não será instalado, e você terá que fazer arranjos
+não será instalado e você terá que fazer arranjos
 alternativos para iniciar o seu novo sistema
 Estas são as configurações que você digitou. Por favor, verifique-as
-Pressione Enter para instalar com essas configurações, ou
+Pressione Enter para instalar com essas configurações ou
 insira o número para que os dados sejam alterados ou Enter para concluir
 Nome da máquina (atualmente
 Se você não tiver certeza sobre o particionamento, leia a Wiki do Arch 
@@ -76,38 +76,38 @@ e a criação de uma tabela de partição EFI foi adicionada
 ou você pode sair agora para usar uma ferramenta externa.
 Alternativamente, uma partição é necessária para o diretório root
 Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
-o Feliz pode automaticamente criar as partições para você, se você
-desejar. Se você escolher nao fazer nada agora, o script irá
+o Feliz pode automaticamente criar as partições para você.
+Se você escolher não fazer nada agora, o script irá
 encerrar para permitir a partição de alguma outra forma
 Aqui está uma lista das partições disponíveis
 Existe uma opção de particionamento manual guiada, ou o Feliz
 pode automaticamente criar uma nova tabela de partição GPT para
-você, se for o seu desejo. Observe que ambas as opções irão
-limpar o disco - quaisquer dados existentes serão apagados!
+você. Observe que ambas as opções irão limpar o
+disco - quaisquer dados existentes serão apagados!
 Se você optar por "Deixar como está", o script
 permitirá que você aloque as partições existentes
 O 'cfdisk' está disponível para você editá-las. Como alternativa
 você pode usar a opção de particionamento manual guiado, ou o
-Feliz pode substituir o disco com uma nova tabela de partição
-se desejar. Observe que ambas as opções irão limpar
+Feliz pode substituir o disco com uma nova tabela de partição.
+Observe que ambas as opções irão limpar
 o disco - quaisquer dados existentes serão apagados! Se você
 optar por "Deixar como está", o script permitirá que
 você aloque as partições existentes
 Estes são os dispositivos disponíveis
 Qual você deseja usar para esta instalação?
-(Lembre-se, isto é auto-partição, e quaisquer
+(Lembre-se, isto é um particionamento automático, e quaisquer
 dados sobre o dispositivo escolhido serão destruídos)
 Isto irá apagar quaisquer dados em
 Você tem certeza que deseja continuar?
 Perticionamento de
 bem sucedido
-Você terá a oportunidade de revisá-los mais tarde
+Você terá a oportunidade de revisá-las mais tarde
 Pressione qualquer tecla para continuar
 Selecione agora o sistema de arquivos para
 Não é recomendado misturar o sistema de arquivos btrfs com outros
 A partição que você escolheu é rotulada
 Se você deseja manter esse rótulo, digite 1
-
+Digite 1, 2 ou um novo rótulo
 Selecione agora uma partição para usar como root
 Você pode optar por deixá-la como está, mas
 deve entender que não reformatar a partição root
@@ -115,7 +115,7 @@ pode ter consequências inesperadas
 A partição selecionada
 está atualmente formatada para
 Reformatando irá remover todos os dados atualmente sobre ela
-Selecione uma partição para o swap daqueles que permanecem
+Selecione uma partição para o swap do que restar
 ou você pode alocar um arquivo de swap
 Atenção: btrfs não suporta arquivos de swap
 Se você ignorar essa etapa, nenhum swap será alocado
@@ -125,7 +125,7 @@ for utilizada por outro sistema operacional
 esse sistema deixará de poder acessar à partição
 Deseja reformatá-la?
 Não há partições disponíveis para o swap, mas
-você pode alocar um arquivo de swap, se desejar
+se quiser pode alocar um arquivo de swap
 Alocar o tamanho do seu arquivo de swap (M = Megabytes, G = Gigabytes)
 As partições a seguir permanecem não alocadas
 Se você desejar usar um, selecione-o na lista
@@ -138,7 +138,7 @@ Aqui você pode dizer ao Feliz o tamanho e o formato das partições que você d
 Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e criará uma
 tabela de partição EFI com as partições que você especificou
 Nós iniciaremos com a partição /boot
-Não há espaço para uma partição / swap, mas você pode atribuir
+Não há espaço para uma partição /swap, mas você pode atribuir
 um arquivo de swap. É aconselhável permitir algum swap
 Deseja alocar um arquivo de swap?
 Existem
@@ -164,16 +164,16 @@ A partição root não deve ser inferior a 8GiB
 o ideal é até 20GiB
 Digite o tamanho desejado ou
 para alocar todo o espaço restante, insira: 100%
-Há espaço para uma partição /swap
+Existe espaço para uma partição /swap
 A swap pode ser qualquer coisa de 512MiB para cima
 mas não é necessário exceder 4GiB
 Você pode querer deixar algum espaço para uma partição home
-Há apenas espaço para uma partição /swap
+Existe apenas espaço para uma partição /swap
 Partição de boot EFI
 Feliz criará agora uma nova tabela de partições
 e configurará as partições que definiu
 Particionamento bem sucedido!
-para criar. Esta facilidade é restrita a criar /root, /swap e /home(se desejar)
+para criar. Esta facilidade é restrita a criar /root, /swap e /home (se desejar)
 Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e
 criará uma nova tabela de partição GPT com as partições que você especificou
 Uma partição /root é necessária
@@ -192,13 +192,13 @@ Sucesso!
 Instalação finalizada em
 minutos
 Digite uma senha para
-Finalmente precisamos definir senhas
+Por fim, precisamos definir as senhas
 Note que você não será capaz de
 ver as senhas que você digitar
 As senhas não coincidem. Tente novamente
 Redigite uma senha para
 Parabéns! A instalação está completa
-Reinicialização desligamento
+Reinicializar Desligar
 Partição de boot
 Partição swap
 Nenhum fornecimento foi feito para o swap
@@ -229,7 +229,7 @@ Locale está definido para
 Abrir o cfdisk para que eu possa particionar manualmente
 Ferramenta de particionamento manual guiado
 Permitir o Feliz particionar todo o dispositivo
-Deixe como está
+Deixar como está
 Acessórios
 Ambientes_de_trabalho
 Gráficos
@@ -285,7 +285,7 @@ IDE & Editor de texto avançado
 Sistema de controle de versão distribuída de código aberto
 Ambiente de desenvolvimento integrado (IDE)
 Gerenciador de janelas e kit de ferramentas
-Leve, ráido e versátil WM
+Leve, rápido e versátil WM
 Empilhamento WM leve, potente e configurável
 Aplicação de dock e lançador personalizável
 Para abrir aplicativos e gerenciar janelas

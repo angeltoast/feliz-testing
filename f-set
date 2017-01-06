@@ -825,7 +825,8 @@ FinalCheck() {
   while :
   do
     print_heading
-    PrintOne "These are the settings you have entered. Please check them" "..."
+    Translate "These are the settings you have entered. Please check them"
+    PrintOne "$Result" "..."
     Echo
     if [ ${UEFI} -eq 1 ]; then
       Translate "Boot partition"
