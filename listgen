@@ -377,24 +377,34 @@ listgen2() { # Advanced menuing function with extended descriptions
 
 listgenx() { # Calling function creates input.file before calling listgenx
              # input.file must be one record per line
-             # This version of listgen is to create numbered lists for 'difficult'
-             # situations. Calling function can send optional 'Headline' string as
-             # $1 and optional limit on length of any item as $3
+             # listgenx creates numbered lists for 'difficult' situations.
+             # $1 = Headline; $2 = Message; $3 = Exit; $4 = Previous; $5 = Next
   if [ "$1" ]; then
-    Headline="$1"
+    Headline="$1" # eg: Headline="Please choose your nearest location"
   else
     Headline=""
-  fi
-  if [ $3 ]; then
-    RestrictLength=$3
-  else
-    RestrictLength=18
   fi
   if [ "$2" ]; then
     Message="$2"
   else
-    Message="Please enter the number of your selection: "
+    Message="Please enter the number of your selection: " # ... In language files
   fi
+  if [ "$3" ]; then
+    Exit="$3"
+  else
+    Exit="or Exit to go back" # ... In language files
+  fi
+  if [ "$4" ]; then
+    Previous="$4"
+  else
+    Previous="Enter '<' for previous page"
+  fi
+  if [ "$5" ]; then
+    Next="$5"
+  else
+    Next="Enter '>' for next page"
+  fi
+  RestrictLength=18
   total_items=$(cat input.file | wc -l)
   LastItem="$(tail -n 1 input.file)"
   Heading
@@ -430,12 +440,12 @@ listgenx() { # Calling function creates input.file before calling listgenx
       if [ $RecordNumber -gt $total_items ]; then # If last record
         break
       fi
-    done # .... End of column loop ####
+    done                                  # .... End of column loop ####
     NumberOfColumns=$((NumberOfColumns+1))        # Increment columns counter
     Columns[${NumberOfColumns}]="${Column}"       # Save this column to the array
     ColumnWidths[${NumberOfColumns}]=$TestLen     # Save the width of this column
     Column=""                                     # Empty the string for next column
-  done # ........ End of file loop #####
+  done                                    # ........ End of file loop #####
 
   # Now build all pages, before proceeding to page-handling in SelectPage()
   declare -a Pages  # Each element of this array will hold a list of the columns forming the page
@@ -491,9 +501,9 @@ SelectPage() {
     # Display appropriate page according to user input
     case $PageNumber in
     1) if [ $LastPage -gt 1 ]; then   # On page 1, with more than 1 page in total
-        Instructions="                 Enter '>' for next page"
+        Instructions="                 $Next"
       else
-        Instructions=""
+        Instructions="                 $Exit"
       fi
       PrintPage
       case $? in                       # Return will be 0, 1, or 2
@@ -508,7 +518,7 @@ SelectPage() {
       *) break                        # 0 : an item was selected or 'Exit' entered
       esac
     ;;
-    $LastPage) Instructions="         Enter '<' for previous page"
+    $LastPage) Instructions="         $Previous"
       PrintPage
       case $? in                      # Return will be 0, 1, or 2
       1) PageNumber=$((PageNumber-1)) # < (left arrow) = previous page
@@ -518,7 +528,7 @@ SelectPage() {
       *) break                        # 0 : an item was selected or 'Exit' entered
       esac
     ;;
-    *) Instructions="  Enter '<' for previous page - or - '>' for next page"
+    *) Instructions="  $Previous - $Next"
       PrintPage
       case $? in                      # Return will be 0, 1, or 2
       1) PageNumber=$((PageNumber-1)) # < (left arrow) = previous page
@@ -533,7 +543,7 @@ SelectPage() {
 
 PrintPage() {
   Heading
-  if [ "$Headline" ]; then
+  if [ -n "$Headline" ]; then
     PrintOne "${Headline}"
   fi
   ThisPage="${Pages[${PageNumber}]}"            # String of column numbers for this page
@@ -564,7 +574,7 @@ PrintPage() {
     tput cup $((bottom_row+1)) 0                    # Then back to row below bottom row
     TPread "${Message}: "
     case $Response in
-    '' | "Exit" | "exit") Result="Exit"
+    "" | "$Exit") Result="Exit"
       return 0                      # Quit without selecting anything
     ;;
     "<") return 1                                   # Previous page, if valid

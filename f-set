@@ -111,15 +111,14 @@ SetTimeZone() {
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
     Echo
     zones=""
-    for x in ${Zones[@]}                      # Convert to space-separated list
+    for x in ${Zones}                      # Convert to space-separated list
     do
       Translate "$x"                          # Translate
       zones="$zones $Result"
     done
     listgen1 "${zones}" "" "nocancel"         # Allow user to select one
-# Because the list is translated, we need to get the system version of the selected item
-ZONE=$(timedatectl list-timezones | cut -d'/' -f1 | uniq | head -n $Response | tail -n 1)
-  #  ZONE=$Result
+    # Because the list is translated, we need to get the system version of the selected item
+    ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)
     Echo
     case $Result in
       "") continue
@@ -138,26 +137,35 @@ ZONE=$(timedatectl list-timezones | cut -d'/' -f1 | uniq | head -n $Response | t
 }
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
+  Translate "Please choose your nearest location"
+  local P1="$Result"
+  Translate "Please enter the number of your selection"
+  local P2="$Result"
+  Translate "or Exit to go back"
+  local P3="$Result"
+  Translate "Enter '<' for previous page"
+  local P4="$Result"
+  Translate "Enter '>' for next page"
+  local P5="$Result"
   case $ZONE in
   "Arctic") Result="Longyearbyen"
   ;;
   "Antarctica" | "Australia") print_heading
-    PrintOne "Please choose your nearest location" "" "or Exit to go back"
+    PrintOne "$P1" "$P3"
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Atlantic" | "Indian") print_heading
-    PrintOne "Please choose your nearest location" "" "or Exit to go back"
+    PrintOne "$P1" "$P3"
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file
-    Translate "Please choose your nearest location" "" "or Exit to go back"
-    listgenx "$Result"
+    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -165,11 +173,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   "America") America
    ;;
   *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file  # List of subzones
-    Translate "Please choose your nearest location" "" "or Exit to go back"
-    local Message="$Result"
-    Translate "Please enter the number of your selection"
-    local Inform="$Result"
-    listgenx "$Message" "$Inform"
+    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -200,7 +204,17 @@ America() {
   listgen1 "$SubList"
   case $Result in
   "None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
-    listgenx "$Instruction"
+    Translate "Please choose your nearest location" # Prepare for listgenx
+    local P1="$Result"
+    Translate "Please enter the number of your selection"
+    local P2="$Result"
+    Translate "or Exit to go back"
+    local P3="$Result"
+    Translate "Enter '<' for previous page"
+    local P4="$Result"
+    Translate "Enter '>' for next page"
+    local P5="$Result"
+    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
   ;;
   '' | "Exit") SetTimeZone
   ;;
@@ -264,9 +278,10 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         Language=$Item                                 # Use the abbreviation
       fi
       Echo
-      PrintOne "Only one language found for your location" ": $Language"
+      Translate "Only one language found for your location"
+      PrintOne "$Result" ": $Language"
       PrintOne "Shall we use this as your language?"  # Allow user to confirm
-      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
+      Buttons "Yes/No" "[ $Yes ] [ $No ]" ""
       if [ $Result = "$N" ]; then
         City=""
         AllLanguages
@@ -294,7 +309,17 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         do
           grep "$l$" languages.list >> input.file
         done
-        listgenx "Now please choose your language from this list, or type 'Exit' to try again."
+        Translate "Now please choose your language from this list"
+        local P1="$Result"
+        Translate "Please enter the number of your selection"
+        local P2="$Result"
+        Translate "or type 'Exit' to try again"
+        local P3="$Result"
+        Translate "Enter '<' for previous page"
+        local P4="$Result"
+        Translate "Enter '>' for next page"
+        local P5="$Result"
+        listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
       else
         local Counter=0
         localelist=""
@@ -367,8 +392,18 @@ AllLanguages() {
   do
     print_heading
     Echo
-    cat languages.list > input.file                 # Prepare file for listgenx to display all languages
-    listgenx "Please choose your language from this list, or type 'Exit' to start again."
+    cat languages.list > input.file         # Prepare file for listgenx to display all languages
+    Translate "Now please choose your language from this list"
+    local P1="$Result"
+    Translate "Please enter the number of your selection"
+    local P2="$Result"
+    Translate "or type 'Exit' to try again"
+    local P3="$Result"
+    Translate "Enter '<' for previous page"
+    local P4="$Result"
+    Translate "Enter '>' for next page"
+    local P5="$Result"
+    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
     if [ $Result = "" ] || [ $Result = "Exit" ]; then
       SetTimeZone                                   # Start again from time zone
     else
@@ -420,7 +455,17 @@ getkeymap() {
         do
           echo $i >> input.file
         done
-        listgenx "Choose one of the following keyboards, or type 'Exit' to enter manually"
+        Translate "The following keyboards match your location. You can"
+        local P1="$Result"
+        Translate "Please enter the number of your selection"
+        local P2="$Result"
+        Translate "choose one, or Exit to search for alternatives"
+        local P3="$Result"
+        Translate "Enter '<' for previous page"
+        local P4="$Result"
+        Translate "Enter '>' for next page"
+        local P5="$Result"
+        listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
       else
         PrintOne "The following keyboards match your location. You can"
         PrintOne "choose one, or Exit to search for alternatives"
@@ -825,8 +870,7 @@ FinalCheck() {
   while :
   do
     print_heading
-    Translate "These are the settings you have entered. Please check them"
-    PrintOne "$Result" "..."
+    PrintOne "These are the settings you have entered. Please check them" "..."
     Echo
     if [ ${UEFI} -eq 1 ]; then
       Translate "Boot partition"
