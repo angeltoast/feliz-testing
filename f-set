@@ -200,10 +200,12 @@ America() {
     fi
   done
   SubGroup=""
-  SubList="$SubList None_of_these"        # Add a decline option
+  Translate "None_of_these"
+  None_of_these="$Result"
+  SubList="$SubList $None_of_these"        # Add a decline option
   listgen1 "$SubList"
-  case $Result in
-  "None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
+    case $Result in
+  "${None_of_these}") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
     Translate "Please choose your nearest location" # Prepare for listgenx
     local P1="$Result"
     Translate "Please enter the number of your selection"
@@ -870,7 +872,7 @@ FinalCheck() {
   while :
   do
     print_heading
-    PrintOne "These are the settings you have entered. Please check them" "..."
+    PrintOne "These are the settings you have entered. Please check them"
     Echo
     if [ ${UEFI} -eq 1 ]; then
       Translate "Boot partition"

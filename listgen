@@ -390,9 +390,9 @@ listgenx() { # Calling function creates input.file before calling listgenx
     Message="Please enter the number of your selection: " # ... In language files
   fi
   if [ "$3" ]; then
-    Exit="$3"
+    Advise="$3"
   else
-    Exit="or Exit to go back" # ... In language files
+    Advise="or Exit to go back" # ... In language files
   fi
   if [ "$4" ]; then
     Previous="$4"
@@ -503,7 +503,7 @@ SelectPage() {
     1) if [ $LastPage -gt 1 ]; then   # On page 1, with more than 1 page in total
         Instructions="                 $Next"
       else
-        Instructions="                 $Exit"
+        Instructions="                 $Advise"
       fi
       PrintPage
       case $? in                       # Return will be 0, 1, or 2
@@ -575,7 +575,7 @@ PrintPage() {
     TPread "${Message}: "
     case $Response in
     "" | "$Exit") Result="Exit"
-      return 0                      # Quit without selecting anything
+      return 0                                      # Quit without selecting anything
     ;;
     "<") return 1                                   # Previous page, if valid
     ;;
