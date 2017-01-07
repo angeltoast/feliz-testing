@@ -87,7 +87,7 @@ ConfirmVbox() {
     Echo
     PrintOne "Install Virtualbox guest utilities?"
     Echo
-    Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
+    Buttons "Yes/No" "[ $Yes ] [ $No ]" ""
     Echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -128,10 +128,7 @@ SetTimeZone() {
         "Exit" | "") SUBZONE=
         ;;
         *) SUBZONE="$Result"
-          print_heading
-          Translate "Zone/subZone will be"
-          read_timed "${Result}: '$ZONE/$SUBZONE'" 1
-        esac
+         esac
     esac
   done
 }
@@ -384,9 +381,6 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       esac
     esac
   done
-  print_heading
-  Translate "Locale will be set to"
-  read_timed "${Result}: ${CountryLocale:0:5}" 1 # 5 characters from start of $CountryLocale
 }
 
 AllLanguages() {
@@ -481,9 +475,6 @@ getkeymap() {
       loadkeys ${Countrykbd} 2>> feliz.log
     esac
   done
-  print_heading
-  Translate "Keyboard is"
-  read_timed "${Result}: '$Countrykbd'" 1
 }
 
 SearchKeyboards() {
@@ -527,14 +518,14 @@ UserName() {
   PrintOne "If you don't create a username here, a default user"
   PrintOne "called 'archie' will be set up"
   Echo
-  TPread "User Name: "
+  Translate "User Name"
+  TPread "$Result: "
   Entered=${Response,,}
   case $Entered in
     "") UserName="archie"
     ;;
     *) UserName=${Entered}
   esac
-  PrintOne "User" "'${UserName}'" "will be created"
 }
 
 SetHostname() {
@@ -552,12 +543,12 @@ SetHostname() {
     ;;
     *) HostName=${Entered}
   esac
-  Translate "Hostname"
-  PrintOne "$Result" "= $HostName"
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
   CategoriesList=""
+  Translate "Added so far"
+  AddedSoFar="$Result"
   for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers
   do
     Translate "$category"
@@ -582,8 +573,7 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       ShoppingList
       print_heading
-      Translate "Added so far"
-      PrintOne "$Result" ": ${LuxuriesList}"
+      PrintOne "$AddedSoFar" ": ${LuxuriesList}"
       PrintOne "You can now choose from any of the other lists"
       PrintOne "or choose Exit to finish this part of the setup"
     fi
@@ -633,7 +623,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   while :
   do
     print_heading
-    PrintOne "Added so far" ":" "" "${LuxuriesList}"
+    PrintOne "$AddedSoFar" ": ${LuxuriesList}"
     Echo
     PrintOne "" "${Categories[$Category]}" # $Category is number of item in CategoriesList
     # Pass category to listgen2 for user to choose one item;

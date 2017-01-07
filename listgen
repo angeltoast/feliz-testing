@@ -143,7 +143,7 @@ Buttons() {
   button_row=$cursor_row                      # Save row position of buttons
   printf "%-s\n" "$2"                         # Print buttons
   case $3 in
-  "nomessage") Message=$3
+  "nomessage") Message=                       # Clear variable
   ;;
     *) cursor_row=$((cursor_row+1))           # Advance cursor row after buttons
     Echo
