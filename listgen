@@ -143,7 +143,7 @@ Buttons() {
   button_row=$cursor_row                      # Save row position of buttons
   printf "%-s\n" "$2"                         # Print buttons
   case $3 in
-  "nomessage") Message=                       # Clear variable
+  "nomessage") Message=""                       # Clear variable
   ;;
     *) cursor_row=$((cursor_row+1))           # Advance cursor row after buttons
     Echo
@@ -410,16 +410,19 @@ listgenx() { # Calling function creates input.file before calling listgenx
   Heading
   # Establish terminal size
   terminal_width=$(tput cols)             # Start with full terminal width
-  terminal_width=$((terminal_width-4))    # Allow for two characters margin each side
+  display_width=$((terminal_width-4))    # Allow for two characters margin each side
   terminal_centre=$((terminal_width/2))   # Page centre used to calculate start point
+
   terminal_height=$(tput lines)           # Full height of terminal
   top_row=4                               # Leave space for heading
   cursor_row=$top_row                     # Start cursor at top row
   bottom_row=$((terminal_height-4))       # Leave space for footer
   items_in_column=$((bottom_row-top_row)) # Number of items in each column
+
   # Prepare an array of columns
   declare -a Columns                      # Prepare an array to hold all prepared columns
   declare -a ColumnWidths                 # And one for their widths
+
   WidthOfColumns=2                        # Initialise for loop
   local Counter=0
   RecordNumber=0                          # Initialise record-counting variable
@@ -456,17 +459,16 @@ listgenx() { # Calling function creates input.file before calling listgenx
   ColumnWidth=0
   RecordCounter=0   # For numbering
   LastPage=0        #
-
   while :
   do
     for (( column=1; column <= $NumberOfColumns; ++column )) # Build a page #########################
     do
-      if [ $((PageWidth+ColumnWidth+4)) -ge $terminal_width ]; then # If adding another column would
-        PageWidths[${PageNumber}]=$PageWidth  # exceed page width ... save this page's width
-        PageWidth=4                           # and reset variable for next page
-        Pages[${PageNumber}]="${Page}"        # Copy the list of columns to Pages array
-        PageNumber=$((PageNumber+1))          # Then set next page, advance page counter, and
-        Page=""                               # Empty string for next list of columns
+      if [ $((PageWidth+ColumnWidth+4)) -ge $display_width ]; then # If adding another column would
+        PageWidths[${PageNumber}]=$PageWidth    # exceed page width ... save this page's width
+        PageWidth=4                             # and reset variable for next page
+        Pages[${PageNumber}]="${Page}"          # Copy the list of columns to Pages array
+        PageNumber=$((PageNumber+1))            # Then set next page, advance page counter, and
+        Page=""                                 # Empty string for next list of columns
       fi
 
       ColumnWidth=0
@@ -475,24 +477,23 @@ listgenx() { # Calling function creates input.file before calling listgenx
       do
         ItemLen=${#item}
         if [ $ItemLen -gt $ColumnWidth ]; then
-          ColumnWidth=$((ItemLen+3))           # Longest item plus spaces between columns
+          ColumnWidth=$((ItemLen+3))            # Longest item plus spaces between columns
         fi
       done
-      if [ $((PageWidth+ColumnWidth+1)) -lt $terminal_width ]; then # Page is not full
+      if [ $((PageWidth+ColumnWidth+1)) -lt $display_width ]; then # Page is not full
         PageWidth=$((PageWidth+ColumnWidth+1))  # Add column width to page width accumulator
-        Page="$Page $column"                  # and append the column number to this page
+        Page="$Page $column"                    # and append the column number to this page
       fi
       if [ $column -eq $NumberOfColumns ]; then # Last column
         LastPage=$PageNumber
         PageWidths[${PageNumber}]=$PageWidth
-        Pages[${PageNumber}]="${Page}"        # Copy the list of columns to Pages array
+        Pages[${PageNumber}]="${Page}"          # Copy the list of columns to Pages array
         break 2
       fi
     done
   done
-
   PageNumber=1    # Start at first page
-  SelectPage      # Switch between pages
+  SelectPage      # Function to switch between pages
 }
 
 SelectPage() {
@@ -548,7 +549,7 @@ PrintPage() {
   fi
   ThisPage="${Pages[${PageNumber}]}"            # String of column numbers for this page
   PageWidth=${PageWidths[${PageNumber}]}        # Full width of this page
-  column_start=$(( terminal_centre - (PageWidth/2) -3 ))
+  column_start=$(( terminal_centre - (PageWidth/2) -3 ))  #
   cursor_row=$top_row                           # Start at top row
   while :
   do
@@ -581,9 +582,16 @@ PrintPage() {
     ;;
     ">") return 2                                   # Next page, if valid
     ;;
-    *[!0-9]*) continue
+    *[!0-9]*) cursor_row=$top_row                   # Reset to start at top row
+      column_start=$(( terminal_centre - (PageWidth/2) -3 )) # and first column position
+      Heading
+      if [ -n "$Headline" ]; then                   # Redraw the heading
+        PrintOne "${Headline}"
+      fi
+      continue                                      # Then return to top of loop
     ;;
-    *) Counter=0                            # Find the numbered item in the columns of this page
+    *) # A number has been entered for an item on this page
+      Counter=0                             # Find the numbered item in the columns of this page
       for column in ${ThisPage}             # Outer loop iterates through $ThisPage
       do
         for item in ${Columns[${column}]}   # Inner loop iterates through $Columns[@] for this page

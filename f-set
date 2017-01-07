@@ -138,7 +138,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   local P1="$Result"
   Translate "Please enter the number of your selection"
   local P2="$Result"
-  Translate "or Exit to go back"
+  Translate "or ' ' to go back"
   local P3="$Result"
   Translate "Enter '<' for previous page"
   local P4="$Result"
@@ -148,14 +148,14 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   "Arctic") Result="Longyearbyen"
   ;;
   "Antarctica" | "Australia") print_heading
-    PrintOne "$P1" "$P3"
+    PrintOne "$P1" ""
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Atlantic" | "Indian") print_heading
-    PrintOne "$P1" "$P3"
+    PrintOne "$P1" ""
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
