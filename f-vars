@@ -21,14 +21,12 @@
 #                  51 Franklin Street, Fifth Floor
 #                    Boston, MA 02110-1301 USA
 
-# In this module:
-
 # 1) Global functions
 
 print_heading() {   # Always use this function to clear the screen
   tput sgr0         # Make sure colour inversion is reset
   clear
-  T_COLS=$(tput cols)                   # Get width of terminal
+  local T_COLS=$(tput cols)             # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
   printf "%-s\n" "$Backtitle"           # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
@@ -44,9 +42,10 @@ PrintOne() {  # Receives up to 2 arguments
   else
     Text="$1 $2"
   fi
-  width=$(tput cols)
+  local width=$(tput cols)
   EMPTY=" "
-  lov=${#Text}
+  local stpt=0
+  local lov=${#Text}
   if [ ${lov} -lt ${width} ]; then
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
@@ -67,8 +66,9 @@ PrintMany() { # Receives up to 2 arguments
 }
 
 read_timed() { # Timed display - $1 = text to display; $2 = duration
-  T_COLS=`tput cols`
-  lov=${#1}
+  local T_COLS=`tput cols`
+  local lov=${#1}
+  local stpt=0
   if [ $2 ]; then
     tim=$2
   else

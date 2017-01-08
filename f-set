@@ -51,8 +51,9 @@ Echo() { # Use in place of 'echo' for basic text print
 
 TPread() { # Aligned prompt for user-entry
   # $1 = prompt ... Returns result through $Response
-  T_COLS=$(tput cols)
-  lov=${#1}
+  local T_COLS=$(tput cols)
+  local lov=${#1}
+  local stpt=0
   if [ ${lov} -lt ${T_COLS} ]; then
     stpt=$(( (T_COLS - lov) / 2 ))
   elif [ ${lov} -gt ${T_COLS} ]; then
@@ -102,7 +103,7 @@ ConfirmVbox() {
 }
 
 SetTimeZone() {
-  SUBZONE=
+  SUBZONE=""
   until [ $SUBZONE ]
   do
     print_heading
@@ -128,7 +129,7 @@ SetTimeZone() {
         "Exit" | "") SUBZONE=
         ;;
         *) SUBZONE="$Result"
-         esac
+        esac
     esac
   done
 }
@@ -163,6 +164,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   ;;
   "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file
     listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+    rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -171,6 +173,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
    ;;
   *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file  # List of subzones
     listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+    rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -207,7 +210,7 @@ America() {
     local P1="$Result"
     Translate "Please enter the number of your selection"
     local P2="$Result"
-    Translate "or Exit to go back"
+    Translate "or ' ' to go back"
     local P3="$Result"
     Translate "Enter '<' for previous page"
     local P4="$Result"
