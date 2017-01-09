@@ -19,7 +19,7 @@ Ok
 Wyjście
 Czy jesteś w którymś z tych stanów?
 Proszę wybrać swoją najbliższą lokalizację
-lub Wyjście aby powrócić
+lub ' ' aby wyjście
 Żaden_z_nich
 Użyj '<' aby przejść do poprzedniej strony
 Użyj '>' aby przejść do następnej strony
@@ -201,7 +201,7 @@ widzieć haseł, które wpisujesz
 Wpisz ponownie hasło dla
 Hasła do siebie nie pasują. Spróbuj ponownie
 Gratulacje, instalacja zakończona
-Wyłącz Uruchom Ponownie
+Wyłącz Uruchom_Ponownie
 Partycja boot
 Partycja swap
 Partycja swap nie posiada żadnych ustawień

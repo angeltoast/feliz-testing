@@ -56,7 +56,7 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    listgen2 "$EFIPartitioningOptions" "Partitioning" "" "LongPartE"
+    listgen2 "$EFIPartitioningOptions" "" "$Ok $Exit" "LongPartE"
     Proceed=$Response
     Echo
     case $Proceed in
@@ -92,7 +92,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "First you should select one to use for EFI /boot"
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
-  listgen2 "$PartitionList" "Partitions" "" "PartitionArray"
+  listgen2 "$PartitionList" "" "$Ok $Exit" "PartitionArray"
   Reply=$Response
   if [ $Result != "Exit" ]; then
     PassPart=$Result

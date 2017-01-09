@@ -74,7 +74,7 @@ SetKernel() {
   PrintOne "while the Latest kernel has all the new features"
   PrintOne "If in doubt, choose LTS"
   Echo
-  listgen1 "LTS Latest" "" "nocancel"
+  listgen1 "LTS Latest" "" "$Ok"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
@@ -88,7 +88,7 @@ ConfirmVbox() {
     Echo
     PrintOne "Install Virtualbox guest utilities?"
     Echo
-    Buttons "Yes/No" "[ $Yes ] [ $No ]" ""
+    Buttons "Yes/No" "$Yes $No" ""
     Echo
     case $Response in
       1) IsInVbox="VirtualBox"
@@ -117,7 +117,7 @@ SetTimeZone() {
       Translate "$x"                          # Translate
       zones="$zones $Result"
     done
-    listgen1 "${zones}" "" "nocancel"         # Allow user to select one
+    listgen1 "${zones}" "" "$Ok"         # Allow user to select one
     # Because the list is translated, we need to get the system version of the selected item
     ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)
     Echo
@@ -150,14 +150,14 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   ;;
   "Antarctica" | "Australia") print_heading
     PrintOne "$P1" ""
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
+    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$Ok $Exit"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Atlantic" | "Indian") print_heading
     PrintOne "$P1" ""
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)"
+    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$Ok $Exit"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -203,7 +203,7 @@ America() {
   Translate "None_of_these"
   None_of_these="$Result"
   SubList="$SubList $None_of_these"        # Add a decline option
-  listgen1 "$SubList"
+  listgen1 "$SubList" "" "$Ok $Exit"
     case $Result in
   "${None_of_these}") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
     Translate "Please choose your nearest location" # Prepare for listgenx
@@ -223,7 +223,7 @@ America() {
   *) SubGroup=$Result                     # Because America has some cities in subgroups
     print_heading
     PrintOne "Please choose your nearest location" "or Exit to go back"
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/${SubGroup} | cut -d'/' -f3)"
+    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/${SubGroup} | cut -d'/' -f3)" "" "$Ok $Exit"
     if [ $Result = "" ] || [ $Result = "Exit" ]; then
       SetTimeZone
     fi
@@ -252,7 +252,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Echo
       PrintOne "No language has been found for your location"
       PrintOne "Would you like to use one of the following?"
-      listgen1 "English French Spanish" "$Instructions"
+      listgen1 "English French Spanish" "$Instructions" "$Ok $Exit"
       case $Response in
       1) Item="en"
       ;;
@@ -283,7 +283,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Translate "Only one language found for your location"
       PrintOne "$Result" ": $Language"
       PrintOne "Shall we use this as your language?"  # Allow user to confirm
-      Buttons "Yes/No" "[ $Yes ] [ $No ]" ""
+      Buttons "Yes/No" "$Yes $No" ""
       if [ $Result = "$N" ]; then
         City=""
         AllLanguages
@@ -368,7 +368,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         localelist="${Newlist}"                         # Ensure that localelist matches choosefrom
         print_heading
         PrintOne "Now please choose your language from this list" "" "or Exit to try again."
-        listgen1 "${choosefrom}" "nomessage" ""         # Menu if less than one screenful
+        listgen1 "${choosefrom}" "" "$Ok $Exit"         # Menu if less than one screenful
       fi
       case $Result in
       "Exit" | "exit" | "") SetTimeZone
@@ -437,7 +437,7 @@ getkeymap() {
     1)  # If the search found one match
       PrintOne "Only one keyboard found based on your location"
       PrintOne "Do you wish to accept this? Select No to search for alternatives"
-      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
+      Buttons "Yes/No" "$Yes $No" "$Instructions"
       case ${Result} in
       "Exit"|"exit"|""|"$N") SearchKeyboards
       ;;
@@ -468,7 +468,7 @@ getkeymap() {
       else
         PrintOne "The following keyboards match your location. You can"
         PrintOne "choose one, or Exit to search for alternatives"
-        listgen1 "$ListKbs" "" ""
+        listgen1 "$ListKbs" "" "$Ok $Exit"
       fi
       case ${Result} in
       "Exit"|"exit"|"") SearchKeyboards
@@ -499,7 +499,7 @@ SearchKeyboards() {
     if [ -n "${ListKbs}" ]; then  # If a match or matches found
       print_heading
       PrintOne "Select your keyboard, or Exit to try again"
-      listgen1 "$ListKbs" "" ""
+      listgen1 "$ListKbs" "" "$Ok $Exit"
       if [ ${Result} = "Exit" ]; then
         continue
       else
@@ -569,7 +569,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   Echo
   while :
   do
-    listgen1 "${CategoriesList}" "" ""
+    listgen1 "${CategoriesList}" "" "$Ok $Exit"
     Category=$Response
     if [ $Result = "Exit" ]; then
       break
@@ -596,10 +596,10 @@ KeepOrDelete() {
     Translate "is already in your shopping list"
     Message="$Bagged $Result"
     Translate "Keep"
-    Y="$Result"
+    K="$Result"
     Translate "Delete"
-    N="$Result"
-    Buttons "Yes/No" "[ $Y ] [ $N ]" "$Instructions"
+    D="$Result"
+    Buttons "Yes/No" "$K $D" "$Instructions"
     case $Response in
       1) Temp="$LuxuriesList"
         break
@@ -644,7 +644,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Accessories" "" "" "LongAccs1"
+        listgen2 "$Accessories" "" "$Ok $Exit" "LongAccs1"
        ;;
        2) OptionsCounter=1
           for Option in "${LongDesk[@]}"  # Translate all elements
@@ -658,7 +658,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Desktops" "" "" "LongDesk1"
+        listgen2 "$Desktops" "" "$Ok $Exit" "LongDesk1"
        ;;
        3) OptionsCounter=1
           for Option in "${LongGraph[@]}"  # Translate all elements
@@ -672,7 +672,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Graphical" "" "" "LongGraph1"
+        listgen2 "$Graphical" "" "$Ok $Exit" "LongGraph1"
        ;;
        4) OptionsCounter=1
           for Option in "${LongNet[@]}"  # Translate all elements
@@ -686,7 +686,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongNet1[${Counter}]="$i - ${LongNet[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Internet" "${Headline}" "" "LongNet1"
+        listgen2 "$Internet" "${Headline}" "$Ok $Exit" "LongNet1"
        ;;
        5) OptionsCounter=1
           for Option in "${LongMulti[@]}"  # Translate all elements
@@ -700,7 +700,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Multimedia" "" "" "LongMulti1"
+        listgen2 "$Multimedia" "" "$Ok $Exit" "LongMulti1"
        ;;
        6) OptionsCounter=1
           for Option in "${LongOffice[@]}"  # Translate all elements
@@ -714,7 +714,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Office" "" "" "LongOffice1"
+        listgen2 "$Office" "" "$Ok $Exit" "LongOffice1"
        ;;
        7) OptionsCounter=1
           for Option in "${LongProg[@]}"  # Translate all elements
@@ -728,7 +728,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Programming" "" "" "LongProg1"
+        listgen2 "$Programming" "" "$Ok $Exit" "LongProg1"
        ;;
        8) OptionsCounter=1
           for Option in "${LongWMs[@]}"  # Translate all elements
@@ -742,7 +742,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$WindowManagers" "" "" "LongWMs1"
+        listgen2 "$WindowManagers" "" "$Ok $Exit" "LongWMs1"
       ;;
       *) break
     esac
@@ -792,7 +792,7 @@ ChooseDM() { # Choose a display manager
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"
       Echo
-      listgen1 "${DMList}" "" ""
+      listgen1 "${DMList}" "" "$Ok $Exit"
       Reply=$Response
       for item in ${DMList}
       do
@@ -827,7 +827,7 @@ ChooseDM() { # Choose a display manager
       Echo
       PrintOne "Do you wish to change it?"
       Echo
-      Buttons "Yes/No" "[ $Yes ] [ $No ]" "$Instructions"
+      Buttons "Yes/No" "$Yes $No" "$Instructions"
       Echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
@@ -848,7 +848,7 @@ SetGrubDevice() {
   PrintOne "will not be installed, and you will have to make"
   PrintOne "alternative arrangements for booting your new system"
   Echo
-  listgen1 "${DevicesList}" "" ""
+  listgen1 "${DevicesList}" "" "$Ok $Exit"
   Reply=$Response
   for i in ${DevicesList}
   do
