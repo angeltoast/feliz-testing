@@ -564,7 +564,7 @@ AllocateSwap() {
   Echo
   listgen2 "$PickFrom" "" "$Ok $Exit" "CopyArray"
   Reply=$Response # Number of selected item
-  if [ $Result != "Swapfile" ] && [ $Result != "Exit" ]; then # Short ID of selected item
+  if [ "$Result" ] && [ "$Result" != "Swapfile" ] && [ "$Result" != "Exit" ]; then # Short ID of item
     PassPart=${Result:0:4}
   fi
   Echo

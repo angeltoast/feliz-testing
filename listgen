@@ -351,7 +351,7 @@ listgen2() { # Advanced menuing function with extended descriptions
     done
     CalledBy="listgen2"
     cursor_bottom=$((cursor_row-1))
-    if [ $3 ]; then
+    if [ "$3" ]; then
       Buttons "Menu" "$3" "$Instructions"
     fi
     return 0
