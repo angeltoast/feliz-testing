@@ -431,7 +431,7 @@ Restart() {
   PrintOne "Congratulations, installation is complete"
   Echo
   Translate "Shutdown Reboot"
-  listgen1 "$Result" "" ""
+  listgen1 "$Result" "" "$Ok $Exit"
   case $Response in
   1) shutdown -h now
   ;;

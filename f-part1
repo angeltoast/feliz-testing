@@ -586,7 +586,8 @@ AllocateSwap() {
           IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
           if [ -n "$IsSwap" ]; then
             print_heading
-            PrintOne "" "$i" "is already formatted as a swap partition."
+            Translate "is already formatted as a swap partition"
+            PrintOne "$i " "$Result"
             PrintOne "Reformatting it will change the UUID, and if this swap"
             PrintOne "partition is used by another operating system, that"
             PrintOne "system will no longer be unable to access the partition"
