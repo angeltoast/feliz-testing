@@ -436,7 +436,7 @@ select_filesystem() { # User chooses filesystem from list in global variable ${T
   PrintOne "$Result" "${Partition}"
   PrintOne "It is not recommended to mix the btrfs file-system with others"
   Echo
-  listgen1 "${TypeList}" "" "[ $_Ok ]"
+  listgen1 "${TypeList}" "" "$_Ok"
   for i in ${TypeList}
   do
     Counter=$((Counter+1))

@@ -628,7 +628,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     print_heading
     PrintOne "$AddedSoFar" ": ${LuxuriesList}"
     Echo
-    PrintOne "" "${Categories[$Category]}" # $Category is number of item in CategoriesList
+    PrintOne "${Categories[$Category]}" # $Category is number of item in CategoriesList
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
     case $Category in
@@ -868,17 +868,14 @@ FinalCheck() {
     PrintOne "These are the settings you have entered. Please check them"
     Echo
     if [ ${UEFI} -eq 1 ]; then
-      Translate "Boot partition"
-      PrintOne "0)  $Result " "... $EFIPartition                       "
-      Translate "Root partition"
-      PrintMany "1)  $Result" "... $RootPartition : $RootType"
+      PrintOne "0)  $_BootPartition " "... $EFIPartition                       "
+      Translate "/root partition"
+      PrintMany "1)  $_RootPartition " "... $RootPartition : $RootType"
     else
-      Translate "Root partition"
-      PrintOne "1)  $Result" "... $RootPartition : $RootType           "
+      PrintOne "1)  $_RootPartition" "... $RootPartition : $RootType           "
     fi
     if [ $SwapPartition ] || [ $SwapFile ]; then
-      Translate "Swap partition"
-      PrintMany "2)  $Result" "... $SwapPartition $SwapFile"
+      PrintMany "2)  $_SwapPartition" "... $SwapPartition $SwapFile"
     else
       Translate "No provision has been made for swap"
       PrintMany "2) " "$Result"

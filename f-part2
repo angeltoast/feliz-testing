@@ -649,9 +649,9 @@ GuidedRoot() { # Variables: RootSize, RootType
     PrintOne "$_P1" " $Result"
     Echo
     PrintOne "You can use all the remaining space on the device, if you wish"
-    PrintOne "although you may want to leave some room for a /swap partition"
-    PrintOne "and perhaps also a home partition"
-    PrintOne "The root partition should not be less than 8GiB"
+    PrintOne "although you may want to leave room for a /swap partition"
+    PrintOne "and perhaps also a /home partition"
+    PrintOne "The /root partition should not be less than 8GiB"
     PrintOne "ideally more, up to 20GiB"
     Echo
     PrintOne "Please enter the desired size"
@@ -733,6 +733,7 @@ GuidedSwap() { # Variables: SwapSize
         Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
         Echo
         if [ $Response -eq 1 ]; then
+          print_heading
           SetSwapFile
         fi
         break
