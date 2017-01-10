@@ -642,9 +642,9 @@ GuidedRoot() { # Variables: RootSize, RootType
     PrintOne "We begin with the /root partition"
     Echo
     Translate "You have"
-    $_P1="$Result ${FreeGigs}GiB"
+    _P1="$Result ${FreeGigs}GiB"
     Translate "available on the chosen device"
-    PrintOne "$_P1" "$Result"
+    PrintOne "$_P1" " $Result"
     Echo
     PrintOne "A /root partition is required"
     PrintOne "You can use all the remaining space on the device, if you wish"
