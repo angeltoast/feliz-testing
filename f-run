@@ -89,7 +89,7 @@ MountPartitions() {
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
   # 2) EFI (if required)
-  if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if EFI /boot partition required
+  if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
     mkfs.fat -F32 ${EFIPartition} 2> error.log          # Format EFI boot partition
     mkdir /mnt/boot                                     # Make mountpoint
     mount ${EFIPartition} /mnt/boot                     # Mount it
@@ -431,7 +431,7 @@ Restart() {
   PrintOne "Congratulations, installation is complete"
   Echo
   Translate "Shutdown Reboot"
-  listgen1 "$Result" "" "$Ok $Exit"
+  listgen1 "$Result" "" "$_Ok $_Exit"
   case $Response in
   1) shutdown -h now
   ;;

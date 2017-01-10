@@ -30,8 +30,7 @@ source f-vars     # Most variables and arrays are declared here
 source f-set      # Functions to set variables used during installation
 source listgen    # Menuing functions
 source f-part1    # Functions concerned with allocating partitions
-source f-part2    # Guided partitioning for BIOS systems
-source f-part3    # Functions for installation on an EFI system
+source f-part2    # Guided partitioning for BIOS & EFI systems
 source f-run      # Functions called during installation
 
 # ...............................................................................

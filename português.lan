@@ -77,7 +77,7 @@ duas partições são necessárias - uma para EFI /boot, e
 uma para /root. Uma opção para particionamento manual guiado
 e a criação de uma tabela de partição EFI foi adicionada
 ou você pode sair agora para usar uma ferramenta externa.
-Alternativamente, uma partição é necessária para o diretório root
+Uma partição é necessária para /root
 Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
 o Feliz pode automaticamente criar as partições para você.
 Se você escolher não fazer nada agora, o script irá
@@ -105,7 +105,7 @@ Você tem certeza que deseja continuar?
 Perticionamento de
 bem sucedido
 Você terá a oportunidade de revisá-las mais tarde
-Pressione qualquer tecla para continuar
+Pressione qualquer tecla
 Selecione agora o sistema de arquivos para
 Não é recomendado misturar o sistema de arquivos btrfs com outros
 A partição que você escolheu é rotulada
@@ -167,12 +167,12 @@ A partição root não deve ser inferior a 8GiB
 o ideal é até 20GiB
 Digite o tamanho desejado ou
 para alocar todo o espaço restante, insira: 100%
-Existe espaço para uma partição /swap
+Existe espaço para uma
 A swap pode ser qualquer coisa de 512MiB para cima
 mas não é necessário exceder 4GiB
 Você pode querer deixar algum espaço para uma partição home
-Existe apenas espaço para uma partição /swap
-Partição de boot EFI
+Existe apenas espaço para uma
+Partição de /boot
 Feliz criará agora uma nova tabela de partições
 e configurará as partições que definiu
 Particionamento bem sucedido!
@@ -181,7 +181,7 @@ Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e
 criará uma nova tabela de partição GPT com as partições que você especificou
 Uma partição /root é necessária
 alocado para /root
-Partição root
+partição /root
 Em geral, não inferior a 1GiB
 ou para alocar todo o espaço restante, digite: 100%
 Você deve incluir M, G ou %
@@ -202,8 +202,8 @@ As senhas não coincidem. Tente novamente
 Redigite uma senha para
 Parabéns! A instalação está completa
 Reinicializar Desligar
-Partição de boot
-Partição swap
+partição de /home
+partição /swap
 Nenhum fornecimento foi feito para o swap
 Partições extras
 Nenhuma partições adicionais foram alocadas

@@ -28,7 +28,7 @@ print_heading() {   # Always use this function to clear the screen
   clear
   local T_COLS=$(tput cols)             # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
-  printf "%-s\n" "$Backtitle"           # Display backtitle
+  printf "%-s\n" "$_Backtitle"           # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
 }
@@ -92,24 +92,34 @@ SetLanguage() {
   print_heading
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-  listgen1 "$(ls *.lan | cut -d'.' -f1)" "" "$Ok"
+  listgen1 "$(ls *.lan | cut -d'.' -f1)" "" "$_Ok"
   case $Result in
   "" | "Exit") LanguageFile=english.lan
   ;;
   *) LanguageFile="${Result}.lan"
   esac
+  # Some common translations
   Translate "Feliz2 - Arch Linux installation script" # Translate listgen variables
-  Backtitle="$Result"
+  _Backtitle="$Result"
   Translate "Ok"
-  Ok="$Result"
+  _Ok="$Result"
   Translate "Exit"
-  Exit="$Result"
+  _Exit="$Result"
   Translate "Use arrow keys to move. Enter to select"
-  Instructions="${Result}"
+  _Instructions="${Result}"
   Translate "Yes"
-  Yes="$Result"
+  _Yes="$Result"
   Translate "No"
-  No="$Result"
+  _No="$Result"
+  # Partitioning
+  Translate "/boot partition"
+  _BootPartition="$Result"
+    Translate "/root partition"
+  _RootPartition="$Result"
+    Translate "/swap partition"
+  _SwapPartition="$Result"
+    Translate "/home partition"
+  _HomePartition="$Result"
 }
 
 Translate() { # Called by ReadOne & ReadMany and by other functions as required

@@ -105,7 +105,7 @@ Jesteś pewny, że chcesz kontynuować?
 Partycjonowanie
 zakończone sukcesem
 Będziesz miał możliwość do przejrzenia tego później
-Wciśnij dowolny klawisz aby kontynuować
+Wciśnij dowolny klawisz
 Proszę teraz wybrać system plików dla
 Nie jest zalecane aby mieszać system plików btrfs z innymi
 Partycja, którą wybrałeś posiada etykietę
@@ -167,12 +167,12 @@ partycja główna nie powinna być mniejsza niż 8GiB
 idealnie większa, do 20GiB
 Proszę wpisać żądany rozmiar
 lub przydzielić całą dostępna przestrzeń, wpisując: 100%
-Jest przestrzeń dla partycji wymiany /swap
+Jest przestrzeń dla
 Rozmiar swap może być dowolny, począwszy od 512MiB, lecz
 nie jest konieczne aby była większa niż 4GiB
 Możesz zostawić trochę przestrzeni na swoja partycję domową
-Jest jeszcze wolna przestrzeń na partycję wymiany /swap
-Partycja EFI boot
+Jest jeszcze wolna przestrzeń na
+partycja /boot
 Teraz Feliz utworzy nową tablicę partycji
 i skonfiguruje partycje, które zdefiniowałeś
 Partycjonowanie zakończone sukcesem
@@ -181,7 +181,7 @@ Ten obiekt jest ograniczony do tworzenia /root, /swap i /home
 utworzy nową tablicę partycji GPT z nowymi partycjami, które określiłeś
 Partycja /root jest wymagana
 przydzielone do /root
-Partycja główna root
+partycja główna /root
 generalnie nie mniesze niż 1GiB
 lub przydziel całą dostępną przestrzeń, wpisując: 100%
 Musisz użyć M, G lub %
@@ -202,8 +202,8 @@ Wpisz ponownie hasło dla
 Hasła do siebie nie pasują. Spróbuj ponownie
 Gratulacje, instalacja zakończona
 Wyłącz Uruchom_Ponownie
-Partycja boot
-Partycja swap
+partycja /home
+partycja /swap
 Partycja swap nie posiada żadnych ustawień
 Dodatkowe partycje
 Żadne dodatkowe partycje nie zostały przydzielone

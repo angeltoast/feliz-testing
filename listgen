@@ -59,7 +59,7 @@ Heading() {   # Always use this function to clear the screen
   clear
   T_COLS=$(tput cols)                   # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
-  printf "%-s\n" "$Backtitle"           # Display backtitle
+  printf "%-s\n" "$_Backtitle"           # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
 }
@@ -352,7 +352,7 @@ listgen2() { # Advanced menuing function with extended descriptions
     CalledBy="listgen2"
     cursor_bottom=$((cursor_row-1))
     if [ "$3" ]; then
-      Buttons "Menu" "$3" "$Instructions"
+      Buttons "Menu" "$3" "$_Instructions"
     fi
     return 0
   done

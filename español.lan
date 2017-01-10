@@ -1,4 +1,4 @@
-# Archivo en espaniol de Elizabeth Audrey Mills
+# Archivo en espaniol de Google Translate & Elizabeth Audrey Mills (elizabeth@itsliz.net)
 Feliz2 - Script de instalación de Arch Linux
 Elige tu kernel
 Escoge un objeto
@@ -77,7 +77,7 @@ Se necesitan dos particiones: una para EFI / boot y
 Uno para / root. Una opción para la partición manual guiada
 Y se ha añadido la creación de una tabla de particiones EFI
 O puede salir ahora para utilizar una herramienta externa. Alternativamente
-Una partición es necesaria para el directorio raíz
+Una partición es necesaria para /root
 Puede utilizar 'cfdisk' para crear una tabla de particiones o
 Feliz puede crear particiones automáticamente para ti, si
 deseo. Si elige no hacer nada ahora, el script
@@ -105,7 +105,7 @@ Esto borrará cualquier
 Particionamiento de
 exitoso
 Usted tendrá la oportunidad de revisar estos últimos
-Pulse cualquier tecla para continuar
+Pulse cualquier tecla
 Seleccione ahora el sistema de archivos para
 No se recomienda mezclar el sistema de archivos btrfs con otros
 La partición que ha elegido está etiquetada
@@ -167,12 +167,12 @@ La partición raíz no debe ser inferior a 8GiB
 Idealmente más, hasta 20GiB
 Introduzca el tamaño deseado
 O, para asignar todo el espacio restante, ingrese: 100%
-Hay espacio para una partición / swap
+Hay espacio para una
 Swap puede ser cualquier cosa de 512MiB hacia arriba pero
 No es necesario exceder 4GiB
 Es posible que desee dejar algún espacio para una partición de origen
-Sólo hay espacio para una partición / swap
-Partición de arranque EFI
+Sólo hay espacio para una
+Partición de /boot
 Feliz creará ahora una nueva tabla de particiones
 Y configurar las particiones que ha definido
 Particionamiento exitoso
@@ -180,8 +180,8 @@ crear. Esta facilidad está restringida a crear / root, / swap y / home
 (Si es deseado). Cuando se hayan configurado todos los detalles, Feliz borrará el disco y
 Cree una nueva tabla de particiones GPT con las particiones que haya especificado
 Se requiere una partición A / root
-Asignado a / root
-Partición raíz
+Asignado a /root
+partición /root
 Generalmente no menos de 1GiB
 O, para asignar todo el espacio restante, ingrese: 100%
 Debe incluir M, G o%
@@ -202,8 +202,8 @@ Vuelva a introducir una contraseña para
 Las contraseñas no coinciden. Inténtalo de nuevo
 Felicitaciones, la instalación está completa
 Apagar Reiniciar
-Partición de arranque
-Intercambiar partición
+partición de /home
+partición de /swap
 No se han hecho previsiones para
 Particiones adicionales
 No se han asignado particiones adicionales
