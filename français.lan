@@ -129,7 +129,7 @@ Système ne sera plus en mesure d'accéder à la partition
 Voulez-vous le reformater?
 Il n'y a aucune partition disponible pour le swap,
 Mais vous pouvez allouer un fichier d'échange, si vous le souhaitez.
-Affectez la taille de votre fichier d'échange (M = Megabytes, G = Gigabytes)
+Affectez la taille de votre fichier d'échange
 Les partitions suivantes restent non attribuées
 Si vous souhaitez en utiliser un, sélectionnez-le dans la liste
 Ou choisissez Quitter pour terminer le partitionnement
@@ -141,7 +141,7 @@ Ici vous pouvez définir la taille et le format des partitions
 Que vous souhaitez créer. Lorsqu'il est prêt, Feliz va essuyer le disque
 Et créez une nouvelle table de partition avec vos paramètres
 Nous commençons par la
-Il n'y a pas d'espace pour une partition / swap, mais vous pouvez
+Il n'y a pas d'espace pour une partition /swap, mais vous pouvez
 Affecter un fichier d'échange. Il est conseillé de permettre un échange
 Voulez-vous allouer un fichier d'échange?
 Il y a
@@ -161,7 +161,7 @@ De sorte que la taille correcte sera définie
 Vous avez maintenant
 Taille
 Vous pouvez utiliser tout l'espace restant sur l'appareil, si vous le souhaitez
-Bien que vous souhaiterez peut-être laisser un peu de place pour une partition d'échange
+Bien que vous souhaiterez peut-être laisser un place pour une partition /swap
 Et peut-être aussi une partition à domicile
 La partition racine ne doit pas être inférieure à 8GiB
 Idéalement plus, jusqu'à 20GiB
@@ -176,8 +176,8 @@ Partition /boot
 Feliz va maintenant créer une nouvelle table de partition
 Et configurer les partitions que vous avez définies
 Partition réussie
-Cette installation est limitée à la création de / root, / swap et / home
-xxx free
+Cette installation est limitée à la création de /root, /swap et /home
+M = Megabytes, G = Gigabytes
 xxx free
 Une partition / root est requise
 Alloué à / root

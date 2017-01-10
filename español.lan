@@ -129,7 +129,7 @@ El sistema ya no podrá acceder a la partición
 ¿Desea reformatearlo?
 No hay particiones disponibles para swap,
 Pero puede asignar un archivo de intercambio, si lo desea.
-Asigne el tamaño de su archivo de intercambio (M = Megabytes, G = Gigabytes)
+Asigne el tamaño de su archivo de intercambio
 Las siguientes particiones permanecen sin asignar
 Si desea utilizar uno, selecciónelo de la lista
 O elija Salir para finalizar el particionamiento
@@ -161,7 +161,7 @@ De modo que se ajuste el tamaño correcto
 Ahora tienes
 tamaño
 Puede utilizar todo el espacio restante en el dispositivo, si lo desea
-Aunque es posible que desee dejar algún espacio para una partición de intercambio
+Aunque es posible que desee dejar algún espacio para una partición de /swap
 Y tal vez también una partición de origen
 La partición raíz no debe ser inferior a 8GiB
 Idealmente más, hasta 20GiB
@@ -176,10 +176,10 @@ Partición de /boot
 Feliz creará ahora una nueva tabla de particiones
 Y configurar las particiones que ha definido
 Particionamiento exitoso
-Esta facilidad está restringida a crear / root, / swap y / home
+Esta facilidad está restringida a crear /root, /swap y /home
+M = Megabytes, G = Gigabytes
 xxx free
-xxx free
-Se requiere una partición A / root
+Se requiere una partición A /root
 Asignado a /root
 partición /root
 Generalmente no menos de 1GiB

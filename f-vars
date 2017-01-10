@@ -234,7 +234,7 @@ LongAccs[7]="The file manager from LXDE"
 # Desktops
 Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate Xfce"
 LongDesk[1]="Modern desktop focusing on simplicity & elegance"
-LongDesk[2]="Slick DE from the Mint team      "
+LongDesk[2]="Slick DE from the Mint team"
 LongDesk[3]="The Deepin Desktop Environment"
 LongDesk[4]="Full-featured, modern DE"
 LongDesk[5]="Plasma 5 and accessories pack"

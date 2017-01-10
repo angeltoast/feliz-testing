@@ -77,7 +77,8 @@ duas partições são necessárias - uma para EFI /boot, e
 uma para /root. Uma opção para particionamento manual guiado
 e a criação de uma tabela de partição EFI foi adicionada
 ou você pode sair agora para usar uma ferramenta externa.
-Uma partição é necessária para /root
+uma partição é necessária para o diretório /root
+uma partição é necessária para o diretório /root
 Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
 o Feliz pode automaticamente criar as partições para você.
 Se você escolher não fazer nada agora, o script irá
@@ -129,7 +130,7 @@ esse sistema deixará de poder acessar à partição
 Deseja reformatá-la?
 Não há partições disponíveis para o swap, mas
 se quiser pode alocar um arquivo de swap
-Alocar o tamanho do seu arquivo de swap (M = Megabytes, G = Gigabytes)
+Alocar o tamanho do seu arquivo de swap
 As partições a seguir permanecem não alocadas
 Se você desejar usar um, selecione-o na lista
 ou escolha Sair para concluir o particionamento
@@ -161,7 +162,7 @@ para que o tamanho correto seja definido
 Você agora tem
 Tamanho
 Se desejar, pode usar todo o espaço restante no dispositivo,
-embora você pode querer deixar algum espaço para uma partição swap
+embora você pode querer deixar espaço para uma partição /swap
 e talvez também para uma partição home
 A partição root não deve ser inferior a 8GiB
 o ideal é até 20GiB
@@ -170,14 +171,14 @@ para alocar todo o espaço restante, insira: 100%
 Existe espaço para uma
 A swap pode ser qualquer coisa de 512MiB para cima
 mas não é necessário exceder 4GiB
-Você pode querer deixar algum espaço para uma partição home
+Você pode querer deixar algum espaço para uma partição /home
 Existe apenas espaço para uma
 Partição de /boot
 Feliz criará agora uma nova tabela de partições
 e configurará as partições que definiu
 Particionamento bem sucedido!
-Esta facilidade é restrita a criar /root, /swap e /home (se desejar)
-xxx free
+Esta facilidade é restrita a criar /root, /swap e /home
+M = Megabytes, G = Gigabytes
 xxx free
 Uma partição /root é necessária
 alocado para /root

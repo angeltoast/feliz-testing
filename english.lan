@@ -129,7 +129,7 @@ system will no longer be unable to access the partition
 Do you wish to reformat it?
 There are no partitions available for swap,
 but you can allocate a swap file, if you wish.
-Allocate the size of your swap file (M = Megabytes, G = Gigabytes)
+Allocate the size of your swap file
 The following partitions remain unallocated
 If you wish to use one, select it from the list
 or choose Exit to finish partitioning
@@ -161,7 +161,7 @@ so that the correct size will be set
 You now have
 Size
 You can use all the remaining space on the device, if you wish
-although you may want to leave some room for a /swap partition
+although you may want to leave room for a /swap partition
 and perhaps also a /home partition
 The /root partition should not be less than 8GiB
 ideally more, up to 20GiB
@@ -177,7 +177,7 @@ Feliz will now create a new partition table
 and set up the partitions you have defined
 Partitioning successful
 This facility is restricted to creating /root, /swap and /home
-xxx free
+M = Megabytes, G = Gigabytes
 xxx free
 A /root partition is required
 allocated to /root

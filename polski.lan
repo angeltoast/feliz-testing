@@ -77,7 +77,7 @@ dwie partycje są wymagane - jedna dla EFI /boot, druga
 dla /root. Została dodana opcja ręcznego partycjonowania
 z przewodnikiem oraz tworzenia tabeli partycji EFI,
 Możesz również wyjść i użyć innych narzędzi. Alternatywnie,
-jedna partycja jest wymagana dla głównego katalogu plików
+Potrzebna jest partycja dla /root
 Możesz użyć 'cfdisk' do utworzenia tablicy partycji, lub 
 Feliz może automatycznie utworzyć partycje dla ciebie, jeśli
 chcesz. Jeśli nic nie wybierzesz, program zostanie
@@ -129,7 +129,7 @@ system ten nie będzie miał dostępu do tej partycji
 Czy chcesz ją sformatować teraz?
 Nie ma wolnej partycji dla swap,
 lecz możesz utworzyć plik swap, jeśli chcesz.
-Przydzielenie rozmiaru pliku swap (M = Megabajty, G = Gigabajty)
+Przydzielenie rozmiaru pliku swap
 Wyszczególnione partycje nie posiadają przydziału
 Jeśli chcesz użyć partycję, wybierz ją z listy
 lub wybierz Wyjście aby zakończyć partycjonowanie
@@ -161,7 +161,7 @@ więc poprawny rozmiar będzie ustawiony na
 Teraz masz
 Rozmiar
 Możesz użyć całą pozostałą przestrzeń na tym urządzeniu, jeśli chcesz
-chociaż możesz zostawić trochę miejsca na partycję wymiany swap
+chociaż możesz zostawić trochę miejsca na partycję wymiany /swap
 oraz również na partycję domową
 partycja główna nie powinna być mniejsza niż 8GiB
 idealnie większa, do 20GiB
@@ -177,7 +177,7 @@ Teraz Feliz utworzy nową tablicę partycji
 i skonfiguruje partycje, które zdefiniowałeś
 Partycjonowanie zakończone sukcesem
 Ten obiekt jest ograniczony do tworzenia /root, /swap i /home
-xxx free
+M = Megabajty, G = Gigabajty
 xxx free
 Partycja /root jest wymagana
 przydzielone do /root

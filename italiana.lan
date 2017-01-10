@@ -119,17 +119,17 @@ La partizione selezionata
 è attualmente formattata
 La riformattazione rimuoverà tutti i dati attualmente su di esso
 Selezionare una partizione per lo swap da quelli che
-rimangono, oppure si può assegnare un file di swap
+rimangono, oppure si può assegnare un file di /swap
 Attenzione: Btrfs non supporta i file di swap
 Se si salta questo passaggio, non di swap saranno assegnati
 è già formattato come partizione di swap
-La riformattazione cambierà l'UUID, e se questo swap
+La riformattazione cambierà l'UUID, e se questo /swap
 partizione viene utilizzato da un altro sistema operativo, che
 sistema non sarà più in grado di accedere alla partizione
 Vuoi riformattarlo?
-Non ci sono partizioni disponibili per lo swap,
+Non ci sono partizioni disponibili per lo /swap,
 ma è possibile assegnare un file di swap, se lo si desidera.
-Allocare la dimensione del file di swap (M = Megabyte, G = Gigabyte)
+Allocare la dimensione del file di swap
 Le seguenti partizioni rimangono non allocato
 Se si desidera utilizzare uno, selezionarlo dalla lista
 oppure scegliere Esci per terminare il partizionamento
@@ -142,7 +142,7 @@ si desidera creare. Quando si è pronti, Feliz asciugherà il disco
 e creare una nuova tabella delle partizioni con le impostazioni
 Iniziamo con la
 Non c'è spazio per una partizione /swap, ma è possibile
-assegnare un swap-file. Si consiglia di consentire ad alcuni di swap
+assegnare un swap-file. Si consiglia di consentire ad alcuni di /swap
 Non si desidera assegnare un file di swap?
 Ci sono
 dispositivi disponibili
@@ -161,7 +161,7 @@ in modo che la dimensione corretta verrà impostata
 Ora avete
 Dimensione
 È possibile utilizzare tutto lo spazio rimanente sul dispositivo, se lo si desidera
-anche se si consiglia di lasciare un certo spazio per una partizione di swap
+anche se si consiglia di lasciare un spazio per una partizione di /swap
 e forse anche una partizione home
 La partizione root non deve essere inferiore a 8GiB
 idealmente più, fino a 20GiB
@@ -170,14 +170,14 @@ o, per allocare tutto lo spazio rimanente, immettere: 100%
 C'è spazio per una
 Swap può essere qualsiasi cosa, da 512MiB verso l'alto, ma
 non è necessario superare 4GiB
-Si consiglia di lasciare un certo spazio per una partizione home
+Si consiglia di lasciare un certo spazio per una partizione /home
 C'è solo spazio per una
 partizione di /boot
 Feliz ora creare una nuova tabella delle partizioni
 e impostare le partizioni che avete definito
 partizionamento successo
 Questa funzione è limitata a creare /root, /swap e /home
-xxx free
+M = Megabytes, G = Gigabytes
 xxx free
 è richiesto partizione di A /root
 assegnato a /root

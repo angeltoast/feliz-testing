@@ -129,7 +129,7 @@ System nicht mehr auf die Partition zugreifen kann
 Möchten Sie es neu formatieren?
 Für Swap stehen keine Partitionen zur Verfügung,
 Aber Sie können eine Swap-Datei zuweisen, wenn Sie es wünschen.
-Weisen Sie die Größe der Auslagerungsdatei zu (M = Megabytes, G = Gigabytes)
+Weisen Sie die Größe der Auslagerungsdatei zu
 Die folgenden Partitionen bleiben nicht zugeordnet
 Wenn Sie einen verwenden möchten, wählen Sie ihn aus der Liste aus
 Oder wählen Sie Beenden, um die Partitionierung zu beenden
@@ -161,7 +161,7 @@ So dass die richtige Größe eingestellt wird
 Sie haben jetzt
 Größe
 Sie können den gesamten Platz auf dem Gerät verwenden, wenn Sie es wünschen
-Obwohl Sie vielleicht etwas Platz für eine Swap-Partition zu verlassen
+Obwohl Sie vielleicht etwas Platz für eine /Swap-Partition zu verlassen
 Und vielleicht auch eine Heimpartition
 Die Root-Partition sollte nicht kleiner als 8GiB sein
 Idealerweise bis zu 20GbB
@@ -177,7 +177,7 @@ Feliz wird nun eine neue Partitionstabelle erstellen
 Und richten Sie die von Ihnen definierten Partitionen ein
 Partitionierung erfolgreich
 Diese Funktion ist auf die Erstellung /root, /swap und /home beschränkt
-xxx free
+M = Megabytes, G = Gigabytes
 xxx free
 A /root-Partition ist erforderlich
 Zugewiesen /root
