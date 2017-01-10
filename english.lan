@@ -137,10 +137,10 @@ You can choose to leave it as it is, by selecting Exit, but not
 reformatting an existing partition can have unexpected consequences
 Enter a mountpoint for
 You must enter a valid mountpoint
-Here you can tell Feliz the size and format of the partitions you wish
-to create. When all details have been set, Feliz will wipe the disk and
-create an EFI partition table with the partitions you have specified
-We begin with the /boot partition
+Here you can set the size and format of the partitions
+you wish to create. When ready, Feliz will wipe the disk
+and create a new partition table with your settings
+We begin with the
 There is no space for a /swap partition, but you can
 assign a swap-file. It is advised to allow some swap
 Do you wish to allocate a swapfile?
@@ -176,9 +176,9 @@ There is just space for a
 Feliz will now create a new partition table
 and set up the partitions you have defined
 Partitioning successful
-to create. This facility is restricted to creating /root, /swap and /home
-(if desired). When all details have been set, Feliz will wipe the disk and
-create a new GPT partition table with the partitions you have specified
+This facility is restricted to creating /root, /swap and /home
+xxx free
+xxx free
 A /root partition is required
 allocated to /root
 /root partition

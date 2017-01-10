@@ -137,10 +137,10 @@ Możesz zostawić to, tak jak jest, wybierając Wyjście, lecz
 nie formatowanie istniejących partycji może skutkować nieprzewidzianymi konsekwencjami
 Wpisz punkt montowania dla
 Musisz wpisać ważny punkt montowania
-Tutaj możesz powiedzieć Feliz jaki rozmiar i format partycji chcesz
-utworzyć. Kiedy wszystkie dane zostaną ustawione, Feliz wyczyści dysk
-i utworzy tabelę partycji EFI z partycjami, które wybrałeś
-Rozpoczynamy od partycji /boot
+Tutaj można ustawić rozmiar i format partycji
+chcesz utworzyć. Gdy wszystko jest gotowe, Feliz otrze dysku
+i stworzyć nową tablicę partycji z ustawieniami
+Rozpoczynamy od
 Nie ma miejsca dla partycji /swap, lecz możesz
 utworzyć plik swap. Zaleca się, aby umożliwić niektórym swap
 Czy chcesz przydzielić plik swap?
@@ -177,8 +177,8 @@ Teraz Feliz utworzy nową tablicę partycji
 i skonfiguruje partycje, które zdefiniowałeś
 Partycjonowanie zakończone sukcesem
 Ten obiekt jest ograniczony do tworzenia /root, /swap i /home
-(jeśli konieczne). Gdy wszystkie dane zostały ustawione, Feliz wyczyści dysk i
-utworzy nową tablicę partycji GPT z nowymi partycjami, które określiłeś
+xxx free
+xxx free
 Partycja /root jest wymagana
 przydzielone do /root
 partycja główna /root

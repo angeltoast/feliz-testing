@@ -596,13 +596,16 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
   EasyDiskSize                # Get available space in MiB
   print_heading
   Echo
-  PrintOne "Here you can tell Feliz the size and format of the partitions you wish"
-  PrintOne "to create. This facility is restricted to creating /root, /swap and /home"
-  PrintOne "(if desired). When all details have been set, Feliz will wipe the disk and"
-  PrintOne "create a new GPT partition table with the partitions you have specified"
+  PrintOne "Here you can set the size and format of the partitions"
+  PrintOne "you wish to create. When ready, Feliz will wipe the disk"
+  PrintOne "and create a new partition table with your settings"
+  PrintOne "This facility is restricted to creating /root, /swap and /home"
   Echo
-  Translate "Please press Enter to continue"
-  read -p "$Result"
+  Translate "Are you sure you wish to continue?"
+  Buttons "Yes/No" "$_Yes $_No" ""
+  if [ $Response -eq 2 ]; then
+    CheckParts
+  fi
   GuidedRoot                  # Create /root partition
   EasyRecalc "$RootSize"      # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]; then
@@ -639,14 +642,14 @@ GuidedRoot() { # Variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     print_heading
-    PrintOne "We begin with the /root partition"
+    Translate "We begin with the"
+    PrintOne "$Result" " $_RootPartition"
     Echo
     Translate "You have"
     _P1="$Result ${FreeGigs}GiB"
     Translate "available on the chosen device"
     PrintOne "$_P1" " $Result"
     Echo
-    PrintOne "A /root partition is required"
     PrintOne "You can use all the remaining space on the device, if you wish"
     PrintOne "although you may want to leave some room for a swap partition"
     PrintOne "and perhaps also a home partition"
@@ -692,7 +695,7 @@ GuidedSwap() { # Variables: SwapSize
     PrintOne "$_RootPartition" ": ${RootType} : ${RootSize}"
     Echo
     Translate "You now have"
-    $_P1="$Result ${FreeGigs}GiB"
+    _P1="$Result ${FreeGigs}GiB"
     Translate "available on the chosen device"
     PrintOne "$_P1" "$Result"
     Echo

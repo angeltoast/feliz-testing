@@ -137,10 +137,10 @@ Puede elegir dejarlo como está, seleccionando Salir, pero no
 El reformateo de una partición existente puede tener consecuencias inesperadas
 Introduzca un punto de montaje para
 Debe introducir un punto de montaje válido
-Aquí puede decirle a Feliz el tamaño y el formato de las particiones que desea
-crear. Cuando se hayan configurado todos los detalles, Feliz borrará el disco y
-Cree una tabla de particiones EFI con las particiones que ha especificado
-Comenzamos con la partición / boot
+Aquí puede configurar el tamaño y el formato de las particiones
+Que desea crear. Cuando esté listo, Feliz borrará el disco
+Y crear una nueva tabla de particiones con su configuración
+Comenzamos con la
 No hay espacio para una partición / swap, pero puede
 Asignar un archivo de intercambio. Se aconseja permitir algún intercambio
 ¿Desea asignar un archivo de intercambio?
@@ -176,9 +176,9 @@ Partición de /boot
 Feliz creará ahora una nueva tabla de particiones
 Y configurar las particiones que ha definido
 Particionamiento exitoso
-crear. Esta facilidad está restringida a crear / root, / swap y / home
-(Si es deseado). Cuando se hayan configurado todos los detalles, Feliz borrará el disco y
-Cree una nueva tabla de particiones GPT con las particiones que haya especificado
+Esta facilidad está restringida a crear / root, / swap y / home
+xxx free
+xxx free
 Se requiere una partición A / root
 Asignado a /root
 partición /root

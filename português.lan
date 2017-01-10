@@ -137,10 +137,10 @@ Você pode optar por deixá-la como está, selecionando Sair
 mas não reformatar uma partição existente pode ter consequências inesperadas
 Digite um ponto de montagem para
 Você deve digitar um ponto de montagem válido
-Aqui você pode dizer ao Feliz o tamanho e o formato das partições que você deseja criar.
-Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e criará uma
-tabela de partição EFI com as partições que você especificou
-Nós iniciaremos com a partição /boot
+Aqui você pode definir o tamanho eo formato das partições
+Que você deseja criar. Quando pronto, Feliz vai limpar o disco
+E criar uma nova tabela de partição com suas configurações
+Nós iniciaremos com a
 Não há espaço para uma partição /swap, mas você pode atribuir
 um arquivo de swap. É aconselhável permitir algum swap
 Deseja alocar um arquivo de swap?
@@ -176,9 +176,9 @@ Partição de /boot
 Feliz criará agora uma nova tabela de partições
 e configurará as partições que definiu
 Particionamento bem sucedido!
-para criar. Esta facilidade é restrita a criar /root, /swap e /home (se desejar)
-Quando todos os detalhes tiverem sido definidos, o Feliz limpará o disco e
-criará uma nova tabela de partição GPT com as partições que você especificou
+Esta facilidade é restrita a criar /root, /swap e /home (se desejar)
+xxx free
+xxx free
 Uma partição /root é necessária
 alocado para /root
 partição /root

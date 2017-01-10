@@ -137,10 +137,10 @@ Vous pouvez choisir de le laisser tel quel, en sélectionnant Quitter, mais pas
 Le reformatage d'une partition existante peut avoir des conséquences inattendues
 Entrez un point de montage pour
 Vous devez saisir un point de montage valide
-Ici vous pouvez dire à Feliz la taille et le format des partitions que vous souhaitez
-créer. Lorsque tous les détails ont été définis, Feliz effacera le disque et
-Créez une table de partition EFI avec les partitions que vous avez spécifiées
-Nous commençons par la partition / boot
+Ici vous pouvez définir la taille et le format des partitions
+Que vous souhaitez créer. Lorsqu'il est prêt, Feliz va essuyer le disque
+Et créez une nouvelle table de partition avec vos paramètres
+Nous commençons par la
 Il n'y a pas d'espace pour une partition / swap, mais vous pouvez
 Affecter un fichier d'échange. Il est conseillé de permettre un échange
 Voulez-vous allouer un fichier d'échange?
@@ -176,9 +176,9 @@ Partition /boot
 Feliz va maintenant créer une nouvelle table de partition
 Et configurer les partitions que vous avez définies
 Partition réussie
-créer. Cette installation est limitée à la création de / root, / swap et / home
-(si on le désire). Lorsque tous les détails ont été définis, Feliz effacera le disque et
-Créez une nouvelle table de partitions GPT avec les partitions que vous avez spécifiées
+Cette installation est limitée à la création de / root, / swap et / home
+xxx free
+xxx free
 Une partition / root est requise
 Alloué à / root
 / Partition racine

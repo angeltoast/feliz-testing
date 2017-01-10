@@ -137,11 +137,11 @@ Sie können auswählen, wie es ist, indem Sie Exit, aber nicht verlassen
 Kann eine Neuformatierung einer bestehenden Partition unerwartete Konsequenzen haben
 Geben Sie einen Mountpunkt für ein
 Sie müssen einen gültigen Einhängepunkt eingeben
-Hier können Sie Feliz die Größe und das Format der Partitionen, die Sie wünschen
-erschaffen. Wenn alle Details eingestellt sind, wischen Feliz die Scheibe und
-Erstellen Sie eine EFI-Partitionstabelle mit den angegebenen Partitionen
-Wir beginnen mit der / boot-Partition
-Es gibt keinen Platz für eine / swap-Partition, aber Sie können
+Hier können Sie die Größe und das Format der Partitionen festlegen
+Sie erstellen möchten. Wenn bereit, Feliz wischen die Scheibe
+Und erstellen Sie eine neue Partitionstabelle mit Ihren Einstellungen
+Wir beginnen mit der
+Es gibt keinen Platz für eine /swap-Partition, aber Sie können
 Eine Swap-Datei zuweisen. Es wird empfohlen, einige Swap
 Möchten Sie eine Swapfile zuordnen?
 Es gibt
@@ -176,12 +176,12 @@ Es gibt nur Platz für eine
 Feliz wird nun eine neue Partitionstabelle erstellen
 Und richten Sie die von Ihnen definierten Partitionen ein
 Partitionierung erfolgreich
-erschaffen. Diese Funktion ist auf die Erstellung / root, / swap und / home beschränkt
-(wenn gewünscht). Wenn alle Details eingestellt sind, wischen Feliz die Scheibe und
-Erstellen Sie eine neue GPT-Partitionstabelle mit den angegebenen Partitionen
-A / root-Partition ist erforderlich
-Zugewiesen / root
-/ Root-Partition
+Diese Funktion ist auf die Erstellung /root, /swap und /home beschränkt
+xxx free
+xxx free
+A /root-Partition ist erforderlich
+Zugewiesen /root
+/Root-Partition
 Im Allgemeinen nicht weniger als 1GiB
 Oder, um den restlichen Platz zuzuweisen, geben Sie ein: 100%
 Sie müssen M, G oder%
@@ -202,8 +202,8 @@ Geben Sie ein Kennwort für erneut ein
 Passwörter stimmen nicht überein. Versuch es noch einmal
 Herzlichen Glückwunsch, die Installation ist abgeschlossen
 Herunterfahren Neustart
-/ Home-Partition
-/ Austauschen
+/Home-Partition
+/Austauschen
 Für den Swap ist keine Rückstellung vorgesehen
 Zusätzliche Trennwände
 Es wurden keine zusätzlichen Partitionen zugeordnet

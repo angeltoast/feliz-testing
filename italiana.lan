@@ -137,11 +137,11 @@ oppure scegliere Esci per terminare il partizionamento
 riformattare una partizione esistente può avere conseguenze inaspettate
 Inserire un punto di montaggio per
 È necessario inserire un punto di montaggio valida
-Qui si può dire Feliz le dimensioni e il formato delle partizioni che si desidera
-creare. Quando tutti i dettagli sono stati impostati, Feliz cancellerà il disco e
-creare una tabella delle partizioni EFI con le partizioni specificate
-Iniziamo con la partizione / boot
-Non c'è spazio per una partizione / swap, ma è possibile
+Qui è possibile impostare le dimensioni e il formato delle partizioni
+si desidera creare. Quando si è pronti, Feliz asciugherà il disco
+e creare una nuova tabella delle partizioni con le impostazioni
+Iniziamo con la
+Non c'è spazio per una partizione /swap, ma è possibile
 assegnare un swap-file. Si consiglia di consentire ad alcuni di swap
 Non si desidera assegnare un file di swap?
 Ci sono
@@ -155,7 +155,7 @@ Il dispositivo è dotato
 Questo è sufficiente per
 Hai
 disponibile sul dispositivo prescelto
-Tutti abbiamo bisogno di impostare qui è la dimensione della partizione / boot EFI.
+Tutti abbiamo bisogno di impostare qui è la dimensione della partizione /boot
 Dovrebbe essere non meno di 512MiB e deve essere non più grande di 1GiB
 in modo che la dimensione corretta verrà impostata
 Ora avete
@@ -176,12 +176,12 @@ partizione di /boot
 Feliz ora creare una nuova tabella delle partizioni
 e impostare le partizioni che avete definito
 partizionamento successo
-creare. Questa funzione è limitata a creare / root, / swap e / home
-(se desiderato). Quando tutti i dettagli sono stati impostati, Feliz cancellerà il disco e
-creare una nuova tabella di partizione GPT con le partizioni specificate
-è richiesto partizione di A / root
-assegnato a / root
-/ Partizione di root
+Questa funzione è limitata a creare /root, /swap e /home
+xxx free
+xxx free
+è richiesto partizione di A /root
+assegnato a /root
+Partizione di /root
 in genere non meno di 1GiB
 o, per allocare tutto lo spazio rimanente, immettere: 100%
 È necessario includere M, G o%
@@ -202,9 +202,9 @@ Re-immettere una password per
 Le password non corrispondono. Riprova
 Congratulazioni, l'installazione è completa
 shutdown Reboot
-Partizione / home
-/ Partizione di swap
-Non è stato previsto per lo swap
+Partizione /home
+Partizione di /swap
+Non è stato previsto per lo /swap
 partizioni extra
 Nessun partizioni sono stati assegnati
 Il kernel LTS sarà installato
@@ -283,7 +283,7 @@ Calendario & task manager (incluso con Xfce)
 programma di desktop publishing
 GTK + IDE con supporto per i plugin Python
 Open source e cross-platform C / C ++ IDE
-, Editor di testo personalizzabile Extensible
+Editor di testo personalizzabile Extensible
 editor di testo avanzato & IDE
 Open source sistema di controllo versione distribuito
 ambiente di sviluppo integrato (IDE)
