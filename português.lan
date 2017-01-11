@@ -1,4 +1,4 @@
-# Brazilian portuguese language file by Fábio Nogueira (fnogueira@gnome.org)
+# Portuguese language file by Fábio Nogueira (fnogueira@gnome.org)
 Feliz2 - Script de instalação do Arch Linux
 Escolha o seu kernel
 Escolha um item
@@ -77,8 +77,7 @@ duas partições são necessárias - uma para EFI /boot, e
 uma para /root. Uma opção para particionamento manual guiado
 e a criação de uma tabela de partição EFI foi adicionada
 ou você pode sair agora para usar uma ferramenta externa.
-uma partição é necessária para o diretório /root
-uma partição é necessária para o diretório /root
+Uma partição é necessária para o diretório /root
 Você pode utilizar o 'cfdisk' para criar uma tabela de partição ou
 o Feliz pode automaticamente criar as partições para você.
 Se você escolher não fazer nada agora, o script irá
@@ -103,7 +102,7 @@ Qual você deseja usar para esta instalação?
 dados sobre o dispositivo escolhido serão destruídos)
 Isto irá apagar quaisquer dados em
 Você tem certeza que deseja continuar?
-Perticionamento de
+Particionamento de
 bem sucedido
 Você terá a oportunidade de revisá-las mais tarde
 Pressione qualquer tecla
@@ -138,9 +137,9 @@ Você pode optar por deixá-la como está, selecionando Sair
 mas não reformatar uma partição existente pode ter consequências inesperadas
 Digite um ponto de montagem para
 Você deve digitar um ponto de montagem válido
-Aqui você pode definir o tamanho eo formato das partições
-Que você deseja criar. Quando pronto, Feliz vai limpar o disco
-E criar uma nova tabela de partição com suas configurações
+Aqui você pode definir o tamanho e o formato das partições
+que você deseja criar. Quando pronto, o Feliz vai limpar o disco
+e criará uma nova tabela de partição com suas configurações
 Nós iniciaremos com a
 Não há espaço para uma partição /swap, mas você pode atribuir
 um arquivo de swap. É aconselhável permitir algum swap
@@ -179,7 +178,7 @@ e configurará as partições que definiu
 Particionamento bem sucedido!
 Esta facilidade é restrita a criar /root, /swap e /home
 M = Megabytes, G = Gigabytes
-xxx free
+xxx livre
 Uma partição /root é necessária
 alocado para /root
 partição /root
