@@ -358,12 +358,10 @@ listgen2() { # Advanced menuing function with extended descriptions
   done
 }
 
-listgenx() { # The calling function creates input.file before calling listgenx
-             # input.file must be one record per line
-             # This version of listgen is to create numbered lists for 'difficult'
-             # situations. Calling function can send optional 'Headline' string as
-             # $1, to appear at the top of the screen, and an optional 'Message' as
-             # $2, to appear at the bottom of the screen. $3, $4 and $5 are paging advice
+listgenx_prep() { # This function prepares the variables
+                  # Calling function can send optional 'Headline' string as
+                  # $1, to appear at the top of the screen, and an optional 'Message' as
+                  # $2, to appear at the bottom of the screen. $3, $4 and $5 are paging advice
   tput cnorm          # Ensure cursor is visible
   if [ "$1" ]; then
     Headline="$1"
@@ -410,6 +408,11 @@ listgenx() { # The calling function creates input.file before calling listgenx
   WidthOfColumns=2                        # Initialise for loop
   local Counter=0
   RecordNumber=0                          # Initialise record-counting variable
+}
+
+listgenx() { # The calling function creates input.file before calling listgenx
+             # input.file must be one record per line
+  listgenx_prep # First call prep function
   while [ $RecordNumber -le $total_items  ] # ....... Outer loop for entire file #####
   do
     TestLen=0                             # Set length-testing variable for column
@@ -441,11 +444,11 @@ listgenx() { # The calling function creates input.file before calling listgenx
   PageNumber=1      # Page selector
   PageWidth=4       # Start width accumulator with margins
   ColumnWidth=0
-  LastPage=0        #
+  LastPage=0
 
   while :
   do
-    for (( column=1; column <= $NumberOfColumns; ++column )) # Build a page #########################
+    for (( column=1; column <= $NumberOfColumns; ++column )) # Build a page
     do
       if [ $((PageWidth+ColumnWidth+4)) -ge $display_width ]; then # If adding another column would
         PageWidths[${PageNumber}]=$PageWidth  # exceed page width ... save this page's width
@@ -465,13 +468,13 @@ listgenx() { # The calling function creates input.file before calling listgenx
         fi
       done
       if [ $((PageWidth+ColumnWidth+1)) -lt $terminal_width ]; then # Page is not full
-        PageWidth=$((PageWidth+ColumnWidth+1))  # Add column width to page width accumulator
-        Page="$Page $column"                  # and append the column number to this page
+        PageWidth=$((PageWidth+ColumnWidth+1)) # Add column width to page width accumulator
+        Page="$Page $column"                   # and append the column number to this page
       fi
       if [ $column -eq $NumberOfColumns ]; then # Last column
         LastPage=$PageNumber
         PageWidths[${PageNumber}]=$PageWidth
-        Pages[${PageNumber}]="${Page}"        # Copy the list of columns to Pages array
+        Pages[${PageNumber}]="${Page}"          # Copy the list of columns to Pages array
         break 2
       fi
     done
@@ -479,6 +482,7 @@ listgenx() { # The calling function creates input.file before calling listgenx
 
   PageNumber=1    # Start at first page
   SelectPage      # Switch between pages
+
 }
 
 SelectPage() {
@@ -532,7 +536,7 @@ SelectPage() {
         PageNumber=$PageNumber             # > (right arrow) = illegal call to next page
       fi
       ;;
-      *) break                            # 0 : an item was selected or 'Exit' entered
+      *) break                            # 0 : an item was selected or '' entered
       esac
     esac
   done

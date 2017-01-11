@@ -132,6 +132,7 @@ SetTimeZone() {
         esac
     esac
   done
+
 }
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
@@ -201,11 +202,11 @@ America() {
   done
   SubGroup=""
   Translate "None_of_these"
-  None_of_these="$Result"
+  _None_of_these="$Result"
   SubList="$SubList $_None_of_these"        # Add a decline option
   listgen1 "$SubList" "" "$_Ok $_Exit"
     case $Result in
-  "${None_of_these}") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
+  "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
     Translate "Please choose your nearest location" # Prepare for listgenx
     local P1="$Result"
     Translate "Please enter the number of your selection"
