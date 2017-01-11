@@ -20,7 +20,7 @@ Ausgang
 Sind Sie in einem dieser Staaten?
 Bitte wählen Sie Ihren Standort
 Oder '', um zu beenden
-Keine von diesen
+Keine_von_diesen
 Geben Sie '<' für die vorhergehende Seite ein
 Geben Sie '>' für die nächste Seite ein
 Es wurde keine Sprache für Ihren Standort gefunden
@@ -92,9 +92,9 @@ Als nächstes können Sie die vorhandenen Partitionen zuordnen
 'Cfdisk' steht Ihnen zur Bearbeitung zur Verfügung. Alternative
 Können Sie die geführte manuelle Partitionierungsoption verwenden oder
 Feliz kann die Festplatte mit einer neuen Partitionstabelle überschreiben
-wenn Sie wünschen. Bitte beachten Sie, dass diese beiden Optionen abgewischt werden
+wenn Sie wünschen. Beachten Sie, dass beide Optionen abwischen
 Die Platte - alle vorhandenen Daten werden gelöscht! Wenn du
-Wählen Sie "Verlassen Sie es so wie es ist" das Skript wird als nächstes aktivieren
+Wählen Sie 'Lassen Sie es, wie es ist' das Skript aktiviert
 Sie die vorhandenen Partitionen zuordnen
 Dies sind die verfügbaren Geräte
 Was möchten Sie für diese Installation verwenden?
@@ -234,7 +234,7 @@ Geführtes manuelles Teilungswerkzeug
 Lassen Sie feliz das gesamte Gerät partitionieren
 Lass es so wie es ist
 Zubehör
-Desktop_Environments
+Desktop-Umgebungen
 Grafisch
 Internet
 Multimedia
