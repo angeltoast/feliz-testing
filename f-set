@@ -163,18 +163,16 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
       SetTimeZone
     fi
   ;;
-  "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file
+  "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
     listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
-    rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "America") America
    ;;
-  *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file  # List of subzones
+  *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file  # List of subzones
     listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
-    rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -206,7 +204,7 @@ America() {
   SubList="$SubList $_None_of_these"        # Add a decline option
   listgen1 "$SubList" "" "$_Ok $_Exit"
     case $Result in
-  "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
+  "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > temp.file
      listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
   ;;
   '' | "Exit") SetTimeZone
@@ -296,11 +294,10 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
     *) # Check the short code for each language against long names in language.list
       if [ $HowMany -ge $Rows ]; then                 # Too many to display in menu, so use listgenx
         # Make a shortlist of relevant language codes
-        rm input.file
         ShortList=$(grep ${SEARCHTERM}.UTF-8 /etc/locale.gen | cut -d' ' -f2 | cut -c 1-2 | uniq)
         for l in ${ShortList}
         do
-          grep "$l$" languages.list >> input.file
+          grep "$l$" languages.list >> temp.file
         done
         Translate "Now please choose your language from this list"
         local P1="$Result"
@@ -382,7 +379,7 @@ AllLanguages() {
   do
     print_heading
     Echo
-    cat languages.list > input.file         # Prepare file for listgenx to display all languages
+    cat languages.list > temp.file         # Prepare file for listgenx to display all languages
     Translate "Now please choose your language from this list"
     local P1="$Result"
     Translate "Please enter the number of your selection"
@@ -416,7 +413,7 @@ getkeymap() {
   if [ ! $Found ]; then
     Found=0
   fi
-  while [ -z $Countrykbd ]
+  while [ -z "$Countrykbd" ]
   do
     print_heading
     Echo
@@ -439,12 +436,11 @@ getkeymap() {
     ;;
     *) # If the search found multiple matches
       Rows=$(tput lines)                          # to ensure menu doesn't over-run
-      Rows=$((Rows-4))                            # Available (printable) rows
+      Rows=$((Rows-7))                            # Available (printable) rows
       if [ $Found -ge $Rows ]; then
-        rm input.file
         for i in $ListKbs
         do
-          echo $i >> input.file
+          echo $i >> temp.file
         done
         Translate "The following keyboards match your location. You can"
         local P1="$Result"
@@ -473,7 +469,7 @@ getkeymap() {
 }
 
 SearchKeyboards() {
-  while [ -z $Countrykbd ]
+  while [ -z "$Countrykbd" ]
   do
     print_heading
     PrintOne "If you know the code for your keyboard layout, please enter"
@@ -492,7 +488,7 @@ SearchKeyboards() {
       print_heading
       PrintOne "Select your keyboard, or Exit to try again"
       listgen1 "$ListKbs" "" "$_Ok $_Exit"
-      if [ ${Result} = "Exit" ]; then
+      if [ "${Result}" = "Exit" ]; then
         continue
       else
         Countrykbd="${Result}"

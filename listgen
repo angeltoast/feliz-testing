@@ -358,11 +358,13 @@ listgen2() { # Advanced menuing function with extended descriptions
   done
 }
 
-listgenx_prep() { # This function prepares the variables
-                  # Calling function can send optional 'Headline' string as
-                  # $1, to appear at the top of the screen, and an optional 'Message' as
-                  # $2, to appear at the bottom of the screen. $3, $4 and $5 are paging advice
-  tput cnorm          # Ensure cursor is visible
+listgenx() { # The calling function creates temp.file before calling listgenx
+             # The input.file must be one record per line
+             # Calling function can send an optional 'Headline' string as $1
+             # to appear at the top of the screen, and an optional 'Message' as $2
+             # to appear at the bottom of the screen. $3, $4 and $5 are paging advice
+  mv temp.file input.file # Rename the file to ensure that it is read every time
+  tput cnorm              # Ensure cursor is visible
   if [ "$1" ]; then
     Headline="$1"
   else
@@ -408,11 +410,6 @@ listgenx_prep() { # This function prepares the variables
   WidthOfColumns=2                        # Initialise for loop
   local Counter=0
   RecordNumber=0                          # Initialise record-counting variable
-}
-
-listgenx() { # The calling function creates input.file before calling listgenx
-             # input.file must be one record per line
-  listgenx_prep # First call prep function
   while [ $RecordNumber -le $total_items  ] # ....... Outer loop for entire file #####
   do
     TestLen=0                             # Set length-testing variable for column
@@ -436,6 +433,7 @@ listgenx() { # The calling function creates input.file before calling listgenx
     ColumnWidths[${NumberOfColumns}]=$TestLen     # Save the width of this column
     Column=""                                     # Empty the string for next column
   done # ........ End of file loop #####
+  rm input.file
 
   # Now build all pages, before proceeding to page-handling in SelectPage()
   declare -a Pages  # Each element of this array will hold a list of the columns forming the page
@@ -445,17 +443,17 @@ listgenx() { # The calling function creates input.file before calling listgenx
   PageWidth=4       # Start width accumulator with margins
   ColumnWidth=0
   LastPage=0
-
   while :
   do
     for (( column=1; column <= $NumberOfColumns; ++column )) # Build a page
     do
-      if [ $((PageWidth+ColumnWidth+4)) -ge $display_width ]; then # If adding another column would
-        PageWidths[${PageNumber}]=$PageWidth  # exceed page width ... save this page's width
+      if [ $((PageWidth+ColumnWidth+4)) -ge $display_width ]; then
+                                              # If adding another column would exceed
+        PageWidths[${PageNumber}]=$PageWidth  # page width ... save this page's width
         PageWidth=4                           # and reset variable for next page
         Pages[${PageNumber}]="${Page}"        # Copy the list of columns to Pages array
         PageNumber=$((PageNumber+1))          # Then set next page, advance page counter, and
-        Page=""                               # Empty string for next list of columns
+        Page=""                               # empty string for next list of columns
       fi
 
       ColumnWidth=0
@@ -527,13 +525,13 @@ SelectPage() {
       1) if [ $PageNumber -gt 1 ]; then   # Not on page 1
           PageNumber=$((PageNumber-1))    # < (left arrow) = previous page
         else
-          PageNumber=$PageNumber           # < (left arrow) = illegal call to previous page
+          PageNumber=$PageNumber          # < (left arrow) = illegal call to previous page
         fi
       ;;
       2) if [ $PageNumber -lt $LastPage ]; then   # Not on last page
         PageNumber=$((PageNumber+1))      # > (right arrow) = next page
       else
-        PageNumber=$PageNumber             # > (right arrow) = illegal call to next page
+        PageNumber=$PageNumber            # > (right arrow) = illegal call to next page
       fi
       ;;
       *) break                            # 0 : an item was selected or '' entered
@@ -558,6 +556,9 @@ PrintPage() {
     for column in ${ThisPage}                   # Outer loop iterates through columns for $ThisPage
     do                                          # getting the column numbers
       ColumnWidth=${ColumnWidths[${column}]}
+      if [ -z "$ColumnWidth" ]; then
+        continue
+      fi
       for item in ${Columns[${column}]}         # Inner loop iterates through contents of columns
       do
         tput cup $cursor_row $column_start      # Move cursor to print point
@@ -573,7 +574,6 @@ PrintPage() {
     done
 
     InstrLen=$((InstrLen/2))
-
     tput cup $((terminal_height-2)) $((terminal_centre-InstrLen)) # Position cursor at bottom of screen
     Echo "${Instructions}"
     tput cup $((bottom_row+1)) 0                    # Then back to row below bottom row
