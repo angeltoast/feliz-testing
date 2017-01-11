@@ -99,8 +99,9 @@ SetLanguage() {
   *) LanguageFile="${Result}.lan"
   esac
   # Some common translations
-  Translate "Feliz2 - Arch Linux installation script" # Translate listgen variables
+  Translate "Feliz2 - Arch Linux installation script"
   _Backtitle="$Result"
+  # listgen1/2 variables
   Translate "Ok"
   _Ok="$Result"
   Translate "Exit"
@@ -111,6 +112,15 @@ SetLanguage() {
   _Yes="$Result"
   Translate "No"
   _No="$Result"
+  # listgenx variables
+  Translate "Please enter the number of your selection"
+  _xNumber="$Result"
+  Translate "or ' ' to exit"
+  _xExit="$Result"
+  Translate "Enter '<' for previous page"
+  _xLeft="$Result"
+  Translate "Enter '>' for next page"
+  _xRight="$Result"
   # Partitioning
   Translate "/boot partition"
   _BootPartition="$Result"

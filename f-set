@@ -138,33 +138,25 @@ SetTimeZone() {
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   Translate "Please choose your nearest location"
   local _P1="$Result"
-  Translate "Please enter the number of your selection"
-  local _P2="$Result"
-  Translate "or ' ' to exit"
-  local _P3="$Result"
-  Translate "Enter '<' for previous page"
-  local _P4="$Result"
-  Translate "Enter '>' for next page"
-  local _P5="$Result"
   case $ZONE in
   "Arctic") Result="Longyearbyen"
   ;;
   "Antarctica" | "Australia") print_heading
-    PrintOne "$P1" ""
+    PrintOne "$_P1" ""
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$_Ok $_Exit"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Atlantic" | "Indian") print_heading
-    PrintOne "$P1" ""
+    PrintOne "$_P1" ""
     listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$_Ok $_Exit"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
   ;;
   "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
-    listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
+    listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -172,7 +164,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   "America") America
    ;;
   *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file  # List of subzones
-    listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
+    listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
@@ -205,7 +197,7 @@ America() {
   listgen1 "$SubList" "" "$_Ok $_Exit"
     case $Result in
   "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > temp.file
-     listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
+     listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
   ;;
   '' | "Exit") SetTimeZone
   ;;
@@ -300,16 +292,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
           grep "$l$" languages.list >> temp.file
         done
         Translate "Now please choose your language from this list"
-        local P1="$Result"
-        Translate "Please enter the number of your selection"
-        local P2="$Result"
-        Translate "or type 'Exit' to try again"
-        local P3="$Result"
-        Translate "Enter '<' for previous page"
-        local P4="$Result"
-        Translate "Enter '>' for next page"
-        local P5="$Result"
-        listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+        listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
       else
         local Counter=0
         localelist=""
@@ -381,16 +364,7 @@ AllLanguages() {
     Echo
     cat languages.list > temp.file         # Prepare file for listgenx to display all languages
     Translate "Now please choose your language from this list"
-    local P1="$Result"
-    Translate "Please enter the number of your selection"
-    local P2="$Result"
-    Translate "or type 'Exit' to try again"
-    local P3="$Result"
-    Translate "Enter '<' for previous page"
-    local P4="$Result"
-    Translate "Enter '>' for next page"
-    local P5="$Result"
-    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+    listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
     if [ $Result = "" ] || [ $Result = "Exit" ]; then
       SetTimeZone                                   # Start again from time zone
     else
@@ -434,25 +408,16 @@ getkeymap() {
       esac
       loadkeys ${Countrykbd} 2>> feliz.log
     ;;
-    *) # If the search found multiple matches
-      Rows=$(tput lines)                          # to ensure menu doesn't over-run
-      Rows=$((Rows-7))                            # Available (printable) rows
+    *) # If the search found multiple matches, check to ensure menu doesn't over-run
+      Rows=$(tput lines)
+      Rows=$((Rows-7))    # Available (printable) rows
       if [ $Found -ge $Rows ]; then
         for i in $ListKbs
         do
           echo $i >> temp.file
         done
         Translate "The following keyboards match your location. You can"
-        local P1="$Result"
-        Translate "Please enter the number of your selection"
-        local P2="$Result"
-        Translate "choose one, or Exit to search for alternatives"
-        local P3="$Result"
-        Translate "Enter '<' for previous page"
-        local P4="$Result"
-        Translate "Enter '>' for next page"
-        local P5="$Result"
-        listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+        listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
       else
         PrintOne "The following keyboards match your location. You can"
         PrintOne "choose one, or Exit to search for alternatives"
