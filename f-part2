@@ -809,7 +809,7 @@ ActionGuided() {  # Final step - Uses the variables set above to create partitio
     PrintOne "$_SwapPartition " ": ${SwapSize}"
     PrintOne "$_HomePartition :" "${HomeType} : ${HomeSize}"
     Echo
-    PrintOne "That's all the preparation done."
+    PrintOne "That's all the preparation done"
     PrintOne "Feliz will now create a new partition table"
     PrintOne "and set up the partitions you have defined"
     Echo

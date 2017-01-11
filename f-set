@@ -432,7 +432,8 @@ getkeymap() {
     Echo
     case $Found in
     0)  # If the search found no matches
-      read_timed "Sorry, no keyboards found based on your location" 2
+      Translate "Sorry, no keyboards found based on your location"
+      read_timed "$Result" 2
       SearchKeyboards
     ;;
     1)  # If the search found one match
@@ -884,7 +885,7 @@ FinalCheck() {
     if [ ${#AddPartList[@]} -gt 0 ]; then
       Counter=0
       Translate "Extra partitions"
-      PrintMany "3) $Result" "..."
+      PrintMany "3)  $Result" "..."
       for i in ${AddPartList[@]}
       do
         PrintMany "     ${AddPartMount[$Counter]} " ": ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"
