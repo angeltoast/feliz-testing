@@ -137,15 +137,15 @@ SetTimeZone() {
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   Translate "Please choose your nearest location"
-  local P1="$Result"
+  local _P1="$Result"
   Translate "Please enter the number of your selection"
-  local P2="$Result"
+  local _P2="$Result"
   Translate "or ' ' to exit"
-  local P3="$Result"
+  local _P3="$Result"
   Translate "Enter '<' for previous page"
-  local P4="$Result"
+  local _P4="$Result"
   Translate "Enter '>' for next page"
-  local P5="$Result"
+  local _P5="$Result"
   case $ZONE in
   "Arctic") Result="Longyearbyen"
   ;;
@@ -164,7 +164,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
     fi
   ;;
   "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file
-    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+    listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
     rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
@@ -173,7 +173,7 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
   "America") America
    ;;
   *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > input.file  # List of subzones
-    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+    listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
     rm input.file
     if [ $Result = "Exit" ] || [ $Result = "" ]; then
       SetTimeZone
@@ -207,17 +207,7 @@ America() {
   listgen1 "$SubList" "" "$_Ok $_Exit"
     case $Result in
   "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > input.file
-    Translate "Please choose your nearest location" # Prepare for listgenx
-    local P1="$Result"
-    Translate "Please enter the number of your selection"
-    local P2="$Result"
-    Translate "or ' ' to exit"
-    local P3="$Result"
-    Translate "Enter '<' for previous page"
-    local P4="$Result"
-    Translate "Enter '>' for next page"
-    local P5="$Result"
-    listgenx "$P1" "$P2" "$P3" "$P4" "$P5"
+     listgenx "$_P1" "$_P2" "$_P3" "$_P4" "$_P5"
   ;;
   '' | "Exit") SetTimeZone
   ;;

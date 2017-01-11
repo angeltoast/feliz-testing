@@ -170,7 +170,7 @@ or, to allocate all the remaining space, enter: 100%
 There is space for a
 Swap can be anything from 512MiB upwards but
 it is not necessary to exceed 4GiB
-You may want to leave some room for a /home partition
+You may want to leave room for a /home partition
 There is just space for a
 /boot partition
 Feliz will now create a new partition table

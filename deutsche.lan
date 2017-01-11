@@ -1,4 +1,4 @@
-# Deutsche Sprachdatei von Google Übersetzer & Elizabeth Audrey Mills (elizabeth@itsliz.net)
+# Deutsche Sprachdatei von Google Translate & Elizabeth Audrey Mills (elizabeth@itsliz.net)
 Feliz2 - Arch Linux-Installationsskript
 Wählen Sie Ihren Kernel
 Wähle einen Gegenstand
@@ -34,7 +34,7 @@ Wollen Sie das akzeptieren? Wählen Sie Nein, um nach Alternativen zu suchen
 Die folgenden Tastaturen passen zu Ihrem Standort. Sie können
 Wählen Sie eine Option aus, oder beenden Sie, um nach Alternativen zu suchen
 Wenn Sie den Code für Ihr Tastatur-Layout kennen, geben Sie bitte ein
-es jetzt. Wenn nicht, versuchen Sie, eine Abkürzung für zwei Buchstaben einzugeben
+Es jetzt, oder versuchen Sie es mit einer Abkürzung von zwei Buchstaben
 Für Ihr Land oder Ihre Sprache und eine Liste wird angezeigt
 Alternativ geben Sie 'Exit' ein, um erneut zu starten
 Wählen Sie Ihre Tastatur aus, oder beenden Sie, um es erneut zu versuchen
@@ -150,7 +150,7 @@ Ihr Gerät hat nur
 Dies ist nicht genug für eine Installation
 Dies ist nur genug für eine grundlegende
 Aber Sie sollten nur Licht Anwendungen wählen
-Und Sie können während der Installation oder zu einem späteren Zeitpunkt keinen Speicherplatz mehr haben
+Und Sie können während der Installation oder später nicht mehr arbeiten
 Ihr Gerät hat
 Das ist genug
 Du hast
@@ -179,7 +179,7 @@ Partitionierung erfolgreich
 Diese Funktion ist auf die Erstellung /root, /swap und /home beschränkt
 M = Megabytes, G = Gigabytes
 xxx free
-A /root-Partition ist erforderlich
+A /Root-Partition ist erforderlich
 Zugewiesen /root
 /Root-Partition
 Im Allgemeinen nicht weniger als 1GiB
@@ -203,7 +203,7 @@ Passwörter stimmen nicht überein. Versuch es noch einmal
 Herzlichen Glückwunsch, die Installation ist abgeschlossen
 Herunterfahren Neustart
 /Home-Partition
-/Austauschen
+/Swap-Partition
 Für den Swap ist keine Rückstellung vorgesehen
 Zusätzliche Trennwände
 Es wurden keine zusätzlichen Partitionen zugeordnet
@@ -295,7 +295,7 @@ Zum Öffnen von Anwendungen und Verwalten von Fenstern
 Bedienfeld
 Afrika
 Amerika
-Der Antarktis
+Der_Antarktis
 Arktis
 Asien
 atlantisch

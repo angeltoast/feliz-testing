@@ -301,7 +301,7 @@ EasyRoot() { # Variables: RootSize, RootType
     Echo
     PrintOne "A partition is needed for /root"
     PrintOne "You can use all the remaining space on the device, if you wish"
-    PrintOne "although you may want to leave some room for a /swap partition"
+    PrintOne "although you may want to leave room for a /swap partition"
     PrintOne "and perhaps also a /home partition"
     PrintOne "The /root partition should not be less than 8GiB"
     PrintOne "ideally more, up to 20GiB"
@@ -353,7 +353,7 @@ EasySwap() { # Variables: SwapSize
       PrintOne "$Result $_SwapPartition"
       PrintOne "Swap can be anything from 512MiB upwards but"
       PrintOne "it is not necessary to exceed 4GiB"
-      PrintOne "You may want to leave some room for a /home partition"
+      PrintOne "You may want to leave room for a /home partition"
       Echo
     elif [ ${FreeSpace} -gt 5 ]; then
       Translate "There is space for a"
@@ -702,7 +702,7 @@ GuidedSwap() { # Variables: SwapSize
       PrintOne "$Result" " $_SwapPartition"
       PrintOne "Swap can be anything from 512MiB upwards but"
       PrintOne "it is not necessary to exceed 4GiB"
-      PrintOne "You may want to leave some room for a home partition"
+      PrintOne "You may want to leave room for a /home partition"
       Echo
     elif [ ${FreeSpace} -gt 5 ]; then
       Translate "There is space for a"
@@ -710,7 +710,7 @@ GuidedSwap() { # Variables: SwapSize
       PrintOne "Swap can be anything from 512MiB upwards but"
       PrintOne "it is not necessary to exceed 4GiB"
       PrintOne "You can use all the remaining space on the device, if you wish"
-      PrintOne "You may want to leave some room for a home partition"
+      PrintOne "You may want to leave room for a /home partition"
       Echo
     else
       Translate "There is just space for a"
