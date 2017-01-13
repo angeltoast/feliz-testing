@@ -130,7 +130,7 @@ MountPartitions() {
       mkfs.btrfs -f ${id} 2>> feliz.log &>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
     elif [ ${AddPartType[$Counter]} = "xfs" ]; then
       mkfs.xfs -f ${id} 2>> feliz.log                   # eg: mkfs.xfs -f /dev/sda2
-    elif [ ${AddPartType[$Counter]} != "" ]; then
+    elif [ ${AddPartType[$Counter]} != "" ]; then       # If no type, do not format
       Partition=${id: -4}                               # Last 4 characters of ${id}
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then

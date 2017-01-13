@@ -444,16 +444,20 @@ select_filesystem() { # User chooses filesystem from list in global variable ${T
   PrintOne "$Result" "${Partition}"
   PrintOne "It is not recommended to mix the btrfs file-system with others"
   Echo
-  listgen1 "${TypeList}" "" "$_Ok"
-  for i in ${TypeList}
-  do
-    Counter=$((Counter+1))
-    if [ $Counter -eq $Response ]
-    then
-      PartitionType=$i
-      break
-    fi
-  done
+  listgen1 "${TypeList}" "" "$_Ok $_Exit"
+  if [ "$Result" = "$_Exit" ]; then
+    PartitionType=""
+  else
+    for i in ${TypeList}
+    do
+      Counter=$((Counter+1))
+      if [ $Counter -eq $Response ]
+      then
+        PartitionType=$i
+        break
+      fi
+    done
+  fi
 }
 
 EditLabel() {
@@ -517,16 +521,16 @@ AllocateRoot() {
       fi
       # Now select a filesystem
       select_filesystem
-      if [ -z ${PartitionType} ]
-      then
-        RootType="ext4"
-      else
-        RootType="${PartitionType}"
+    #  if [ -z ${PartitionType} ]
+    #  then
+    #    RootType="ext4"
+    #  else
+        RootType="${PartitionType}" # PartitionType can be empty (partition will not be formatted)
         Label="${Labelled[${PassPart}]}"
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      fi
+    #  fi
       # break             # Debug
     else
       Remaining="$Remaining $i" # Add next available partition
@@ -572,7 +576,7 @@ AllocateSwap() {
   Echo
   listgen2 "$PickFrom" "" "$_Ok $_Exit" "CopyArray"
   Reply=$Response # Number of selected item
-  if [ "$Result" ] && [ "$Result" != "Swapfile" ] && [ "$Result" != "Exit" ]; then # Short ID of item
+  if [ "$Result" ] && [ "$Result" != "Swapfile" ] && [ "$Result" != "$_Exit" ]; then # Short ID of item
     PassPart=${Result:0:4}
   fi
   Echo
@@ -583,7 +587,7 @@ AllocateSwap() {
     if [ $Counter -eq $Reply ]
     then
       case $i in
-        "Exit") SwapPartition=""
+        "$_Exit") SwapPartition=""
               break
         ;;
         "Swapfile") Echo
@@ -604,9 +608,9 @@ AllocateSwap() {
             Echo
             Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
             case $Response in
-              "1" | "Y" | "y") MakeSwap="Y"
+              "1" | "$_Yes" | "y") MakeSwap="Y"
               ;;
-              "2" | "N" | "n") MakeSwap="N"
+              "2" | "$_No" | "n") MakeSwap="N"
               ;;
               *) MakeSwap="Y"
             esac
@@ -619,7 +623,7 @@ AllocateSwap() {
           UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
       esac
     else
-      if [ $i != "Exit" ] && [ $i != Swapfile ]; then
+      if [ $i != "$_Exit" ] && [ $i != Swapfile ]; then
         Remaining="$Remaining $i" # Add next available partition
       fi
     fi
@@ -646,7 +650,7 @@ NoPartitions() { # There are no unallocated partitions
   Echo
   Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
   case $Response in
-    "1" | "Y" | "y") SetSwapFile
+    "1" | "$_Yes" | "y") SetSwapFile
       SwapPartition=""
      ;;
     *) SwapPartition=""
@@ -691,7 +695,7 @@ MorePartitions() {
     PrintOne "or choose Exit to finish partitioning"
     Echo
     listgen2 "$PartitionList" "" "$_Ok $_Exit" "PartitionArray"
-    if [ $Result != "Exit" ]; then
+    if [ $Result != "$_Exit" ]; then
       PassPart=${Result:0:4}
       SetLabel "$Result"
       UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
@@ -701,20 +705,20 @@ MorePartitions() {
     do
       Partition=""
       PartitionType=""
-      if [ $Part = $Result ] && [ $Result != "Exit" ]; then
+      if [ $Part = $Result ] && [ $Result != "$_Exit" ]; then
         Partition="/dev/$Part"
         MakePartition # Call complete details
         Label="${Labelled[${PassPart}]}"
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      elif [ $Part != "Exit" ]; then   # Part is not selected and not 'Exit'
+      elif [ "$Part" != "$_Exit" ]; then   # Part is not selected and not 'Exit'
         Remaining="$Remaining $Part" # Add unused partition to temp list
         AddedToRemaining=$(($AddedToRemaining+1))
       fi
     done
     PartitionList=$Remaining  # Replace original PartitionList with temp list
-    if [ $Result = "Exit" ]; then
+    if [ "$Result" = "$_Exit" ]; then
       Elements=0
       break
     else
