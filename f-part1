@@ -94,7 +94,7 @@ CheckParts() {
     Echo
     BuildPartitionLists                   # Generate an array of partitions - this is a first call
     Counter=0
-    for part in ${PartitionList}
+    for part in ${PartitionList}          # Now display them (up to 5 partitions)
     do
       if [ $Counter -eq 0 ]; then
         Line="${PartitionArray[$Counter]}"
