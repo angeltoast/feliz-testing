@@ -57,6 +57,9 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
+    print_heading
+    DisplayPartitions                   # Display the list again
+    Echo
     listgen2 "$EFIPartitioningOptions" "" "$_Ok $_Exit" "LongPartE"
     Proceed=$Response
     Echo
@@ -578,8 +581,6 @@ ActionEasyPart() { # EFI Final step. Uses the variables set above to create GPT 
   PrintMany "" "$ShowPart3"
   PrintMany "" "$ShowPart4"
   Echo
-  PrintOne "You will have the opportunity to review these later"
-  Echo
   Translate "Press Enter to continue"
   Buttons "Yes/No" "$_Ok" "$Result"
 }
@@ -915,8 +916,6 @@ ActionGuided() { # Final BIOS step - Uses the variables set above to create part
   PrintOne "" "$ShowPart1"
   PrintMany "" "$ShowPart2"
   PrintMany "" "$ShowPart3"
-  Echo
-  PrintOne "You will have the opportunity to review these later"
   Echo
   Translate "Press Enter to continue"
   Buttons "Yes/No" "$_Ok"

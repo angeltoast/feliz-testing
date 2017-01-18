@@ -136,39 +136,48 @@ SetTimeZone() {
 }
 
 SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
-  Translate "Please choose your nearest location"
-  local _P1="$Result"
-  case $ZONE in
-  "Arctic") Result="Longyearbyen"
-  ;;
-  "Antarctica" | "Australia") print_heading
-    PrintOne "$_P1" ""
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$_Ok $_Exit"
-    if [ $Result = "Exit" ] || [ $Result = "" ]; then
-      SetTimeZone
-    fi
-  ;;
-  "Atlantic" | "Indian") print_heading
-    PrintOne "$_P1" ""
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)" "" "$_Ok $_Exit"
-    if [ $Result = "Exit" ] || [ $Result = "" ]; then
-      SetTimeZone
-    fi
-  ;;
-  "Pacific") timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
-    listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ $Result = "Exit" ] || [ $Result = "" ]; then
-      SetTimeZone
-    fi
-  ;;
-  "America") America
-   ;;
-  *) timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file  # List of subzones
-    listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ $Result = "Exit" ] || [ $Result = "" ]; then
-      SetTimeZone
-    fi
+  SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')
+  Ocean=0
+  SUBZONE=""
+  while [ -z $SUBZONE ]
+  do
+    case $ZONE in
+    "Antarctica") SelectSubzone
+    ;;
+    "Arctic") SUBZONE="Longyearbyen"
+    ;;
+    "Atlantic") Ocean=1
+      SelectSubzone
+    ;;
+    "Australia") Ocean=1
+      SelectSubzone
+    ;;
+    "Indian") Ocean=1
+      SelectSubzone
+    ;;
+    "Pacific") Ocean=1
+      SelectSubzone
+    ;;
+    "America") America
+     ;;
+    *)  SelectSubzone
+    esac
+  done
+}
+
+SelectSubzone() {
+  print_heading
+  case $Ocean in
+  1) PrintOne "Now we need to find your location in the $ZONE"
+      PrintOne "ocean. Please enter the first letter of the island"
+      PrintOne "or group where you are located."
+    ;;
+  *) PrintOne "Now we need to find your location in $ZONE"
+    PrintOne "Please enter the first letter of your nearest major city"
   esac
+  PrintOne "... or leave blank to select another world zone"
+  Echo
+  FindCity
 }
 
 America() {
@@ -178,7 +187,7 @@ America() {
   SubList=""      # Start an empty list
   Previous=""     # Prepare to save previous record
   local Toggle="First"
-  for i in $(timedatectl list-timezones | grep "$ZONE/" | cut -d'/' -f2)
+  for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
   do
     if [ $Previous ] && [ $i = $Previous ] && [ $Toggle = "First" ]; then # First reccurance
       SubList="$SubList $i"
@@ -191,23 +200,82 @@ America() {
     fi
   done
   SubGroup=""
-  Translate "None_of_these"
-  _None_of_these="$Result"
-  SubList="$SubList $_None_of_these"        # Add a decline option
-  listgen1 "$SubList" "" "$_Ok $_Exit"
-    case $Result in
-  "$_None_of_these") timedatectl list-timezones | grep $ZONE | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2 > temp.file
-     listgenx "$_P1" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
+  SubList="$SubList None_of_these"        # Add a decline option
+  listgen1 "$SubList"
+  case $Result in
+  "None_of_these") SelectSubzone          # No subgroup, call general city function
   ;;
-  '' | "Exit") SetTimeZone
+  "Exit") SetTimeZone
   ;;
-  *) SubGroup=$Result                     # Because America has some cities in subgroups
-    print_heading
-    PrintOne "Please choose your nearest location" "or Exit to go back"
-    listgen1 "$(timedatectl list-timezones | grep ${ZONE}/${SubGroup} | cut -d'/' -f3)" "" "$_Ok $_Exit"
-    if [ $Result = "" ] || [ $Result = "Exit" ]; then
-      SetTimeZone
+  *) SubGroup=$Result                     # Save subgroup for next function
+    ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
+    DoCities                              # City function for subgroups
+  esac
+}
+
+FindCity() {  # Called by SelectSubzone
+  TPread "Please enter the initial letter: "
+  Echo
+  if [ -z ${Response} ]
+  then
+    SUBZONE=""
+    SetTimeZone
+  else
+    Response="${Response:0:1}"        # In case user enters more than one letter
+    Zone2="${Response^^}"             # Convert the first letter to upper case
+  fi
+  subzones=""
+  local Rows=$(tput lines)            # Used to allow for longer (numbered) lists
+  Rows=$((Rows-6))                    # Available (printable) rows
+  local Counter=0
+  for x in ${SubZones[@]}             # Search long list of subzones that match ZONE
+  do                                  # to find those that start with user's letter
+    if [ ${x:0:1} = ${Zone2} ]; then  # If first character in subzone matches ...
+      subzones="$subzones $x"         # Save to list
+      Counter=$((Counter+1))
     fi
+  done
+  if [ ${Counter} -eq 0 ]; then       # None found
+    not_found
+    continue
+  fi
+  print_heading
+  PrintOne "Now choose your nearest location from this list"
+  PrintOne "... or [ Exit ] to try again if it is not there"
+  if [ $Counter -ge $Rows ]; then
+    listgenx "$subzones" "" ""
+  else
+    listgen1 "$subzones" "nomessage" ""
+  fi
+  case $Result in
+    "Exit") SUBZONE=""
+    ;;
+    *) SUBZONE=$Result
+  esac
+}
+
+DoCities() { # Specifically for America, which has subgroups
+  print_heading
+  Cities=""
+  case $SubGroup in
+  "") # No subgroup selected. Here we are working on the second field - cities without a subgroup
+      for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
+      do
+        Cities="$Cities $i"
+      done
+  ;;
+  *) # Here we are working on the third field - cities within the chosen subgroup
+      for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $3}')
+      do
+        Cities="$Cities $i"
+      done
+  esac
+  PrintOne "Please select a city from this list"
+  listgen1 "$Cities"
+  case $Result in
+  "Exit") SetTimeZone
+  ;;
+  *) SUBZONE=$Result
   esac
 }
 
@@ -819,17 +887,17 @@ FinalCheck() {
     PrintOne "before we move on to partitioning your device"
     Echo
     Translate "Zone/subZone will be"
-    PrintMany "1)  $Result" "$ZONE/$SUBZONE"
+    PrintMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"
-    PrintMany "2)  $Result" "$CountryLocale"
+    PrintMany "2) $Result" "$CountryLocale"
     Translate "Keyboard is"
-    PrintMany "3)  $Result" "$Countrykbd"
+    PrintMany "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
       "VirtualBox") Translate "Virtualbox guest utilities will be installed"
-      PrintMany "4) " "$Result"
+      PrintMany "4)" "$Result"
       ;;
       *) Translate "Virtualbox guest utilities will not be installed"
-      PrintMany "4) " "$Result"
+      PrintMany "4)" "$Result"
     esac
     if [ -z $DisplayManager ]; then
       Translate "No Display Manager selected"
