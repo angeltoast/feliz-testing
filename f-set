@@ -201,7 +201,7 @@ America() {
   done
   SubGroup=""
   SubList="$SubList None_of_these"        # Add a decline option
-  listgen1 "$SubList"
+  listgen1 "$SubList" "" "$_Ok"
   case $Result in
   "None_of_these") SelectSubzone          # No subgroup, call general city function
   ;;
@@ -239,13 +239,16 @@ FindCity() {  # Called by SelectSubzone
     not_found
     continue
   fi
-  print_heading
-  PrintOne "Now choose your nearest location from this list"
-  PrintOne "... or [ Exit ] to try again if it is not there"
+
   if [ $Counter -ge $Rows ]; then
-    listgenx "$subzones" "" ""
+    echo "$subzones" > temp.file
+    Translate "Now choose your nearest location from this list"
+    listgenx "$Result" "" ""
   else
-    listgen1 "$subzones" "nomessage" ""
+    print_heading
+    PrintOne "Now choose your nearest location from this list"
+    PrintOne "... or [ Exit ] to try again if it is not there"
+    listgen1 "$subzones" "nomessage" "$_Ok $_Exit"
   fi
   case $Result in
     "Exit") SUBZONE=""
@@ -271,7 +274,7 @@ DoCities() { # Specifically for America, which has subgroups
       done
   esac
   PrintOne "Please select a city from this list"
-  listgen1 "$Cities"
+  listgen1 "$Cities" "" "$_Ok $_Exit"
   case $Result in
   "Exit") SetTimeZone
   ;;
