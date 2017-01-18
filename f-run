@@ -376,10 +376,10 @@ SetRootPassword() {
   while [ $Repeat = "Y" ]
   do
     Translate "Enter a password for"
-    read -s -p "$Result root: " Pass1
+    read -s -p "               $Result root: " Pass1
     Echo
     Translate "Re-enter a password for"
-    read -s -p "$Result root: " Pass2
+    read -s -p "               $Result root: " Pass2
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
@@ -388,8 +388,9 @@ SetRootPassword() {
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-     printf "$Pass1\n$Pass2" | arch-chroot "passwd" &>/dev/null
-+    unset Pass1 Pass2 2>> feliz.log
+     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+     arch_chroot "passwd root" < /tmp/.passwd >/dev/null
+     rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
       print_heading
@@ -404,10 +405,10 @@ SetUserPassword() {
   while [ $Repeat = "Y" ]
   do
     Translate "Enter a password for"
-    read -s -p "$Result $UserName: " Pass1
+    read -s -p "               $Result $UserName: " Pass1
     Echo
     Translate "Re-enter a password for"
-    read -s -p "$Result $UserName: " Pass2
+    read -s -p "               $Result $UserName: " Pass2
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
@@ -416,8 +417,9 @@ SetUserPassword() {
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-      printf "$Pass1\n$Pass2" | arch-chroot "passwd ${UserName}" &>/dev/null
-+     unset Pass1 Pass2 2>> feliz.log
+      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
+      rm /tmp/.passwd 2>> feliz.log
       Repeat="N"
     else
       print_heading

@@ -247,7 +247,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
           SetTimeZone
         else
           Item=$(grep "${Language}:" languages.list)
-          Item=${Item: -2:2}
+          Item=${Item: -2:2}                      # Last two characters
           CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
           CountryCode=${CountryLocale:3:2}        # 2 characters from position 3
         fi

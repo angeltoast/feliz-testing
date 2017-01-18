@@ -95,10 +95,13 @@ fi
 SetKernel                              # Select kernel and device for Grub
 
 if [ ${UEFI} -eq 1 ]; then             # If installing in EFI
-  GrubDevice="EFI"                     # Inform grub routine at line #129
-elif [ ${AutoPart} -eq 0 ]; then       # If not auto-artition
+  GrubDevice="EFI"                     # Set variable
+elif [ ${AutoPart} -eq 0 ]; then       # If BIOS and not auto-artition
   SetGrubDevice                        # User chooses grub partition
 fi
+
+print_heading
+PrintOne "Preparations complete. Entering automatic installation phase"
 
 # ...............................................................................
 #          Installation phase - no further user intervention from here          .

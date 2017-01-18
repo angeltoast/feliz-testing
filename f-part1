@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 10th January 2017
+# Revision date: 18th January 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,8 +37,7 @@
 # EditLabel           437       SetLabel            792
 # -----------------------      ------------------------
 
-CheckParts() {
-# First test for existing partitions
+CheckParts() {  # Test for existing partitions
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
   local Counter=0
   for i in $ShowPartitions
@@ -86,55 +85,44 @@ CheckParts() {
       done
       PARTITIONS=${Counter}
     done
-    BuildPartitionLists                   # Generate an array of partitions - this is a first call
-  else                                    # Partitions exist
+    BuildPartitionLists                 # Generate an array of partitions - this is a first call
+  else                                  # Partitions exist
     print_heading
     PrintOne "Here is a list of available partitions"
     Echo
-    BuildPartitionLists                   # Generate an array of partitions - this is a first call
-    Counter=0
-    for part in ${PartitionList}          # Now display them (up to 5 partitions)
-    do
-      if [ $Counter -eq 0 ]; then
-        Line="${PartitionArray[$Counter]}"
-      elif [ $Counter -lt 2 ]; then
-        Line="$Line ... ${PartitionArray[$Counter]}"
-      elif [ $Counter -eq 2 ]; then
-        PrintOne "" "$Line"
-        Line="${PartitionArray[$Counter]}"
-      elif [ $Counter -lt 5 ]; then
-        Line="$Line ... ${PartitionArray[$Counter]}"
-      else
-        PrintOne "" "$Line"
-      fi
-      Counter=$((Counter+1))
-    done
+    
+    BuildPartitionLists                 # Generate an array of partitions - this is a first call
+    DisplayPartitions                   # Display the list
     Echo
+    PrintOne "Press any key"
+    
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
-      PrintOne "There is a guided manual partitioning option"
-      PrintOne "!will destroy any existing partitions!"
-      PrintOne "Feliz can partition the device automatically"
-      PrintOne "!will destroy any existing partitions!"
-      PrintOne "Choose 'Leave it as it is' to use the existing partitions"
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
-      PrintOne "'cfdisk' is available to edit them manually"
-      PrintOne "There is a guided manual partitioning option"
-      PrintOne "!will destroy any existing partitions!"
-      PrintOne "Feliz can partition the device automatically"
-      PrintOne "!will destroy any existing partitions!"
-      PrintOne "Choose 'Leave it as it is' to use the existing partitions"
       Partitioning                      # BIOS partitioning options
     fi
     MakePartitionList                   # Regenerate the array of partitions
   fi
 }
 
-BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display, then to prepare partition arrays for selection for root, swap and others
+DisplayPartitions() {
+  Counter=0
+  for part in ${PartitionList}
+  do
+    if [ $Counter = 0 ]; then
+      PrintOne "${PartitionArray[$Counter]}"
+    else
+      PrintMany "${PartitionArray[$Counter]}"
+    fi
+    Counter=$((Counter+1))
+  done
+}
 
+BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display
+                        # Then to prepare partition arrays for selection for root, swap and others
   # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
     # First an array of all partitions up to sd*99
-    #                           |includes word | select 1st field | cut /dev/ | remove colon
+    #                           |includes TYPE | select 1st field | ignore /dev/
     ListTypeIDs=$(blkid /dev/sd* | grep ' TYPE' | cut -d':' -f1 | cut -d'/' -f3) #2>/dev/null
     # Then a matching array of types
     #                          |includes TYPE |  select last field   | remove TYPE & quotes
@@ -245,12 +233,9 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
       1) cfdisk 2>> feliz.log
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
-        partprobe 2>> feliz.log #Inform kernel of changes to partitions
+        partprobe 2>> feliz.log # Inform kernel of changes to partitions
         tput sgr0               # Reset colour
-        ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-        if [ ! "$ShowPartitions" ]; then
-          CheckParts            # If no partitions, restart
-        fi
+        CheckParts              # Restart partitioning
       ;;
       2) GuidedMBR
       ;;
@@ -326,21 +311,6 @@ AutoWarning() {
     Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
     case $Response in
       "1" | "Y" | "y") autopart   # Consolidated auto-partitioning function
-        print_heading
-        Translate "successful"
-        P2="$Result"
-        Translate "Partitioning of"
-        PrintOne "$Result" "${GrubDevice} $P2"
-        Echo
-        PrintMany "" "$ShowPart1"
-        PrintMany "" "$ShowPart2"
-        PrintMany "" "$ShowPart3"
-        PrintMany "" "$ShowPart4"
-        Echo
-        PrintOne "You will have the opportunity to review these later"
-        Echo
-        PrintOne "Press any key"
-        read -n1
         break
         ;;
       "2" | "N" | "n") UseDisk=""
@@ -352,37 +322,39 @@ AutoWarning() {
 }
 
 partition_maker() { # Called from autopart()
-  # $1 = StartPoint; $2 (if exists) = Swap; $3 = Root (set boot on for BIOS); $4 (if exists) = Home
-  local StartPoint=$1
-  if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
-    local MountDevice=2                             # Next partition after /boot = sda2
-  else
-    local MountDevice=1                             # In BIOS = first partition = sda1
-  fi
-  if [ $2 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${2}" # /swap
-    SwapPartition="${GrubDevice}1"                        # BIOS=/dev/sda1 : EFI=/dev/sda2
-    MakeSwap="Y"
-    StartPoint=$2                                   # Reset startpoint for root
-    MountDevice=$((MountDevice+1))                  # Advance partition numbering
-  fi
 
-  Parted "mkpart primary ext4 ${StartPoint} ${3}"   # /root
-  if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
-    Parted "set ${MountDevice} boot on"             # Bootable
+# Change to: $1 = StartPoint; $2 = Root (set boot on for BIOS); $3 (if exists) = Home ; $4 (if exists) = Swap
+  
+  local StartPoint=$1
+  
+  # Set the device to be used to 'set x boot on'
+  if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
+    local MountDevice=2                             # Next partition after /boot = [sda]2
+  else
+    local MountDevice=1                             # In BIOS = first partition = [sda]1
   fi
-  RootPartition="${GrubDevice}${MountDevice}"       # BIOS+Swap=/dev/sda2 : EFI+Swap=/dev/sda3
-                                                    # BIOS-Swap=/dev/sda1 : EFI-Swap=/dev/sda2
+ 
+  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # /root
+  Parted "set ${MountDevice} boot on"               # Bootable
+  RootPartition="${GrubDevice}${MountDevice}"       # Save
   RootType="ext4"
-  StartPoint=$3                                     # Reset startpoint for home
+  StartPoint=$2                                     # Reset startpoint for /home or /swap
   MountDevice=$((MountDevice+1))                    # Advance partition numbering
 
-  if [ $4 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${4}" # /home
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3 or 4 | add to
+  if [ $3 ]; then
+    Parted "mkpart primary ext4 ${StartPoint} ${3}" # /home
+    AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3      | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"
+    StartPoint=$3                                   # Reset startpoint for /swap
+    MountDevice=$((MountDevice+1))                  # Advance partition numbering
+  fi
+ 
+  if [ $4 ]; then
+    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # /swap
+    SwapPartition="${GrubDevice}${MountDevice}"
+    MakeSwap="Y"
   fi
 
 }
@@ -393,6 +365,8 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
+
+  # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
@@ -406,32 +380,26 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     StartPoint="1MiB"                               # For next partition
   fi
 
-  if [ $DiskSize -ge 40 ]; then                     # ------ /swap, /root and /home partitions ------
-    partition_maker "${StartPoint}" "4GiB" "19GiB" "100%"
-  elif [ $DiskSize -ge 30 ]; then                   # ------ /swap, /root and /home partitions ------
-    partition_maker "${StartPoint}" "3GiB" "15GiB" "100%"
-  elif [ $DiskSize -ge 18 ]; then                   # ------  /swap and /root partitions only -------
-    partition_maker "${StartPoint}" "2GiB" "100%" ""
-  elif [ $DiskSize -gt 10 ]; then                   # ------  /swap and /root partitions only -------
-    partition_maker "${StartPoint}" "1GiB" "100%" ""
+  # Decide partition sizes
+  if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
+    HomeSize=$(DiskSize-19-4)
+    partition_maker "${StartPoint}" "19GiB" "${HomeSize}GiB" "100%"
+  elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
+    HomeSize=$(DiskSize-15-3)
+    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
+  elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
+    RootSize=$(DiskSize-2)
+    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
+  elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
+    RootSize=$(DiskSize-1)
+    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
   else                                              # ------ Swap file and /root partition only -----
-    partition_maker "${StartPoint}" "" "100%" ""
+    partition_maker "${StartPoint}" "100%" "" ""
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  partprobe 2>> feliz.log                           #Inform kernel of changes to partitions
+  partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   tput sgr0                                         # Reset colour
-  print_heading
-  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
-    ShowPart1="$_BootPartition : `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-    ShowPart2="$_SwapPartition : `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-    ShowPart3="$_RootPartition : `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-    ShowPart4="Other: `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
-  else
-    ShowPart1="$_SwapPartition : `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-    ShowPart2="$_RootPartition : `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-    ShowPart3="Other: `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-  fi
   AutoPart=1                                        # Set auto-partition flag to 'on'
 }
 
@@ -483,11 +451,10 @@ EditLabel() {
   fi
 }
 
-AllocateRoot() {
-  # Display partitions for user-selection
-  # Uses list of all available partitions in PartitionList
+AllocateRoot() {  # Manual allocation of an existing partition as /root
+  # Display partitions for user-selection (uses list of all available partitions in PartitionList
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
-    AllocateEFI                   # First allocate the /boot partition
+    AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
   fi
   print_heading
   Remaining=""
@@ -498,9 +465,11 @@ AllocateRoot() {
   Echo
   listgen2 "$PartitionList" "" "$_Ok" "PartitionArray"
   Reply=$Response
-  PassPart=${Result:0:4}
+  PassPart=${Result:0:4}          # eg: sda4
+  MountDevice=${PassPart:3:2}     # Save the device number for 'set x boot on'
+ 
   SetLabel "$PassPart"
-  UpdateArray "$PassPart" # Remove the selected partition from $PartitionArray[]
+  UpdateArray "$PassPart"         # Remove the selected partition from $PartitionArray[]
   Counter=0
   for i in ${PartitionList}
   do
@@ -518,23 +487,21 @@ AllocateRoot() {
       fi
       # Now select a filesystem
       select_filesystem
-      RootType="${PartitionType}" # PartitionType can be empty (partition will not be formatted)
+      RootType="${PartitionType}"                   # PartitionType can be empty (will not be formatted)
       Label="${Labelled[${PassPart}]}"
       if [ -n "${Label}" ]; then
         EditLabel $PassPart
       fi
     else
-      Remaining="$Remaining $i" # Add next available partition
+      Remaining="$Remaining $i"                     # Add next available partition
     fi
   done
-  PartitionList=$Remaining      # Replace original PartitionList with remaining options
+  PartitionList=$Remaining                          # Replace original PartitionList with remaining options
+    
+  if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
+    Parted "set ${MountDevice} boot on"             # Make /root bootable
+  fi
 
-
-  # How is 'set x boot on' performed if partitions are selected manually?
-  # Perhaps code is needed here to do it?
-  # Make sure to differentiate between BIOS and EFI systems (/boot for EFI /root for BIOS)
-
-  
 }
 
 CheckPartition() {

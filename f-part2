@@ -29,13 +29,13 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
-# TestUEFI            43     EasyRoot            179     GuidedMBR          468
-# PartitioningEFI     57     EasySwap            219     GuidedRoot         507
-# AllocateEFI         86     EasyHome            284     GuidedSwap         545
-# EasyDevice          73     ActionEasyPart      328     GuidedHome         610
-# EasyDiskSize       108     WipeDevice          461     ActionGuided       653
-# EasyRecalc         135
-# EasyBoot           152
+# TestUEFI            43     EasyRoot            293     GuidedMBR          594
+# PartitioningEFI     57     EasySwap            338     GuidedRoot         507
+# EasyEFI            121     EasyHome            406     GuidedSwap         545
+# EasyDevice         162     ActionEasyPart      453     GuidedHome         610
+# EasyDiskSize       199     WipeDevice          587     ActionGuided       653
+# EasyRecalc         246
+# EasyBoot           262
 # -----------------------    ------------------------    -----------------------
 
 # 1) Assess environment
@@ -94,11 +94,14 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
   listgen2 "$PartitionList" "" "$_Ok $_Exit" "PartitionArray"
-  Reply=$Response
-  if [ $Result != "Exit" ]; then
+  Reply=$Response               # This will be the selected item in the list
+                                # (not necessarily the partition number)
+  if [ $Result != "$_Exit" ]; then
     PassPart=$Result
     SetLabel "$Result"
     UpdateArray                 # Remove the selected partition from $PartitionArray[]
+  else                          # Exit selected
+    CheckParts                  # Restart process
   fi
   Counter=0
   for i in ${PartitionList}
@@ -112,9 +115,10 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 		fi
 	done
   PartitionList=$Remaining			# Replace original PartitionList with remaining options
+  Parted "set 1 boot on"             # Make /root Bootable
 }
 
-EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each step
+EasyEFI() { # Main EFIfunction - Inform user of purpose, call each step
   EasyDevice              # Get details of device to use
   EasyDiskSize            # Get available space in MiB
   print_heading
@@ -155,7 +159,7 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
   ActionEasyPart          # Perform formatting and partitioning
 }
 
-EasyDevice() {            # Get details of device to use from all connected devices
+EasyDevice() { # EFI - Get details of device to use from all connected devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=0
@@ -192,7 +196,7 @@ EasyDevice() {            # Get details of device to use from all connected devi
   GrubDevice="/dev/${UseDisk}"  # Full path of selected device
 }
 
-EasyDiskSize() {                # Establish size of device in MiB
+EasyDiskSize() { # EFI - Establish size of device in MiB
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
   # 3) Remove last character for calculations
@@ -239,7 +243,7 @@ EasyDiskSize() {                # Establish size of device in MiB
   fi
 }
 
-EasyRecalc() {                          # Calculate remaining disk space
+EasyRecalc() {                          # EFI - Calculate remaining disk space
   local Passed=$1
   case ${Passed: -1} in
     "%") Calculator=$FreeSpace          # Allow for 100%
@@ -255,7 +259,7 @@ EasyRecalc() {                          # Calculate remaining disk space
   FreeSpace=$((FreeSpace-Calculator))
 }
 
-EasyBoot() { # Variables: BootSize
+EasyBoot() { # EFI - Set variable: BootSize
   LoopRepeat="Y"
   while [ ${LoopRepeat} = "Y" ]
   do
@@ -286,7 +290,7 @@ EasyBoot() { # Variables: BootSize
   done
 }
 
-EasyRoot() { # Variables: RootSize, RootType
+EasyRoot() { # EFI - Set variables: RootSize, RootType
   LoopRepeat="Y"
   FreeGigs=$((FreeSpace/1024))
   while [ ${LoopRepeat} = "Y" ]
@@ -331,7 +335,7 @@ EasyRoot() { # Variables: RootSize, RootType
   done
 }
 
-EasySwap() { # Variables: SwapSize
+EasySwap() { # EFI - Set variable: SwapSize
   # Clear display, show /boot and /root
   LoopRepeat="Y"
   FreeGigs=$((FreeSpace/1024))
@@ -399,7 +403,7 @@ EasySwap() { # Variables: SwapSize
   # If no space remains, offer swapfile, else create swap partition
 }
 
-EasyHome() { # Variables: HomeSize, HomeType
+EasyHome() { # EFI - Set variables: HomeSize, HomeType
   LoopRepeat="Y"
   FreeGigs=$((FreeSpace/1024))
   while [ ${LoopRepeat} = "Y" ]
@@ -446,7 +450,7 @@ EasyHome() { # Variables: HomeSize, HomeType
   done
 }
 
-ActionEasyPart() {  # Final step - Uses the variables set here to create partition table & all partitions
+ActionEasyPart() { # EFI Final step. Uses the variables set above to create GPT partition table & all partitions
   while :
   do                                # Get user approval
     print_heading
@@ -465,11 +469,11 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
     Echo
     Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
     case $Response in
-      "1" | "Y" | "y") WipeDevice   # Format the drive
+      "1" | "$_Yes") WipeDevice   # Format the drive
         Parted "mklabel gpt"        # Create EFI partition table
         break
        ;;
-      "2" | "N" | "n") UseDisk=""
+      "2" | "$_No") UseDisk=""
         CheckParts                  # Go right back to start
         ;;
         *) invalid_option
@@ -587,7 +591,7 @@ WipeDevice() {                # Format the drive for EFI
   tput sgr0                   # Reset colour
 }
 
-GuidedMBR() {                 # Main MBR function - Inform user of purpose, call each step
+GuidedMBR() { # Main MBR function - Inform user of purpose, call each step
   EasyDevice                  # Get details of device to use
   EasyDiskSize                # Get available space in MiB
   print_heading
@@ -631,7 +635,7 @@ GuidedMBR() {                 # Main MBR function - Inform user of purpose, call
   ActionGuided
 }
 
-GuidedRoot() { # Variables: RootSize, RootType
+GuidedRoot() { # BIOS - Set variables: RootSize, RootType
   LoopRepeat="Y"
   FreeGigs=$((FreeSpace/1024))
   while [ ${LoopRepeat} = "Y" ]
@@ -680,7 +684,7 @@ GuidedRoot() { # Variables: RootSize, RootType
   done
 }
 
-GuidedSwap() { # Variables: SwapSize
+GuidedSwap() { # BIOS - Set variable: SwapSize
   # Clear display, show /boot and /root
   LoopRepeat="Y"
   FreeGigs=$((FreeSpace/1024))
@@ -751,7 +755,7 @@ GuidedSwap() { # Variables: SwapSize
   # If no space remains, offer swapfile, else create swap partition
 }
 
-GuidedHome() { # Variables: HomeSize, HomeType
+GuidedHome() { # BIOS - Set variables: HomeSize, HomeType
   FreeGigs=$((FreeSpace/1024))
   while :
   do
@@ -799,9 +803,10 @@ GuidedHome() { # Variables: HomeSize, HomeType
   done
 }
 
-ActionGuided() {  # Final step - Uses the variables set above to create partition table & all partitions
+ActionGuided() { # Final BIOS step - Uses the variables set above to create partition table & all partitions
   while :
-  do                                  # Get user approval
+  do
+    # Get user approval
     print_heading
     PrintOne "$_RootPartition " ": ${RootType} : ${RootSize}"
     PrintOne "$_SwapPartition " ": ${SwapSize}"
