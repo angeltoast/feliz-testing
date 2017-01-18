@@ -148,13 +148,14 @@ InstallKernel() {   # Selected kernel and some other core systems
   LANG=C            # Temporary addition to overcome bug in Arch
 
   # Instead of updating the keys, try setting Siglevel to Never
-  sed -i '/\[options\]/a Siglevel = Never' /etc/pacman.conf
+  # sed -i '/\[options\]/a Siglevel = Never' /etc/pacman.conf
+  # Note: Firts tests of this failed - [option] Siglevel = Never not recognised.
 
-  # TPecho "Updating keys"
-  # pacman-db-upgrade
-  # pacman-key --init # And this, trying to solve keys issue
-  # pacman-key --populate archlinux
-  # pacman-key --refresh-keys
+  TPecho "Updating keys"
+  pacman-db-upgrade
+  pacman-key --init # And this, trying to solve keys issue
+  pacman-key --populate archlinux
+  pacman-key --refresh-keys
 
   case $Kernel in
   1) TPecho "Installing LTS kernel and core systems"
@@ -344,7 +345,7 @@ InstallLuxuries()
 UserAdd() {
   CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
   # If not already exist, create user
-  if [ -z ${CheckUsers} ]; then
+  if [ -z "${CheckUsers}" ]; then
     TPecho "Adding user '${UserName}' and setting up groups"
     arch_chroot "useradd ${UserName} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user

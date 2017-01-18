@@ -73,29 +73,29 @@ Saisissez le numéro de données à modifier
 Nom d'hôte (actuellement
 Si vous n'êtes pas certain de la partition, vous devez lire le Wiki Arch
 Il n'y a pas de partitions sur l'appareil et au moins
-Deux partitions sont nécessaires: une pour EFI / boot et
-Un pour /root. Une option pour le partitionnement manuel guidé
-Et la création d'une table de partition EFI a été ajoutée
-Ou vous pouvez quitter maintenant pour utiliser un outil externe. Alternativement
+Deux partitions sont nécessaires: une pour /boot et un pour /root
+xxx
+xxx
+Ou vous pouvez quitter maintenant pour utiliser un outil externe
 Une partition est nécessaire pour /root
-Vous pouvez utiliser 'cfdisk' pour créer une table de partition, ou
-Feliz peut automatiquement créer des partitions pour vous, si vous
-souhait. Si vous choisissez de ne rien faire maintenant, le script
+Vous pouvez utiliser 'cfdisk' pour créer une table de partition
+Feliz peut automatiquement créer des partitions pour vous
+Si vous choisissez de ne rien faire maintenant, le script
 Terminer pour vous permettre de partitionner d'une autre manière
 Voici une liste des partitions disponibles
-Il existe une option de partitionnement manuelle guidée, ou Feliz
-Créer automatiquement une nouvelle table de partitions GPT pour
-Vous, si vous le souhaitez. Veuillez noter que ces deux options
-Va essuyer le disque - toutes les données existantes seront effacées!
-Si vous choisissez de le laisser tel quel, le script
-Vous permettent ensuite d'allouer les partitions existantes
-'Cfdisk' est disponible pour vous permettre de les modifier. Alternativement
-Vous pouvez utiliser l'option de partitionnement manuelle guidée, ou
-Feliz peut écraser le disque avec une nouvelle table de partition
-si vous le souhaitez. Veuillez noter que ces deux options vont effacer
-Le disque - toutes les données existantes seront effacées! Si vous
-Choisissez «Laisser tel quel» le script va ensuite activer
-Vous devez allouer les partitions existantes
+Il existe une option de partitionnement manuelle guidée
+Feliz peut partitionner le périphérique automatiquement
+xxx
+!Va détruire toutes les partitions existantes!
+Choisissez 'Laisser tel quel' pour utiliser les partitions existantes
+xxx
+'cfdisk' est disponible pour les modifier manuellement
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
 Ce sont les dispositifs disponibles
 Quels sont vos souhaits pour cette installation?
 (Rappelez-vous, ceci est auto-partition, et toutes les données
@@ -155,7 +155,7 @@ Votre appareil a
 C'est suffisant pour
 Tu as
 Disponible sur le dispositif choisi
-Tout ce que nous devons définir ici est la taille de votre partition EFI / boot.
+Tout ce que nous devons définir ici est la taille de votre partition /boot
 Il ne doit pas être inférieur à 512MiB et ne doit pas dépasser 1GiB
 De sorte que la taille correcte sera définie
 Vous avez maintenant

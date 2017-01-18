@@ -1,4 +1,4 @@
-# Deutsche Sprachdatei von Google Translate & Elizabeth Audrey Mills (elizabeth@itsliz.net)
+# Deutsche Sprachdatei von Google Translate & Elizabeth Audrey Mills (elizabeth@itsliz.net) 2017:01:15
 Feliz2 - Arch Linux-Installationsskript
 Wählen Sie Ihren Kernel
 Wähle einen Gegenstand
@@ -73,29 +73,29 @@ Geben Sie die Nummer für die zu ändernden Daten ein
 Hostname (derzeit
 Wenn Sie unsicher sind über Partitionierung, sollten Sie das Arch Wiki lesen
 Es gibt keine Partitionen auf dem Gerät, und mindestens
-Werden zwei Partitionen benötigt - eine für EFI / boot, und
-Eine für / root. Eine Option für geführte manuelle Partitionierung
-Und die Erstellung einer EFI-Partitionstabelle wurde hinzugefügt
-Oder Sie können jetzt ein externes Werkzeug verwenden. Alternative
+Werden zwei Partitionen benötigt - eine für /boot und eine für /root
+xxx
+xxx
+Oder Sie können jetzt ein externes Werkzeug verwenden
 Eine Partition für das /root benötigt
-Sie können "cfdisk" verwenden, um eine Partitionstabelle zu erstellen, oder
-Feliz kann automatisch Partitionen für Sie erstellen, wenn Sie
-Wunsch. Wenn Sie jetzt nichts tun, wird das Skript
+Sie können "cfdisk" verwenden, um eine Partitionstabelle zu erstellen
+Feliz kann automatisch Partitionen für Sie erstellen
+Wenn Sie jetzt nichts tun, wird das Skript
 Beenden, damit Sie auf eine andere Weise partitionieren können
 Hier ist eine Liste der verfügbaren Partitionen
-Es gibt eine geführte manuelle Partitionierungsoption, oder Feliz
-Kann automatisch eine neue GPT-Partitionstabelle für erstellen
-Sie, wenn Sie es wünschen. Bitte beachten Sie, dass diese beiden Optionen
-Wird die Disk löschen - alle vorhandenen Daten werden gelöscht!
-Wenn Sie sich entscheiden, "Leave it as it is" wird das Skript
-Als nächstes können Sie die vorhandenen Partitionen zuordnen
-'Cfdisk' steht Ihnen zur Bearbeitung zur Verfügung. Alternative
-Können Sie die geführte manuelle Partitionierungsoption verwenden oder
-Feliz kann die Festplatte mit einer neuen Partitionstabelle überschreiben
-wenn Sie wünschen. Beachten Sie, dass beide Optionen abwischen
-Die Platte - alle vorhandenen Daten werden gelöscht! Wenn du
-Wählen Sie 'Lassen Sie es, wie es ist' das Skript aktiviert
-Sie die vorhandenen Partitionen zuordnen
+Es gibt eine geführte manuelle Partitionierungsoption
+Feliz kann das Gerät automatisch partitionieren
+xxx
+!Zerstört alle vorhandenen Partitionen!
+Wählen Sie 'Verlassen Sie es so wie es ist', um die vorhandenen Partitionen zu verwenden
+xxx
+'Cfdisk' ist verfügbar, um sie manuell zu bearbeiten
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
 Dies sind die verfügbaren Geräte
 Was möchten Sie für diese Installation verwenden?
 (Denken Sie daran, dies ist Auto-Partition und alle Daten
@@ -155,7 +155,7 @@ Ihr Gerät hat
 Das ist genug
 Du hast
 Auf dem gewählten Gerät verfügbar
-Alles was wir hier einstellen müssen ist die Größe der EFI / Boot-Partition.
+Alles was wir hier einstellen müssen ist die Größe der /Boot-Partition.
 Es sollte nicht weniger als 512MiB und muss nicht größer als 1GiB
 So dass die richtige Größe eingestellt wird
 Sie haben jetzt

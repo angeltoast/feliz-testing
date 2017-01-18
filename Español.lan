@@ -73,29 +73,29 @@ Introduzca el número para que los datos cambien
 1) Nombre de host (actualmente
 Si no está seguro acerca de la partición, debe leer el Wiki Arch
 No hay particiones en el dispositivo y al menos
-Se necesitan dos particiones: una para EFI / boot y
-Uno para / root. Una opción para la partición manual guiada
-Y se ha añadido la creación de una tabla de particiones EFI
-O puede salir ahora para utilizar una herramienta externa. Alternativamente
+Se necesitan dos particiones: una para /boot y uno para /root
+xxx
+xxx
+O puede salir ahora para utilizar una herramienta externa
 Una partición es necesaria para /root
-Puede utilizar 'cfdisk' para crear una tabla de particiones o
-Feliz puede crear particiones automáticamente para ti, si
-deseo. Si elige no hacer nada ahora, el script
+Puede utilizar 'cfdisk' para crear una tabla de particiones
+Feliz puede crear particiones automáticamente para ti
+Si elige no hacer nada ahora, el script
 Terminar de permitir que la partición de alguna otra manera
 Aquí hay una lista de particiones disponibles
-Hay una opción de partición manual guiada, o Feliz
-Puede crear automáticamente una nueva tabla de particiones GPT para
-Usted, si usted desea. Tenga en cuenta que ambas opciones
-Borrará el disco - cualquier información existente será borrada!
-Si elige "Dejar como está", el guión
-A continuación le permiten asignar las particiones existentes
-'Cfdisk' está disponible para su edición. Alternativamente,
-usted Puede usar la opción de partición manual guiada, o
-Feliz puede Sobrescribir el disco con una nueva tabla de particiones
-si lo desea. Por favor Tenga en cuenta que ambas opciones borrarán
-el disco: cualquier Los datos se borrarán! Si
-elige "Dejar como está", Script le permitirá
-asignar las particiones existentes
+Hay una opción de partición manual guiada
+Feliz puede particionar el dispositivo automáticamente
+xxx
+¡Destruirá cualquier partición existente!
+Elija 'Dejar como está' para usar las particiones existentes
+xxx
+'cfdisk' está disponible para editarlos manualmente
+xxx
+xxx
+xxx
+xxx
+xxx 
+xxx
 Estos son los dispositivos disponibles
 ¿Qué desea utilizar para esta instalación?
 (Recuerde, esto es auto-partición, y cualquier dato
@@ -155,7 +155,7 @@ Su dispositivo tiene
 Esto es suficiente para
 Tienes
 Disponible en el dispositivo elegido
-Todo lo que necesitamos establecer aquí es el tamaño de su partición EFI / boot.
+Todo lo que necesitamos establecer aquí es el tamaño de su partición /boot
 Debe ser no menos de 512MiB y no debe ser mayor de 1GiB
 De modo que se ajuste el tamaño correcto
 Ahora tienes

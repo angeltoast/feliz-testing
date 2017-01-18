@@ -816,75 +816,36 @@ FinalCheck() {
   do
     print_heading
     PrintOne "These are the settings you have entered. Please check them"
+    PrintOne "before we move on to partitioning your device"
     Echo
-    if [ ${UEFI} -eq 1 ]; then
-      PrintOne "0)  $_BootPartition " "... $EFIPartition                       "
-      Translate "/root partition"
-      PrintMany "1)  $_RootPartition " "... $RootPartition : $RootType"
-    else
-      PrintOne "1)  $_RootPartition" "... $RootPartition : $RootType           "
-    fi
-    if [ $SwapPartition ] || [ $SwapFile ]; then
-      PrintMany "2)  $_SwapPartition" "... $SwapPartition $SwapFile"
-    else
-      Translate "No provision has been made for swap"
-      PrintMany "2) " "$Result"
-    fi
-    if [ ${#AddPartList[@]} -gt 0 ]; then
-      Counter=0
-      Translate "Extra partitions"
-      PrintMany "3)  $Result" "..."
-      for i in ${AddPartList[@]}
-      do
-        PrintMany "     ${AddPartMount[$Counter]} " ": ${AddPartList[$Counter]} : ${AddPartType[$Counter]}"
-        Counter=$((Counter+1))
-      done
-    else
-      Translate "No additional partitions have been allocated"
-      PrintMany "3) " "$Result"
-    fi
-    case $Kernel in
-      1) Translate "The LTS kernel will be installed"
-        PrintMany "4) " "$Result"
-      ;;
-      *) Translate "The latest kernel will be installed"
-        PrintMany "4) " "$Result"
-    esac
-    if [ $GrubDevice ]; then
-      Translate "Grub will be installed to"
-      PrintMany "5)  $Result" "$GrubDevice"
-    else
-      Translate "No provision has been made for Grub"
-      PrintMany "5) " "$Result"
-    fi
-      Translate "Zone/subZone will be"
-      PrintMany "6)  $Result" "$ZONE/$SUBZONE"
-      Translate "Locale will be set to"
-      PrintMany "7)  $Result" "$CountryLocale"
-      Translate "Keyboard is"
-      PrintMany "8)  $Result" "$Countrykbd"
+    Translate "Zone/subZone will be"
+    PrintMany "1)  $Result" "$ZONE/$SUBZONE"
+    Translate "Locale will be set to"
+    PrintMany "2)  $Result" "$CountryLocale"
+    Translate "Keyboard is"
+    PrintMany "3)  $Result" "$Countrykbd"
     case ${IsInVbox} in
       "VirtualBox") Translate "Virtualbox guest utilities will be installed"
-      PrintMany "9) " "$Result"
+      PrintMany "4) " "$Result"
       ;;
       *) Translate "Virtualbox guest utilities will not be installed"
-      PrintMany "9) " "$Result"
+      PrintMany "4) " "$Result"
     esac
     if [ -z $DisplayManager ]; then
       Translate "No Display Manager selected"
-      PrintMany "10)" "$Result"
+      PrintMany "5)" "$Result"
     else
       Translate "Display Manager"
-      PrintMany "10) $Result" " = $DisplayManager"
+      PrintMany "5) $Result" " = $DisplayManager"
     fi
     Translate "Root and user settings"
-    PrintMany "11) $Result" "..."
+    PrintMany "6) $Result" "..."
     Translate "Hostname"
     PrintMany "      $Result" "= '$HostName'"
     Translate "User Name"
     PrintMany "      $Result" "= '$UserName'"
     Translate "The following extras have been selected"
-    PrintMany "12) $Result" "..."
+    PrintMany "7) $Result" "..."
     PrintOne "${LuxuriesList}" ""
     Echo
     PrintOne "Press Enter to install with these settings, or"
@@ -893,44 +854,26 @@ FinalCheck() {
     TPread "${Result}: "
     Change=$Response
     case $Change in
-      1) ChangeRootPartition
-        AllocateRoot
+      1) SetTimeZone
         continue
       ;;
-      2) ChangeSwapPartition
-        AllocateSwap
+      2) setlocale
         continue
       ;;
-      3) ChangePartitions
-        MorePartitions
+      3) getkeymap
         continue
       ;;
-      4) SetKernel
+      4) ConfirmVbox
         continue
       ;;
-      5) SetGrubDevice
-        continue
-      ;;
-      6) SetTimeZone
-        continue
-      ;;
-      7) setlocale
-        continue
-      ;;
-      8) getkeymap
-        continue
-      ;;
-      9) ConfirmVbox
-        continue
-      ;;
-      10) DisplayManager=""
+      5) DisplayManager=""
         ChooseDM
         continue
       ;;
-      11) ManualSettings
+      6) ManualSettings
         continue
       ;;
-      12) PickLuxuries
+      7) PickLuxuries
         continue
       ;;
       *) break

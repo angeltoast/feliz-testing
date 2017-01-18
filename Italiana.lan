@@ -73,29 +73,29 @@ Inserire il numero per i dati di cambiare
 Nome host (attualmente
 Se non si è certi di partizionamento, si dovrebbe leggere l'Arco Wiki
 Non ci sono partizioni sul dispositivo, e almeno
-Sono necessari due partizioni - uno per EFI / boot, e
-uno per la / root. Un'opzione per il partizionamento manuale guidato
-e la creazione di una tabella delle partizioni EFI è stata aggiunta
-o si può uscire ora di utilizzare uno strumento esterno. In alternativa
+Sono necessari due partizioni - uno per /boot, e uno per la /root
+xxx
+xxx
+o si può uscire ora di utilizzare uno strumento esterno
 una partizione è necessario per /root
-È possibile utilizzare 'cfdisk' per creare una tabella delle partizioni, o
-Feliz può creare automaticamente le partizioni per voi, se si
-desiderio. Se si sceglie di fare nulla ora, lo script
+È possibile utilizzare 'cfdisk' per creare una tabella delle partizioni
+Feliz può creare automaticamente le partizioni per voi
+Se si sceglie di fare nulla ora, lo script
 sospendere per consentire di partizionare in qualche altro modo
 Ecco un elenco delle partizioni disponibili
-C'è un'opzione guidato il partizionamento manuale, o Feliz
-in grado di creare automaticamente una nuova tabella delle partizioni GPT per
-voi, se lo si desidera. Si prega di notare che entrambe queste opzioni
-cancellerà il disco - tutti i dati exisiting saranno cancellati!
-Se si sceglie di 'Lascia così com'è' lo script sarà
-accanto consentono di allocare le partizioni esistenti
-'Cfdisk' è disponibile per la modifica loro. In alternativa
-è possibile utilizzare l'opzione guidata partizionamento manuale, o
-Feliz può sovrascrivere il disco con una nuova tabella delle partizioni
-se desideri. Si prega di notare che entrambe queste opzioni saranno pulire
-il disco - tutti i dati exisiting saranno cancellati! Se tu
-scegliere di 'Lascia così com'è' lo script successivo consentirà
-di assegnare le partizioni esistenti
+C'è un'opzione guidato partizionamento manuale
+Feliz può partizionare il dispositivo automaticamente
+xxx
+!Distruggerà tutte le partizioni esistenti!
+Scegliere 'Lascia così com'è' di utilizzare le partizioni esistenti
+xxx
+'cfdisk' è disponibile per modificare manualmente
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
 Questi sono i dispositivi disponibili
 Quale si desidera utilizzare per questa installazione?
 (Ricordate, questo è auto-partizione e tutti i dati

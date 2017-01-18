@@ -89,7 +89,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
   Partition=""
 	PartitionType=""
   Echo
-	PrintOne "Here are the partitions that are available."
+	PrintOne "Here are the partitions that are available"
 	PrintOne "First you should select one to use for EFI /boot"
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
@@ -119,11 +119,12 @@ EasyEFI() {               # Main EFIfunction - Inform user of purpose, call each
   EasyDiskSize            # Get available space in MiB
   print_heading
   Echo
-  PrintOne "Here you can tell Feliz the size and format of the partitions you wish"
-  PrintOne "to create. When all details have been set, Feliz will wipe the disk and"
-  PrintOne "create an EFI partition table with the partitions you have specified"
+  PrintOne "Here you can set the size and format of the partitions"
+  PrintOne "you wish to create. When ready, Feliz will wipe the disk"
+  PrintOne "and create a new partition table with your settings"
   Echo
-  PrintOne "We begin with the /boot partition"
+  Translate "We begin with the"
+  PrintOne "$Result" "$_BootPartition"
   Echo
   EasyBoot                # Create /boot partition
   EasyRecalc "$BootSize"  # Recalculate remaining space
@@ -172,8 +173,9 @@ EasyDevice() {            # Get details of device to use from all connected devi
       print_heading
       Translate "There are"
       _P1="$Result $Counter"
-      PrintOne "$_P1" "devices available"
-      PrintOne "Which do you wish to use for installation?"
+      Translate "devices available"
+      PrintOne "$_P1" "$Result"
+      PrintOne "Which do you wish to use for this installation?"
       Echo
       Counter=0
       for i in $DiskDetails
@@ -291,8 +293,7 @@ EasyRoot() { # Variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     print_heading
-    Translate "/boot partition"
-    PrintOne "$Result" ": ${BootSize}"
+    PrintOne "$_BootPartition" ": ${BootSize}"
     Echo
     Translate "You now have"
     _P1="$Result ${FreeGigs}GiB"
@@ -338,10 +339,8 @@ EasySwap() { # Variables: SwapSize
   do
     # Clear display, show /boot and available space
     print_heading
-    Translate "/boot partition"
-    PrintOne "$Result" ": ${BootSize}"
-    Translate "root partition"
-    PrintOne "$Result" ": ${RootType} : ${RootSize}"
+    PrintOne "$_BootPartition" ": ${BootSize}"
+    PrintOne "$_RootPartition" ": ${RootType} : ${RootSize}"
     Echo
     Translate "You now have"
     _P1="$Result ${FreeGigs}GiB"
@@ -407,8 +406,7 @@ EasyHome() { # Variables: HomeSize, HomeType
   do
     # Clear display, show /boot and available space
     print_heading
-    Translate "/boot partition"
-    PrintOne "$Result" ": ${BootSize}"
+    PrintOne "$_BootPartition" ": ${BootSize}"
     PrintOne "$_RootPartition :" " ${RootType} : ${RootSize}"
     PrintOne "$_SwapPartition :" " ${SwapSize}"
     Echo
@@ -452,7 +450,7 @@ ActionEasyPart() {  # Final step - Uses the variables set here to create partiti
   while :
   do                                # Get user approval
     print_heading
-    PrintOne "/boot partition:" "${BootSize}"
+    PrintOne "$_BootPartition:" "${BootSize}"
     PrintOne "$_RootPartition :" "${RootType} : ${RootSize}"
     PrintOne "$_SwapPartition :" "${SwapSize}"
     PrintOne "$_HomePartition :" "${HomeType} : ${HomeSize}"

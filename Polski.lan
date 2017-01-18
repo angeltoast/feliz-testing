@@ -31,12 +31,12 @@ Teraz proszę wybrać swój język z listy
 lub Wyjście aby spróbować ponownie
 Znaleziono tylko jedno ustawienie klawiatury dla twojej lokalizacji
 Czy chcesz zakceptować? Wybierz Nie aby wyszukać inną
-Wybrać jedną, lub ' ' aby szukać inną
-Wybrać jedną, lub Wyjście aby szukać inną
+Wyszczególnione klawiatury pasują do twojej lokalizacji. Możesz
+wybrać jedną, lub Wyjście aby szukać inną
 Jeśli znasz kod układu swojej klawiatury, proszę wprowadzić
 go teraz. Jeśli nie, spróbuj wprowadzić dwu-literowy kod
 swojego kraju lub języka, aby wyświetlić listę
-Alternatywnie, wybierz ' ' aby rozpocząć ponownie
+Alternatywnie, wybierz 'Wyjście' aby rozpocząć ponownie
 Wybierz swój układ klawiatury lub Wyjście aby spróbować ponownie
 Nie znaleziono klawiatury zawierającej '$Term'
 Proszę spróbować ponownie
@@ -73,29 +73,29 @@ wybierz numer dla danych, które chcesz zmienić
 Nazwa komputera (obecna
 Jeśli nie jesteś pewny parycjonowania, powinieneś zapoznać się z Arch Wiki
 Nie ma żadnych partycji na tym urządzeniu, a przynajmniej
-dwie partycje są wymagane - jedna dla EFI /boot, druga
-dla /root. Została dodana opcja ręcznego partycjonowania
-z przewodnikiem oraz tworzenia tabeli partycji EFI,
-Możesz również wyjść i użyć innych narzędzi. Alternatywnie,
+dwie partycje są wymagane - jedna dla EFI /boot, druga dla /root
+xxx
+xxx
+Możesz również wyjść i użyć innych narzędzi
 Potrzebna jest partycja dla /root
-Możesz użyć 'cfdisk' do utworzenia tablicy partycji, lub 
-Feliz może automatycznie utworzyć partycje dla ciebie, jeśli
-chcesz. Jeśli nic nie wybierzesz, program zostanie
-zatrzymany, aby ci umożliwić przeprowadzenie własnego partycjonowania
+Możesz użyć 'cfdisk' do utworzenia tablicy partycji
+Feliz może automatycznie utworzyć partycje dla ciebie
+Jeśli nic nie wybierzesz, program zostanie zatrzymany,
+aby ci umożliwić przeprowadzenie własnego partycjonowania
 To jest lista dostępnych partycji
-Dostępna jest opcja ręcznego partycjonowania z przewodnikiem, lub Feliz
-może automatycznie utworzyć nową tabelę partycji GPT dla
-ciebie, jeśli chcesz. Miej na uwadze, że obydwie opcje
-wymażą cały dysk - wszystkie istniejące dane zostaną usunięte!
-Jeśli wybierzesz 'Zostaw tak jak jest', skrypt następnie
-umożliwi ci znalezienie istniejących partycji
-'cfdisk' jest dostępny dla ciebie, aby je edytować. Alternatywnie
-możesz użyć opcji ręcznego partycjonowania z przewodnikiem, lub
-Feliz może nadpisać zawartość dysku nową tablicą partycji,
-jeśli chcesz. Miej na uwadze, iż te obydwie opcje wyczyszczą
-cały dysk - wszystkie znajdujące się na nim dane zostaną usunięte! Jeśli
-wybierzesz 'Zostaw tak jak jest', skrypt następnie
-umożliwi ci znalezienie istniejących partycji
+Dostępna jest opcja ręcznego partycjonowania z przewodnikiem
+Feliz może automatycznie podzielić dysk
+xxx
+!usunie wszystkie istniejące partycje!
+Wybierz 'Zostaw tak jak jest', aby użyć istniejących partycji
+xxx
+'cfdisk' jest dostępny dla ciebie, aby ręcznie je edytować
+xxx
+xxx
+xxx
+xxx
+xxx
+xxx
 To są dostępne urządzenia
 Który chcesz użyć do instalacji?
 (Pamiętaj, jest to automatyczne partycjonowanie i wszystkie dane
@@ -155,7 +155,7 @@ Twoje urządzenie posiada
 To jest wystarczające dla
 Posiadasz
 dostępne na wybranym urządzeniu
-Wszystko czego tutaj potrzebujemy, to rozmiar partycji EFI /boot.
+Wszystko czego tutaj potrzebujemy, to rozmiar partycji /boot
 Powinna być nie mniejsza niż 512MiB oraz nie musi być większa niż 1GiB
 więc poprawny rozmiar będzie ustawiony na
 Teraz masz
