@@ -45,7 +45,6 @@ CheckParts() {  # Test for existing partitions
     Counter=$((Counter+1))
   done
   PARTITIONS=${Counter}
-
   if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
     print_heading
     while [ $PARTITIONS -eq 0 ]
@@ -88,7 +87,19 @@ CheckParts() {  # Test for existing partitions
     done
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
   else                                  # There are existing partitions on the device
+    print_heading
+    PrintOne "Here is a list of available partitions"
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
+    Counter=0
+    for part in ${PartitionList}
+    do
+      if [ $Counter = 0 ]; then
+        PrintOne "" "${PartitionArray[$Counter]}"
+      else
+        PrintMany "" "${PartitionArray[$Counter]}"
+      fi
+      Counter=$((Counter+1))
+    done
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
@@ -199,22 +210,7 @@ Partitioning() {
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    print_heading
-    PrintOne "Here is a list of available partitions"
-    local Counter=0
-    for part in ${PartitionList}
-    do
-      if [ $Counter = 0 ]; then
-        PrintOne "" "${PartitionArray[$Counter]}"
-      else
-        PrintMany "" "${PartitionArray[$Counter]}"
-      fi
-
-read -p "Partitioning at line $LINENO"
-      
-      Counter=$((Counter+1))
-    done
-    Counter=1
+    local Counter=1
     for Option in "${LongPart[@]}"
     do
       Translate "$Option"

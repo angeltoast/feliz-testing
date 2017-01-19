@@ -57,11 +57,6 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    print_heading
-    PrintOne "Here is a list of available partitions"
-    Echo
-    DisplayPartitions                   # Display the list
-    Echo
     listgen2 "$EFIPartitioningOptions" "" "$_Ok $_Exit" "LongPartE"
     Proceed=$Response
     Echo
