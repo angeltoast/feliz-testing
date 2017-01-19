@@ -120,9 +120,9 @@ SetLanguage() {
   _xNumber="$Result"
   Translate "or ' ' to exit"
   _xExit="$Result"
-  Translate "Enter '<' for previous page"
+  Translate "'<' for previous page"
   _xLeft="$Result"
-  Translate "Enter '>' for next page"
+  Translate "'>' for next page"
   _xRight="$Result"
   # Partitioning
   Translate "/boot partition"
