@@ -209,6 +209,9 @@ Partitioning() {
       else
         PrintMany "" "${PartitionArray[$Counter]}"
       fi
+
+read -p "Partitioning at line $LINENO"
+      
       Counter=$((Counter+1))
     done
     Counter=1
