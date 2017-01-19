@@ -112,6 +112,8 @@ SetLanguage() {
   _Yes="$Result"
   Translate "No"
   _No="$Result"
+  Translate "or"
+  _or="$Result"
   # listgenx variables
   Translate "Please enter the number of your selection"
   _xNumber="$Result"

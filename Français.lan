@@ -85,16 +85,16 @@ Terminer pour vous permettre de partitionner d'une autre manière
 Voici une liste des partitions disponibles
 Il existe une option de partitionnement manuelle guidée
 Feliz peut partitionner le périphérique automatiquement
-xxx
+avant nous passer au partitionnement de votre appareil
 !Va détruire toutes les partitions existantes!
 Choisissez 'Laisser tel quel' pour utiliser les partitions existantes
-xxx
+ou
 'cfdisk' est disponible pour les modifier manuellement
-xxx
-xxx
-xxx
-xxx
-xxx
+Maintenant, nous devons trouver votre position dans
+Veuillez entrer la lettre initiale de
+l'île ou le groupe où vous êtes situé
+la grande ville la plus proche de chez vous
+entrer ' ' pour voir une liste
 xxx
 Ce sont les dispositifs disponibles
 Quels sont vos souhaits pour cette installation?

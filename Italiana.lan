@@ -85,16 +85,16 @@ sospendere per consentire di partizionare in qualche altro modo
 Ecco un elenco delle partizioni disponibili
 C'è un'opzione guidato partizionamento manuale
 Feliz può partizionare il dispositivo automaticamente
-xxx
+prima di passare al partizionamento del dispositivo
 !Distruggerà tutte le partizioni esistenti!
 Scegliere 'Lascia così com'è' di utilizzare le partizioni esistenti
-xxx
+o
 'cfdisk' è disponibile per modificare manualmente
-xxx
-xxx
-xxx
-xxx
-xxx
+Ora dobbiamo trovare dove ci si trova in
+Si prega di inserire la lettera iniziale del
+l'isola o gruppo cui ci si trova
+la grande città più vicina
+scrivere ' ' per vedere una lista
 xxx
 Questi sono i dispositivi disponibili
 Quale si desidera utilizzare per questa installazione?

@@ -85,16 +85,16 @@ Terminar de permitir que la partición de alguna otra manera
 Aquí hay una lista de particiones disponibles
 Hay una opción de partición manual guiada
 Feliz puede particionar el dispositivo automáticamente
-xxx
+antes de pasar a particionar su dispositivo
 ¡Destruirá cualquier partición existente!
 Elija 'Dejar como está' para usar las particiones existentes
-xxx
+o
 'cfdisk' está disponible para editarlos manualmente
-xxx
-xxx
-xxx
-xxx
-xxx 
+Ahora necesitamos encontrar su ubicación en
+Por favor escriba la primera letra de
+La isla o el grupo en el que se encuentra
+La ciudad principal más cercana
+Escribe ' ' para ver una lista
 xxx
 Estos son los dispositivos disponibles
 ¿Qué desea utilizar para esta instalación?

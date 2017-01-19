@@ -73,8 +73,8 @@ Enter number for data to change
 Hostname (currently
 If you are uncertain about partitioning, you should read the Arch Wiki
 There are no partitions on the device, and at least
-two partitions are needed - one for EFI /boot and one for /root
-xxx before we move on to partitioning your device xxx
+two partitions are needed - one for /boot and one for /root
+xxx 
 xxx
 or you can exit now to use an external tool
 A partition is needed for /root
@@ -85,16 +85,16 @@ terminate to allow you to partition in some other way
 Here is a list of available partitions
 There is a guided manual partitioning option
 Feliz can partition the device automatically
-xxx
+xxx before we move on to partitioning your device xxx
 !will destroy any existing partitions!
 Choose 'Leave it as it is' to use the existing partitions
-xxx
+xxx or
 'cfdisk' is available to edit them manually
-xxx
-xxx
-xxx
-xxx
-xxx
+xxx Now we need to find your location in
+xxx Please enter the first letter of
+xxx the island or group where you are located
+xxx your nearest major city
+xxx enter ' ' to see a list
 xxx
 These are the available devices
 Which do you wish to use for this installation?
