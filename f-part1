@@ -98,19 +98,6 @@ CheckParts() {  # Test for existing partitions
   fi
 }
 
-DisplayPartitions() {
-  Counter=0
-  for part in ${PartitionList}
-  do
-    if [ $Counter = 0 ]; then
-      PrintOne "${PartitionArray[$Counter]}"
-    else
-      PrintMany "${PartitionArray[$Counter]}"
-    fi
-    Counter=$((Counter+1))
-  done
-}
-
 BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display
                         # Then to prepare partition arrays for selection for root, swap and others
   # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
@@ -196,7 +183,8 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
     fi
     # Finally get the filesystem type
     ThisPart=${FileSystem[${part}]} # Find the record in FileSystem that matches the current iteration
-    LongID=$(lsblk -l | grep ${part} | awk '{print $1 " " $4 " " $7}')
+    #          | add space after $part to maintain proper sort order | use fields 1, 4 & 7   
+    LongID=$(lsblk -l | grep "${part} " | awk '{print $1 " " $4 " " $7}')
     PartitionArray[${Counter}]="$LongID $ThisPart ${Label} ${Bootable}"
     Label=""
     # Save the short ID for later functions
@@ -213,10 +201,17 @@ Partitioning() {
   do
     print_heading
     PrintOne "Here is a list of available partitions"
-    Echo
-    DisplayPartitions                   # Display the list
-    Echo
-    local Counter=1
+    local Counter=0
+    for part in ${PartitionList}
+    do
+      if [ $Counter = 0 ]; then
+        PrintOne "${PartitionArray[$Counter]}"
+      else
+        PrintMany "${PartitionArray[$Counter]}"
+      fi
+      Counter=$((Counter+1))
+    done
+    Counter=1
     for Option in "${LongPart[@]}"
     do
       Translate "$Option"
