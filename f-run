@@ -430,10 +430,6 @@ SetUserPassword() {
 }
 
 Restart() {
-  print_heading
-  Echo
-  PrintOne "Congratulations, installation is complete"
-  Echo
   Translate "Shutdown Reboot"
   listgen1 "$Result" "" "$_Ok $_Exit"
   case $Response in

@@ -60,9 +60,7 @@ CheckParts() {  # Test for existing partitions
         PrintOne "or you can exit now to use an external tool"
       else                                # Installing in BIOS environment
         PrintOne "one partition is needed for the root directory"
-        PrintOne "You can use 'cfdisk' to create a partition table"
       fi
-      PrintOne "Feliz can partition the device automatically"
       PrintOne "If you choose to do nothing now, the script will"
       PrintOne "terminate to allow you to partition in some other way"
       Echo
@@ -73,8 +71,11 @@ CheckParts() {  # Test for existing partitions
       fi
                                           # Terminate
       if [ $Response = "4" ]; then
-        read_timed "Exiting to allow you to partition the device"
-        shutdown -h now
+        print_heading
+        Echo
+        PrintOne "Exiting to allow you to partition the device"
+        Echo
+        Restart
       fi
                                           # Check that partitions have been created
       ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
@@ -90,12 +91,9 @@ CheckParts() {  # Test for existing partitions
     print_heading
     PrintOne "Here is a list of available partitions"
     Echo
-    
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
     DisplayPartitions                   # Display the list
     Echo
-    Translate "Press any key"
-    read -pn1 "$Result"
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
@@ -658,7 +656,7 @@ MorePartitions() {
   do
     print_heading
     Remaining=""
-    PrintOne "The following partitions remain unallocated."
+    PrintOne "The following partitions remain unallocated"
     PrintOne "If you wish to use one, select it from the list"
     PrintOne "or choose Exit to finish partitioning"
     Echo

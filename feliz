@@ -205,5 +205,8 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log ltsgroup.txt /mnt/etc # Copy installation log for reference
-
-Restart     # Function with options to shutdown or eject media and reboot
+print_heading
+Echo
+PrintOne "Congratulations, installation is complete"
+Echo
+Restart     # Function with options to shutdown or reboot
