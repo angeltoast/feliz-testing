@@ -374,16 +374,16 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
 
   # Decide partition sizes
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$(DiskSize-19-4)
+    HomeSize=$((DiskSize-19-4))
     partition_maker "${StartPoint}" "19GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$(DiskSize-15-3)
+    HomeSize=$((DiskSize-15-3))
     partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$(DiskSize-2)
+    RootSize=$((DiskSize-2))
     partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
   elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$(DiskSize-1)
+    RootSize=$((DiskSize-1))
     partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
   else                                              # ------ Swap file and /root partition only -----
     partition_maker "${StartPoint}" "100%" "" ""
