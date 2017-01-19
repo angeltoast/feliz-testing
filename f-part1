@@ -205,9 +205,9 @@ Partitioning() {
     for part in ${PartitionList}
     do
       if [ $Counter = 0 ]; then
-        PrintOne "${PartitionArray[$Counter]}"
+        PrintOne "" "${PartitionArray[$Counter]}"
       else
-        PrintMany "${PartitionArray[$Counter]}"
+        PrintMany "" "${PartitionArray[$Counter]}"
       fi
       Counter=$((Counter+1))
     done
