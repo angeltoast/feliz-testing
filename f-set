@@ -507,9 +507,6 @@ getkeymap() {
         PrintOne "Choose one or Exit to search for alternatives"
         listgen1 "$ListKbs" "" "$_Ok $_Exit"
       fi
-
-read -p "$Result"
-      
       case ${Result} in
       "$_Exit"|"") SearchKeyboards
       ;;
