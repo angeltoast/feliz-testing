@@ -608,7 +608,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   do
     listgen1 "${CategoriesList}" "" "$_Ok $_Exit"
     Category=$Response
-    if [ $Result = "Exit" ]; then
+    if [ $Result = "$_Exit" ]; then
       break
     else
       ShoppingList
