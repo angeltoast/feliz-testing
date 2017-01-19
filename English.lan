@@ -85,16 +85,16 @@ terminate to allow you to partition in some other way
 Here is a list of available partitions
 There is a guided manual partitioning option
 Feliz can partition the device automatically
-xxx before we move on to partitioning your device xxx
+before we move on to partitioning your device
 !will destroy any existing partitions!
 Choose 'Leave it as it is' to use the existing partitions
-xxx or
+or
 'cfdisk' is available to edit them manually
-xxx Now we need to find your location in
-xxx Please enter the first letter of
-xxx the island or group where you are located
-xxx your nearest major city
-xxx enter ' ' to see a list
+Now we need to find your location in
+Please enter the first letter of
+the island or group where you are located
+your nearest major city
+enter ' ' to see a list
 xxx
 These are the available devices
 Which do you wish to use for this installation?
