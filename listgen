@@ -580,6 +580,9 @@ PrintPage() {
     tput cup $((terminal_height-2)) $((terminal_centre-InstrLen)) # Position cursor at bottom of screen
     Echo "${Instructions}"
     tput cup $((bottom_row+1)) 0                    # Then back to row below bottom row
+
+read -p "debug PrintPage line $LINENO $cursor_row $column_start $bottom_row"
+      
     TPread "${Message}: "
     case $Response in
     '') return 0                                    # Quit without selecting anything

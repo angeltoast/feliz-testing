@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 18th January 2017
+# Revision date: 19th January 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -88,12 +88,7 @@ CheckParts() {  # Test for existing partitions
     done
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
   else                                  # Partitions exist
-    print_heading
-    PrintOne "Here is a list of available partitions"
-    Echo
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
-    DisplayPartitions                   # Display the list
-    Echo
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
@@ -217,7 +212,9 @@ Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
   while [ -z $Proceed ]
   do
     print_heading
-    DisplayPartitions                   # Display the list again
+    PrintOne "Here is a list of available partitions"
+    Echo
+    DisplayPartitions                   # Display the list
     Echo
     local Counter=1
     for Option in "${LongPart[@]}"
