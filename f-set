@@ -24,19 +24,20 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# not_found         41    SetHostname         491
-# Echo              46    PickLuxuries        508
-# TPread            51    KeepOrDelete        540
-# SetKernel         67    ShoppingList        568
-# ConfirmVbox       80    ChooseDM            670
-# SetTimeZone      105    SetGrubDevice       728
-# SetSubZone       137     --- Review stage ---
-# America          173    FinalCheck          752
-# setlocale        211    ManualSettings      859
-# AllLanguages     363    ChangeRootPartition 882
-# getkeymap        380    ChangeSwapPartition 890
-# SearchKeyboards  441    ChangePartitions    898
-# Username         475    AddExtras           910
+# not_found         42    SetHostname          570
+# Echo              48    PickLuxuries         587
+# TPread            53    KeepOrDelete         627
+# SetKernel         70    ShoppingList         659
+# ConfirmVbox       82    ChooseDM             819
+# SetTimeZone      106    SetGrubDevice        876
+# SetSubZone       138
+# America          188      --- Review stage ---
+# FindCity         224    FinalCheck           900
+# setlocale        301    ManualSettings       970
+# AllLanguages     445    ChangeRootPartition  999
+# getkeymap        461    ChangeSwapPartition 1007
+# SearchKeyboards  519    ChangePartitions    1015
+# Username         554    AddExtras           1027
 # --------------------    -----------------------
 
 not_found() {
@@ -506,6 +507,9 @@ getkeymap() {
         PrintOne "Choose one or Exit to search for alternatives"
         listgen1 "$ListKbs" "" "$_Ok $_Exit"
       fi
+
+read -p "$Result"
+      
       case ${Result} in
       "$_Exit"|"") SearchKeyboards
       ;;
@@ -911,11 +915,11 @@ FinalCheck() {
     Translate "Keyboard is"
     PrintMany "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
-      "VirtualBox") Translate "Virtualbox guest utilities will be installed"
-      PrintMany "4)" "$Result"
+      "VirtualBox") Translate "Virtualbox guest utilities"
+      PrintMany "4)" "$Result: $_Yes"
       ;;
-      *) Translate "Virtualbox guest utilities will not be installed"
-      PrintMany "4)" "$Result"
+      *) Translate "Virtualbox guest utilities"
+      PrintMany "4)" "$Result: $_No"
     esac
     if [ -z $DisplayManager ]; then
       Translate "No Display Manager selected"

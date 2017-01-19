@@ -193,7 +193,7 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
             fi
           else
             Response=0
-            Result="Exit"
+            Result="${Button2}"
           fi
         fi
         tput cnorm
