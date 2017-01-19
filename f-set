@@ -128,7 +128,7 @@ SetTimeZone() {
       ;;
       *) SetSubZone                           # Call subzone function
         case $Result in                       # If user quits
-        "Exit" | "") SUBZONE=
+        "$_Exit" | "") SUBZONE=
         ;;
         *) SUBZONE="$Result"
         esac
@@ -231,7 +231,7 @@ FindCity() {  # Called by SelectSubzone
     timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
     Translate "Please choose your nearest location"
     listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ $Result = "Exit" ] || [ $Result = "" ]; then
+    if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
     SUBZONE="$Result"    
@@ -330,7 +330,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       ;;
       *) City=""
         AllLanguages
-        if [ -z "$Result" ] || [ $Result = "Exit" ]; then
+        if [ -z "$Result" ] || [ $Result = "$_Exit" ]; then
           SetTimeZone
         else
           Item=$(grep "${Language}:" languages.list)
@@ -355,7 +355,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       if [ $Result = "$N" ]; then                       # User declines offered language
         City=""
         AllLanguages                                    # Call function to display all languages
-        if [ $Result = "Exit" ] || [ $Result = " " ]; then
+        if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
           SetTimeZone
         else
           Item=$(grep "${Language}:" languages.list)    # eg: Abkhazian:ab
@@ -450,7 +450,7 @@ AllLanguages() {
     cat languages.list > temp.file         # Prepare file for listgenx to display all languages
     Translate "Now please choose your language from this list"
     listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ $Result = "" ] || [ $Result = "Exit" ]; then
+    if [ $Result = "" ] || [ $Result = "$_Exit" ]; then
       SetTimeZone                                   # Start again from time zone
     else
       Result="${Result: -2:2}"                      # Pass short code back to caller
@@ -784,7 +784,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
       *) break
     esac
     Passed="$Result" # Loop until user selects "Exit"
-    if [ $Passed = "Exit" ]; then
+    if [ $Passed = "$_Exit" ]; then
       break
     fi
 
