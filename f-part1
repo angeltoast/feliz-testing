@@ -77,7 +77,7 @@ CheckParts() {  # Test for existing partitions
         Echo
         Restart
       fi
-                                          # Check that partitions have been created
+      # Check that partitions have been created
       ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
       Counter=0
       for i in $ShowPartitions
@@ -87,7 +87,7 @@ CheckParts() {  # Test for existing partitions
       PARTITIONS=${Counter}
     done
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
-  else                                  # Partitions exist
+  else                                  # There are existing partitions on the device
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
@@ -206,7 +206,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
   PARTITIONS=${Counter}
 }
 
-Partitioning() {  # THIS TO BE EXPANDED TO INCLUDE LVM
+Partitioning() { 
   local Proceed=""
   AutoPart=0 # Set flag to 'off' by default
   while [ -z $Proceed ]

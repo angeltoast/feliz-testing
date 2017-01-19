@@ -85,16 +85,16 @@ aby ci umożliwić przeprowadzenie własnego partycjonowania
 To jest lista dostępnych partycji
 Dostępna jest opcja ręcznego partycjonowania z przewodnikiem
 Feliz może automatycznie podzielić dysk
-xxx
+zanim rozpoczniemy partycjonowanie twojego dysku
 !usunie wszystkie istniejące partycje!
 Wybierz 'Zostaw tak jak jest', aby użyć istniejących partycji
-xxx
+lub
 'cfdisk' jest dostępny dla ciebie, aby ręcznie je edytować
-xxx
-xxx
-xxx
-xxx
-xxx
+Teraz musimy znaleźć twoją lokalizację w
+Proszę wpisać pierwszą literę
+wyspy lub grupy twojej lokalizacji
+twoje najbliższe duże miasto
+wpisz ' ' aby zobaczyć listę
 xxx
 To są dostępne urządzenia
 Który chcesz użyć do instalacji?
@@ -178,7 +178,7 @@ i skonfiguruje partycje, które zdefiniowałeś
 Partycjonowanie zakończone sukcesem
 Ten obiekt jest ograniczony do tworzenia /root, /swap i /home
 M = Megabajty, G = Gigabajty
-xxx free
+inny
 Partycja /root jest wymagana
 przydzielone do /root
 partycja główna /root
@@ -232,7 +232,7 @@ Lokalizacja jest ustawiona na
 Otwórz cfdisk aby partycjonować ręcznie
 Narzędzie ręcznego partycjonowania z przewodnikiem
 Pozwól feliz na podzielenie całego dysku
-Zostaw tak jak jest
+Wybierz z istniejących partycji
 Akcesoria
 Środowiska_Graficzne
 Grafika
