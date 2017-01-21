@@ -127,7 +127,7 @@ MountPartitions() {
     if [ "${AddPartType[$Counter]}" = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
       btrfs-convert ${id} 2>> feliz.log
     elif [ "${AddPartType[$Counter]}" = "btrfs" ]; then
-      mkfs.btrfs -f ${id} 2>> feliz.log &>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
+      mkfs.btrfs -f ${id} 2>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
     elif [ "${AddPartType[$Counter]}" = "xfs" ]; then
       mkfs.xfs -f ${id} 2>> feliz.log                   # eg: mkfs.xfs -f /dev/sda2
     elif [ "${AddPartType[$Counter]}" != "" ]; then       # If no type, do not format
