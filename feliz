@@ -101,7 +101,10 @@ elif [ ${AutoPart} -eq 0 ]; then       # If BIOS and not auto-artition
 fi
 
 print_heading
-PrintOne "Preparations complete. Entering automatic installation phase"
+TPecho "Preparations complete. Entering automatic installation phase"
+Echo
+PrintOne "sudo make me a sandwich && a cup of coffee"
+Echo
 
 # ...............................................................................
 #          Installation phase - no further user intervention from here          .
