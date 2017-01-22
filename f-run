@@ -106,11 +106,6 @@ MountPartitions() {
       mkswap ${Label} ${SwapPartition} 2>> feliz.log    # eg: mkswap -L Arch-Swap /dev/sda2
     fi
     swapon ${SwapPartition} 2>> feliz.log               # eg: swapon /dev/sda2
-  elif [ ${SwapFile} ]; then
-    fallocate -l ${SwapFile} /mnt/swapfile 2>> feliz.log
-    chmod 600 /mnt/swapfile 2>> feliz.log
-    mkswap /mnt/swapfile 2>> feliz.log
-    swapon /mnt/swapfile 2>> feliz.log
   fi
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
