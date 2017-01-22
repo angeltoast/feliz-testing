@@ -158,9 +158,15 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   fi
 
 # Generate fstab
-  genfstab -U -p /mnt > /mnt/etc/fstab 2>> feliz.log
+  genfstab -U /mnt > /mnt/etc/fstab 2>> feliz.log
+
+read -p "$(cat /mnt/etc/fstab)"
+  
   if [ ${SwapFile} ]; then
     echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
+
+read -p "$(cat /mnt/etc/fstab)"
+  
   fi
 
 # Set keyboard to selected language at next startup
