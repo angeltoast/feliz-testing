@@ -111,6 +111,9 @@ MountPartitions() {
     chmod 600 /mnt/swapfile 2>> feliz.log
     mkswap /mnt/swapfile 2>> feliz.log
     swapon /mnt/swapfile 2>> feliz.log
+
+read -p "Swapfile ${SwapFile}"
+    
   fi
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)

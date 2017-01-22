@@ -163,9 +163,6 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
   fi
 
-# Reconfigure kernel - already done by pacstrap installing kernel, so try without it
- # McInitCPIO
-
 # Set keyboard to selected language at next startup
   echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
 
