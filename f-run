@@ -157,8 +157,17 @@ InstallKernel() {   # Selected kernel and some other core systems
     # This is the full linux group list at 13th October 2016 with linux-lts in place of linux
     # pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs libtool gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs s-nail sed shadow sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
     # To be replaced by:
-    # echo pacman -Qgq base | sed s/^linux\$/linux-lts/g > ltsgroup.txt # base group with linux-lts in place of linux.
-    LTSGroup=$(echo pacman -Qgq base | sed s/^linux\$/linux-lts/g) # base group with linux-lts in place of linux
+    # Install and use lynx to get current base group from Arch
+    pacman -Sy lynx
+    lynx -dump https://archlinux.org/groups/x86_64/base | grep Core | awk '{print $3}' | cut -d']' -f2 > base.group
+    LTSGroup=""
+    for i in $(cat base.group)    # Convert base.group file to list
+    do
+      if [ $i = "linux" ]; then
+        i="linux-lts"            # Replace 'linux' with 'linux-lts'
+      fi
+      LTSGroup="$LTSGroup $i"
+    done
     pacstrap /mnt "${LTSGroup}"
   ;;
   *) TPecho "Installing Latest kernel and core systems"
