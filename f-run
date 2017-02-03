@@ -182,9 +182,9 @@ AddCodecs() {
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics
 
-  TPecho "Installing  CUPS printer services"
-  pacstrap /mnt -S system-config-printer cups
-  arch_chroot "systemctl enable org.cups.cupsd.service"
+  # TPecho "Installing  CUPS printer services"
+  # pacstrap /mnt -S system-config-printer cups
+  # arch_chroot "systemctl enable org.cups.cupsd.service"
   
 }
 
@@ -353,7 +353,7 @@ UserAdd() {
   else
     TPecho "User already exists"
   fi
-  for i in Documents Downloads Music Pictures Public Templates Videos
+  for i in $(head -n 77 ${LanguageFile} | tail -n 1)
   do
     arch_chroot "mkdir /home/${UserName}/${i}"
     arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"

@@ -74,7 +74,7 @@ Hostname (currently
 If you are uncertain about partitioning, you should read the Arch Wiki
 There are no partitions on the device, and at least
 two partitions are needed - one for /boot and one for /root
-xxx 
+Desktop Documents Downloads Music Pictures Public Templates Videos
 xxx
 or you can exit now to use an external tool
 A partition is needed for /root
