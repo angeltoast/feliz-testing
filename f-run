@@ -181,6 +181,11 @@ AddCodecs() {
 
   TPecho "Installing  opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics
+
+  TPecho "Installing  CUPS printer services"
+  pacstrap /mnt -S system-config-printer cups
+  arch_chroot "systemctl enable org.cups.cupsd.service"
+  
 }
 
 McInitCPIO() {
@@ -348,14 +353,15 @@ UserAdd() {
   else
     TPecho "User already exists"
   fi
-  for i in "Documents Downloads Music Pictures Public Templates Videos"
+  for i in Documents Downloads Music Pictures Public Templates Videos
   do
     arch_chroot "mkdir /home/${UserName}/${i}"
     arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"
+
+read -p "user directories $(ls /mnt/home/${UserName})"
+    
   done
 
-read -p "Check user directories"
-  
 }
 
 SetRootPassword() {
