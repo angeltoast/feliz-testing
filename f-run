@@ -271,7 +271,7 @@ InstallLuxuries()
           pacstrap /mnt kde-applications 2>> feliz.log
         ;;
       "LXDE") TPecho "Installing the LXDE desktop Environment"
-          pacstrap /mnt lxde 2>> feliz.log
+          pacstrap /mnt lxde leafpad 2>> feliz.log
           if [ -d /mnt/etc/lxdm ]; then
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
           fi
@@ -353,9 +353,9 @@ UserAdd() {
   done
   # Set keyboard at login for user
   case $Countrykbd in
-  "uk") echo "setxkbmap -layout gb" /mnt/home/${UserName}/.bashrc
+  "uk") echo "setxkbmap -layout gb" >> /mnt/home/${UserName}/.bashrc
   ;;
-  *) echo "setxkbmap -layout $Countrykbd" /mnt/home/${UserName}/.bashrc
+  *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/${UserName}/.bashrc
   esac
 }
 
