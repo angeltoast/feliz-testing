@@ -352,6 +352,7 @@ UserAdd() {
     arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"
   done
   # Set keyboard at login for user
+  arch_chroot "localectl set-x11-keymap $Countrykbd"
   case $Countrykbd in
   "uk") echo "setxkbmap -layout gb" >> /mnt/home/${UserName}/.bashrc
   ;;
