@@ -434,7 +434,7 @@ SetUserPassword() {
 
 Restart() {
   Translate "Shutdown Reboot"
-  listgen1 "$Result" "" "$_Ok $_Exit"
+  listgen1 "$Result" "Ctrl+c $_Exit" "$_Ok"
   case $Response in
   1) shutdown -h now
   ;;
