@@ -57,7 +57,21 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
   do
-    listgen2 "$EFIPartitioningOptions" "" "$_Ok $_Exit" "LongPartE"
+    OptionsLimit=$((OptionsLimit-1))  # There are one fewer options in EFI than BIOS
+    OptionsList=""
+    local Counter=1
+    for Option in "${LongPartE[@]}"
+    do
+      Translate "$Option"
+      LongOption[${Counter}]="$Result"
+      OptionsList="$OptionsList $(echo $EFIPartitioningOptions | cut -d' ' -f${Counter})"
+      Counter=$((Counter+1))
+      if [ $Counter -gt $OptionsLimit ]; then
+        break
+      fi
+    done
+    Echo
+    listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     Proceed=$Response
     Echo
     case $Proceed in

@@ -606,7 +606,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   Echo
   while :
   do
-    listgen1 "${CategoriesList}" "" "$_Ok $_Exit"
+    listgen1 "${CategoriesList}" "$_Quit" "$_Ok $_Exit"
     Category=$Response
     if [ $Result = "$_Exit" ]; then
       break
@@ -681,7 +681,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Accessories" "" "$_Ok $_Exit" "LongAccs1"
+        listgen2 "$Accessories" "$_Quit" "$_Ok $_Exit" "LongAccs1"
        ;;
        2) OptionsCounter=1
           for Option in "${LongDesk[@]}"  # Translate all elements
@@ -695,7 +695,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Desktops" "" "$_Ok $_Exit" "LongDesk1"
+        listgen2 "$Desktops" "$_Quit" "$_Ok $_Exit" "LongDesk1"
        ;;
        3) OptionsCounter=1
           for Option in "${LongGraph[@]}"  # Translate all elements
@@ -709,7 +709,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Graphical" "" "$_Ok $_Exit" "LongGraph1"
+        listgen2 "$Graphical" "$_Quit" "$_Ok $_Exit" "LongGraph1"
        ;;
        4) OptionsCounter=1
           for Option in "${LongNet[@]}"  # Translate all elements
@@ -737,7 +737,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Multimedia" "" "$_Ok $_Exit" "LongMulti1"
+        listgen2 "$Multimedia" "$_Quit" "$_Ok $_Exit" "LongMulti1"
        ;;
        6) OptionsCounter=1
           for Option in "${LongOffice[@]}"  # Translate all elements
@@ -751,7 +751,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Office" "" "$_Ok $_Exit" "LongOffice1"
+        listgen2 "$Office" "$_Quit" "$_Ok $_Exit" "LongOffice1"
        ;;
        7) OptionsCounter=1
           for Option in "${LongProg[@]}"  # Translate all elements
@@ -765,7 +765,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Programming" "" "$_Ok $_Exit" "LongProg1"
+        listgen2 "$Programming" "$_Quit" "$_Ok $_Exit" "LongProg1"
        ;;
        8) OptionsCounter=1
           for Option in "${LongWMs[@]}"  # Translate all elements
@@ -779,7 +779,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$WindowManagers" "" "$_Ok $_Exit" "LongWMs1"
+        listgen2 "$WindowManagers" "$_Quit" "$_Ok $_Exit" "LongWMs1"
       ;;
       *) break
     esac
@@ -829,7 +829,7 @@ ChooseDM() { # Choose a display manager
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"
       Echo
-      listgen1 "${DMList}" "" "$_Ok $_Exit"
+      listgen1 "${DMList}" "$_Quit" "$_Ok $_Exit"
       Reply=$Response
       for item in ${DMList}
       do
@@ -885,7 +885,7 @@ SetGrubDevice() {
   PrintOne "will not be installed, and you will have to make"
   PrintOne "alternative arrangements for booting your new system"
   Echo
-  listgen1 "${DevicesList}" "" "$_Ok $_Exit"
+  listgen1 "${DevicesList}" "$_Quit" "$_Ok $_Exit"
   Reply=$Response
   for i in ${DevicesList}
   do
