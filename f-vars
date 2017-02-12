@@ -35,7 +35,7 @@ print_heading() {   # Always use this function to clear the screen
 
 PrintOne() {  # Receives up to 2 arguments
               # If $2 contains anything, don't translate $1
-              # Then print aligned according to content and screen size
+              # Prints text centred according to content and screen size
   if [ ! "$2" ]; then
     Translate "$1"
     Text="$Result"

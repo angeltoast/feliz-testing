@@ -75,7 +75,7 @@ Jeśli nie jesteś pewny parycjonowania, powinieneś zapoznać się z Arch Wiki
 Nie ma żadnych partycji na tym urządzeniu, a przynajmniej
 dwie partycje są wymagane - jedna dla EFI /boot, druga dla /root
 Pulpit Dokumenty Pobrane Muzyka Obrazy Publiczny Szablony Wideo
-xxx
+sekund
 Możesz również wyjść i użyć innych narzędzi
 Potrzebna jest partycja dla /root
 Możesz użyć 'cfdisk' do utworzenia tablicy partycji
