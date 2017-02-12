@@ -243,7 +243,7 @@ LongAccs[5]="Handy lightweight text editor from LXDE"
 LongAccs[6]="Lightweight terminal emulator from LXDE"
 LongAccs[7]="The file manager from LXDE"
 # Desktops
-Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate Mate-GTK3 Xfce"
+Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
 LongDesk[1]="Modern desktop focusing on simplicity & elegance"
 LongDesk[2]="Slick DE from the Mint team"
 LongDesk[3]="The Deepin Desktop Environment"
