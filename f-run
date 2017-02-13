@@ -250,7 +250,8 @@ InstallLuxuries()
           TPecho "Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
-      "Fluxbox") TPecho "Installing window manager"
+      "Fluxbox") TPecho "Installing"
+          TPecho "Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
       "Gnome") TPecho "Installing"
@@ -263,7 +264,7 @@ InstallLuxuries()
           pacstrap /mnt plasma-meta 2>> feliz.log
           pacstrap /mnt kde-applications 2>> feliz.log
         ;;
-      "LXDE") TPecho "Installingt"
+      "LXDE") TPecho "Installing"
           TPecho "LXDE"
           pacstrap /mnt lxde leafpad 2>> feliz.log
           if [ -d /mnt/etc/lxdm ]; then
@@ -271,6 +272,7 @@ InstallLuxuries()
           fi
         ;;
       "LXQt") TPecho "Installing"
+          TPecho "LXQt"
           pacstrap /mnt lxqt 2>> feliz.log
           pacstrap /mnt oxygen-icons connman lxappearance xscreensaver
         ;;
@@ -317,20 +319,22 @@ InstallLuxuries()
     pacman-key --populate archlinux 2>> feliz.log
     pacman -Sy 2>> feliz.log
     pacstrap /mnt yaourt 2>> feliz.log
-    TPecho "Installing"
     # Second parse through LuxuriesList - any extras
     for i in ${LuxuriesList}
     do
       case $i in
       "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "MateGTK3" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
         ;;
-      "cairo-dock") TPecho "Cairo Dock"
+      "cairo-dock") TPecho "Installing"
+        TPecho "Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
-      "conky") TPecho "Conky"
+      "conky")     TPecho "Installing"
+        TPecho "Conky"
         pacstrap /mnt conky 2>> feliz.log
         ;;
-      *) TPecho "$i"
+      *) TPecho "Installing"
+        TPecho "$i"
         pacstrap /mnt "$i" 2>> feliz.log
       esac
     done

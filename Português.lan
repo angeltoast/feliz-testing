@@ -38,7 +38,7 @@ isso agora. Se não, tente digitar uma abreviatura de duas letras
 para o seu país ou idioma e uma lista será exibida
 Alternativamente, tecle ' ' para iniciar novamente
 Selecione seu teclado, ou tecle Sair para tentar novamente
-Nenhum teclado encontrado contendo '$Term'
+Nenhum teclado encontrado contendo
 Por favor, tente novamente
 Digite um nome para o usuário primário do novo sistema
 Se você não criar um usuário aqui, um usuário padrão
@@ -303,3 +303,18 @@ Austrália
 Europa
 Índia
 Pacífico
+Preparação e montagem de partições
+Atualizando chaves
+Instalando o kernel e os sistemas centrais
+Instalação de ferramentas cli
+Instalação de ferramentas sem fio
+Instalando ferramentas gráficas
+Adicionando codecs
+Correndo mkinitcpio
+Instalando drivers de vídeo opensource
+Gerando lista de espelhos
+Adicionando usuários e configurando grupos
+Preparações concluídas
+Início da fase de instalação automática
+Preparando serviços locais
+Instalação

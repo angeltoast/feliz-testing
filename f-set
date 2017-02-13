@@ -42,8 +42,8 @@
 
 not_found() {
   Echo
-  Translate "Please try again"
-  read_timed "$Result ..." 1
+  PrintOne "Please try again"
+  Buttons "Yes/No" "$_Ok"
 }
 
 Echo() { # Use in place of 'echo' for basic text print
@@ -290,7 +290,8 @@ DoCities() { # Specifically for America, which has subgroups
       done
   esac
   PrintOne "Please select a city from this list"
-  listgen1 "$Cities" "" "$_Ok $_Exit"
+  Translate "or Exit to try again"
+  listgen1 "$Cities" "$Result" "$_Ok $_Exit"
   case $Result in
   "$_Exit") SetTimeZone
   ;;
@@ -320,7 +321,8 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Echo                                # If none found, offer main languages
       PrintOne "No language has been found for your location"
       PrintOne "Would you like to use one of the following?"
-      listgen1 "English French Spanish" "$_Instructions" "$_Ok $_Exit"
+      Translate "Choose one or Exit to search for alternatives"
+      listgen1 "English French Spanish" "$Result" "$_Ok $_Exit"
       case $Response in
       1) Item="en"
       ;;
@@ -423,8 +425,9 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         done
         localelist="${Newlist}"                         # Ensure that localelist matches choosefrom
         print_heading
-        PrintOne "Now please choose your language from this list" "" "or Exit to try again."
-        listgen1 "${choosefrom}" "" "$_Ok $_Exit"       # Menu if less than one screenful
+        PrintOne "Now please choose your language from this list"
+        Translate "Choose one or Exit to search for alternatives"
+        listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"       # Menu if less than one screenful
       fi
       case $Result in
       "$_Exit" | "") SetTimeZone
@@ -546,8 +549,9 @@ SearchKeyboards() {
     else
       print_heading
       Echo
-      PrintOne "No keyboards found containing" "'$Term'"
-      PrintOne "Please try again"
+      Translate "No keyboards found containing"
+      PrintOne "$Result" "'$Term'"
+      not_found
     fi
   done
 }
@@ -723,7 +727,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           LongNet1[${Counter}]="$i - ${LongNet[${Counter}]}"
           (( Counter+=1 ))
         done
-        listgen2 "$Internet" "${Headline}" "$_Ok $_Exit" "LongNet1"
+        listgen2 "$Internet" "$_Quit" "$_Ok $_Exit" "LongNet1"
        ;;
        5) OptionsCounter=1
           for Option in "${LongMulti[@]}"  # Translate all elements

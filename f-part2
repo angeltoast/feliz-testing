@@ -107,7 +107,8 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "First you should select one to use for EFI /boot"
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
-  listgen2 "$PartitionList" "" "$_Ok $_Exit" "PartitionArray"
+  Translate "or Exit to try again"
+  listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
   Reply=$Response               # This will be the selected item in the list
                                 # (not necessarily the partition number)
   if [ $Result != "$_Exit" ]; then
