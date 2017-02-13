@@ -95,7 +95,7 @@ ConfirmVbox() {
     case $Response in
       1) IsInVbox="VirtualBox"
       ;;
-      "") invalid_option
+      "") not_found
         continue
       ;;
       *) IsInVbox=""
@@ -253,7 +253,7 @@ FindCity() {  # Called by SelectSubzone
   done
   if [ ${Counter} -eq 0 ]; then       # None found
     not_found
-    continue
+    return
   fi
 
   if [ $Counter -ge $Rows ]; then
@@ -463,6 +463,9 @@ AllLanguages() {
 }
 
 getkeymap() {
+
+read -p "$CountryLocale"
+  
   Countrykbd=""
   country="${CountryLocale,,}"
   case ${country:3:2} in
@@ -470,8 +473,8 @@ getkeymap() {
   ;;
   *) Term="${country:3:2}"
   esac
-  ListKbs=$(cat keymaps.list | grep ${Term})
-  Found=$(cat keymaps.list | grep ${Term} | wc -l)  # Count records
+  ListKbs=$(grep ${Term} keymaps.list)
+  Found=$(grep -c ${Term} keymaps.list)  # Count records
   if [ ! $Found ]; then
     Found=0
   fi
@@ -535,7 +538,7 @@ SearchKeyboards() {
       SetTimeZone
     fi
     Echo
-    ListKbs=$(cat keymaps.list | grep ${Term})
+    ListKbs=$(grep ${Term} keymaps.list)
     if [ -n "${ListKbs}" ]; then  # If a match or matches found
       print_heading
       PrintOne "Select your keyboard, or Exit to try again"
@@ -655,7 +658,7 @@ KeepOrDelete() {
         done
         break
       ;;
-      *) invalid_option
+      *) not_found
     esac
   done
   LuxuriesList="$Temp"

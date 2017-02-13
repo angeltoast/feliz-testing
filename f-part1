@@ -70,7 +70,7 @@ CheckParts() {  # Test for existing partitions
         Partitioning                      # Partitioning options for BIOS
       fi
                                           # Terminate
-      if [ $Response = "4" ]; then
+      if [ "$Result" = "$_Exit" ]; then
         print_heading
         Echo
         PrintOne "Exiting to allow you to partition the device"
@@ -242,7 +242,7 @@ Partitioning() {
       ;;
       4) echo "Manual partition allocation" >> feliz.log
       ;;
-      *) invalid_option
+      *) not_found
         Proceed=""
         print_heading
     esac
@@ -315,7 +315,7 @@ AutoWarning() {
       "2" | "N" | "n") UseDisk=""
         break 2
         ;;
-      *) invalid_option
+      *) not_found
     esac
   done
 }
@@ -427,7 +427,7 @@ select_filesystem() { # User chooses filesystem from list in global variable ${T
 
 EditLabel() {
   Label="${Labelled[$1]}"
-  if [ -n ${Label} ]; then
+  if [ -n "${Label}" ]; then
     # Inform the user and accept input
     print_heading
     Echo
@@ -679,7 +679,7 @@ MorePartitions() {
         fi
       elif [ "$Part" != "$_Exit" ]; then   # Part is not selected and not 'Exit'
         Remaining="$Remaining $Part" # Add unused partition to temp list
-        AddedToRemaining=$(($AddedToRemaining+1))
+        AddedToRemaining=$((AddedToRemaining+1))
       fi
     done
     PartitionList=$Remaining  # Replace original PartitionList with temp list

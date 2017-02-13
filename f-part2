@@ -43,7 +43,7 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
     # Mount efivarfs if it is not already mounted
-    if [[ -z $(mount | grep /sys/firmware/efi/efivars) ]]; then
+    if [ ! $(mount | grep -q /sys/firmware/efi/efivars) ]; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
     fi
     UEFI=1
@@ -88,7 +88,7 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
       ;;
       3) printf
       ;;
-      *) invalid_option
+      *) not_found
         Proceed=""
         print_heading
     esac
@@ -492,7 +492,7 @@ ActionEasyPart() { # EFI Final step. Uses the variables set above to create GPT 
       "2" | "$_No") UseDisk=""
         CheckParts                  # Go right back to start
         ;;
-        *) invalid_option
+        *) not_found
     esac
   done
 
@@ -581,10 +581,10 @@ ActionEasyPart() { # EFI Final step. Uses the variables set above to create GPT 
     AddPartMount[0]="/home"           # Mountpoint    | array of
     AddPartType[0]="ext4"             # Filesystem    | additional partitions
   fi
-  ShowPart1="$_BootPartition : `lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart2="$_RootPartition : `lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart3="$_SwapPartition : `lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}'`" >/dev/null
-  ShowPart4="$_HomePartition : `lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}'`" >/dev/null
+  ShowPart1="$_BootPartition : $(lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}')" >/dev/null
+  ShowPart2="$_RootPartition : $(lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}')" >/dev/null
+  ShowPart3="$_SwapPartition : $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')" >/dev/null
+  ShowPart4="$_HomePartition : $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')" >/dev/null
   AutoPart=1                  # Treat as auto-partitioned. Set flag to 'on' for mounting
   print_heading
   PrintOne "Partitioning of" "${GrubDevice}" "successful"
@@ -842,7 +842,7 @@ ActionGuided() { # Final BIOS step - Uses the variables set above to create part
       "2" | "N" | "n") UseDisk=""
         CheckParts                    # Go right back to start
         ;;
-        *) invalid_option
+        *) not_found
     esac
   done
 
