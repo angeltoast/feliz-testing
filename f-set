@@ -463,9 +463,6 @@ AllLanguages() {
 }
 
 getkeymap() {
-
-read -p "$CountryLocale"
-  
   Countrykbd=""
   country="${CountryLocale,,}"
   case ${country:3:2} in

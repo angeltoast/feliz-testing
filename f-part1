@@ -614,6 +614,7 @@ NoPartitions() { # There are no unallocated partitions
   Message="Create a swap file?"
   Echo
   Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
+  Echo
   case $Response in
     "1" | "$_Yes" | "y") SetSwapFile
       SwapPartition=""

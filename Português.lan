@@ -303,17 +303,17 @@ Austrália
 Europa
 Índia
 Pacífico
-Preparação e montagem de partições
+Preparando e montando partições
 Atualizando chaves
-Instalando o kernel e os sistemas centrais
-Instalação de ferramentas cli
+Instalação do kernel e sistemas centrais
+Instalação de ferramentas CLI
 Instalação de ferramentas sem fio
-Instalando ferramentas gráficas
+Instalação de ferramentas gráficas
 Adicionando codecs
-Correndo mkinitcpio
-Instalando drivers de vídeo opensource
+Execução do mkinitcpio
+Instalação de dispositivos opensource de vídeo
 Gerando lista de espelhos
-Adicionando usuários e configurando grupos
+Adicionando usuário e configurando grupos
 Preparações concluídas
 Início da fase de instalação automática
 Preparando serviços locais
