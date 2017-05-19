@@ -370,8 +370,6 @@ UserAdd() {
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
     arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
     arch_chroot "mkdir /home/${UserName}/Pictures/"
-    # Set owner
-    arch_chroot "chown -R ${UserName}:users /home/${UserName}/.config/*"
     # Copy FelizOB files
     cp conkyrc /mnt/home/${UserName}/.conkyrc
     cp autostart /mnt/home/${UserName}/.config/openbox/
@@ -379,6 +377,8 @@ UserAdd() {
     cp wallpaper /mnt/home/${UserName}/Pictures/
     echo "wallpaper=/home/${UserName}/Pictures/wallpaper" >> desktop-items-0
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+    # Set owner
+    arch_chroot "chown -R ${UserName}:users /home/${UserName}/.config/"
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
