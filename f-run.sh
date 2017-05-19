@@ -372,6 +372,7 @@ UserAdd() {
     cp autostart /mnt/home/${UserName}/.config/openbox/
     cp menu.xml /mnt/home/${UserName}/.config/openbox/
     arch_chroot "mkdir /home/${UserName}/Pictures/"
+    arch_chroot "chown -R ${UserName}:users /home/${UserName}/.config/openbox"
     cp wallpaper.jpg /mnt/home/${UserName}/Pictures/
     echo "wallpaper_mode=fit" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
     echo "wallpaper_common=1" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf

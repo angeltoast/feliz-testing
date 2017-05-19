@@ -4,8 +4,11 @@
 # Composite manager
 compton -b -l 0 -t 0 &
 
-# Mate panel
-mate-panel &
+# lxpanel
+lxpanel &
+
+# Desktop
+pcmanfm --desktop &
 
 # Screensaver
 xscreensaver -no-splash &
