@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 26th February 2017
+# Revision date: 19th May 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,14 +25,14 @@
 # -------------------------      -------------------------
 # Functions           Line       Functions           Line
 # -------------------------      -------------------------
-# arch_chroot           36       ReflectorMirrorList  205
-# Parted                41       LocalMirrorList      215
-# TPecho                63       InstallDM            230
-#                                InstallLuxuries      240
-# MountPartitions       99       UserAdd              325
-# InstallKernel        162       SetRootPassword      340
-# AddCodecs            180       SetUserPassword      378
-# McInitCPIO           195       Restart
+# arch_chroot           38       ReflectorMirrorList  191
+# Parted                42       LocalMirrorList      201
+# TPecho                46       InstallDM            216
+#                                InstallLuxuries      227
+# MountPartitions       53       UserAdd              348
+# InstallKernel        127       SetRootPassword      374
+# AddCodecs            159       SetUserPassword      418
+# McInitCPIO           182       Restart              448
 # -------------------------      -------------------------
 
 arch_chroot() {  # From Lution AIS
@@ -254,6 +254,9 @@ InstallLuxuries()
           TPecho "Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
+      "FelizOB") TPecho "Installing FelizOB"
+        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxterminal pcmanfm xscreensaver 2>> feliz.log
+        ;;
       "Fluxbox") TPecho "Installing"
           TPecho "Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
@@ -327,7 +330,7 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "MateGTK3" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
+      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "FelizOB" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "MateGTK3" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
         ;;
       "cairo-dock") TPecho "Installing"
         TPecho "Cairo Dock"
@@ -362,6 +365,18 @@ UserAdd() {
     arch_chroot "mkdir /home/${UserName}/${i}"
     arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"
   done
+  if [ $DesktopEnvironment = "FelizOB" ]; then
+    # Set up directories
+    arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
+    cp conkyrc /mnt/home/${UserName}/.conkyrc
+    cp autostart /mnt/home/${UserName}/.config/openbox/
+    cp menu.xml /mnt/home/${UserName}/.config/openbox/
+    arch_chroot "mkdir /home/${UserName}/Pictures/"
+    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/
+    echo "wallpaper_mode=fit" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+    echo "wallpaper_common=1" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+    echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+  fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
   case $Countrykbd in
@@ -456,4 +471,3 @@ Restart() {
   *) exit 1
   esac
 }
-
