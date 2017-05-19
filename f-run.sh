@@ -151,7 +151,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   esac
 
   TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch setxkbmap unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >/dev/null
 
 }
@@ -377,10 +377,8 @@ UserAdd() {
     cp autostart /mnt/home/${UserName}/.config/openbox/
     cp menu.xml /mnt/home/${UserName}/.config/openbox/
     cp wallpaper /mnt/home/${UserName}/Pictures/
-    # Set wallpaper in configuration file
-    echo "wallpaper_mode=fit" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
-    echo "wallpaper_common=1" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
-    echo "wallpaper=/home/${UserName}/Pictures/wallpaper" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+    echo "wallpaper=/home/${UserName}/Pictures/wallpaper" >> desktop-items-0
+    cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
