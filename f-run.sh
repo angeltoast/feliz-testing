@@ -368,15 +368,19 @@ UserAdd() {
   if [ $DesktopEnvironment = "FelizOB" ]; then
     # Set up directories
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
+    arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
+    arch_chroot "mkdir /home/${UserName}/Pictures/"
+    # Set owner
+    arch_chroot "chown -R ${UserName}:users /home/${UserName}/.config/*"
+    # Copy FelizOB files
     cp conkyrc /mnt/home/${UserName}/.conkyrc
     cp autostart /mnt/home/${UserName}/.config/openbox/
     cp menu.xml /mnt/home/${UserName}/.config/openbox/
-    arch_chroot "mkdir /home/${UserName}/Pictures/"
-    arch_chroot "chown -R ${UserName}:users /home/${UserName}/.config/openbox"
-    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/
+    cp wallpaper /mnt/home/${UserName}/Pictures/
+    # Set wallpaper in configuration file
     echo "wallpaper_mode=fit" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
     echo "wallpaper_common=1" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
-    echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
+    echo "wallpaper=/home/${UserName}/Pictures/wallpaper" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
