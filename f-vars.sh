@@ -199,7 +199,6 @@ RecordNumber=0            # Used during translation
 DesktopEnvironment=""     # eg: xfce
 DisplayManager=""         # eg: lightdm
 Greeter=""                # eg: lightdm-gtk-greeter (Not required for some DMs)
-FelizOB="F"               # F = FelizOB not installed; T = FelizOB installed
 
 # Root and user variables
 HostName=""               # eg: arch-linux
@@ -303,10 +302,10 @@ LongProg[7]="Cross-platform IDE for Object Pascal"
 LongProg[8]="Integrated development environment (IDE)"
 # WindowManagers
 WindowManagers="Enlightenment Fluxbox Openbox FelizOB cairo-dock docky fbpanel tint2"
-LongWMs[1]="Window manager and toolkit                      "
+LongWMs[1]="Window manager and toolkit                       "
 LongWMs[2]="Light, fast and versatile WM"
 LongWMs[3]="Lightweight, powerful & configurable stacking WM"
-LongWMs[4]="Openbox with Feliz basic desktop setup"
+LongWMs[4]="Feliz customized Openbox with basic desktop tools"
 LongWMs[5]="Customizable dock & launcher application"
 LongWMs[6]="For opening applications & managing windows"
 LongWMs[7]="Desktop panel"
