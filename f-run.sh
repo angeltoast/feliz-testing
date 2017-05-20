@@ -352,15 +352,16 @@ UserAdd() {
     # Set up directories
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
     arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
-    arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/panel"
+    arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/panel/"
     arch_chroot "mkdir /home/${UserName}/Pictures/"
     # Copy FelizOB files
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log
+    cp face /mnt/home/${UserName}/.face 2>> feliz.log
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
-    cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log
+    cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/panel/ 2>> feliz.log
     cp lxdm.conf /mnt/etc/lxdm/ 2>> feliz.log
-    cp wallpaper /usr/share/lxdm/ 2>> feliz.log
+    cp wallpaper /mnt/usr/share/lxdm/ 2>> feliz.log
     echo "wallpaper=/home/${UserName}/Pictures/wallpaper" >> desktop-items-0
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
     # Set owner
