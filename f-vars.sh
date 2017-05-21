@@ -148,7 +148,7 @@ Translate() { # Called by ReadOne & ReadMany and by other functions as required
   case $RecordNumber in
   "" | 0) # No translation found, so translate using Google Translate:
       LocalCode=${CountryLocale:0:2}
-      ./trans -b en:$LocalCode "$Text" > Result.file
+      ./trans -b -no-autocorrect en:$LocalCode "$Text" > Result.file
       Result=$(cat Result.file)
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target file
