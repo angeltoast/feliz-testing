@@ -102,8 +102,6 @@ SetLanguage() {
   chmod +x ./trans
   
   # Some common translations
-  Translate "Translating"
-  _Translating="$Result ..."
   Translate "Feliz2 - Arch Linux installation script"
   _Backtitle="$Result"
   # listgen1/2 variables
@@ -149,10 +147,8 @@ Translate() { # Called by ReadOne & ReadMany and by other functions as required
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No translation found, so translate using Google Translate:
-      printf ". "
-      LocalCode=${CountryLocale:0:2}
-      ./trans -b en:$LocalCode "$Text" > Result.file 2>/dev/null
-      Result=$(cat Result.file)
+     ./trans -b en:${CountryLocale:0:2} "$Text" > Result.file 2>/dev/null
+     Result=$(cat Result.file)
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target file
   esac
