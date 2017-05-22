@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 21st May 2017
+# Revision date: 22nd May 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -97,9 +97,11 @@ SetLanguage() {
   esac
 
   # Install the translator for situations where no translation is found on file
-  PrintOne "Loading translator"
-  wget -q git.io/trans
-  chmod +x ./trans
+  if [ $LanguageFile != "English.lan" ]; then   # Only if not English
+    PrintOne "Loading translator"
+    wget -q git.io/trans
+    chmod +x ./trans
+  fi
   
   # Some common translations
   Translate "Feliz2 - Arch Linux installation script"
@@ -207,6 +209,7 @@ RecordNumber=0            # Used during translation
 DesktopEnvironment=""     # eg: xfce
 DisplayManager=""         # eg: lightdm
 Greeter=""                # eg: lightdm-gtk-greeter (Not required for some DMs)
+fob="N"                   # Y if FelizOB to be installed as system
 
 # Root and user variables
 HostName=""               # eg: arch-linux
