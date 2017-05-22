@@ -590,13 +590,14 @@ SetHostname() {
 
 Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   print_heading
-  PrintOne "Feliz now offers you a choice. You can ..."
-  PrintOne "1) Build your own system, by picking the"
-  PrintOne "   software you wish to install; or ..."
-  PrintOne "2) You can simply choose the new FelizOB desktop,"
-  PrintOne "   a complete lightweight system built on Openbox"
+  PrintOne "Feliz now offers you a choice. You can either ..."
+  PrintOne "Build your own system, by picking the"
+  PrintOne " software you wish to install; or ..."
   Echo
-  listgenx "Build_My_Own FelizOB_desktop" "" "$_Ok"
+  PrintOne "You can simply choose the new FelizOB desktop,"
+  PrintOne " a complete lightweight system built on Openbox"
+  Echo
+  listgen1 "Build_My_Own FelizOB_desktop" "" "$_Ok"
   case $Response in
     1) PickLuxuries
     ;;
