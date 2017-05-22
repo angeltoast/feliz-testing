@@ -28,18 +28,17 @@ print_heading() {   # Always use this function to clear the screen
   clear
   local T_COLS=$(tput cols)             # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
-  printf "%-s\n" "$_Backtitle"           # Display backtitle
+  printf "%-s\n" "$_Backtitle"          # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
 }
 
-PrintOne() {  # Receives up to 2 arguments
-              # If $2 contains anything, don't translate $1
-              # Prints text centred according to content and screen size
-  if [ ! "$2" ]; then
-    Translate "$1"
+PrintOne() {  # Receives up to 2 arguments. Translates and prints text
+              # centred according to content and screen size
+  if [ ! "$2" ] && [ $LanguageFile != "English.lan" ]; then  # If $2 is missing, and
+    Translate "$1"                                           # not English, translate $1
     Text="$Result"
-  else
+  else        # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
   local width=$(tput cols)
@@ -53,13 +52,12 @@ PrintOne() {  # Receives up to 2 arguments
   Echo "$EMPTY $Text"
 }
 
-PrintMany() { # Receives up to 2 arguments
-              # If $2 contains anything, don't translate $1
-              # Then print aligned according to content and screen size
-  if [ ! "$2" ]; then
-    Translate "$1"
+PrintMany() { # Receives up to 2 arguments. Translates and prints text
+              # aligned to first row according to content and screen size
+  if [ ! "$2" ] && [ $LanguageFile != "English.lan" ]; then  # If $2 is missing, and
+    Translate "$1"                                           # not English, translate $1
     Text="$Result"
-  else
+  else        # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
   Echo "$EMPTY $Text"

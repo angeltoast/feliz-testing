@@ -593,8 +593,8 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   PrintOne "Feliz now offers you a choice. You can"
   PrintOne "build your own system, by picking the"
   PrintOne "software you wish to install, or you can"
-  PrintOne "choose the new FelizOB desktop, a complete"
-  PrintOne "lightweight system built on Openbox"
+  PrintOne "simply choose the new FelizOB desktop, a"
+  PrintOne "complete lightweight system built on Openbox"
   Echo
   Translate "Build_My_Own"
   _Build=$Result
