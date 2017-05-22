@@ -117,6 +117,8 @@ SetLanguage() {
   _Yes="$Result"
   Translate "No"
   _No="$Result"
+  Translate "None"
+  _None="$Result"
   Translate "or"
   _or="$Result"
   # listgenx variables
@@ -131,11 +133,11 @@ SetLanguage() {
   # Partitioning
   Translate "/boot partition"
   _BootPartition="$Result"
-    Translate "/root partition"
+  Translate "/root partition"
   _RootPartition="$Result"
-    Translate "/swap partition"
+  Translate "/swap partition"
   _SwapPartition="$Result"
-    Translate "/home partition"
+  Translate "/home partition"
   _HomePartition="$Result"
 }
 

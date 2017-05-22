@@ -591,11 +591,12 @@ SetHostname() {
 Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   print_heading
   PrintOne "Feliz now offers you a choice. You can either ..."
-  PrintOne "Build your own system, by picking the"
-  PrintOne " software you wish to install; or ..."
   Echo
-  PrintOne "You can simply choose the new FelizOB desktop,"
-  PrintOne " a complete lightweight system built on Openbox"
+  PrintOne "Build your own system, by picking the"
+  PrintOne " software you wish to install"
+  PrintOne "... or ..."
+  PrintOne "You can simply choose the new FelizOB desktop, a"
+  PrintOne " complete lightweight system built on Openbox"
   Echo
   listgen1 "Build_My_Own FelizOB_desktop" "" "$_Ok"
   case $Response in
@@ -859,7 +860,7 @@ ChooseDM() { # Choose a display manager
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"
       Echo
-      listgen1 "${DMList}" "$_Quit" "$_Ok $_Exit"
+      listgen1 "${DMList}" "" "$_Ok $_None"
       Reply=$Response
       for item in ${DMList}
       do
@@ -915,7 +916,7 @@ SetGrubDevice() {
   PrintOne "will not be installed, and you will have to make"
   PrintOne "alternative arrangements for booting your new system"
   Echo
-  listgen1 "${DevicesList}" "$_Quit" "$_Ok $_Exit"
+  listgen1 "${DevicesList}" "" "$_Ok $_None"
   Reply=$Response
   for i in ${DevicesList}
   do
