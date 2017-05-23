@@ -232,7 +232,7 @@ InstallLuxuries()
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
       "FelizOB") TPecho "Installing FelizOB"
-        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxterminal pcmanfm xscreensaver 2>> feliz.log
+        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxsession lxterminal pcmanfm xscreensaver 2>> feliz.log
         ;;
       "Fluxbox") TPecho "Installing Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
@@ -389,8 +389,13 @@ SetRootPassword() {
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      Translate "Passwords cannot be blank"
-      read_timed "$Result ..." 1
+      PrintOne "Passwords cannot be blank"
+      Echo
+      PrintOne "Please try again"
+      Echo
+      PrintOne "Note that you will not be able to"
+      PrintOne "see passwords as you enter them"
+      Echo
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -401,6 +406,12 @@ SetRootPassword() {
     else
       print_heading
       PrintOne "Passwords don't match"
+      Echo
+      PrintOne "Please try again"
+      Echo
+      PrintOne "Note that you will not be able to"
+      PrintOne "see passwords as you enter them"
+      Echo
     fi
   done
 }
@@ -418,8 +429,13 @@ SetUserPassword() {
     Echo
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
       print_heading
-      Translate "Passwords cannot be blank"
-      read_timed "$Result ..." 1
+      PrintOne "Passwords cannot be blank"
+      Echo
+      PrintOne "Please try again"
+      Echo
+      PrintOne "Note that you will not be able to"
+      PrintOne "see passwords as you enter them"
+      Echo
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
@@ -430,7 +446,12 @@ SetUserPassword() {
     else
       print_heading
       PrintOne "Passwords don't match"
-      continue
+      Echo
+      PrintOne "Please try again"
+      Echo
+      PrintOne "Note that you will not be able to"
+      PrintOne "see passwords as you enter them"
+      Echo
     fi
   done
 }
