@@ -35,8 +35,8 @@ print_heading() {   # Always use this function to clear the screen
 
 PrintOne() {  # Receives up to 2 arguments. Translates and prints text
               # centred according to content and screen size
-  if [ ! "$2" ] && [ $LanguageFile != "English.lan" ]; then  # If $2 is missing, and
-    Translate "$1"                                           # not English, translate $1
+  if [ ! "$2" ]; then  # If $2 is missing
+    Translate "$1"
     Text="$Result"
   else        # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
@@ -54,8 +54,8 @@ PrintOne() {  # Receives up to 2 arguments. Translates and prints text
 
 PrintMany() { # Receives up to 2 arguments. Translates and prints text
               # aligned to first row according to content and screen size
-  if [ ! "$2" ] && [ $LanguageFile != "English.lan" ]; then  # If $2 is missing, and
-    Translate "$1"                                           # not English, translate $1
+  if [ ! "$2" ]; then  # If $2 is missing
+    Translate "$1"
     Text="$Result"
   else        # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
@@ -144,6 +144,10 @@ SetLanguage() {
 Translate() { # Called by ReadOne & ReadMany and by other functions as required
               # $1 is text to be translated
   Text="$1"
+  if [ $LanguageFile = "English.lan" ]; then
+    Result="$Text"
+    Return
+  fi
   # Get line number of text in English.lan
   #                      exact match only | restrict to first find | display only number
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
@@ -253,29 +257,29 @@ LongAccs[7]="Lightweight terminal emulator from LXDE"
 LongAccs[8]="The file manager from LXDE"
 # Desktops
 Desktops="FelizOB Cinnamon Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
-LongDesk[1]="Special Feliz Openbox-based desktop with basic tools"
+LongDesk[1]="Openbox-based desktop with basic tools  "
 LongDesk[2]="Slick, modern desktop from the Mint team"
 LongDesk[3]="Full-featured, modern DE"
 LongDesk[4]="Plasma 5 and accessories pack"
-LongDesk[5]="Traditional, lightweight desktop environment"
+LongDesk[5]="Traditional, lightweight desktop"
 LongDesk[6]="Lightweight and modern Qt-based DE"
 LongDesk[7]="Traditional desktop from the Mint team"
 LongDesk[8]="GTK3 version of the Mate desktop"
 LongDesk[9]="Lightweight, highly configurable DE"
 # Graphical
 Graphical="avidemux blender gimp handbrake imagemagick inkscape gthumb simple-scan xsane"
-LongGraph[1]="Video editor for simple cutting, filtering and encoding"
-LongGraph[2]="fully integrated 3D graphics creation suite"
+LongGraph[1]="Simple video editor             "
+LongGraph[2]="3D graphics creation suite"
 LongGraph[3]="Advanced image editing suite"
 LongGraph[4]="Simple yet powerful video ripper"
 LongGraph[5]="Command-line image manipulation"
-LongGraph[6]="Vector graphics editor comparable to CorelDraw"
+LongGraph[6]="Vector graphics editor"
 LongGraph[7]="Image viewer & basic editor"
 LongGraph[8]="A simple scanner GUI"
-LongGraph[9]="Full-featured GTK-based sane frontend"
+LongGraph[9]="GTK-based sane frontend"
 # Internet
 Internet="chromium epiphany filezilla firefox midori qbittorrent thunderbird transmission-gtk"
-LongNet[1]="Open source web browser from Google     "
+LongNet[1]="Open source web browser from Google    "
 LongNet[2]="Gnome WebKitGTK+ browser (aka Web)"
 LongNet[3]="Fast & reliable FTP, FTPS & SFTP client"
 LongNet[4]="Extensible browser from Mozilla"
@@ -293,31 +297,31 @@ LongMulti[5]="Middleweight video player"
 LongMulti[6]="GUI CD burner"
 # Office
 Office="abiword calibre evince gnumeric libreoffice orage scribus"
-LongOffice[1]="Full-featured word processor            "
+LongOffice[1]="Full-featured word processor           "
 LongOffice[2]="E-book library management application"
 LongOffice[3]="Reader for PDF & other document formats"
 LongOffice[4]="Spreadsheet program from GNOME"
 LongOffice[5]="Open-source office software suite"
-LongOffice[6]="Calendar & task manager (incl with Xfce)"
+LongOffice[6]="Calendar & task manager"
 LongOffice[7]="Desktop publishing program"
 # Programming
 Programming="bluefish codeblocks diffuse emacs geany git lazarus netbeans"
-LongProg[1]="GTK+ IDE with support for Python plugins      "
+LongProg[1]="GTK+ IDE with support for Python plugins"
 LongProg[2]="Open source & cross-platform C/C++ IDE"
 LongProg[3]="Small and simple text merge tool"
 LongProg[4]="Extensible, customizable text editor"
 LongProg[5]="Advanced text editor & IDE"
-LongProg[6]="Open source distributed version control system"
+LongProg[6]="Open source version control system"
 LongProg[7]="Cross-platform IDE for Object Pascal"
 LongProg[8]="Integrated development environment (IDE)"
 # WindowManagers
-WindowManagers="awesome enlightenment fluxbox openbox xmonad cairo-dock docky fbpanel tint2"
-LongWMs[1]="Configurable, next generation framework window manager"
-LongWMs[2]="Window manager and toolkit                       "
+WindowManagers="Awesome Enlightenment Fluxbox Openbox Xmonad cairo-dock docky fbpanel tint2"
+LongWMs[1]="Configurable window manager              "
+LongWMs[2]="Window manager and toolkit"
 LongWMs[3]="Light, fast and versatile WM"
-LongWMs[4]="Lightweight, powerful & configurable stacking WM"
+LongWMs[4]="Lightweight & configurable stacking WM"
 LongWMs[5]="Tiling window manager for X"
 LongWMs[6]="Customizable dock & launcher application"
-LongWMs[7]="For opening applications & managing windows"
+LongWMs[7]="Full fledged dock application"
 LongWMs[8]="Lightweight NETWM compliant desktop panel"
-LongWMs[9]="Simple, unobtrusive and light panel/taskbar"
+LongWMs[9]="Simple and light panel/taskbar"

@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 21st May 2017
+# Revision date: 23rd May 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -222,19 +222,11 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie") TPecho "Installing Budgie"
-          pacstrap /mnt budgie-desktop 2>> feliz.log
+      "Awesome") TPecho "Installing Awesome"
+          pacstrap /mnt awesome 2>> feliz.log
         ;;
       "Cinnamon") TPecho "Installing Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log
-        ;;
-      "Deepin") TPecho "Installing Deepin"
-          pacstrap /mnt deepin 2>> feliz.log
-          pacstrap /mnt deepin-extras 2>> feliz.log
-          # Change the greeter line in lightdm.conf
-          if [ -d /mnt/etc/lightdm ]; then
-            sed -i s/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/g /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
-          fi
         ;;
       "Enlightenment") TPecho "Installing Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
@@ -279,6 +271,10 @@ InstallLuxuries()
         pacstrap /mnt xfce4 2>> feliz.log
         pacstrap /mnt xfce4-goodies 2>> feliz.log
         ;;
+      "Xmonad") TPecho "Installing Xmonad"
+        pacstrap /mnt xmonad 2>> feliz.log
+        pacstrap /mnt xmonad-contrib 2>> feliz.log
+        ;;
       *) continue # Ignore all others on this pass
       esac
     done
@@ -306,7 +302,7 @@ InstallLuxuries()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Budgie" | "Cinnamon" | "Deepin" | "Enlightenment" | "FelizOB" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "MateGTK3" | "Openbox" | "Xfce") continue # Ignore DEs & WMs on this pass
+      "Awesome" | "Cinnamon" | "Enlightenment" | "FelizOB" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "MateGTK3" | "Openbox" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
         ;;
       "cairo-dock") TPecho "Installing Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
