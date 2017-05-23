@@ -602,9 +602,8 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   case $Response in
     1) PickLuxuries
     ;;
-    2) LuxuriesList="FelizOB midori sylpheed deluge geary abiword"
+    2) LuxuriesList="FelizOB midori"
       DesktopEnvironment="FelizOB"
-      DisplayManager="lxdm"
       Scope="Full"
       fob="Y"
     ;;

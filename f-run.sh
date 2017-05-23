@@ -240,7 +240,7 @@ InstallLuxuries()
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
       "FelizOB") TPecho "Installing FelizOB"
-        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxterminal pcmanfm xscreensaver 2>> feliz.log 2>> feliz.log
+        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxterminal pcmanfm xscreensaver 2>> feliz.log
         ;;
       "Fluxbox") TPecho "Installing Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
@@ -311,7 +311,7 @@ InstallLuxuries()
       "cairo-dock") TPecho "Installing Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
-      "conky")     TPecho "Installing Conky"
+      "conky") TPecho "Installing Conky"
         pacstrap /mnt conky 2>> feliz.log
         ;;
       *) TPecho "Installing $i"

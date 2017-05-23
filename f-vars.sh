@@ -188,7 +188,7 @@ Partition=""              # eg: sda1
 AutoPart=0                # Flag - changes to 1 if auto-partition is chosen
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
-TypeList="ext3 ext4 btrfs xfs" # Partition format types
+TypeList="ext4 ext3 btrfs xfs" # Partition format types
 
 # Grub & kernel variables
 GrubDevice=""             # eg: /dev/sda

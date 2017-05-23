@@ -50,7 +50,6 @@ setlocale                              # CountryLocale eg: en_GB.UTF-8
 getkeymap                              # Select keyboard layout eg: uk
 SetHostname
 
-# PickLuxuries                         # Add extra applications
 Options                                # Added 22 May 2017
 
 if [ $Scope != "Basic" ]; then         # If any extra apps have been added
