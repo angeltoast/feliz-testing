@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 22nd May 2017
+# Revision date: 23rd May 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -252,17 +252,16 @@ LongAccs[6]="Handy lightweight text editor from LXDE"
 LongAccs[7]="Lightweight terminal emulator from LXDE"
 LongAccs[8]="The file manager from LXDE"
 # Desktops
-Desktops="Budgie Cinnamon Deepin Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
-LongDesk[1]="Modern desktop focusing on simplicity & elegance"
-LongDesk[2]="Slick DE from the Mint team"
-LongDesk[3]="The Deepin Desktop Environment"
-LongDesk[4]="Full-featured, modern DE"
-LongDesk[5]="Plasma 5 and accessories pack"
-LongDesk[6]="Traditional, lightweight DE"
-LongDesk[7]="Lightweight and modern Qt DE"
-LongDesk[8]="Traditional DE from the Mint team"
-LongDesk[9]="GTK3 version of the Mate DE"
-LongDesk[10]="Lightweight, highly configurable DE"
+Desktops="FelizOB Cinnamon Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
+LongDesk[1]="Special Feliz Openbox-based desktop with basic tools"
+LongDesk[2]="Slick, modern desktop from the Mint team"
+LongDesk[3]="Full-featured, modern DE"
+LongDesk[4]="Plasma 5 and accessories pack"
+LongDesk[5]="Traditional, lightweight desktop environment"
+LongDesk[6]="Lightweight and modern Qt-based DE"
+LongDesk[7]="Traditional desktop from the Mint team"
+LongDesk[8]="GTK3 version of the Mate desktop"
+LongDesk[9]="Lightweight, highly configurable DE"
 # Graphical
 Graphical="avidemux blender gimp handbrake imagemagick inkscape gthumb simple-scan xsane"
 LongGraph[1]="Video editor for simple cutting, filtering and encoding"
@@ -312,12 +311,13 @@ LongProg[6]="Open source distributed version control system"
 LongProg[7]="Cross-platform IDE for Object Pascal"
 LongProg[8]="Integrated development environment (IDE)"
 # WindowManagers
-WindowManagers="Enlightenment Fluxbox Openbox FelizOB cairo-dock docky fbpanel tint2"
-LongWMs[1]="Window manager and toolkit                       "
-LongWMs[2]="Light, fast and versatile WM"
-LongWMs[3]="Lightweight, powerful & configurable stacking WM"
-LongWMs[4]="Feliz customized Openbox with basic desktop tools"
-LongWMs[5]="Customizable dock & launcher application"
-LongWMs[6]="For opening applications & managing windows"
-LongWMs[7]="Desktop panel"
-LongWMs[8]="Desktop panel"
+WindowManagers="awesome enlightenment fluxbox openbox xmonad cairo-dock docky fbpanel tint2"
+LongWMs[1]="Configurable, next generation framework window manager"
+LongWMs[2]="Window manager and toolkit                       "
+LongWMs[3]="Light, fast and versatile WM"
+LongWMs[4]="Lightweight, powerful & configurable stacking WM"
+LongWMs[5]="Tiling window manager for X"
+LongWMs[6]="Customizable dock & launcher application"
+LongWMs[7]="For opening applications & managing windows"
+LongWMs[8]="Lightweight NETWM compliant desktop panel"
+LongWMs[9]="Simple, unobtrusive and light panel/taskbar"
