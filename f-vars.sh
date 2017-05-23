@@ -146,7 +146,7 @@ Translate() { # Called by ReadOne & ReadMany and by other functions as required
   Text="$1"
   if [ $LanguageFile = "English.lan" ]; then
     Result="$Text"
-    Return
+    return
   fi
   # Get line number of text in English.lan
   #                      exact match only | restrict to first find | display only number
