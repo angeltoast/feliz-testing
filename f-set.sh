@@ -334,8 +334,8 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         if [ -z "$Result" ] || [ $Result = "$_Exit" ]; then
           SetTimeZone
         else
-          Item=$(grep "${Language}:" languages.list)
-          Item=${Item: -2:2}                      # Last two characters
+         # Item=$(grep "${Language}:" languages.list)
+          Item=${Result}                      # Result of AllLanguages
           CountryLocale="${Item}_${SEARCHTERM}.UTF-8"
           CountryCode=${CountryLocale:3:2}        # 2 characters from position 3
         fi
@@ -359,8 +359,8 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
           SetTimeZone
         else
-          Item=$(grep "${Language}:" languages.list)    # eg: Abkhazian:ab
-          Item=${Item: -2:2}                            # Last 2 characters
+          # Item=$(grep "${Language}:" languages.list)    # eg: Abkhazian:ab
+          Item=${Result}                            # Last 2 characters (returned from AllLanguages
           CountryLocale="${Item}_${SEARCHTERM}.UTF-8"   # Set locale
           CountryCode=${CountryLocale:3:2}              # Extract 2 characters from position 3 (eg: GB)
         fi
