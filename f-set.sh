@@ -353,7 +353,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       PrintOne "$Result" ": $Language"
       PrintOne "Shall we use this as your language?"    # Allow user to confirm
       Buttons "Yes/No" "$_Yes $_No" ""
-      if [ $Result = "$N" ]; then                       # User declines offered language
+      if [ $Result = "$_No" ]; then                       # User declines offered language
         City=""
         AllLanguages                                    # Call function to display all languages
         if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
@@ -602,7 +602,7 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   case $Response in
     1) PickLuxuries
     ;;
-    2) LuxuriesList="FelizOB midori"
+    2) LuxuriesList="FelizOB"
       DesktopEnvironment="FelizOB"
       Scope="Full"
       fob="Y"
