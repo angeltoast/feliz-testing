@@ -80,6 +80,7 @@ CheckParts                             # Check partition table & offer options
 if [ $AutoPart -eq 0 ]; then
 
   BuildPartitionLists                  # Prepare table of available partitions
+read -p "feliz.sh at $LINENO"
   AllocateRoot                         # Allow user to select root partition
 
   if [ -n "${PartitionList}" ]; then   # If there are unallocated partitions

@@ -102,6 +102,7 @@ read -p "f-part1 at $LINENO"
       fi
       Counter=$((Counter+1))
     done
+    Echo
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
@@ -136,7 +137,7 @@ read -p "f-part1 at $LINENO"
       done
       Counter=$((Counter+1))
     done
-
+read -p "f-part1 at $LINENO"
   # 2) Find all up to sd*99 with LABEL | select 1st field | remove /dev/ | remove colon
   ListLabelledIDs=$(blkid /dev/sd* | grep LABEL | cut -d':' -f1 | cut -d'/' -f3)
   # If at least one labelled partition found, get a matching list of labels (remove quotes)
@@ -159,7 +160,7 @@ read -p "f-part1 at $LINENO"
     Counter=$((Counter+1))
   done
   local HowManyLabelled="${#Labelled[@]}"
-
+read -p "f-part1 at $LINENO"
   # 3) Find any partitions flagged as bootable
   ListAll=$(sfdisk -l 2>/dev/null | grep /dev | grep '*' | cut -d' ' -f1 | cut -d'/' -f3)
   declare -a Flagged
