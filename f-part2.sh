@@ -50,6 +50,7 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   else
     UEFI=0
  fi
+read -p "f-part2 at #LINENO - UEFI = $UEFI"
 }
 
 PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM

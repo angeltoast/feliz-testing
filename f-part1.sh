@@ -39,7 +39,6 @@
 
 CheckParts() {  # Test for existing partitions
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-read -p "f-part1 at $LINENO"
   local Counter=0
   for i in $ShowPartitions
   do
@@ -70,8 +69,7 @@ read -p "f-part1 at $LINENO"
       else
         Partitioning                      # Partitioning options for BIOS
       fi
-                                          # Terminate
-      if [ "$Result" = "$_Exit" ]; then
+      if [ "$Result" = "$_Exit" ]; then   # Terminate
         print_heading
         Echo
         PrintOne "Exiting to allow you to partition the device"
@@ -93,6 +91,7 @@ read -p "f-part1 at $LINENO"
     print_heading
     PrintOne "Here is a list of available partitions"
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
+read -p "f-part1 at $LINENO"
     Counter=0
     for part in ${PartitionList}
     do
@@ -359,7 +358,6 @@ partition_maker() { # Called from autopart()
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
-
 }
 
 autopart() { # Consolidated partitioning for BIOS or EFI environment
@@ -467,6 +465,7 @@ AllocateRoot() {  # Manual allocation of an existing partition as /root
   PartitionType=""
   PrintOne "Please select a partition to use for /root"
   Echo
+read -p "f-part1 at $LINENO"
   listgen2 "$PartitionList" "" "$_Ok" "PartitionArray"
   Reply=$Response
   PassPart=${Result:0:4}          # eg: sda4
