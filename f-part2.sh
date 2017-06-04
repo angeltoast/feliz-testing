@@ -46,11 +46,11 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
     if [ ! $(mount | grep -q /sys/firmware/efi/efivars) ]; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
     fi
-    UEFI=1
+    UEFI=1                            # Set variable UEFI ON
   else
-    UEFI=0
+    UEFI=0                            # Set variable UEFI OFF
  fi
-read -p "f-part2 at #LINENO - UEFI = $UEFI"
+read -p "f-part2 at $LINENO - UEFI = $UEFI (1=ON 0=OFF)"
 }
 
 PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
