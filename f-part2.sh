@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# The Feliz2 installation scripts for Arch Linux
+# The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 26th February 2017
+# Revision date: 4th June 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,14 +29,12 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
-# TestUEFI            43     EasyRoot            293     GuidedMBR          594
-# PartitioningEFI     57     EasySwap            338     GuidedRoot         507
-# AllocateEFI         99
-# EasyEFI            137     EasyHome            406     GuidedSwap         545
-# EasyDevice         162     ActionEasyPart      453     GuidedHome         610
-# EasyDiskSize       199     WipeDevice          587     ActionGuided       653
-# EasyRecalc         246
-# EasyBoot           262
+# TestUEFI            41     EasyRecalc          262     WipeDevice         601
+# PartitioningEFI     54     EasyBoot            278     GuidedMBR          608
+# AllocateEFI         97     EasyRoot            309     GuidedRoot         652
+# EasyEFI            136     EasySwap            354     GuidedSwap         701
+# EasyDevice         178     EasyHome            422     GuidedHome         771
+# EasyDiskSize       215     ActionEasyPart      469     ActionGuided       819
 # -----------------------    ------------------------    -----------------------
 
 # 1) Assess environment
@@ -99,7 +97,6 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition
   # Uses list of available partitions in PartitionList created in ManagePartitions
   print_heading
-read -p "f-part2 at $LINENO"
 	Remaining=""
 	local Counter=0
   Partition=""
@@ -110,7 +107,9 @@ read -p "f-part2 at $LINENO"
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
   Translate "or Exit to try again"
+read -p "f-part2 at $LINENO"
   listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
+read -p "f-part2 at $LINENO"
   Reply=$Response               # This will be the selected item in the list
                                 # (not necessarily the partition number)
   if [ $Result != "$_Exit" ]; then
@@ -926,5 +925,4 @@ ActionGuided() { # Final BIOS step - Uses the variables set above to create part
     AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
   fi
   AutoPart=1 # Treat as auto-partitioned. Set flag to 'on' for mounting
-
 }

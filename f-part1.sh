@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# The Feliz2 installation scripts for Arch Linux
+# The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 26th February 2017
+# Revision date: 4th June 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -765,6 +765,7 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
   local Counter=0
   declare -a NewArray  # Empty NewArray
   # Build NewArray excluding the partition selected in the calling function
+read -p "f-part1 at $LINENO"
   for p in "${PartitionArray[@]}"
   do
     First=${p:0:4}          # Characters 1 to 5 of ${p}
