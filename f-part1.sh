@@ -113,6 +113,7 @@ read -p "f-part1 at $LINENO"
 
 BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display
                         # Then to prepare partition arrays for selection for root, swap and others
+read -p "f-part1 at $LINENO"
   # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
     # First an array of all partitions up to sd*99
     #                           |includes TYPE | select 1st field | ignore /dev/
@@ -455,6 +456,7 @@ EditLabel() {
 
 AllocateRoot() {  # Manual allocation of an existing partition as /root
   # Display partitions for user-selection (uses list of all available partitions in PartitionList
+read -p "f-part1 at $LINENO"
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
   fi

@@ -31,7 +31,8 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # TestUEFI            43     EasyRoot            293     GuidedMBR          594
 # PartitioningEFI     57     EasySwap            338     GuidedRoot         507
-# EasyEFI            121     EasyHome            406     GuidedSwap         545
+# AllocateEFI         99
+# EasyEFI            137     EasyHome            406     GuidedSwap         545
 # EasyDevice         162     ActionEasyPart      453     GuidedHome         610
 # EasyDiskSize       199     WipeDevice          587     ActionGuided       653
 # EasyRecalc         246
