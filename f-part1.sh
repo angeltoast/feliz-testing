@@ -39,6 +39,7 @@
 
 CheckParts() {  # Test for existing partitions
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
+read -p "f-part1 at $LINENO"
   local Counter=0
   for i in $ShowPartitions
   do
@@ -205,6 +206,7 @@ BuildPartitionLists() { # First called by CheckParts to generate details of exis
     (( Counter+=1 ))
   done
   PARTITIONS=${Counter}
+read -p "f-part1 at $LINENO"
 }
 
 Partitioning() { 
@@ -225,9 +227,11 @@ Partitioning() {
       fi
     done
     Echo
+read -p "f-part1 at $LINENO"
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     Proceed=$Response
     Echo
+read -p "f-part1 at $LINENO"
     case $Proceed in
       1) cfdisk 2>> feliz.log
         tput setf 0             # Change foreground colour to black temporarily to hide error message

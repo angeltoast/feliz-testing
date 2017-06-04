@@ -73,12 +73,14 @@ first_item() { # Aligned text according to screen size
   tput cup $cursor_row $stpt                  # Move cursor to startpoint
   printf "%-s\v" "$1"
   cursor_row=$((cursor_row+1))
+read -p "listgen at $LINENO"
 }
 
 subsequent_item() { # Subsequent item(s) in an aligned list
   tput cup $cursor_row $stpt                  # Move cursor to startpoint
   printf "%-s\n" "$1"
   cursor_row=$((cursor_row+1))
+read -p "listgen at $LINENO"
 }
 
 PrintRev() {  # Receives numeric argument of item number
