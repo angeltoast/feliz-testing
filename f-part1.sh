@@ -91,7 +91,6 @@ CheckParts() {  # Test for existing partitions
     print_heading
     PrintOne "Here is a list of available partitions"
     BuildPartitionLists                 # Generate an array of partitions - this is a first call
-read -p "f-part1 at $LINENO"
     Counter=0
     for part in ${PartitionList}
     do
@@ -114,7 +113,6 @@ read -p "f-part1 at $LINENO"
 
 BuildPartitionLists() { # First called by CheckParts to generate details of existing partitions for display
                         # Then to prepare partition arrays for selection for root, swap and others
-read -p "f-part1 at $LINENO"
   # 1) Prepare two arrays from attached devices using blkid (installed with Feliz)
     # First an array of all partitions up to sd*99
     #                           |includes TYPE | select 1st field | ignore /dev/
@@ -137,7 +135,6 @@ read -p "f-part1 at $LINENO"
       done
       Counter=$((Counter+1))
     done
-read -p "f-part1 at $LINENO"
   # 2) Find all up to sd*99 with LABEL | select 1st field | remove /dev/ | remove colon
   ListLabelledIDs=$(blkid /dev/sd* | grep LABEL | cut -d':' -f1 | cut -d'/' -f3)
   # If at least one labelled partition found, get a matching list of labels (remove quotes)
@@ -160,7 +157,6 @@ read -p "f-part1 at $LINENO"
     Counter=$((Counter+1))
   done
   local HowManyLabelled="${#Labelled[@]}"
-read -p "f-part1 at $LINENO"
   # 3) Find any partitions flagged as bootable
   ListAll=$(sfdisk -l 2>/dev/null | grep /dev | grep '*' | cut -d' ' -f1 | cut -d'/' -f3)
   declare -a Flagged
@@ -207,7 +203,6 @@ read -p "f-part1 at $LINENO"
     (( Counter+=1 ))
   done
   PARTITIONS=${Counter}
-read -p "f-part1 at $LINENO"
 }
 
 Partitioning() { 
@@ -228,11 +223,9 @@ Partitioning() {
       fi
     done
     Echo
-read -p "f-part1 at $LINENO"
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     Proceed=$Response
     Echo
-read -p "f-part1 at $LINENO"
     case $Proceed in
       1) cfdisk 2>> feliz.log
         tput setf 0             # Change foreground colour to black temporarily to hide error message
@@ -457,7 +450,6 @@ EditLabel() {
 
 AllocateRoot() {  # Manual allocation of an existing partition as /root
   # Display partitions for user-selection (uses list of all available partitions in PartitionList
-read -p "f-part1 at $LINENO"
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
   fi
@@ -468,7 +460,6 @@ read -p "f-part1 at $LINENO"
   PartitionType=""
   PrintOne "Please select a partition to use for /root"
   Echo
-read -p "f-part1 at $LINENO"
   listgen2 "$PartitionList" "" "$_Ok" "PartitionArray"
   Reply=$Response
   PassPart=${Result:0:4}          # eg: sda4

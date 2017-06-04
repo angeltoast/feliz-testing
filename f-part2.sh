@@ -51,7 +51,6 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   else
     UEFI=0                            # Set variable UEFI OFF
  fi
-read -p "f-part2 at $LINENO - UEFI = $UEFI (1=ON 0=OFF)"
 }
 
 PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
@@ -100,6 +99,7 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition
   # Uses list of available partitions in PartitionList created in ManagePartitions
   print_heading
+read -p "f-part2 at $LINENO"
 	Remaining=""
 	local Counter=0
   Partition=""
