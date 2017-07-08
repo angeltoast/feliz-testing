@@ -52,7 +52,6 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
 }
 
 PartitioningEFI() {
-read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
   local Proceed=""
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
@@ -71,10 +70,8 @@ read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
       fi
     done
     Echo
-read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     Proceed=$Response
-read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
     Echo
     case $Proceed in
       1) print_heading
@@ -110,9 +107,7 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
   Translate "or Exit to try again"
-read -p "f-part2 at $LINENO"
   listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
-read -p "f-part2 at $LINENO"
   Reply=$Response               # This will be the selected item in the list
                                 # (not necessarily the partition number)
   if [ $Result != "$_Exit" ]; then

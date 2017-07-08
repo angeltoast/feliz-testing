@@ -102,7 +102,6 @@ CheckParts() {  # Test for existing partitions
       Counter=$((Counter+1))
     done
     Echo
-read -p "In f-part1 at line $LINENO: UEFI = ${UEFI}"
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment
@@ -451,11 +450,9 @@ EditLabel() {
 
 AllocateRoot() {  # Manual allocation of an existing partition as /root
   # Display partitions for user-selection (uses list of all available partitions in PartitionList
-read -p "f-part1 at $LINENO"
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
   fi
-read -p "f-part1 at $LINENO"
   print_heading
   Remaining=""
   local Counter=0
@@ -768,7 +765,6 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
   local Counter=0
   declare -a NewArray  # Empty NewArray
   # Build NewArray excluding the partition selected in the calling function
-# read -p "f-part1 at $LINENO"
   for p in "${PartitionArray[@]}"
   do
     First=${p:0:4}          # Characters 1 to 5 of ${p}
