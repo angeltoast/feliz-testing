@@ -131,6 +131,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   # If feliz.log exists and the first line created by felizinit is numeric (new felizinit)
   # and that number is greater than or equal to the date of the latest Arch trust update
   TrustDate=20170104  # Reset this to date of latest Arch Linux trust update
+read -p "In f-run.sh at line $LINENO: echo $TrustDate <> $(head -n 1 feliz.log)"
   if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
     echo "pacman-key trust check passed" >> feliz.log
   else             # Default
