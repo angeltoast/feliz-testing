@@ -266,7 +266,6 @@ ChooseDevice() {
   until [ ${AutoPart} -gt 0 ]
   do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
-    UseDisk=$DiskDetails # If more than one, UseDisk will be first
     # Count lines. If more than one disk, ask user which to use
     local Counter=0
     CountDisks=0
@@ -291,6 +290,7 @@ ChooseDevice() {
         AutoWarning
       done
     else
+      UseDisk=$DiskDetails
       AutoWarning
     fi
   done
@@ -326,9 +326,9 @@ partition_maker() { # Called from autopart()
   
   # Set the device to be used to 'set x boot on'
   if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
-    local MountDevice=2                             # Next partition after /boot = [sda]2
+    MountDevice=2                                   # Next partition after /boot = [sda]2
   else
-    local MountDevice=1                             # In BIOS = first partition = [sda]1
+    MountDevice=1                                   # In BIOS = first partition = [sda]1
   fi
  
   Parted "mkpart primary ext4 ${StartPoint} ${2}"   # /root
@@ -435,7 +435,7 @@ EditLabel() {
     PrintMany "If you wish to delete the label, enter 2"
     PrintMany "If you wish to enter a new label, type it at the prompt"
     Echo
-    Translate "Enter 1, 2 or a new label"
+    Translate "Enter 1, 2 or a new label: "
     TPread "$Result" ": "
     # Save to the -A array
     case $Response in
@@ -450,9 +450,11 @@ EditLabel() {
 
 AllocateRoot() {  # Manual allocation of an existing partition as /root
   # Display partitions for user-selection (uses list of all available partitions in PartitionList
+read -p "f-part1 at $LINENO"
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
     AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
   fi
+read -p "f-part1 at $LINENO"
   print_heading
   Remaining=""
   local Counter=0
@@ -765,7 +767,7 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
   local Counter=0
   declare -a NewArray  # Empty NewArray
   # Build NewArray excluding the partition selected in the calling function
-read -p "f-part1 at $LINENO"
+# read -p "f-part1 at $LINENO"
   for p in "${PartitionArray[@]}"
   do
     First=${p:0:4}          # Characters 1 to 5 of ${p}
