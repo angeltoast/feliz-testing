@@ -78,7 +78,7 @@ MountPartitions() {
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
-    mkfs.fat -F32 ${EFIPartition} 2> feliz.log          # Format EFI boot partition
+    mkfs.fat -F32 ${EFIPartition} 2>> feliz.log          # Format EFI boot partition
     mkdir /mnt/boot                                     # Make mountpoint
     mount ${EFIPartition} /mnt/boot                     # Mount it
   fi
