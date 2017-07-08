@@ -102,6 +102,7 @@ CheckParts() {  # Test for existing partitions
       Counter=$((Counter+1))
     done
     Echo
+read -p "In f-part1 at line $LINENO: UEFI = ${UEFI}"
     if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
       PartitioningEFI                   # UEFI partitioning options
     else                                # Installing in BIOS environment

@@ -51,7 +51,8 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
  fi
 }
 
-PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
+PartitioningEFI() {
+read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
   local Proceed=""
   AutoPart=0                    # Set flag to 'off' by default
   while [ -z $Proceed ]
@@ -70,8 +71,10 @@ PartitioningEFI() { # THIS TO BE EXPANDED TO INCLUDE LVM
       fi
     done
     Echo
+read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     Proceed=$Response
+read -p "In f-part2 at line $LINENO: UEFI = ${UEFI}"
     Echo
     case $Proceed in
       1) print_heading
