@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 23rd May 2017
+# Revision date: 8th July 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -131,7 +131,6 @@ InstallKernel() {   # Selected kernel and some other core systems
   # If feliz.log exists and the first line created by felizinit is numeric (new felizinit)
   # and that number is greater than or equal to the date of the latest Arch trust update
   TrustDate=20170104  # Reset this to date of latest Arch Linux trust update
-read -p "In f-run.sh at line $LINENO: echo $TrustDate <> $(head -n 1 feliz.log)"
   if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
     echo "pacman-key trust check passed" >> feliz.log
   else             # Default
@@ -233,7 +232,7 @@ InstallLuxuries()
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
       "FelizOB") TPecho "Installing FelizOB"
-        pacstrap /mnt openbox obmenu obconf compton conky leafpad lxpanel lxsession lxterminal midori pcmanfm xscreensaver 2>> feliz.log
+        pacstrap /mnt openbox obmenu obconf compton conky gpicview lxde-icon-theme leafpad lxappearance lxinput lxpanel lxranar lxsession lxtask lxterminal midori pcmanfm xscreensaver 2>> feliz.log
         ;;
       "Fluxbox") TPecho "Installing Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
