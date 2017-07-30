@@ -849,7 +849,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 
 ChooseDM() { # Choose a display manager
   if [ $DesktopEnvironment = "FelizOB" ]; then
-    DisplayManager="lxdm"
+    DisplayManager="lightdm"
     return
   fi
   case $DisplayManager in
