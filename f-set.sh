@@ -608,6 +608,8 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
     ;;
     2) LuxuriesList="FelizOB"
       DesktopEnvironment="FelizOB"
+      DisplayManager="lightdm"
+      Greeter="lightdm-gtk-greeter"
       Scope="Full"
       fob="Y"
     ;;
@@ -848,10 +850,6 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 }
 
 ChooseDM() { # Choose a display manager
-  if [ $DesktopEnvironment = "FelizOB" ]; then
-    DisplayManager="lightdm"
-    return
-  fi
   case $DisplayManager in
   "") # Only offered if no other display manager has been set
       Counter=0
