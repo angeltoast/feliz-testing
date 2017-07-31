@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 8th July 2017
+# Revision date: 31st July 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -216,7 +216,9 @@ InstallDM()
 InstallLuxuries()
 { # Install desktops and other extras
   # Display manager - runs only once
-  InstallDM                  # Clear any pre-existing DM and install this one
+  if [ -n "${DisplayManager}" ]; then
+    InstallDM                  # Clear any pre-existing DM and install this one
+  fi
   # First parse through LuxuriesList - checking for DEs
   if [ -n "${LuxuriesList}" ]; then
     for i in ${LuxuriesList}

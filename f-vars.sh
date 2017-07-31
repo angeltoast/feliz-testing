@@ -83,7 +83,7 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
 }
 
 SetLanguage() {
-  _Backtitle="Feliz2 - Arch Linux installation script"
+  _Backtitle="Feliz2 Testing - Arch Linux installation script"
   print_heading
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
