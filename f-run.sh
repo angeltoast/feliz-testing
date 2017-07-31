@@ -209,7 +209,7 @@ InstallDM()
   arch_chroot "systemctl disable display-manager.service" >/dev/null
   # Then install selected display manager
   TPecho "Installing ${DisplayManager} ${Greeter}"
-  pacstrap /mnt ${DisplayManager} ${Greeter} 2>> feliz.log
+  pacstrap /mnt "${DisplayManager}" "${Greeter}" 2>> feliz.log
   arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
 }
 
