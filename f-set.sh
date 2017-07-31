@@ -608,10 +608,8 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
     ;;
     2) LuxuriesList="FelizOB"
       DesktopEnvironment="FelizOB"
-      DisplayManager="lightdm"
-      Greeter="lightdm-gtk-greeter"
+      DisplayManager="lightdm lightdm-gtk-greeter"
       Scope="Full"
-      fob="Y"
     ;;
     *) Options
   esac
@@ -853,7 +851,6 @@ ChooseDM() { # Choose a display manager
   case $DisplayManager in
   "") # Only offered if no other display manager has been set
       Counter=0
-      Greeter=""
       DMList="GDM LightDM LXDM sddm SLIM XDM"
       print_heading
       PrintOne "A display manager provides a graphical login screen"
@@ -872,8 +869,7 @@ ChooseDM() { # Choose a display manager
           case $SelectedDM in
             "GDM") DisplayManager="gdm"
               ;;
-            "LightDM") DisplayManager="lightdm"
-                  Greeter="lightdm-gtk-greeter"
+            "LightDM") DisplayManager="lightdm lightdm-gtk-greeter"
               ;;
             "LXDM") DisplayManager="lxdm"
               ;;
@@ -900,7 +896,6 @@ ChooseDM() { # Choose a display manager
       Echo
       if [ $Response -eq 1 ]; then    # User wishes to change DM
         DisplayManager=""             # Clear DM variable
-        Greeter=""                    # and greeter
         ChooseDM                      # Call this function again
       fi
   esac

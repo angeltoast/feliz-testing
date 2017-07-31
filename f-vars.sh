@@ -214,8 +214,6 @@ RecordNumber=0            # Used during translation
 # Desktop environment, display manager and greeter variables
 DesktopEnvironment=""     # eg: xfce
 DisplayManager=""         # eg: lightdm
-Greeter=""                # eg: lightdm-gtk-greeter (Not required for some DMs)
-fob="N"                   # Y if FelizOB to be installed as system
 
 # Root and user variables
 HostName=""               # eg: arch-linux
