@@ -848,7 +848,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 }
 
 ChooseDM() { # Choose a display manager
-  case $DisplayManager in
+  case "$DisplayManager" in
   "") # Only offered if no other display manager has been set
       Counter=0
       DMList="GDM LightDM LXDM sddm SLIM XDM"
@@ -903,7 +903,7 @@ ChooseDM() { # Choose a display manager
 
 SetGrubDevice() {
   DEVICE=""
-  DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/' # This is good use of awk
+  DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/'
   print_heading
   GrubDevice=""
   local Counter=0
@@ -945,7 +945,7 @@ FinalCheck() {
       *) Translate "Virtualbox guest utilities"
       PrintMany "4)" "$Result: $_No"
     esac
-    if [ -z $DisplayManager ]; then
+    if [ -z "$DisplayManager" ]; then
       Translate "No Display Manager selected"
       PrintMany "5)" "$Result"
     else
