@@ -872,7 +872,7 @@ ChooseDM() { # Choose a display manager
           case $SelectedDM in
             "GDM") DisplayManager="gdm"
               ;;
-            "LightDM") DisplayManager="lightdm lightdm-gtk-greeter"
+            "LightDM") DisplayManager="lightdm"
               ;;
             "LXDM") DisplayManager="lxdm"
               ;;

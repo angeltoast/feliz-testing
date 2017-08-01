@@ -100,7 +100,7 @@ MountPartitions() {
   local Counter=0
   for id in ${AddPartList}                              # $id will be in the form /dev/sda2
   do
-    umount ${id} /mnt${AddPartMount[$Counter]} >/dev/null 2>> feliz.log
+    umount ${id} /mnt${AddPartMount[$Counter]} >> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log  # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs (as with /root)
     CurrentType=$(file -sL ${AddPartType[$Counter]} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -151,7 +151,7 @@ InstallKernel() {   # Selected kernel and some other core systems
 
   TPecho "Installing cli tools"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
-  arch_chroot "systemctl enable sshd.service" >/dev/null
+  arch_chroot "systemctl enable sshd.service" >> feliz.log
 
 }
 
@@ -204,17 +204,18 @@ LocalMirrorList() { # In case Reflector fails, generate and save a shortened
 }
 
 InstallDM()
-{ # Display manager
-  # Disable any existing display manager
-  arch_chroot "systemctl disable display-manager.service" >/dev/null
+{ # Disable any existing display manager
+  arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
   TPecho "Installing ${DisplayManager}"
-  pacstrap /mnt "${DisplayManager}" 2>> feliz.log
-  if [ "${DisplayManager}" == "lightdm lightdm-gtk-greeter" ]; then
-    arch_chroot "systemctl -f enable lightdm.service" >/dev/null
-  else
-    arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
-  fi
+  case ${DisplayManager} in
+  "lightdm") pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
+    arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
+  ;;
+  *)
+    pacstrap /mnt "${DisplayManager}" 2>> feliz.log
+    arch_chroot "systemctl -f enable ${DisplayManager}.service" >> feliz.log
+  esac
 }
 
 InstallLuxuries()
@@ -408,7 +409,7 @@ SetRootPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-     arch_chroot "passwd root" < /tmp/.passwd >/dev/null
+     arch_chroot "passwd root" < /tmp/.passwd >> feliz.log
      rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
@@ -448,7 +449,7 @@ SetUserPassword() {
     fi
     if [ $Pass1 = $Pass2 ]; then
       echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-      arch_chroot "passwd ${UserName}" < /tmp/.passwd >/dev/null
+      arch_chroot "passwd ${UserName}" < /tmp/.passwd >> feliz.log
       rm /tmp/.passwd 2>> feliz.log
       Repeat="N"
     else
