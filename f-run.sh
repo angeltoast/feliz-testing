@@ -164,7 +164,7 @@ AddCodecs() {
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
 
   TPecho "Installing Graphics tools"
-  pacstrap /mnt xorg-server xorg-apps xorg-xinit xorg-twm 2>> feliz.log
+  pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
 
   TPecho "Installing opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log

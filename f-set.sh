@@ -235,7 +235,7 @@ FindCity() {  # Called by SelectSubzone
     if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
       SetTimeZone
     fi
-    SUBZONE="$Result" 
+    SUBZONE="$Result"
     return
   else
     Response="${Response:0:1}"        # In case user enters more than one letter
@@ -608,7 +608,8 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
     ;;
     2) LuxuriesList="FelizOB"
       DesktopEnvironment="FelizOB"
-      DisplayManager="lightdm lightdm-gtk-greeter"
+    #  DisplayManager="lightdm lightdm-gtk-greeter"
+      DisplayManager="lxdm"
       Scope="Full"
     ;;
     *) Options
