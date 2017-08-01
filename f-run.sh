@@ -125,26 +125,26 @@ MountPartitions() {
 
 InstallKernel() {   # Selected kernel and some other core systems
 
-  LANG=C              # Temporary addition to overcome bug in Arch
+  LANG=C            # Temporary addition in 2016 to overcome bug in Arch
 
   # And this, to solve keys issue if an older Feliz iso is running after keyring changes
-  # If feliz.log exists and the first line created by felizinit is numeric (new felizinit)
+  # Passes test if feliz.log exists and the first line created by felizinit is numeric
   # and that number is greater than or equal to the date of the latest Arch trust update
   TrustDate=20170104  # Reset this to date of latest Arch Linux trust update
   if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
     echo "pacman-key trust check passed" >> feliz.log
-  else             # Default
+  else                # Default
     TPecho "Updating keys"
     pacman-db-upgrade
-    pacman-key --init 
+    pacman-key --init
     pacman-key --populate archlinux
     pacman-key --refresh-keys
   fi
   TPecho "Installing kernel and core systems"
   case $Kernel in
-  1) # This is the full linux group list at 28th January 2017 with linux-lts in place of linux
-    # Use the script ArchBaseGroup.sh in 3-FelizWorkshop to regenerate the list periodically
-    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
+  1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
+    # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
+    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which which xfsprogs 2>> feliz.log
   ;;
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
@@ -157,14 +157,14 @@ InstallKernel() {   # Selected kernel and some other core systems
 
 AddCodecs() {
   TPecho "Adding codecs"
-  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer0.10-plugins pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
+  pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
 
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
 
   TPecho "Installing Graphics tools"
-  pacstrap /mnt xorg-server xorg-server-utils xorg-xinit xorg-twm 2>> feliz.log
+  pacstrap /mnt xorg-server xorg-apps xorg-xinit xorg-twm 2>> feliz.log
 
   TPecho "Installing opensource video drivers"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
@@ -175,7 +175,7 @@ AddCodecs() {
   # TPecho "Installing  CUPS printer services"
   # pacstrap /mnt -S system-config-printer cups
   # arch_chroot "systemctl enable org.cups.cupsd.service"
-  
+
 }
 
 ReflectorMirrorList() { # Use reflector (added to archiso) to generate fast mirror list
@@ -215,9 +215,6 @@ InstallDM()
   else
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >/dev/null
   fi
-  
-  read -p "Display manager check : ${DisplayManager}"
-  
 }
 
 InstallLuxuries()
@@ -241,7 +238,7 @@ InstallLuxuries()
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
       "FelizOB") TPecho "Installing FelizOB"
-        pacstrap /mnt openbox obmenu obconf compton conky gpicview lxde-icon-theme leafpad lxappearance lxinput lxpanel lxranar lxsession lxtask lxterminal midori pcmanfm xscreensaver 2>> feliz.log
+        pacstrap /mnt openbox obmenu obconf compton conky gpicview lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandar lxsession lxtask lxterminal midori pcmanfm xscreensaver 2>> feliz.log
         ;;
       "Fluxbox") TPecho "Installing Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
