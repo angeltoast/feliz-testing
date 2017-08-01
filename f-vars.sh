@@ -83,7 +83,7 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
 }
 
 SetLanguage() {
-  _Backtitle="Feliz2 Testing - Arch Linux installation script"
+  _Backtitle="Feliz2 - Arch Linux installation script"
   print_heading
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
@@ -102,7 +102,11 @@ SetLanguage() {
   fi
   
   # Some common translations
-  Translate "Feliz2 - Arch Linux installation script"
+  if [ -f "TESTING" ]; then
+    Translate "Feliz2 - Testing"
+  else
+    Translate "Feliz2 - Arch Linux installation script"
+  fi
   _Backtitle="$Result"
   # listgen1/2 variables
   Translate "Ok"
