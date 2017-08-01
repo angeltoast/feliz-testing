@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 23rd May 2017
+# Revision date: 1st August 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ SetLanguage() {
     wget -q git.io/trans
     chmod +x ./trans
   fi
-  
+
   # Some common translations
   if [ -f "TESTING" ]; then
     Translate "Feliz2 - Testing"
@@ -260,16 +260,15 @@ LongAccs[6]="Handy lightweight text editor from LXDE"
 LongAccs[7]="Lightweight terminal emulator from LXDE"
 LongAccs[8]="The file manager from LXDE"
 # Desktops
-Desktops="FelizOB Cinnamon Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
-LongDesk[1]="Openbox-based desktop with basic tools  "
-LongDesk[2]="Slick, modern desktop from the Mint team"
-LongDesk[3]="Full-featured, modern DE"
-LongDesk[4]="Plasma 5 and accessories pack"
-LongDesk[5]="Traditional, lightweight desktop"
-LongDesk[6]="Lightweight and modern Qt-based DE"
-LongDesk[7]="Traditional desktop from the Mint team"
-LongDesk[8]="GTK3 version of the Mate desktop"
-LongDesk[9]="Lightweight, highly configurable DE"
+Desktops="Cinnamon Gnome KDE LXDE LXQt Mate MateGTK3 Xfce"
+LongDesk[1]="Slick, modern desktop from the Mint team"
+LongDesk[2]="Full-featured, modern DE"
+LongDesk[3]="Plasma 5 and accessories pack"
+LongDesk[4]="Traditional, lightweight desktop"
+LongDesk[5]="Lightweight and modern Qt-based DE"
+LongDesk[6]="Traditional desktop from the Mint team"
+LongDesk[7]="GTK3 version of the Mate desktop"
+LongDesk[8]="Lightweight, highly configurable DE"
 # Graphical
 Graphical="avidemux blender gimp handbrake imagemagick inkscape gthumb simple-scan xsane"
 LongGraph[1]="Simple video editor             "

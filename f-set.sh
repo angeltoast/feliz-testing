@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 31st July 2017
+# Revision date: 1st August 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -593,6 +593,8 @@ SetHostname() {
 }
 
 Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
+  # This routine no longer called from feliz.sh or feliz due to ongoing problems with FelizOB
+  # All FelizOB code retained for reference, but is no longer used
   print_heading
   PrintOne "Feliz now offers you a choice. You can either ..."
   Echo
