@@ -220,21 +220,23 @@ InstallDM() { # Disable any existing display manager
 InstallLuxuries() { # Install desktops and other extras
 
   # FelizOB gets special treatment
-
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "Installing FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
     pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
-    pacstrap /mnt openbox obmenu obconf compton conky gpicview lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandar lxsession lxtask lxterminal midori pcmanfm xscreensaver 2>> feliz.log
+    pacstrap /mnt openbox 2>> feliz.log         # First ensure that Openbox gets installed
+    pacstrap /mnt obmenu obconf 2>> feliz.log   # Then Openbox tools
+    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandar lxsession lxtask lxterminal pcmanfm 2>> feliz.log                       # Then the LXDE tools
+    pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log # And finally the extras
   fi
 
-  # Display manager - runs only once
+  # Display manager - runs only once (not used by FelizOB)
   if [ -n "${DisplayManager}" ]; then
     InstallDM                  # Clear any pre-existing DM and install this one
   fi
 
-  # First parse through LuxuriesList - checking for DEs
+  # First parse through LuxuriesList - checking for DEs (not used by FelizOB)
   if [ -n "${LuxuriesList}" ]; then
     for i in ${LuxuriesList}
     do
@@ -312,7 +314,7 @@ InstallLuxuries() { # Install desktops and other extras
     pacman -Sy 2>> feliz.log
     pacstrap /mnt yaourt 2>> feliz.log
 
-    # Second parse through LuxuriesList - any extras
+    # Second parse through LuxuriesList - any extras (not used by FelizOB)
     if [ $DesktopEnvironment = "FelizOB" ]; then
       return 1
     fi
