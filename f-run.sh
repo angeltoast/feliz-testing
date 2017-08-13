@@ -364,6 +364,7 @@ UserAdd() {
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log
     cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log
     cp face /mnt/home/${UserName}/.face 2>> feliz.log
+    cp wallpaper.jpg /mnt/home/${UserName}/ 2>> feliz.log
     cp face /mnt/etc/ 2>> feliz.log
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
