@@ -227,7 +227,7 @@ InstallLuxuries() { # Install desktops and other extras
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
     pacstrap /mnt openbox 2>> feliz.log         # First ensure that Openbox gets installed
     pacstrap /mnt obmenu obconf 2>> feliz.log   # Then Openbox tools
-    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandar lxsession lxtask lxterminal pcmanfm 2>> feliz.log                       # Then the LXDE tools
+    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log                       # Then the LXDE tools
     pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log # And finally the extras
   fi
 
