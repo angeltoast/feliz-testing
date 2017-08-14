@@ -25,7 +25,7 @@ Global {
 Plugin {
   type=menu
   Config {
-    image=/etc/face
+    #image= <path/to/.face>
     system {
     }
     separator {
