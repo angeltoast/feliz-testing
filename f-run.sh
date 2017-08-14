@@ -219,7 +219,7 @@ InstallDM() { # Disable any existing display manager
 
 InstallLuxuries() { # Install desktops and other extras
 
-  # FelizOB gets special treatment
+  # FelizOB (note that $LuxuriesList and $DisplayManager are empty)
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "Installing FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
@@ -244,7 +244,7 @@ InstallLuxuries() { # Install desktops and other extras
       "Awesome") TPecho "Installing Awesome"
           pacstrap /mnt awesome 2>> feliz.log
         ;;
-     "Budgie") TPecho "Installing Budgie"
+      "Budgie") TPecho "Installing Budgie"
           pacstrap /mnt budgie-desktop gnome network-manager-applet 2>> feliz.log
         ;;
       "Cinnamon") TPecho "Installing Cinnamon"
@@ -279,7 +279,7 @@ InstallLuxuries() { # Install desktops and other extras
         pacstrap /mnt mate mate-extra 2>> feliz.log
         pacstrap /mnt mate-applet-dock mate-applet-streamer mate-menu 2>> feliz.log
         ;;
-       "Openbox") TPecho "Installing Openbox"
+      "Openbox") TPecho "Installing Openbox"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
       "Xfce") TPecho "Installing Xfce"
@@ -297,7 +297,7 @@ InstallLuxuries() { # Install desktops and other extras
     # Install Yaourt
     TPecho "Installing Yaourt"
     arch=$(uname -m)
-    if [ ${arch} = "x86_64" ]; then                     # New: Identify 64 bit architecture
+    if [ ${arch} = "x86_64" ]; then                     # Identify 64 bit architecture
       # For installed system
       echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf 2>> feliz.log
       # For installer
@@ -315,9 +315,6 @@ InstallLuxuries() { # Install desktops and other extras
     pacstrap /mnt yaourt 2>> feliz.log
 
     # Second parse through LuxuriesList - any extras (not used by FelizOB)
-    if [ $DesktopEnvironment = "FelizOB" ]; then
-      return 1
-    fi
     for i in ${LuxuriesList}
     do
       case $i in
