@@ -6,7 +6,7 @@ Global {
   allign=left
   margin=0
   widthtype=percent
-  width=100
+  width=80
   height=35
   transparent=1
   tintcolor=#729FCF
@@ -18,7 +18,7 @@ Global {
   usefontsize=0
   fontsize=10
   background=0
-  backgroundfile=/usr/share/lxdm/wallpaper
+  backgroundfile=/usr/share/wallpaper.jpg
   align=center
   iconsize=35
 }
