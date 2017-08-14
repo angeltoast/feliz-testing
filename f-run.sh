@@ -367,11 +367,11 @@ UserAdd() {
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
     cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log
-    sed -n '28     image=/home/${UserName}/.face p' /mnt/home/${UserName}/.config/lxpanel/default/panels/panel 2>> feliz.log
+    echo "image=/home/${UserName}/.face" /mnt/home/${UserName}/.config/lxpanel/default/panels/panel 2>> feliz.log
     cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
     cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log
-    sed -n '4 wallpaper=/home/${UserName}/Pictures/wallpaper.jpg p' /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
+    echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
   fi
