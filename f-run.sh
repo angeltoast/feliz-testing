@@ -357,24 +357,22 @@ UserAdd() {
     arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
     arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
     arch_chroot "mkdir /home/${UserName}/Pictures/"
+    arch_chroot "mkdir /home/${UserName}/.config/libfm/"
     # Copy FelizOB files
-    cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log
-    cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log
-    cp face.jpg /mnt/home/${UserName}/.face 2>> feliz.log
-    cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
-    cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log
-    cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log
-    echo "image=/home/${UserName}/.face" >> /mnt/home/${UserName}/.config/lxpanel/default/panels/panel 2>> feliz.log
-    cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log
+    cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log                       # Configure Conky
+    cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log             # Configure Compton
+    cp face.jpg /mnt/home/${UserName}/.face 2>> feliz.log                         # For greeter
+    cp face.jpg /usr/share/icons/feliz.jpg 2>> feliz.log                          # For menu icon in panel
+    cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log             # Configure autostart
+    cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log              # Configure right-click menu
+    cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Configure panel
+    echo "image=/usr/share/icons/feliz.jpg" >> /mnt/home/${UserName}/.config/lxpanel/default/panels/panel 2>> feliz.log
+    cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log              # Configurations for pcmanfm
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
-    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log
+    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log                # Wallpaper for desktop
     echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" >> /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
-
-
-    read -p "Check panel and desktop-items-0.conf"
-
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
