@@ -219,16 +219,17 @@ InstallDM() { # Disable any existing display manager
 
 InstallLuxuries() { # Install desktops and other extras
 
-  # FelizOB (note that $LuxuriesList and $DisplayManager are empty)
+  # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "Installing FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
     pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
-    pacstrap /mnt openbox 2>> feliz.log         # First ensure that Openbox gets installed
-    pacstrap /mnt obmenu obconf 2>> feliz.log   # Then Openbox tools
-    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log                       # Then the LXDE tools
-    pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log # And finally the extras
+    pacstrap /mnt openbox 2>> feliz.log                                     # First ensure that Openbox gets installed
+    pacstrap /mnt obmenu obconf 2>> feliz.log                               # Then Openbox tools
+    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log  # Then the LXDE tools
+    pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log  # Add the extras
+    InstallYaourt                                                           # And Yaourt
   fi
 
   # Display manager - runs only once (not used by FelizOB)
@@ -236,7 +237,7 @@ InstallLuxuries() { # Install desktops and other extras
     InstallDM                  # Clear any pre-existing DM and install this one
   fi
 
-  # First parse through LuxuriesList - checking for DEs (not used by FelizOB)
+  # First parse through LuxuriesList checking for DEs (not used by FelizOB)
   if [ -n "${LuxuriesList}" ]; then
     for i in ${LuxuriesList}
     do
@@ -294,27 +295,9 @@ InstallLuxuries() { # Install desktops and other extras
       esac
     done
 
-    # Install Yaourt
-    TPecho "Installing Yaourt"
-    arch=$(uname -m)
-    if [ ${arch} = "x86_64" ]; then                     # Identify 64 bit architecture
-      # For installed system
-      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf 2>> feliz.log
-      # For installer
-      echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf 2>> feliz.log
-    fi
-    # For installed system
-    echo -e "\n[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /mnt/etc/pacman.conf 2>> feliz.log
-    # For installer
-    echo -e "\n[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /etc/pacman.conf 2>> feliz.log
+    InstallYaourt
 
-    # Update, then install yaourt to /mnt
-    pacman-key --init 2>> feliz.log
-    pacman-key --populate archlinux 2>> feliz.log
-    pacman -Sy 2>> feliz.log
-    pacstrap /mnt yaourt 2>> feliz.log
-
-    # Second parse through LuxuriesList - any extras (not used by FelizOB)
+    # Second parse through LuxuriesList for any extras (not used by FelizOB)
     for i in ${LuxuriesList}
     do
       case $i in
@@ -331,6 +314,27 @@ InstallLuxuries() { # Install desktops and other extras
       esac
     done
   fi
+}
+
+InstallYaourt() {
+  TPecho "Installing Yaourt"
+  arch=$(uname -m)
+  if [ ${arch} = "x86_64" ]; then                     # Identify 64 bit architecture
+    # For installed system
+    echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf 2>> feliz.log
+    # For installer
+    echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf 2>> feliz.log
+  fi
+  # For installed system
+  echo -e "\n[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /mnt/etc/pacman.conf 2>> feliz.log
+  # For installer
+  echo -e "\n[archlinuxfr]\nSigLevel = Never\nServer = http://repo.archlinux.fr/$arch" >> /etc/pacman.conf 2>> feliz.log
+
+  # Update, then install yaourt to /mnt
+  pacman-key --init 2>> feliz.log
+  pacman-key --populate archlinux 2>> feliz.log
+  pacman -Sy 2>> feliz.log
+  pacstrap /mnt yaourt 2>> feliz.log
 }
 
 UserAdd() {
@@ -350,7 +354,7 @@ UserAdd() {
     arch_chroot "mkdir /home/${UserName}/${i}"
     arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"
   done
-  # FelizOB code retained, but will not be called as all references removed due to ongoing problems
+  # FelizOB
   if [ $DesktopEnvironment = "FelizOB" ]; then
     # Set up directories
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
@@ -362,15 +366,14 @@ UserAdd() {
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log                       # Configure Conky
     cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log             # Configure Compton
     cp face.jpg /mnt/home/${UserName}/.face 2>> feliz.log                         # For greeter
-    cp face.jpg /usr/share/icons/feliz.jpg 2>> feliz.log                          # For menu icon in panel
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log             # Configure autostart
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log              # Configure right-click menu
     cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Configure panel
-    echo "image=/usr/share/icons/feliz.jpg" >> /mnt/home/${UserName}/.config/lxpanel/default/panels/panel 2>> feliz.log
+    cp face.jpg /usr/share/icons/feliz.jpg 2>> feliz.log                          # Icon for menu in panel (set in 'panel')
+    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log                # Wallpaper for user
     cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log              # Configurations for pcmanfm
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
-    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log                # Wallpaper for desktop
-    echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" >> /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
+    cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                                # Wallpaper for desktop (set in desktop-items-0.conf)
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
   fi
