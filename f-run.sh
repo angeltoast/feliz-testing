@@ -371,6 +371,9 @@ UserAdd() {
     echo "wallpaper=/home/${UserName}/Pictures/wallpaper.jpg" >> /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
+
+    read -p "Check panel and desktop-items-0.conf"
+
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
