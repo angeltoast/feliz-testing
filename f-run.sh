@@ -365,11 +365,11 @@ UserAdd() {
     # Copy FelizOB files
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log                       # Configure Conky
     cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log             # Configure Compton
-    cp face.jpg /mnt/home/${UserName}/.face 2>> feliz.log                         # For greeter
+    cp face.png /mnt/home/${UserName}/.face 2>> feliz.log                         # For greeter
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log             # Configure autostart
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log              # Configure right-click menu
     cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Configure panel
-    cp face.jpg /usr/share/icons/feliz.jpg 2>> feliz.log                          # Icon for menu in panel (set in 'panel')
+    cp face.png /usr/share/icons/feliz.jpg 2>> feliz.log                          # Icon for menu in panel (set in 'panel')
     cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log                # Wallpaper for user
     cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log              # Configurations for pcmanfm
     cp desktop-items-0 /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log
