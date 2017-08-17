@@ -372,6 +372,7 @@ UserAdd() {
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
 
+
     read -p "Check panel and desktop-items-0.conf"
 
   fi
