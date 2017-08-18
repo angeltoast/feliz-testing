@@ -157,7 +157,7 @@ Translate() { # Called by ReadOne & ReadMany and by other functions as required
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No translation found, so translate using Google Translate:
-     ./trans -b en:${CountryLocale:0:2} "$Text" > Result.file 2>/dev/null
+     ./trans.sh -b en:${CountryLocale:0:2} "$Text" > Result.file 2>/dev/null
      Result=$(cat Result.file)
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target file
