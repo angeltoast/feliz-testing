@@ -95,15 +95,15 @@ SetLanguage() {
     case $LanguageFile in
     "Deutsche.lan") InstalLanguage="de"
     ;;
-    "Español.lan") InstalLanguage="de"
+    "Español.lan") InstalLanguage="es"
     ;;
-    "Français.lan") InstalLanguage="de"
+    "Français.lan") InstalLanguage="fr"
     ;;
-    "Italiana.lan") InstalLanguage="de"
+    "Italiana.lan") InstalLanguage="it"
     ;;
-    "Polski.lan") InstalLanguage="de"
+    "Polski.lan") InstalLanguage="pl"
     ;;
-    "Português.lan") InstalLanguage="de"
+    "Português.lan") InstalLanguage="pt"
     ;;
     *) InstalLanguage="en"
     esac
