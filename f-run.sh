@@ -162,7 +162,7 @@ AddCodecs() {
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
-  cp -rf /etc/netctl/ /mnt          # Copy wifi configuration and network files
+  cp -rf /etc/netctl/* /mnt          # Copy wifi configuration and network files
 
   TPecho "Installing Graphics tools"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
