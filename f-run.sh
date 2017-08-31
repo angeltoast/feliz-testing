@@ -47,8 +47,10 @@ TPecho() { # For displaying status while running on auto
   tput bold
   PrintOne "$1"
   tput sgr0
-  Translate "$(shuf messages | head -n 1)"    # Get and translate a random humorous message
-  printf "%-s\n" "$Result"                # Display the message
+  Echo
+  Translate "$(shuf messages | head -n 1)"  # Get and translate a random humorous message
+  PrintOne "$Result"                  # Display the message
+  Echo
 }
 
 MountPartitions() {
