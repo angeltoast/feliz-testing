@@ -47,6 +47,8 @@ TPecho() { # For displaying status while running on auto
   tput bold
   PrintOne "$1"
   tput sgr0
+  Translate "$( messages | head -n 1)"    # Get and translate a random humorous message
+  printf "%-s\n" "$Result"                # Display the message
 }
 
 MountPartitions() {
@@ -144,13 +146,13 @@ InstallKernel() {   # Selected kernel and some other core systems
   case $Kernel in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
     # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
-    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which which xfsprogs 2>> feliz.log
+    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log
   ;;
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
 
   TPecho "Installing cli tools"
-  pacstrap /mnt btrfs-progs dialog gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 
 }
@@ -360,7 +362,7 @@ UserAdd() {
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
     arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
     arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
-    arch_chroot "mkdir /home/${UserName}/Pictures/"
+    # arch_chroot "mkdir /home/${UserName}/Pictures/"
     arch_chroot "mkdir /home/${UserName}/.config/libfm/"
     # Copy FelizOB files
 
