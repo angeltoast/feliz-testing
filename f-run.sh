@@ -287,6 +287,10 @@ InstallLuxuries() { # Install desktops and other extras
       "Openbox") TPecho "Installing Openbox"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
+      "Windowmaker") TPecho "Installing Windowmaker"
+        pacstrap /mnt windowmaker 2>> feliz.log
+        pacstrap /mnt windowmaker-extra 2>> feliz.log
+        ;;
       "Xfce") TPecho "Installing Xfce"
         pacstrap /mnt xfce4 2>> feliz.log
         pacstrap /mnt xfce4-goodies 2>> feliz.log
@@ -305,7 +309,7 @@ InstallLuxuries() { # Install desktops and other extras
     for i in ${LuxuriesList}
     do
       case $i in
-      "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
+      "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
         ;;
       "cairo-dock") TPecho "Installing Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
