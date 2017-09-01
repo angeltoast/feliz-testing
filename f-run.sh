@@ -82,7 +82,7 @@ MountPartitions() {
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
-    mkfs.fat -F32 ${EFIPartition} 2>> feliz.log          # Format EFI boot partition
+    mkfs.fat -F32 ${EFIPartition} 2>> feliz.log         # Format EFI boot partition
     mkdir /mnt/boot                                     # Make mountpoint
     mount ${EFIPartition} /mnt/boot                     # Mount it
   fi
@@ -114,15 +114,15 @@ MountPartitions() {
       mkfs.btrfs -f ${id} 2>> feliz.log   # eg: mkfs.btrfs -f /dev/sda2
     elif [ "${AddPartType[$Counter]}" = "xfs" ]; then
       mkfs.xfs -f ${id} 2>> feliz.log                   # eg: mkfs.xfs -f /dev/sda2
-    elif [ "${AddPartType[$Counter]}" != "" ]; then       # If no type, do not format
+    elif [ "${AddPartType[$Counter]}" != "" ]; then     # If no type, do not format
       Partition=${id: -4}                               # Last 4 characters of ${id}
       Label="${LabellingArray[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                             # Prepare label
       fi
-      mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log # eg: mkfs.ext4 -L Arch-Home /dev/sda3
+      mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log  # eg: mkfs.ext4 -L Arch-Home /dev/sda3
     fi
-    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log # eg: mount /dev/sda3 /mnt/home
+    mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log       # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
 }
