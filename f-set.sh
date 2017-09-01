@@ -633,7 +633,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   ;;
   *) PrintOne "You can add more items, or select items to delete"
   esac
-  Echo
+  # Echo
   while :
   do
     listgen1 "${CategoriesList}" "$_Quit" "$_Ok $_Exit"
