@@ -616,13 +616,23 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  CategoriesList=""
+  # CategoriesList=""
   Translate "Added so far"
   AddedSoFar="$Result"
-  for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars
+
+  # Memo: Instead of rewriting the list here, use $CategoriesList as initialised in f-vars.sh
+  # This requires a new variable here to replace the duplicated $CategoriesList generated above
+  # As a first step, the clearing of the CategoriesList variable (above) has been commented out
+  # And a new variable TransCatList is created here to replace it
+  TransCatList=""
+  # Now the manual list ...
+  # for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars
+  # ... is commented out, and replaced with a line using the CategoriesList variable ...
+  for category in "$CategoriesList"
+
   do
     Translate "$category"
-    CategoriesList="$CategoriesList $Result"
+    TransCatList="$TransCatList $Result"
   done
   print_heading
   case "$LuxuriesList" in
@@ -636,7 +646,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   # Echo
   while :
   do
-    listgen1 "${CategoriesList}" "$_Quit" "$_Ok $_Exit"
+    listgen1 "${TransCatList}" "$_Quit" "$_Ok $_Exit"
     Category=$Response
     if [ $Result = "$_Exit" ]; then
       break
