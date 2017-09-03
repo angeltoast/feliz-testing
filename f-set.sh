@@ -628,8 +628,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   # Now the manual list ...
   # for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars
   # ... is commented out, and replaced with a line using the CategoriesList variable ...
-  for category in "$CategoriesList"
-
+  for category in $CategoriesList
   do
     Translate "$category"
     TransCatList="$TransCatList $Result"
