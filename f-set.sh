@@ -380,7 +380,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         do
           grep "$l$" languages.list >> temp.file        # listgenx checks temp.file then renames it
         done
-        Translate "Now please choose your language from this list"
+        Translate "Now please choose your language for the installed system"
         listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
       else                                              # List is short enough for listgen1
         local Counter=0
@@ -1034,12 +1034,9 @@ FinalCheck() {
     PrintMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
       local Counter=0
-      tput cup $cursor_row 1                         # Move the cursor to left of center
       for Part in ${AddPartList}                     # Iterate through the list of extra partitions
       do
-        printf "%-s" "${Part} "                      # Display each partition
-        printf "%-s" "${AddPartMount[${Counter}]} "  # Mountpoint
-        printf "%-s\n" "${AddPartType[${Counter}]}"  # Format type
+        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}" # Display each partition, mountpoint & format type
         Counter=$((Counter+1))
         if [ $Counter -gt 2 ]; then
           Echo "Too many to display all"
@@ -1050,7 +1047,7 @@ FinalCheck() {
     Response=20
     Echo
     PrintOne "Press Enter to install with these settings, or"
-    Translate "Enter number for data to change"
+    Translate "Enter the number for the data to be changed"
     TPread "${Result}: "
     Change=$Response
     case $Change in
