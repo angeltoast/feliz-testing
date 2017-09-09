@@ -26,7 +26,7 @@
 print_heading() {   # Always use this function to clear the screen
   tput sgr0         # Make sure colour inversion is reset
   clear
-  local T_COLS=$(tput cols)             # Get width of terminal
+  T_COLS=$(tput cols)                   # Get width of terminal
   tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
   printf "%-s\n" "$_Backtitle"          # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal

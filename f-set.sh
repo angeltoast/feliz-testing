@@ -1014,7 +1014,9 @@ FinalCheck() {
     PrintMany "      $Result" "= '$UserName'"
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
+    SaveStartPoint="$EMPTY" # Save cursor start point
     PrintOne "${LuxuriesList}" ""
+    EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
     Translate "Kernel"
     if [ $Kernel -eq 1 ]; then
@@ -1032,10 +1034,10 @@ FinalCheck() {
     PrintMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
       local Counter=0
-      tput cup 0 $(((T_COLS/2)-20))     # Move the cursor to left of center
-      for Part in ${AddPartList}        # Iterate through the list of extra partitions
+      tput cup $cursor_row $(((T_COLS/2)-20))         # Move the cursor to left of center
+      for Part in ${AddPartList}                      # Iterate through the list of extra partitions
       do
-        printf "%-s" "${Part}"          # Display each partition
+        printf "%-s" "${Part}"                        # Display each partition
         printf "%-s" "${AddPartMount[${Counter}]}"    # Mountpoint
         printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
         Counter=$((Counter+1))
