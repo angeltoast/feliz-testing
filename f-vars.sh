@@ -188,7 +188,6 @@ declare -a AddPartList    # Array of additional partitions eg: /dev/sda5
 declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
 declare -a AddPartType    # Array of format type for the same partitions eg: ext4
 declare -a PartitionArray # Array of long identifiers
-declare -a Ignorelist     # Used in review process
 declare -a NewArray       # For copying any array
 
 declare -a button_start   # Used in listgen
@@ -213,6 +212,7 @@ EFIPartition=""           # eg: /dev/sda1
 RootPartition=""          # eg: /dev/sda2
 RootType=""               # eg: ext4
 Partition=""              # eg: sda1
+Ignorelist=""             # Used in review process
 AutoPart=0                # Flag - changes to 1 if auto-partition is chosen
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk

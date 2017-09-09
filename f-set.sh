@@ -1139,7 +1139,6 @@ ManualSettings() {
 ChangeRootPartition() {
 # Start list with SwapPartition
   Ignorelist="${SwapPartition}"
-  Counter=1
   AddExtras
   MakePartitionList
 }
@@ -1147,7 +1146,6 @@ ChangeRootPartition() {
 ChangeSwapPartition() {
 # Start array with RootPartition
   Ignorelist="${RootPartition}"
-  Counter=1
   AddExtras
   MakePartitionList
 }
@@ -1155,10 +1153,8 @@ ChangeSwapPartition() {
 ChangePartitions() {
   # Copy RootPartition and SwapPartition into temporary array
   Ignorelist="${RootPartition}"
-  Counter=1
-  if [ ${SwapPartition} ]; then
+   if [ ${SwapPartition} ]; then
     Ignorelist="$IgnoreList ${SwapPartition}"
-    Counter=2
   fi
   MakePartitionList
 }
@@ -1166,9 +1162,8 @@ ChangePartitions() {
 AddExtras() {
   # Ignorelist started and Counter set to next record number by the
   # calling function ChangeSwapPartition or ChangeRootPartition
-  # Add each field (extra partition) from AddPartList into the array:
+  # Add each field (extra partition) from AddPartList into the list:
   for a in ${AddPartList[@]}; do
     Ignorelist="$IgnoreList $a"
-    Counter=$((Counter+1))
   done
 }

@@ -650,7 +650,7 @@ MorePartitions() {
   TempPartList=""
   for i in ${PartitionList}
   do
-    for z in ${IgnoreList}                # IgnoreList is empty unless filled in f-set.sh
+    for z in ${Ignorelist}                # Ignorelist is empty unless filled in f-set.sh
     do                                    # by ChangeRoot, ChangeSwap or ChangePartitions
       if [ $z != $i ]; then               # If the partition has not already been assigned
          Elements=$((Elements+1))         # Increment counter of elements in PartitionList
@@ -659,7 +659,7 @@ MorePartitions() {
     done
   done
   PartitionList="$TempPartList"     # Replace PartitionList with temporary list
-  IgnoreList=""                     # And remove all entries in IgnoreList
+  Ignorelist=""                     # And remove all entries in IgnoreList
   while [ $Elements -gt 0 ]
   do
     print_heading
