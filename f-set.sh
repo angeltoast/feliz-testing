@@ -1015,10 +1015,14 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     PrintOne "${LuxuriesList}" ""
-
+    PrintOne "" ""                  # Recenter cursor
     # 8) Kernel
     Translate "Kernel"
-    PrintMany "8) $Result" "= '$Kernel'"
+    if [ $Kernel -eq 1 ]; then
+      PrintMany "8) $Result" "= 'LTS'"
+    else
+      PrintMany "8) $Result" "= 'Latest'"
+    fi
     # 9) Grub
     Translate "Grub will be installed on"
     PrintMany "9) $Result" "= '$GrubDevice'"
@@ -1035,7 +1039,6 @@ FinalCheck() {
       printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
       Counter=$((Counter+1))
     done
-    printf "%-s\n" " "                 # End with a newline
 
     Response=20
     Echo
