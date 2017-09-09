@@ -1020,9 +1020,9 @@ FinalCheck() {
     # 8) Kernel
     Translate "Kernel"
     if [ $Kernel -eq 1 ]; then
-      PrintOne "8) $Result" "= 'LTS'"
+      PrintMany "8) $Result" "= 'LTS'"
     else
-      PrintOne "8) $Result" "= 'Latest'"
+      PrintMany "8) $Result" "= 'Latest'"
     fi
     # 9) Grub
     Translate "Grub will be installed on"
@@ -1034,13 +1034,17 @@ FinalCheck() {
     PrintMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
       local Counter=0
-      tput cup $cursor_row $(((T_COLS/2)-20))         # Move the cursor to left of center
-      for Part in ${AddPartList}                      # Iterate through the list of extra partitions
+      tput cup $cursor_row 1                         # Move the cursor to left of center
+      for Part in ${AddPartList}                     # Iterate through the list of extra partitions
       do
-        printf "%-s" "${Part}"                        # Display each partition
-        printf "%-s" "${AddPartMount[${Counter}]}"    # Mountpoint
-        printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
+        printf "%-s" "${Part} "                      # Display each partition
+        printf "%-s" "${AddPartMount[${Counter}]} "  # Mountpoint
+        printf "%-s\n" "${AddPartType[${Counter}]}"  # Format type
         Counter=$((Counter+1))
+        if [ $Counter -gt 2 ]; then
+          Echo "Too many to display all"
+          break
+        fi
       done
     fi
     Response=20
