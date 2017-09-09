@@ -619,18 +619,9 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
 }
 
 PickLuxuries() { # User selects any combination from a store of extras
-  # CategoriesList=""
   Translate "Added so far"
   AddedSoFar="$Result"
-
-  # Memo: Instead of rewriting the list here, use $CategoriesList as initialised in f-vars.sh
-  # This requires a new variable here to replace the duplicated $CategoriesList generated above
-  # As a first step, the clearing of the CategoriesList variable (above) has been commented out
-  # And a new variable TransCatList is created here to replace it
   TransCatList=""
-  # Now the manual list ...
-  # for category in Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars
-  # ... is commented out, and replaced with a line using the CategoriesList variable ...
   for category in $CategoriesList
   do
     Translate "$category"
@@ -930,6 +921,9 @@ ChooseDM() { # Choose a display manager
 SetGrubDevice() {
   DEVICE=""
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/'
+
+  # Add an option to enter grub device manually
+  DevicesList="$DevicesList Enter_Manually"
   print_heading
   GrubDevice=""
   local Counter=0
@@ -940,15 +934,48 @@ SetGrubDevice() {
   Echo
   listgen1 "${DevicesList}" "" "$_Ok $_None"
   Reply=$Response
-  for i in ${DevicesList}
-  do
-    Item=$i
-    Counter=$((Counter+1))
-    if [ $Counter -eq $Reply ]; then
-      GrubDevice=$Item
-      break
-    fi
-  done
+
+  if [ $Result = "Enter_Manually" ]; then				# Call function to type in a path
+	EnterGrubPath
+  else
+    for i in ${DevicesList}
+	do
+	  Item=$i
+	  Counter=$((Counter+1))
+	  if [ $Counter -eq $Reply ]; then
+	    GrubDevice=$Item
+	    break
+	  fi
+	done
+  fi
+}
+
+EnterGrubPath() {
+  Entered=""
+  print_heading
+  Echo
+  PrintOne "You have chosen to manually enter the path for Grub"
+  PrintOne "This should be in the form /dev/sdx or similar"
+  PrintOne "Only enter a device, do not include a partition number"
+  PrintOne "If in doubt, consult https://wiki.archlinux.org/index.php/GRUB"
+  PrintOne "To go back, leave blank"
+  Echo
+  Translate "Enter the path where Grub is to be installed"
+  TPread "${Result}: "
+  Entered=${Response,,}
+  # test input
+  CheckGrubEntry="${Entered:0:5}"
+  if [ $Entered = "" ]; then
+    GrubDevice="Nothing Entered"      # SetGrubDevice
+  elif [ $CheckGrubEntry != "/dev/" ]; then
+    Echo
+    TPecho "$Entered is not in the correct format"
+    not_found
+    read -t 2
+    EnterGrubPath
+  else
+    GrubDevice="${Entered}"
+  fi
 }
 
 FinalCheck() {

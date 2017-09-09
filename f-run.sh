@@ -134,7 +134,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   # And this, to solve keys issue if an older Feliz iso is running after keyring changes
   # Passes test if feliz.log exists and the first line created by felizinit is numeric
   # and that number is greater than or equal to the date of the latest Arch trust update
-  TrustDate=20170104  # Reset this to date of latest Arch Linux trust update
+  TrustDate=20170907  # Reset this to date of latest Arch Linux trust update
   if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
     echo "pacman-key trust check passed" >> feliz.log
   else                # Default
@@ -166,6 +166,7 @@ AddCodecs() {
   TPecho "Installing Wireless Tools"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
+  # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
 
   TPecho "Installing Graphics tools"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
@@ -250,7 +251,7 @@ InstallLuxuries() { # Install desktops and other extras
           pacstrap /mnt awesome 2>> feliz.log
         ;;
       "Budgie") TPecho "Installing Budgie"
-          pacstrap /mnt budgie-desktop gnome network-manager-applet 2>> feliz.log
+          pacstrap /mnt budgie-desktop gnome 2>> feliz.log
         ;;
       "Cinnamon") TPecho "Installing Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log
