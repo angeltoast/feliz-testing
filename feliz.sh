@@ -98,7 +98,7 @@ SetKernel                              # Select kernel and device for Grub
 
 if [ ${UEFI} -eq 1 ]; then             # If installing in EFI
   GrubDevice="EFI"                     # Set variable
-else							       # If BIOS 
+else							                     # If BIOS 
   SetGrubDevice                        # User chooses grub partition
 fi
 

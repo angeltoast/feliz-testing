@@ -936,17 +936,17 @@ SetGrubDevice() {
   Reply=$Response
 
   if [ $Result = "Enter_Manually" ]; then				# Call function to type in a path
-	EnterGrubPath
+    EnterGrubPath
   else
     for i in ${DevicesList}
-	do
-	  Item=$i
-	  Counter=$((Counter+1))
-	  if [ $Counter -eq $Reply ]; then
-	    GrubDevice=$Item
-	    break
-	  fi
-	done
+    do
+      Item=$i
+      Counter=$((Counter+1))
+      if [ $Counter -eq $Reply ]; then
+        GrubDevice=$Item
+        break
+      fi
+    done
   fi
 }
 
@@ -963,9 +963,12 @@ EnterGrubPath() {
   Translate "Enter the path where Grub is to be installed"
   TPread "${Result}: "
   Entered=${Response,,}
+
+read -p ":${Entered}:"
+  
   # test input
   CheckGrubEntry="${Entered:0:5}"
-  if [ $Entered = "" ]; then
+  if [ -z $Entered ]; then
     SetGrubDevice
   elif [ $CheckGrubEntry != "/dev/" ]; then
     Echo
@@ -975,6 +978,7 @@ EnterGrubPath() {
     EnterGrubPath
   else
     GrubDevice="${Entered}"
+    read -t "$GrubDevice"
   fi
 }
 
