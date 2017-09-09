@@ -1015,13 +1015,12 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     PrintOne "${LuxuriesList}" ""
-    PrintOne "" ""                  # Recenter cursor
     # 8) Kernel
     Translate "Kernel"
     if [ $Kernel -eq 1 ]; then
-      PrintMany "8) $Result" "= 'LTS'"
+      PrintOne "8) $Result" "= 'LTS'"
     else
-      PrintMany "8) $Result" "= 'Latest'"
+      PrintOne "8) $Result" "= 'Latest'"
     fi
     # 9) Grub
     Translate "Grub will be installed on"
@@ -1031,15 +1030,17 @@ FinalCheck() {
     PrintMany "10) $Result" "..."
     PrintOne "${RootPartition} /root ${RootType}"
     PrintMany "${SwapPartition} /swap"
-    local Counter=0
-    for Part in ${AddPartList}        # Iterate through the list of extra partitions
-    do
-      printf "%-s" "${Part}"          # Display each partition
-      printf "%-s" "${AddPartMount[${Counter}]}"    # Mountpoint
-      printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
-      Counter=$((Counter+1))
-    done
-
+    if [ -n "${AddPartList}" ]; then
+      local Counter=0
+      tput cup 0 $(((T_COLS/2)-20))     # Move the cursor to left of center
+      for Part in ${AddPartList}        # Iterate through the list of extra partitions
+      do
+        printf "%-s" "${Part}"          # Display each partition
+        printf "%-s" "${AddPartMount[${Counter}]}"    # Mountpoint
+        printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
+        Counter=$((Counter+1))
+      done
+    fi
     Response=20
     Echo
     PrintOne "Press Enter to install with these settings, or"
