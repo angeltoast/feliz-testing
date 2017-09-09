@@ -984,7 +984,7 @@ FinalCheck() {
   do
     print_heading
     PrintOne "These are the settings you have entered. Please check them"
-    PrintOne "before we move on to partitioning your device"
+    PrintOne "before Feliz begins the installation"
     Echo
     Translate "Zone/subZone will be"
     PrintMany "1) $Result" "$ZONE/$SUBZONE"
@@ -1034,11 +1034,11 @@ FinalCheck() {
     PrintMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
       local Counter=0
-      for Part in ${AddPartList}                     # Iterate through the list of extra partitions
-      do
-        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}" # Display each partition, mountpoint & format type
+      for Part in ${AddPartList}                    # Iterate through the list of extra partitions
+      do                                            # Display each partition, mountpoint & format type
+        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
         Counter=$((Counter+1))
-        if [ $Counter -gt 2 ]; then
+        if [ $Counter -ge 2 ]; then                 # Up to maximum of 2
           Echo "Too many to display all"
           break
         fi
@@ -1047,7 +1047,7 @@ FinalCheck() {
     Response=20
     Echo
     PrintOne "Press Enter to install with these settings, or"
-    Translate "Enter the number for the data to be changed"
+    Translate "Enter number for data to change"
     TPread "${Result}: "
     Change=$Response
     case $Change in
@@ -1090,10 +1090,13 @@ FinalCheck() {
         listgen1 "Change_Root_Partition Change_Swap_Partition Change_Other_Partitions" "" "$_Ok $_Exit"
         case $Result in
         "Change_Root_Partition") ChangeRootPartition
+                        AllocateRoot
         ;;
         "Change_Swap_Partition") ChangeSwapPartition
+                        AllocateSwap
         ;;
         "Change_Other_Partitions") ChangePartitions
+                        MorePartitions
         ;;
         *) Echo
         esac
