@@ -1085,7 +1085,7 @@ FinalCheck() {
         print_heading
         Echo
         PrintOne "Which partition do you wish to change?"
-        PrintMany "(or $_Exit to abandon"
+        PrintOne "(or $_Exit to abandon)"
         Echo
         listgen1 "Change_Root_Partition Change_Swap_Partition Change_Other_Partitions" "" "$_Ok $_Exit"
         case $Result in
@@ -1137,16 +1137,16 @@ ManualSettings() {
 }
 
 ChangeRootPartition() {
-# Start array with SwapPartition
-  Ignorelist[0]=${SwapPartition}
-  local Counter=1
+# Start list with SwapPartition
+  Ignorelist="${SwapPartition}"
+  Counter=1
   AddExtras
   MakePartitionList
 }
 
 ChangeSwapPartition() {
 # Start array with RootPartition
-  Ignorelist[0]=${RootPartition}
+  Ignorelist="${RootPartition}"
   Counter=1
   AddExtras
   MakePartitionList
@@ -1154,13 +1154,12 @@ ChangeSwapPartition() {
 
 ChangePartitions() {
   # Copy RootPartition and SwapPartition into temporary array
-  Ignorelist[0]=${RootPartition}
-  local Counter=1
+  Ignorelist="${RootPartition}"
+  Counter=1
   if [ ${SwapPartition} ]; then
-    Ignorelist[1]=${SwapPartition}
+    Ignorelist="$IgnoreList ${SwapPartition}"
     Counter=2
   fi
-  Ignores=${#Ignorelist[@]} # Save a count for later
   MakePartitionList
 }
 
@@ -1169,8 +1168,7 @@ AddExtras() {
   # calling function ChangeSwapPartition or ChangeRootPartition
   # Add each field (extra partition) from AddPartList into the array:
   for a in ${AddPartList[@]}; do
-    Ignorelist[$Counter]=$a
+    Ignorelist="$IgnoreList $a"
     Counter=$((Counter+1))
   done
-  Ignores=${#Ignorelist[@]} # Save a count for later
 }

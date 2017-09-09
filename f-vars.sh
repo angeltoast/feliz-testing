@@ -188,6 +188,7 @@ declare -a AddPartList    # Array of additional partitions eg: /dev/sda5
 declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
 declare -a AddPartType    # Array of format type for the same partitions eg: ext4
 declare -a PartitionArray # Array of long identifiers
+declare -a Ignorelist     # Used in review process
 declare -a NewArray       # For copying any array
 
 declare -a button_start   # Used in listgen

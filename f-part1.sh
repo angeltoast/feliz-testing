@@ -647,15 +647,24 @@ SetSwapFile() {
 MorePartitions() {
   local Elements=0
   AddedToRemaining=0
+  TempPartList=""
   for i in ${PartitionList}
   do
-    Elements=$((Elements+1))
+    for z in ${IgnoreList}                # IgnoreList is empty unless filled in f-set.sh
+    do                                    # by ChangeRoot, ChangeSwap or ChangePartitions
+      if [ $z != $i ]; then               # If the partition has not already been assigned
+         Elements=$((Elements+1))         # Increment counter of elements in PartitionList
+         TempPartList="$TempPartList $i"  # Add it to temporary list
+      fi
+    done
   done
+  PartitionList="$TempPartList"     # Replace PartitionList with temporary list
+  IgnoreList=""                     # And remove all entries in IgnoreList
   while [ $Elements -gt 0 ]
   do
     print_heading
     Remaining=""
-    PrintOne "The following partitions remain unallocated"
+    PrintOne "The following partitions are available"
     PrintOne "If you wish to use one, select it from the list"
     PrintOne "or choose Exit to finish partitioning"
     Echo
@@ -677,8 +686,8 @@ MorePartitions() {
         if [ -n "${Label}" ]; then
           EditLabel $PassPart
         fi
-      elif [ "$Part" != "$_Exit" ]; then   # Part is not selected and not 'Exit'
-        Remaining="$Remaining $Part" # Add unused partition to temp list
+      elif [ "$Part" != "$_Exit" ]; then    # Part is not selected and not 'Exit'
+        Remaining="$Remaining $Part"        # Add unused partition to temp list
         AddedToRemaining=$((AddedToRemaining+1))
       fi
     done
