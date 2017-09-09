@@ -33,8 +33,9 @@
 # SetTimeZone      108    ShoppingList         686
 # SetSubZone       140    ChooseDM             846
 # SelectSubzone    169    SetGrubDevice        907
+#                         EnterGrubPath        953
 # America          189      --- Review stage ---
-# FindCity         224    FinalCheck           931
+# FindCity         224    FinalCheck           981
 # DoCities         276    ManualSettings      1001
 # setlocale        302    ChangeRootPartition 1030
 # AllLanguages     447    ChangeSwapPartition 1038
@@ -963,9 +964,6 @@ EnterGrubPath() {
   Translate "Enter the path where Grub is to be installed"
   TPread "${Result}: "
   Entered=${Response,,}
-
-read -p ":${Entered}:"
-  
   # test input
   CheckGrubEntry="${Entered:0:5}"
   if [ -z $Entered ]; then
@@ -974,7 +972,6 @@ read -p ":${Entered}:"
     Echo
     TPecho "$Entered is not in the correct format"
     not_found
-    read -t 2
     EnterGrubPath
   else
     GrubDevice="${Entered}"
@@ -1018,9 +1015,31 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     PrintOne "${LuxuriesList}" ""
+
+    # 8) Kernel
+    Translate "Kernel"
+    PrintMany "      $Result" "= '$Kernel'"
+    # 9) Grub
+    Translate "Grub will be installed on"
+    PrintMany "      $Result" "= '$GrubDevice'"
+    # 10) Partitions 
+    Translate "The following partitions have been selected"
+    PrintMany "10) $Result" "..."
+    PrintOne "   ${RootPartition} /root ${RootType}"
+    PrintMany "  ${SwapPartition} /swap"
+    local Counter=0
+    for Part in ${AddPartList}        # Iterate through the list of extra partitions
+    do
+      printf "%-s" "${Part}"          # Display each partition
+      printf "%-s" "${AddPartMount[${Counter}]}"    # Mountpoint
+      printf "%-s" "${AddPartType[${Counter}]} : "  # Format type
+      Counter=$((Counter+1))
+    done
+    printf "%-s\n" " "                 # End with a newline
+
+    Response=20
     Echo
     PrintOne "Press Enter to install with these settings, or"
-    Response=20
     Translate "Enter number for data to change"
     TPread "${Result}: "
     Change=$Response
@@ -1045,6 +1064,32 @@ FinalCheck() {
         continue
       ;;
       7) PickLuxuries
+        continue
+      ;;
+      8) SetKernel
+        continue
+      ;;
+      9) if [ $GrubDevice != "EFI" ]; then  # Can't be changed if EFI
+          SetGrubDevice
+        fi
+        continue
+      ;;
+      10)  # use a listgen menu ... ChangeRootPartition, ChangeSwapPartition, ChangePartitions
+        print_heading
+        Echo
+        PrintOne "Which partition do you wish to change?"
+        PrintMany "(or $_Exit to abandon"
+        Echo
+        listgen1 "Change_Root_Partition Change_Swap_Partition Change_Other_Partitions" "" "$_Ok $_Exit"
+        case $Result in
+        "Change_Root_Partition") ChangeRootPartition
+        ;;
+        "Change_Swap_Partition") ChangeSwapPartition
+        ;;
+        "Change_Other_Partitions") ChangePartitions
+        ;;
+        *) Echo
+        esac
         continue
       ;;
       *) break

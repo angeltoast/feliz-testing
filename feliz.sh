@@ -69,10 +69,6 @@ if [ $Scope != "Basic" ]; then         # If any extra apps have been added
 
 fi
 
-# if [ $fob != "Y" ]; then             # Omit if FelizOB system?
-  FinalCheck                           # Allow user to change any variables
-# fi
-
 TestUEFI                               # Check if on UEFI system
 
 CheckParts                             # Check partition table & offer options
@@ -101,6 +97,8 @@ if [ ${UEFI} -eq 1 ]; then             # If installing in EFI
 else							                     # If BIOS 
   SetGrubDevice                        # User chooses grub partition
 fi
+
+FinalCheck                             # Moved to end. Allow user to change any variables
 
 print_heading
 TPecho "Preparations complete"
