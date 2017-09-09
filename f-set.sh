@@ -966,7 +966,7 @@ EnterGrubPath() {
   # test input
   CheckGrubEntry="${Entered:0:5}"
   if [ $Entered = "" ]; then
-    GrubDevice="Nothing Entered"      # SetGrubDevice
+    SetGrubDevice
   elif [ $CheckGrubEntry != "/dev/" ]; then
     Echo
     TPecho "$Entered is not in the correct format"
