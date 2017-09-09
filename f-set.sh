@@ -1018,15 +1018,15 @@ FinalCheck() {
 
     # 8) Kernel
     Translate "Kernel"
-    PrintMany "      $Result" "= '$Kernel'"
+    PrintMany "8) $Result" "= '$Kernel'"
     # 9) Grub
     Translate "Grub will be installed on"
-    PrintMany "      $Result" "= '$GrubDevice'"
+    PrintMany "9) $Result" "= '$GrubDevice'"
     # 10) Partitions 
     Translate "The following partitions have been selected"
     PrintMany "10) $Result" "..."
-    PrintOne "   ${RootPartition} /root ${RootType}"
-    PrintMany "  ${SwapPartition} /swap"
+    PrintOne "${RootPartition} /root ${RootType}"
+    PrintMany "${SwapPartition} /swap"
     local Counter=0
     for Part in ${AddPartList}        # Iterate through the list of extra partitions
     do
