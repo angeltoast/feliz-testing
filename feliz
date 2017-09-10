@@ -73,22 +73,7 @@ TestUEFI                               # Check if on UEFI system
 
 CheckParts                             # Check partition table & offer options
 
-if [ $AutoPart -eq 0 ]; then
-
-  BuildPartitionLists                  # Prepare table of available partitions
-  AllocateRoot                         # Allow user to select root partition
-
-  if [ -n "${PartitionList}" ]; then   # If there are unallocated partitions
-    AllocateSwap                       # Display display them for user to choose swap
-  else                                 # If there is no partition for swap
-    NoPartitions                       # Inform user and allow swapfile
-  fi
-
-  if [ -n "${PartitionList}" ]; then   # Check contents of PartitionList again
-    MorePartitions                     # Allow user to allocate any remaining partitions
-  fi
-
-fi
+ChoosePartitions
 
 SetKernel                              # Select kernel and device for Grub
 
