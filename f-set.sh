@@ -595,13 +595,15 @@ SetHostname() {
 
 Options() { # User chooses between FelizOB, self-build or basic
   print_heading
-  PrintOne "Feliz now offers you a choice. You can either ..."
+  PrintOne "Feliz now offers you a choice. You can ..."
   Echo
   PrintOne "Build your own system, by picking the"
   PrintOne " software you wish to install"
   PrintOne "... or ..."
-  PrintOne "You can simply choose the new FelizOB desktop, a"
+  PrintOne "You can choose the new FelizOB desktop, a"
   PrintOne " complete lightweight system built on Openbox"
+  PrintOne "... or ..."
+  PrintOne "Just install a basic Arch Linux"
   Echo
   Translate "Build_My_Own"
   BMO=$Result
@@ -981,8 +983,8 @@ FinalCheck() {
   while :
   do
     print_heading
-    PrintOne "These are the settings you have entered. Please check them"
-    PrintOne "before Feliz begins the installation"
+    PrintOne "These are the settings you have entered."
+    PrintOne "Please check them before Feliz begins the installation"
     Echo
     Translate "Zone/subZone will be"
     PrintMany "1) $Result" "$ZONE/$SUBZONE"
@@ -1013,10 +1015,12 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
-    if [ $Scope = "Basic" ] || [ -z $LuxuriesList ]; then
+    if [ $Scope = "Basic" ]; then
       PrintOne "$_None" ""
     elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
       PrintOne "FelizOB" ""
+    elif [ -z $LuxuriesList ]; then
+      PrintOne "$_None" ""
     else
       PrintOne "${LuxuriesList}" ""
     fi
