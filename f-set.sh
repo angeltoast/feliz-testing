@@ -1036,12 +1036,13 @@ FinalCheck() {
       local Counter=0
       for Part in ${AddPartList}                    # Iterate through the list of extra partitions
       do                                            # Display each partition, mountpoint & format type
-        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
-        Counter=$((Counter+1))
-        if [ $Counter -ge 2 ]; then                 # Up to maximum of 2
-          Echo "Too many to display all"
+        if [ $Counter -ge 1 ]; then                 # Only display the first one
+          PrintMany "Too many to display all"
           break
         fi
+        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
+        Counter=$((Counter+1))
+
       done
     fi
     Response=20
@@ -1081,25 +1082,8 @@ FinalCheck() {
         fi
         continue
       ;;
-      10)  # use a listgen menu ... ChangeRootPartition, ChangeSwapPartition, ChangePartitions
-        print_heading
-        Echo
-        PrintOne "Which partition do you wish to change?"
-        PrintOne "(or $_Exit to abandon)"
-        Echo
-        listgen1 "Change_Root_Partition Change_Swap_Partition Change_Other_Partitions" "" "$_Ok $_Exit"
-        case $Result in
-        "Change_Root_Partition") ChangeRootPartition
-                        AllocateRoot
-        ;;
-        "Change_Swap_Partition") ChangeSwapPartition
-                        AllocateSwap
-        ;;
-        "Change_Other_Partitions") ChangePartitions
-                        MorePartitions
-        ;;
-        *) Echo
-        esac
+      10) CheckParts    # Restart partitioning
+         ChoosePartitions
         continue
       ;;
       *) break
@@ -1133,37 +1117,5 @@ ManualSettings() {
         ;;
       *) return 0
     esac
-  done
-}
-
-ChangeRootPartition() {
-# Start list with SwapPartition
-  Ignorelist="${SwapPartition}"
-  AddExtras
-  MakePartitionList
-}
-
-ChangeSwapPartition() {
-# Start array with RootPartition
-  Ignorelist="${RootPartition}"
-  AddExtras
-  MakePartitionList
-}
-
-ChangePartitions() {
-  # Copy RootPartition and SwapPartition into temporary array
-  Ignorelist="${RootPartition}"
-   if [ ${SwapPartition} ]; then
-    Ignorelist="$IgnoreList ${SwapPartition}"
-  fi
-  MakePartitionList
-}
-
-AddExtras() {
-  # Ignorelist started and Counter set to next record number by the
-  # calling function ChangeSwapPartition or ChangeRootPartition
-  # Add each field (extra partition) from AddPartList into the list:
-  for a in ${AddPartList[@]}; do
-    Ignorelist="$IgnoreList $a"
   done
 }

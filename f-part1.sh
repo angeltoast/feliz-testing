@@ -400,6 +400,21 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
   AutoPart=1                                        # Set auto-partition flag to 'on'
 }
 
+ChoosePartitions() {
+  if [ $AutoPart -eq 0 ]; then
+    BuildPartitionLists                  # Prepare table of available partitions
+    AllocateRoot                         # Allow user to select root partition
+    if [ -n "${PartitionList}" ]; then   # If there are unallocated partitions
+      AllocateSwap                       # Display display them for user to choose swap
+    else                                 # If there is no partition for swap
+      NoPartitions                       # Inform user and allow swapfile
+    fi
+    if [ -n "${PartitionList}" ]; then   # Check contents of PartitionList again
+      MorePartitions                     # Allow user to allocate any remaining partitions
+    fi
+  fi
+}
+
 select_filesystem() { # User chooses filesystem from list in global variable ${TypeList}
   local Counter=0
   Translate "Please now select the file system for"
@@ -650,16 +665,9 @@ MorePartitions() {
   TempPartList=""
   for i in ${PartitionList}
   do
-    for z in ${Ignorelist}                # Ignorelist is empty unless filled in f-set.sh
-    do                                    # by ChangeRoot, ChangeSwap or ChangePartitions
-      if [ $z != $i ]; then               # If the partition has not already been assigned
-         Elements=$((Elements+1))         # Increment counter of elements in PartitionList
-         TempPartList="$TempPartList $i"  # Add it to temporary list
-      fi
-    done
+    Elements=$((Elements+1))   # Count elements in PartitionList
   done
-  PartitionList="$TempPartList"     # Replace PartitionList with temporary list
-  Ignorelist=""                     # And remove all entries in IgnoreList
+
   while [ $Elements -gt 0 ]
   do
     print_heading
