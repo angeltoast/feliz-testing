@@ -1013,12 +1013,12 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
-    if [ -n $LuxuriesList ]; then
-      PrintOne "${LuxuriesList}" ""
-    elif [ $Scope = "Basic" ]; then
+    if [ $Scope = "Basic" ] || [ -z $LuxuriesList ]; then
       PrintOne "$_None" ""
-    elif [ $DesktopEnvironment = "FelizOB" ]; then
+    elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
       PrintOne "FelizOB" ""
+    else
+      PrintOne "${LuxuriesList}" ""
     fi
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
