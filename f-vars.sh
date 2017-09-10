@@ -234,7 +234,7 @@ LanguageFile="English.lan" # For translation
 RecordNumber=0            # Used during translation
 
 # Desktop environment, display manager and greeter variables
-DesktopEnvironment=""     # eg: xfce
+DesktopEnvironment=""     # eg: xfce or FelizOB
 DisplayManager=""         # eg: lightdm
 
 # Root and user variables

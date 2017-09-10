@@ -593,9 +593,7 @@ SetHostname() {
   esac
 }
 
-Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
-  # This routine no longer called from feliz.sh or feliz due to ongoing problems with FelizOB
-  # All FelizOB code retained for reference, but is no longer used
+Options() { # User chooses between FelizOB, self-build or basic
   print_heading
   PrintOne "Feliz now offers you a choice. You can either ..."
   Echo
@@ -608,14 +606,14 @@ Options() { # Added 22 May 2017 - User chooses between FelizOB and self-build
   Translate "Build_My_Own"
   BMO=$Result
   Translate "FelizOB_desktop"
-  listgen1 "$BMO $Result" "" "$_Ok"
+  listgen1 "$BMO $Result $_None" "" "$_Ok"
   case $Response in
     1) PickLuxuries
     ;;
     2) DesktopEnvironment="FelizOB"
       Scope="Full"
     ;;
-    *) Options
+    *) Scope="Basic"
   esac
 }
 
@@ -1015,7 +1013,13 @@ FinalCheck() {
     Translate "The following extras have been selected"
     PrintMany "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
-    PrintOne "${LuxuriesList}" ""
+    if [ $DesktopEnvironment = "FelizOB" ]; then
+      PrintOne "FelizOB" ""
+    elif [ $Scope = "Basic" ]; then
+      PrintOne "$_None" ""
+    else
+      PrintOne "${LuxuriesList}" ""
+    fi
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
     Translate "Kernel"
@@ -1082,8 +1086,11 @@ FinalCheck() {
         fi
         continue
       ;;
-      10) CheckParts    # Restart partitioning
-         ChoosePartitions
+      10) AddPartList=""   # Empty the lists of extra partitions
+        AddPartMount=""
+        AddPartType=""
+        CheckParts         # Restart partitioning
+        ChoosePartitions
         continue
       ;;
       *) break
