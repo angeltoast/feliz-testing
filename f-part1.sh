@@ -227,13 +227,13 @@ Partitioning() {
     Echo
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     if [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
-      Proceed=$(( Response +1 ))
+      Proceed=$((Response+1))
     else
       Proceed=$Response
     fi
     Echo
     case $Proceed in
-      1) echo "Manual partition allocation" >> feliz.log
+      1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
       ;;
       2) cfdisk 2>> feliz.log
         tput setf 0             # Change foreground colour to black temporarily to hide error message
