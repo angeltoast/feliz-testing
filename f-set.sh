@@ -868,7 +868,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
       fi
     done
     case $SaveResult in                 # Check all DE & WM entries
-      "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "KDE" | "LXDE" | "LXQt" |  "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") DesktopEnvironment=$SaveResult
+      "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" |  "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") DesktopEnvironment=$SaveResult
         for lux in $LuxuriesList
         do
           if [ ${lux} = "FelizOB" ]; then

@@ -121,11 +121,11 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   arch_chroot "hwclock --systohc --utc"
 
 # Networking
-  if [ $Scope != "Basic" ]; then
+  # if [ $Scope != "Basic" ]; then
     arch_chroot "systemctl enable dhcpcd.service"
     pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
     arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
-  fi
+  # fi
 
 # Grub
   TPecho "Installing Grub" ""
