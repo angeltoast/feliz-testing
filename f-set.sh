@@ -30,10 +30,10 @@
 # TPread            55    Options              591
 # SetKernel         72    PickLuxuries         614
 # ConfirmVbox       84    KeepOrDelete         654
-# SetTimeZone      108    ShoppingList         686
-# SetSubZone       140    ChooseDM             846
-# SelectSubzone    169    SetGrubDevice        907
-# UseReflector         EnterGrubPath        953
+# UseReflector      86    ShoppingList         686
+# SetTimeZone      108    ChooseDM             846
+# SetSubZone       140    SetGrubDevice        907
+# SelectSubzone    169    EnterGrubPath        953
 # America          189      --- Review stage ---
 # FindCity         224    FinalCheck           981
 # DoCities         276    ManualSettings      1001
@@ -93,7 +93,7 @@ UseReflector() {
     Echo
     PrintOne "Use 'Reflector'?"
     Echo
-    Buttons "Yes/No" "$_Yes $_No" ""
+    Buttons "Yes/No" "$_No $_Yes" ""
     Echo
     case $Response in
       1) UseReflector=1
