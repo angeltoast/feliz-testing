@@ -215,9 +215,8 @@ Partitioning() {
     local Counter=1
     for Option in "${LongPart[@]}"
     do
-      if [ $Counter -eq 1 ] && [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
-        Counter=$((Counter+1))
-        continue
+      if [ "$Option" = "${LongPart[1]}" ] && [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option ignored if no partitions exist
+         continue
       fi
       Translate "$Option"
       LongOption[${Counter}]="$Result"
