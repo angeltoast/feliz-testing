@@ -96,12 +96,12 @@ UseReflector() {
     Buttons "Yes/No" "$_No $_Yes" ""
     Echo
     case $Response in
-      1) UseReflector=1
+      1) UseReflector=0
       ;;
       "") not_found
         continue
       ;;
-      *) UseReflector=0
+      *) UseReflector=1
     esac
     return 0
   done
