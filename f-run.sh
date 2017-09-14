@@ -404,11 +404,11 @@ UserAdd() {
     CheckExisting "/mnt/home/${UserName}/.config/libfm/" "libfm.conf"
     cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log    # Configurations for pcmanfm
 
-    CheckExisting "/mnt/home/${UserName}/.config/pcmanfm/default/" "config"
-    cp config /mnt/home/${UserName}/.config/pcmanfm/default/config 2>> feliz.log # Desktop configurations for pcmanfm
+    CheckExisting "/mnt/home/${UserName}/.config/lxpanel/default/" "config"
+    cp config /mnt/home/${UserName}/.config/lxpanel/default/ 2>> feliz.log # Desktop configurations for pcmanfm
 
-    CheckExisting "/mnt/home/${UserName}/.config/pcmanfm/default/" "desktop-items-0.conf"
-    cp desktop-items /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
+    CheckExisting "/mnt/home/${UserName}/.config/lxpanel/default/" "desktop-items-0.conf"
+    cp desktop-items /mnt/home/${UserName}/.config/lxpanel/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
 
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                      # Wallpaper for desktop (set in desktop-items-0.conf)
     # Set owner
