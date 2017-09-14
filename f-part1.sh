@@ -213,16 +213,21 @@ Partitioning() {
   do
     OptionsList=""
     local Counter=0
+    local Count=0
     for Option in "${LongPart[@]}"
     do
-      if [ "$Option" = "${LongPart[0]}" ] && [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option ignored if no partitions exist
-         continue
+      if [ $Counter -eq 0 ] && [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option ignored if no partitions exist
+        Counter=1
+        Count=2   # $Count is used by -f of cut to add item to OptionsList (-f starts from 1)
+        continue
+      else
+        Count=1
       fi
       Translate "$Option"
       LongOption[${Counter}]="$Result"
-      local Count=$((Counter+1))
       OptionsList="$OptionsList $(echo $PartitioningOptions | cut -d' ' -f${Count})"
       Counter=$((Counter+1))
+      Count=$((Count+1))
     done
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     if [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist

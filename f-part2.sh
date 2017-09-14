@@ -61,12 +61,15 @@ PartitioningEFI() {
     local Counter=0
     for Option in "${LongPartE[@]}"
     do
-      if [ "$Option" = "${LongPartE[o]}" ] && [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option ignored if no partitions
-         continue
+      if [ $Counter -eq 0 ] && [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option ignored if no partitions
+        Counter=1
+        Count=2   # $Count is used by -f of cut to add item to OptionsList (-f starts from 1)
+        continue
+      else
+        Count=1
       fi
       Translate "$Option"
       LongOption[${Counter}]="$Result"
-      local Count=$((Counter+1))
       OptionsList="$OptionsList $(echo $EFIPartitioningOptions | cut -d' ' -f${Count})"
       Counter=$((Counter+1))
     done
