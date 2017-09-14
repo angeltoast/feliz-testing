@@ -58,19 +58,16 @@ PartitioningEFI() {
   do
     OptionsLimit=$((OptionsLimit-1))  # There are one fewer options in EFI than BIOS
     OptionsList=""
-    local Counter=0
+    local Counter=1
     for Option in "${LongPartE[@]}"
     do
-      if [ $Counter -eq 0 ] && [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option ignored if no partitions
-        Counter=1
-        Count=2   # $Count is used by -f of cut to add item to OptionsList (-f starts from 1)
+      if [ $Counter -eq 1 ] && [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option ignored if no partitions
+        Counter=2
         continue
-      else
-        Count=1
       fi
       Translate "$Option"
       LongOption[${Counter}]="$Result"
-      OptionsList="$OptionsList $(echo $EFIPartitioningOptions | cut -d' ' -f${Count})"
+      OptionsList="$OptionsList $(echo $EFIPartitioningOptions | cut -d' ' -f${Counter})"
       Counter=$((Counter+1))
     done
     Echo

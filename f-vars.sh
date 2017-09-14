@@ -250,7 +250,7 @@ PartitioningOptions="leave cfdisk guided auto"
 LongPart[1]="Choose from existing partitions"
 LongPart[2]="Open cfdisk so I can partition manually"
 LongPart[3]="Guided manual partitioning tool"
-LongPart[4="Allow feliz to partition the whole device"
+LongPart[4]="Allow feliz to partition the whole device"
 # EFI
 EFIPartitioningOptions="leave guided auto"
 LongPartE[1]="Choose from existing partitions"
