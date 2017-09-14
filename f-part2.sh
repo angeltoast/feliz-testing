@@ -74,7 +74,7 @@ PartitioningEFI() {
     Proceed=$Response
     Echo
     case $Proceed in
-      1) print_heading
+      2) print_heading
         Echo
         EasyEFI                 # New guided manual partitioning functions
         tput setf 0             # Change foreground colour to black temporarily to hide error message
@@ -83,9 +83,9 @@ PartitioningEFI() {
         tput sgr0               # Reset colour
         ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
       ;;
-      2) ChooseDevice
+      3) ChooseDevice
       ;;
-      3) printf
+      1) echo "Manual partition allocation" >> feliz.log
       ;;
       *) not_found
         Proceed=""

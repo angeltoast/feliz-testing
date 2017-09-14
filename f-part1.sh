@@ -228,18 +228,18 @@ Partitioning() {
     Proceed=$Response
     Echo
     case $Proceed in
-      1) cfdisk 2>> feliz.log
+      2) cfdisk 2>> feliz.log
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
         tput sgr0               # Reset colour
         CheckParts              # Restart partitioning
       ;;
-      2) GuidedMBR
+      3) GuidedMBR
       ;;
-      3) ChooseDevice
+      4) ChooseDevice
       ;;
-      4) echo "Manual partition allocation" >> feliz.log
+      1) echo "Manual partition allocation" >> feliz.log
       ;;
       *) not_found
         Proceed=""
