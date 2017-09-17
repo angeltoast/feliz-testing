@@ -48,9 +48,6 @@ TPecho() { # For displaying status while running on auto
   PrintOne "$1"
   tput sgr0
   Echo
- # Translate "$(shuf messages | head -n 1)"  # Get and translate a random humorous message
- # PrintOne "$Result"                  # Display the message
- # Echo
 }
 
 MountPartitions() {
@@ -202,7 +199,7 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
   do
     # Get line number of $Country in $CountryLong in allmirrors.list
     #                      exact match only | restrict to first find | display only number
-    CountryLine=$(grep -n "^${Country}$" allmirrors.list | head -n 1 | cut -d':' -f1)
+    CountryLine=$(grep -n "${Country}" allmirrors.list | head -n 1 | cut -d':' -f1)
 
     # Read each line until empty line encountered
     while true
