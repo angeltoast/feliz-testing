@@ -98,6 +98,8 @@ ChooseMirrors() { # 2017-09-17
     #                        then removing the '##' and leading spaces
     #                                       and finally save to new file for later reference
     grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
+    # Shorten Bosnia and Herzegovina to Bosnia/Herzegovina
+    sed -i 's/Bosnia and Herzegovina/Bosnia Herzegovina/g' countries.list
 
   # Display instructions
   print_heading
@@ -119,8 +121,9 @@ ChooseMirrors() { # 2017-09-17
 
     if [ -z $Result ]; then
       break
+    elif [ "$Result" = "Bosnia_Herzegovina" ]; then
+      Result="Bosnia_and_Herzegovina"
     fi
-
     # Replace any underscores with spaces and add to array for use during installation
     CountryLong[${Counter}]="$(echo "$Result" | tr '_' ' ')"    # CountryLong is declared in f-vars.sh
     Counter=$((Counter+1))
