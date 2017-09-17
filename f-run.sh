@@ -236,11 +236,13 @@ InstallLuxuries() { # Install desktops and other extras
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
     pacstrap /mnt lxdm 2>> feliz.log
     arch_chroot "systemctl -f enable lxdm.service" >> feliz.log
-    pacstrap /mnt openbox 2>> feliz.log                                     # First ensure that Openbox gets installed
-    pacstrap /mnt obmenu obconf 2>> feliz.log                               # Then Openbox tools
-    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log  # Then the LXDE tools
-    pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log  # Add the extras
-    InstallYaourt                                                           # And Yaourt
+    pacstrap /mnt openbox 2>> feliz.log                                               # First ensure that Openbox gets installed
+    pacstrap /mnt obmenu obconf 2>> feliz.log                                         # Then Openbox tools
+    pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel 2>> feliz.log  # Then LXDE tools
+    pacstrap /mnt lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log           # more LXDE tools
+    pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log            # Add some extras
+    cp lxdm.conf /mnt/etc/lxdm/                                                       # Copy the LXDM config file
+    InstallYaourt                                                                     # And install Yaourt
   fi
 
   # Display manager - runs only once
