@@ -106,7 +106,7 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
   PrintOne "have Arch Linux mirrors. It is possible to select more than"
   PrintOne "one, but adding too many will slow down your installation"
   Echo
-  cat countries.list | tr ' ' '_' > temp.file   # Save a copy of the countries list without spaces
+
   PrintOne "Please press any key to continue"
   read -n1
   # User-selection of countries starts here:
@@ -114,7 +114,9 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
   Translate "Please choose a country"
   while true
   do
-    # Display the list
+    # Save a copy of the countries list without spaces to temp.file used (and deleted) by listgenx
+    cat countries.list | tr ' ' '_' > temp.file 
+    # Display the list for user-selection
     listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
 
     if [ -z $Result ]; then
