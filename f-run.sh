@@ -203,17 +203,17 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
     # Get line number of $Country in $CountryLong in allmirrors.list
     #                      exact match only | restrict to first find | display only number
     CountryLine=$(grep -n "^${Country}$" allmirrors.list | head -n 1 | cut -d':' -f1)
-    EndDo=0
+
     # Read each line until empty line encountered
-    until [ $EndDo -eq 1 ]
+    while true
     do
       CountryLine=$((CountryLine+1))                                                 # Next line
       Result="$(head -n ${CountryLine} allmirrors.list | tail -n 1 | cut -d'#' -f2)" # Read next item in source file
       echo "$Result" >> usemirrors.list                                              # Save it to use file
       if [ -z "$Result" ]; then
-        EndDo=1
+        break
       else
-        echo "Loading $Country $Result"
+        read -p "Loading $Country $Result"
       fi
     
     done
