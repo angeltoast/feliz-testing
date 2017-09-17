@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 12th August 2017
+# Revision date: 17th September 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,22 +25,20 @@
 # --------------------   ------------------------
 # Function        Line   Function            Line
 # --------------------   ------------------------
-# not_found         44    Username             558
-# Echo              50    SetHostname          574
-# TPread            55    Options              591
-# SetKernel         72    PickLuxuries         614
-# ConfirmVbox       84    KeepOrDelete         654
-# UseReflector      86    ShoppingList         686
-# SetTimeZone      108    ChooseDM             846
-# SetSubZone       140    SetGrubDevice        907
-# SelectSubzone    169    EnterGrubPath        953
-# America          189      --- Review stage ---
-# FindCity         224    FinalCheck           981
-# DoCities         276    ManualSettings      1001
-# setlocale        302    ChangeRootPartition 1030
-# AllLanguages     447    ChangeSwapPartition 1038
-# getkeymap        469    ChangePartitions    1046
-# SearchKeyboards  527    AddExtras           1058
+# not_found         46    getkeymap            517 
+# Echo              52    SearchKeyboards      575 
+# TPread            57    Username             612
+# SetKernel         74    SetHostname          628
+# ChooseMirrors     86    Options              645
+# ConfirmVbox      134    PickLuxuries         671
+# SetTimeZone      158    KeepOrDelete         711
+# SetSubZone       190    ShoppingList         743
+# SelectSubzone    219    ChooseDM             917
+# America          239    SetGrubDevice        971
+# FindCity         274    EnterGrubPath       1003
+# DoCities         325      --- Review stage ---
+# setlocale        351    FinalCheck          1031
+# AllLanguages     500    ManualSettings      1154
 # --------------------    -----------------------
 
 not_found() {
@@ -83,28 +81,52 @@ SetKernel() {
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
-UseReflector() {
-  while :
+ChooseMirrors() { # 2017-09-17
+  
+  # User selects one or more countries with Arch Linux mirrors
+
+  # Prepare files of official Arch Linux mirrors
+    # 1) Download latest list of Arch Mirrors to temporary file
+    curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
+    # 2) Get line number of first country
+    FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
+    # 3) Remove header and save in new file
+    tail -n +${FirstLine} archmirrors.list > allmirrors.list
+    # 4) Delete temporary file
+    rm archmirrors.list
+    # 5) Create countries.list from allmirrors.list, using '##' to identify
+    #                        then removing the '##' and leading spaces
+    #                                       and finally save to new file for later reference
+    grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
+
+  # Display instructions
+  print_heading
+  PrintOne "Next we will select mirrors for downloading your system."
+  PrintOne "You will be able to choose from a list of countries which"
+  PrintOne "have Arch Linux mirrors. It is possible to select more than"
+  PrintOne "one, but adding too many will slow down your installation"
+  #
+  PrintOne "Please press any key to continue"
+  read -n1
+  # User-selection of countries starts here:
+  Counter=0
+  Translate "Please choose a country"
+  while true
   do
-    print_heading
-    PrintOne "Mirrors"
-    PrintOne "'Reflector' can be used to find the fastest mirrors"
-    PrintOne "But can sometimes cause errors. If in doubt, choose 'No'"
-    Echo
-    PrintOne "Use 'Reflector'?"
-    Echo
-    Buttons "Yes/No" "$_No $_Yes" ""
-    Echo
-    case $Response in
-      1) UseReflector=0
-      ;;
-      "") not_found
-        continue
-      ;;
-      *) UseReflector=1
-    esac
-    return 0
+    cat countries.list | tr ' ' '_' > temp.file
+
+    listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
+
+    if [ -z $Result ]; then
+      break
+    fi
+
+    # Replace any underscores with spaces and add to array for use during installation
+    CountryLong[${Counter}]="$(echo "$Result" | tr '_' ' ')"    # CountryLong is declared in f-vars.sh
+    Counter=$((Counter+1))
+    Translate "$Result added. Choose another country, or ' '"
   done
+  
 }
 
 ConfirmVbox() {
@@ -376,7 +398,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
       Echo
       Translate "Only one language found for your location"
       PrintOne "$Result" ": $Language"
-      PrintOne "Shall we use this as your language?"    # Allow user to confirm
+      PrintOne "Shall we install with this language?"    # Allow user to confirm
       Buttons "Yes/No" "$_Yes $_No" ""
       if [ $Result = "$_No" ]; then                       # User declines offered language
         City=""
@@ -404,7 +426,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         do
           grep "$l$" languages.list >> temp.file        # listgenx checks temp.file then renames it
         done
-        Translate "Now please choose your language for the installed system"
+        Translate "Please choose the language for the installed system"
         listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
       else                                              # List is short enough for listgen1
         local Counter=0
@@ -449,7 +471,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         done
         localelist="${Newlist}"                         # Ensure that localelist matches choosefrom
         print_heading
-        PrintOne "Now please choose your language from this list"
+        PrintOne "Please choose the language for the installed system"
         Translate "Choose one or Exit to search for alternatives"
         listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"       # Menu if less than one screenful
       fi
