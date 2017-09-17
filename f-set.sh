@@ -81,9 +81,7 @@ SetKernel() {
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
 }
 
-ChooseMirrors() { # 2017-09-17
-  
-  # User selects one or more countries with Arch Linux mirrors
+ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
 
   # Prepare files of official Arch Linux mirrors
     # 1) Download latest list of Arch Mirrors to temporary file
@@ -98,8 +96,8 @@ ChooseMirrors() { # 2017-09-17
     #                        then removing the '##' and leading spaces
     #                                       and finally save to new file for later reference
     grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
-    # Shorten Bosnia and Herzegovina to Bosnia/Herzegovina
-    sed -i 's/Bosnia and Herzegovina/Bosnia Herzegovina/g' countries.list
+    # Shorten Bosnia and Herzegovina to BosniaHerze
+    sed -i 's/Bosnia and Herzegovina/BosniaHerze/g' countries.list
 
   # Display instructions
   print_heading
@@ -107,7 +105,8 @@ ChooseMirrors() { # 2017-09-17
   PrintOne "You will be able to choose from a list of countries which"
   PrintOne "have Arch Linux mirrors. It is possible to select more than"
   PrintOne "one, but adding too many will slow down your installation"
-  #
+  Echo
+  cat countries.list | tr ' ' '_' > temp.file   # Save a copy of the countries list without spaces
   PrintOne "Please press any key to continue"
   read -n1
   # User-selection of countries starts here:
@@ -115,16 +114,15 @@ ChooseMirrors() { # 2017-09-17
   Translate "Please choose a country"
   while true
   do
-    cat countries.list | tr ' ' '_' > temp.file
-
+    # Display the list
     listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
 
     if [ -z $Result ]; then
       break
-    elif [ "$Result" = "Bosnia_Herzegovina" ]; then
+    elif [ "$Result" = "BosniaHerze" ]; then
       Result="Bosnia_and_Herzegovina"
     fi
-    # Replace any underscores with spaces and add to array for use during installation
+    # Replace any underscores in selection with spaces and add to array for use during installation
     CountryLong[${Counter}]="$(echo "$Result" | tr '_' ' ')"    # CountryLong is declared in f-vars.sh
     Counter=$((Counter+1))
     Translate "$Result added. Choose another country, or ' '"
@@ -132,6 +130,7 @@ ChooseMirrors() { # 2017-09-17
 
 echo "${CountryLong[0]}"
 echo "${CountryLong[1]}"
+echo "${CountryLong[2]}"
 read
   
 }
