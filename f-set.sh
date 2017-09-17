@@ -129,6 +129,10 @@ ChooseMirrors() { # 2017-09-17
     Counter=$((Counter+1))
     Translate "$Result added. Choose another country, or ' '"
   done
+
+echo "${CountryLong[0]}"
+echo "${CountryLong[1]}"
+read
   
 }
 

@@ -195,14 +195,12 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
   # Now the mirrors associated with each of those countries must be extracted from the array
 
   TPecho "Generating mirrorlist"
-  
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
   
   # Prepare file of mirrors to be used
-
   for Country in "${CountryLong[@]}"
   do
-    # Get line number of $Country in "$CountryLong" in allmirrors.list
+    # Get line number of $Country in $CountryLong in allmirrors.list
     #                      exact match only | restrict to first find | display only number
     CountryLine=$(grep -n "^${Country}$" allmirrors.list | head -n 1 | cut -d':' -f1)
     EndDo=0
