@@ -234,8 +234,8 @@ InstallLuxuries() { # Install desktops and other extras
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "Installing FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
-    pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
-    arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
+    pacstrap /mnt lxdm 2>> feliz.log
+    arch_chroot "systemctl -f enable lxdm.service" >> feliz.log
     pacstrap /mnt openbox 2>> feliz.log                                     # First ensure that Openbox gets installed
     pacstrap /mnt obmenu obconf 2>> feliz.log                               # Then Openbox tools
     pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log  # Then the LXDE tools

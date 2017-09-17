@@ -96,8 +96,8 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
     #                        then removing the '##' and leading spaces
     #                                       and finally save to new file for later reference
     grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
-    # Shorten Bosnia and Herzegovina to BosniaHerze
-    sed -i 's/Bosnia and Herzegovina/BosniaHerze/g' countries.list
+    # Shorten Bosnia and Herzegovina to BosniaHerzegov
+    sed -i 's/Bosnia and Herzegovina/BosniaHerzegov/g' countries.list
 
   # Display instructions
   print_heading
@@ -118,10 +118,9 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
     cat countries.list | tr ' ' '_' > temp.file 
     # Display the list for user-selection
     listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-
     if [ -z $Result ]; then
       break
-    elif [ "$Result" = "BosniaHerze" ]; then
+    elif [ "$Result" = "BosniaHerzegov" ]; then
       Result="Bosnia_and_Herzegovina"
     fi
     # Replace any underscores in selection with spaces and add to array for use during installation
@@ -129,16 +128,10 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
     Counter=$((Counter+1))
     Translate "$Result added. Choose another country, or ' '"
   done
-
-echo "${CountryLong[0]}"
-echo "${CountryLong[1]}"
-echo "${CountryLong[2]}"
-read
-  
 }
 
 ConfirmVbox() {
-  while :
+  while true
   do
     print_heading
     PrintOne "It appears that feliz is running in Virtualbox"
@@ -281,8 +274,7 @@ FindCity() {  # Called by SelectSubzone
   Translate "enter ' ' to see a list"
   TPread "$_or $Result: "
   Echo
-  if [ -z ${Response} ]               # User has entered ' '
-  then
+  if [ -z ${Response} ]; then               # User has entered ' '
     # Prepare file to use listgenx
     timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
     Translate "Please choose your nearest location"
@@ -504,7 +496,7 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
 }
 
 AllLanguages() {
-  while :
+  while true
   do
     print_heading
     Echo
@@ -693,7 +685,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   *) PrintOne "You can add more items, or select items to delete"
   esac
   # Echo
-  while :
+  while true
   do
     listgen1 "${TransCatList}" "$_Quit" "$_Ok $_Exit"
     Category=$Response
@@ -716,7 +708,7 @@ PickLuxuries() { # User selects any combination from a store of extras
 
 KeepOrDelete() {
   Bagged="$1"
-  while :
+  while true
   do
     print_heading
     Translate "is already in your shopping list"
@@ -748,7 +740,7 @@ KeepOrDelete() {
 
 ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   Translate "Choose an item"
-  while :
+  while true
   do
     print_heading
     PrintOne "$AddedSoFar" ": ${LuxuriesList}"
@@ -936,8 +928,7 @@ ChooseDM() { # Choose a display manager
       for item in ${DMList}
       do
         Counter=$((Counter+1))
-        if [ $Counter -eq $Reply ]
-        then
+        if [ $Counter -eq $Reply ]; then
           SelectedDM=$item
           case $SelectedDM in
             "GDM") DisplayManager="gdm"
@@ -1035,7 +1026,7 @@ EnterGrubPath() {
 }
 
 FinalCheck() {
-  while :
+  while true
   do
     print_heading
     PrintOne "These are the settings you have entered."
@@ -1158,7 +1149,7 @@ FinalCheck() {
 }
 
 ManualSettings() {
-  while :
+  while true
   do
     print_heading
     PrintOne "Enter number for data to change"
