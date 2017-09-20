@@ -40,8 +40,6 @@ source f-run.sh      # Functions called during installation
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
-read -p "Check startup condition"
-
 SetLanguage                            # Use appropriate language file
 
 timedatectl set-ntp true
