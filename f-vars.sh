@@ -180,6 +180,9 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No translation found, so translate using Google Translate to temporary file:
+
+read -p "No translation found for '${Text}'"
+  
      ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
      Result=$(cat Result.file)
   ;;
