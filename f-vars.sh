@@ -104,7 +104,9 @@ SetLanguage() {
     ;;
     "Polski.lan") InstalLanguage="pl"
     ;;
-    "Português.lan") InstalLanguage="pt"
+    "Português.lan") InstalLanguage="pt-PT"
+    ;;
+    "Português-br.lan") InstalLanguage="pt-BR"
     ;;
     *) InstalLanguage="en"
       LanguageFile=English.lan
