@@ -645,11 +645,11 @@ Options() { # User chooses between FelizOB, self-build or basic
   PrintOne "Feliz now offers you a choice. You can ..."
   Echo
   PrintOne "Build your own system, by picking the"
-  PrintOne " software you wish to install"
-  PrintOne "... or ..."
+  PrintOne "software you wish to install"
+  PrintOne "..." "$_or ..."
   PrintOne "You can choose the new FelizOB desktop, a"
-  PrintOne " complete lightweight system built on Openbox"
-  PrintOne "... or ..."
+  PrintOne "complete lightweight system built on Openbox"
+  PrintOne "..." "$_or ..."
   PrintOne "Just install a basic Arch Linux"
   Echo
   Translate "Build_My_Own"
