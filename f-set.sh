@@ -683,7 +683,7 @@ PickLuxuries() { # User selects any combination from a store of extras
   ;;
   *) PrintOne "You can add more items, or select items to delete"
   esac
-  # Echo
+  #
   while true
   do
     listgen1 "${TransCatList}" "$_Quit" "$_Ok $_Exit"
@@ -739,6 +739,7 @@ KeepOrDelete() {
 
 ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   Translate "Choose an item"
+  InLoop="F"
   while true
   do
     print_heading
@@ -748,130 +749,148 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     # Pass category to listgen2 for user to choose one item;
     local Counter=1
     case $Category in
-       1) OptionsCounter=1
-          for Option in "${LongAccs[@]}"  # Translate all elements
-          do
-            Translate "$Option"
-            LongAccs[${OptionsCounter}]="$Result"
-            (( OptionsCounter+=1 ))
-          done
-        for i in ${Accessories}
-        do
-          LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
-          (( Counter+=1 ))
-        done
-        listgen2 "$Accessories" "$_Quit" "$_Ok $_Exit" "LongAccs1"
+       1) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+            OptionsCounter=1
+            for Option in "${LongAccs[@]}"  # Translate all elements
+            do
+              Translate "$Option"
+              LongAccs[${OptionsCounter}]="$Result"
+              (( OptionsCounter+=1 ))
+            done
+            for i in ${Accessories}
+            do
+              LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
+              (( Counter+=1 ))
+            done
+          fi
+          listgen2 "$Accessories" "$_Quit" "$_Ok $_Exit" "LongAccs1"
        ;;
-       2) OptionsCounter=1
-          for Option in "${LongDesk[@]}"  # Translate all elements
-          do
-            Translate "$Option"
-            LongDesk[${OptionsCounter}]="$Result"
-            (( OptionsCounter+=1 ))
-          done
-        for i in ${Desktops}
-        do
-          LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
-          (( Counter+=1 ))
-        done
-        listgen2 "$Desktops" "$_Quit" "$_Ok $_Exit" "LongDesk1"
+       2) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+            OptionsCounter=1
+            for Option in "${LongDesk[@]}"  # Translate all elements
+            do
+              Translate "$Option"
+              LongDesk[${OptionsCounter}]="$Result"
+              (( OptionsCounter+=1 ))
+            done
+            for i in ${Desktops}
+            do
+              LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
+              (( Counter+=1 ))
+            done
+          fi
+          listgen2 "$Desktops" "$_Quit" "$_Ok $_Exit" "LongDesk1"
        ;;
-       3) OptionsCounter=1
+       3) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongGraph[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongGraph[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Graphical}
-        do
-          LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Graphical}
+          do
+            LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Graphical" "$_Quit" "$_Ok $_Exit" "LongGraph1"
        ;;
-       4) OptionsCounter=1
+       4) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongNet[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongNet[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Internet}
-        do
-          LongNet1[${Counter}]="$i - ${LongNet[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Internet}
+          do
+            LongNet1[${Counter}]="$i - ${LongNet[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Internet" "$_Quit" "$_Ok $_Exit" "LongNet1"
        ;;
-       5) OptionsCounter=1
+       5) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongMulti[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongMulti[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Multimedia}
-        do
-          LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Multimedia}
+          do
+            LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Multimedia" "$_Quit" "$_Ok $_Exit" "LongMulti1"
        ;;
-       6) OptionsCounter=1
+       6) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongOffice[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongOffice[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Office}
-        do
-          LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Office}
+          do
+            LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Office" "$_Quit" "$_Ok $_Exit" "LongOffice1"
        ;;
-       7) OptionsCounter=1
+       7) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongProg[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongProg[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Programming}
-        do
-          LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Programming}
+          do
+            LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Programming" "$_Quit" "$_Ok $_Exit" "LongProg1"
        ;;
-       8) OptionsCounter=1
+       8) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongWMs[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongWMs[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${WindowManagers}
-        do
-          LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${WindowManagers}
+          do
+            LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$WindowManagers" "$_Quit" "$_Ok $_Exit" "LongWMs1"
       ;;
-      9) OptionsCounter=1
+      9) if [ $InLoop = "F" ]; then        # Do not translate if not exited
+          OptionsCounter=1
           for Option in "${LongBars[@]}"  # Translate all elements
           do
             Translate "$Option"
             LongBars[${OptionsCounter}]="$Result"
             (( OptionsCounter+=1 ))
           done
-        for i in ${Taskbars}
-        do
-          LongBars1[${Counter}]="$i - ${LongBars[${Counter}]}"
-          (( Counter+=1 ))
-        done
+          for i in ${Taskbars}
+          do
+            LongBars1[${Counter}]="$i - ${LongBars[${Counter}]}"
+            (( Counter+=1 ))
+          done
+        fi
         listgen2 "$Taskbars" "$_Quit" "$_Ok $_Exit" "LongBars1"
       ;;
       *) break
@@ -908,6 +927,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     else
       LuxuriesList="${LuxuriesList} ${SaveResult}"
     fi
+    InLoop="T"
   done
 }
 
