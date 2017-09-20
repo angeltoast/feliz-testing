@@ -171,7 +171,6 @@ SetLanguage() {
 Translate() { # Called by PrintOne & PrintMany and by other functions as required
               # $1 is text to be translated
   Text="${1%% }"               # Ensure no trailing spaces
-  Text="${Text// }"            # Ensure no leading spaces
   if [ $LanguageFile = "English.lan" ]; then
     Result="$Text"
     return
