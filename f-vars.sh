@@ -169,8 +169,8 @@ SetLanguage() {
 }
 
 Translate() { # Called by PrintOne & PrintMany and by other functions as required
-              # $1 is text to be translated
-  Text="${1%% }"               # Ensure no trailing spaces
+                # $1 is text to be translated
+  Text="${1%% }"   # Ensure no trailing spaces
   if [ $LanguageFile = "English.lan" ]; then
     Result="$Text"
     return
@@ -267,7 +267,7 @@ LongPartE[3]="Allow feliz to partition the whole device"
 
 # ---- Arrays for extra Applications ----
 CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars"
-Categories[1]="Accessories         "
+Categories[1]="Accessories"
 Categories[2]="Desktop_Environments"
 Categories[3]="Graphical"
 Categories[4]="Internet"
@@ -278,7 +278,7 @@ Categories[8]="Window_Managers"
 Categories[9]="Taskbars"
 # Accessories
 Accessories="brasero conky galculator gparted hardinfo leafpad lxterminal pcmanfm"
-LongAccs[1]="Disc burning application from Gnome            "
+LongAccs[1]="Disc burning application from Gnome"
 LongAccs[2]="Desktop time and system information"
 LongAccs[3]="Handy desktop calculator"
 LongAccs[4]="Tool to make/delete/resize partitions"
@@ -307,7 +307,7 @@ LongGraph[6]="A simple scanner GUI"
 LongGraph[7]="GTK-based sane frontend"
 # Internet
 Internet="chromium epiphany filezilla firefox midori qbittorrent thunderbird transmission-gtk"
-LongNet[1]="Open source web browser from Google    "
+LongNet[1]="Open source web browser from Google"
 LongNet[2]="Gnome WebKitGTK+ browser (aka Web)"
 LongNet[3]="Fast & reliable FTP, FTPS & SFTP client"
 LongNet[4]="Extensible browser from Mozilla"
@@ -317,7 +317,7 @@ LongNet[7]="Feature-rich email client from Mozilla"
 LongNet[8]="Easy-to-use BitTorrent client"
 # Multimedia
 Multimedia="avidemux-gtk banshee handbrake openshot vlc xfburn"
-LongMulti[1]="Easy-to-use video editor            "
+LongMulti[1]="Easy-to-use video editor"
 LongMulti[2]="Feature-rich audio player"
 LongMulti[3]="Simple yet powerful video transcoder"
 LongMulti[4]="Easy-to-use non-linear video editor"
@@ -325,7 +325,7 @@ LongMulti[5]="Middleweight video player"
 LongMulti[6]="GUI CD burner"
 # Office
 Office="abiword calibre evince gnumeric libreoffice orage scribus"
-LongOffice[1]="Full-featured word processor           "
+LongOffice[1]="Full-featured word processor"
 LongOffice[2]="E-book library management application"
 LongOffice[3]="Reader for PDF & other document formats"
 LongOffice[4]="Spreadsheet program from GNOME"
@@ -344,7 +344,7 @@ LongProg[7]="Cross-platform IDE for Object Pascal"
 LongProg[8]="Integrated development environment (IDE)"
 # WindowManagers
 WindowManagers="Awesome Enlightenment Fluxbox i3 IceWM JWM Openbox Windowmaker Xmonad"
-LongWMs[1]="Highly configurable, dynamic window manager              "
+LongWMs[1]="Highly configurable, dynamic window manager"
 LongWMs[2]="Stacking window manager & libraries to manage desktop"
 LongWMs[3]="Light, fast and versatile WM"
 LongWMs[4]="Tiling window manager, completely written from scratch"
@@ -355,7 +355,7 @@ LongWMs[8]="Window manager that emulates the NeXT user interface"
 LongWMs[9]="Dynamic tiling window manager (requires Haskell compiler)"
 # Taskbars (Docks & Panels)
 Taskbars="cairo-dock docky dmenu fbpanel lxpanel plank tint2"
-LongBars[1]="Customizable dock & launcher application                "
+LongBars[1]="Customizable dock & launcher application"
 LongBars[2]="Full fledged dock application"
 LongBars[3]="Fast and lightweight dynamic menu for X"
 LongBars[4]="Lightweight, NETWM compliant desktop panel"
