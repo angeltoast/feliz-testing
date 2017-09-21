@@ -171,7 +171,7 @@ SetLanguage() {
 Translate() { # Called by PrintOne & PrintMany and by other functions as required
                 # $1 is text to be translated
   Text="${1%% }"   # Ensure no trailing spaces
-  if [ $LanguageFile = "English.lan" ]; then
+  if [ $LanguageFile = "English.lan" ] || [ $Translate = "N" ]; then
     Result="$Text"
     return
   fi
@@ -179,7 +179,7 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   #                      exact match only | restrict to first find | display only number
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
-  "" | 0) # No translation found, so translate using Google Translate to temporary file:
+  "" | 0) # No match found in English.lan, so translate using Google Translate to temporary file:
 
 read -p "No English match for '${Text}'"
   
@@ -252,6 +252,7 @@ Scope=""                  # Installation scope ... 'Full' or 'Basic'
 
 # Miscellaneous
 PrimaryFile=""
+Translate="Y"             # May be set to N to stifle translation
 
 # ---- Partitioning ----
 PartitioningOptions="leave cfdisk guided auto"

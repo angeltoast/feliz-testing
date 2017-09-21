@@ -75,7 +75,8 @@ SetKernel() {
   PrintOne "Choose your kernel"
   PrintOne "The Long-Term-Support kernel (LTS) offers stabilty"
   PrintOne "while the Latest kernel has all the new features"
-  PrintOne "If in doubt, choose LTS"
+  Translate "If in doubt, choose"
+  PrintOne "$Result " "LTS"
   Echo
   listgen1 "LTS Latest" "" "$_Ok"
   Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
@@ -112,21 +113,24 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
   # User-selection of countries starts here:
   Counter=0
   Translate "Please choose a country"
+  Instruction="$Result"
   while true
   do
     # Save a copy of the countries list without spaces to temp.file used (and deleted) by listgenx
     cat countries.list | tr ' ' '_' > temp.file 
     # Display the list for user-selection
-    listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ -z $Result ]; then
+    listgenx "$Instruction" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
+    if [ -z $Result ]; then       # User does not want to add any more mirrors
       break
-    elif [ "$Result" = "BosniaHerzegov" ]; then
+    elif [ "$Result" = "BosniaHerzegov" ]; then # Previously shortened to fit screen
       Result="Bosnia_and_Herzegovina"
     fi
     # Replace any underscores in selection with spaces and add to array for use during installation
     CountryLong[${Counter}]="$(echo "$Result" | tr '_' ' ')"    # CountryLong is declared in f-vars.sh
     Counter=$((Counter+1))
-    Translate "$Result added. Choose another country, or ' '"
+    Chosen="$Result"
+    Translate "added. Choose another country, or ' '"
+    Instruction="$Chosen $Result"
   done
 }
 
@@ -274,7 +278,7 @@ FindCity() {  # Called by SelectSubzone
   Translate "enter ' ' to see a list"
   TPread "$_or $Result: "
   Echo
-  if [ -z ${Response} ]; then               # User has entered ' '
+  if [ -z ${Response} ]; then             # User has entered ' '
     # Prepare file to use listgenx
     timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
     Translate "Please choose your nearest location"
@@ -938,7 +942,8 @@ ChooseDM() { # Choose a display manager
       DMList="GDM LightDM LXDM sddm SLIM XDM"
       print_heading
       PrintOne "A display manager provides a graphical login screen"
-      PrintOne "If in doubt, choose LightDM"
+      Translate "If in doubt, choose"
+      PrintOne "$Result " "LightDM"
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"
       Echo
@@ -1061,7 +1066,7 @@ FinalCheck() {
       "VirtualBox") Translate "Virtualbox guest utilities"
       PrintMany "4)" "$Result: $_Yes"
       ;;
-      *) Translate "Virtualbox guest utilities"
+      *) Translate "Virtualbox guest modules"
       PrintMany "4)" "$Result: $_No"
     esac
     if [ -z "$DisplayManager" ]; then
@@ -1084,10 +1089,12 @@ FinalCheck() {
       PrintOne "$_None" ""
     elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
       PrintOne "FelizOB" ""
-    elif [ -z $LuxuriesList ]; then
+    elif [ -z "$LuxuriesList" ]; then
       PrintOne "$_None" ""
     else
+      Translate="N"
       PrintOne "${LuxuriesList}" ""
+      Translate="Y"
     fi
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
@@ -1103,6 +1110,7 @@ FinalCheck() {
     # 10) Partitions 
     Translate "The following partitions have been selected"
     PrintMany "10) $Result" "..."
+    Translate="N"
     PrintOne "${RootPartition} /root ${RootType}"
     PrintMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
@@ -1118,6 +1126,7 @@ FinalCheck() {
 
       done
     fi
+    Translate="Y"
     Response=20
     Echo
     PrintOne "Press Enter to install with these settings, or"
