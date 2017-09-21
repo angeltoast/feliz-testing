@@ -107,7 +107,6 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
   PrintOne "have Arch Linux mirrors. It is possible to select more than"
   PrintOne "one, but adding too many will slow down your installation"
   Echo
-
   PrintOne "Please press any key to continue"
   read -n1
   # User-selection of countries starts here:
@@ -1063,7 +1062,7 @@ FinalCheck() {
     Translate "Keyboard is"
     PrintMany "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
-      "VirtualBox") Translate "Virtualbox guest utilities"
+      "VirtualBox") Translate "Virtualbox guest modules"
       PrintMany "4)" "$Result: $_Yes"
       ;;
       *) Translate "Virtualbox guest modules"

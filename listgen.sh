@@ -548,7 +548,7 @@ SelectPage() {
 PrintPage() {
   Heading
   if [ "$Headline" ]; then
-    PrintOne "${Headline}"
+    first_item "${Headline}"
   fi
   ThisPage="${Pages[${PageNumber}]}"            # String of column numbers for this page
   PageWidth=${PageWidths[${PageNumber}]}        # Full width of this page
@@ -593,7 +593,7 @@ PrintPage() {
     ;;
     *[!0-9]*) Heading
       if [ "$Headline" ]; then
-        PrintOne "${Headline}"
+        first_item "${Headline}"
       fi
       ThisPage="${Pages[${PageNumber}]}"            # String of column numbers for this page
       PageWidth=${PageWidths[${PageNumber}]}        # Full width of this page

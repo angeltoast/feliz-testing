@@ -162,7 +162,9 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     AddCodecs # Various bits
 
     if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
-      TPecho "Installing virtualbox guest modules"
+      Translate="N"
+      TPecho "$_Installing Virtualbox guest modules"
+      Translate="Y"
       case $Kernel in
       1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel
         pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log
