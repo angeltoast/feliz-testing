@@ -1062,10 +1062,10 @@ FinalCheck() {
     Translate "Keyboard is"
     PrintMany "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
-      "VirtualBox") Translate "Virtualbox guest modules"
+      "VirtualBox") Translate "virtualbox guest modules"
       PrintMany "4)" "$Result: $_Yes"
       ;;
-      *) Translate "Virtualbox guest modules"
+      *) Translate "virtualbox guest modules"
       PrintMany "4)" "$Result: $_No"
     esac
     if [ -z "$DisplayManager" ]; then

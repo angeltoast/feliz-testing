@@ -124,7 +124,7 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   # fi
 
 # Grub
-  TPecho "Installing Grub" ""
+  TPecho "$_Installing " "Grub"
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
     pacstrap /mnt grub efibootmgr
     arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
@@ -163,7 +163,7 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
     if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
       Translate="N"
-      TPecho "$_Installing Virtualbox guest modules"
+      TPecho "$_Installing " "Virtualbox guest modules"
       Translate="Y"
       case $Kernel in
       1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log # LTS kernel

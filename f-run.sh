@@ -203,7 +203,7 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
       if [ -z "$MirrorURL" ]; then
         break
       else
-        TPecho "$_Loading " "$Country $MirrorURL"
+        echo "$_Loading " "$Country $MirrorURL"
       fi
     done
   done
