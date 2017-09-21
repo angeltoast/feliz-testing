@@ -143,7 +143,7 @@ InstallKernel() {   # Selected kernel and some other core systems
     pacman-key --refresh-keys
   fi
   Translate "kernel and core systems"
-  TPecho "Installing " "$Result"
+  TPecho "$_Installing " "$Result"
   case $Kernel in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
     # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
@@ -152,7 +152,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
   Translate "cli tools"
-  TPecho "Installing " "$Result"
+  TPecho "$_Installing " "$Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 

@@ -38,8 +38,10 @@ PrintOne() {  # Receives up to 2 arguments. Translates and prints text
   if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
     Translate "$1"
     Text="$Result"
-  else        # If $2 contains text, don't translate $1 or $2
-    Text="$1 $2"
+  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+    Text="$1 $2 $3"
+  else                             # If $2 contains text, don't translate any
+    Text="$1 $2 $3"
   fi
   local width=$(tput cols)
   EMPTY=" "
@@ -57,6 +59,8 @@ PrintMany() { # Receives up to 2 arguments. Translates and prints text
   if [ ! "$2" ]; then  # If $2 is missing
     Translate "$1"
     Text="$Result"
+  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+    Text="$1 $2 $3"
   else        # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
@@ -180,9 +184,6 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No match found in English.lan, so translate using Google Translate to temporary file:
-
-read -p "No English match for '${Text}'"
-  
      ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
      Result=$(cat Result.file)
   ;;
