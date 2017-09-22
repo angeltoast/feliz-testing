@@ -110,7 +110,7 @@ SetLanguage() {
     ;;
     "Português-pt.lan") InstalLanguage="pt-PT"
     ;;
-    "Português-br.lan") InstalLanguage="pt-BR"
+    "Português-BR.lan") InstalLanguage="pt-BR"
     ;;
     *) InstalLanguage="en"
       LanguageFile=English.lan
