@@ -1,6 +1,6 @@
 English language file for Feliz
-by Elizabeth Audrey Mills (liz@feliz.one) 18 September 2017
-------------------------------------------------------------------
+by Elizabeth Audrey Mills (liz@feliz.one) 23 September 2017
+-----------------------------------------------------------
 Notes to translators (turn Line-numbers on in your text editor)
 --------------------
 1) Please translate line #1 to say the translation language;
@@ -9,7 +9,7 @@ Notes to translators (turn Line-numbers on in your text editor)
 3) Translations start at line #19
 4) Please translate all lines at exactly the same line number,
     and do not add or delete any lines (this is very important)
-5) If any translated line will be over 70 characters, please re-phrase to make it shorter
+5) If any translated line will be over 80 characters, please re-phrase to make it shorter
 6) Save your file as <Language>.lan
    (where <Language> is the native name of the language - for example: Español.lan)
 7) If you have any questions or problems, please email or contact me through Facebook

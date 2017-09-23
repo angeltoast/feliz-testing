@@ -1,6 +1,6 @@
 Archivo de español para Feliz
-por Elizabeth Audrey Mills (liz@feliz.one) 22 Septiembre 2017
-------------------------------------------------------------------
+por Elizabeth Audrey Mills (liz@feliz.one) y Google Translate 23 Septiembre 2017
+--------------------------------------------------------------------------------
 Notes to translators (turn Line-numbers on in your text editor)
 --------------------
 1) Please translate line #1 to say the translation language;
@@ -9,7 +9,7 @@ Notes to translators (turn Line-numbers on in your text editor)
 3) Translations start at line #19
 4) Please translate all lines at exactly the same line number,
     and do not add or delete any lines (this is very important)
-5) If any translated line will be over 70 characters, please re-phrase to make it shorter
+5) If any translated line will be over 80 characters, please re-phrase to make it shorter
 6) Save your file as <Language>.lan
    (where <Language> is the native name of the language - for example: Español.lan)
 7) If you have any questions or problems, please email or contact me through Facebook
@@ -44,10 +44,10 @@ Una interfaz gráfica de usuario sencilla del escáner
 asignar un archivo de intercambio. Se aconseja permitir algún intercambio
 auto
 disponible en el dispositivo elegido
-Basic_Arch_Linux
+Arco_básico_Linux
 / partición de arranque
 Budgie es el escritorio por defecto de Solus OS
-Build_My_Own
+Construir_mi_propio
 Construya su propio sistema, escogiendo el
 pero puede asignar un archivo de intercambio, si lo desea
 Calendario y administrador de tareas
@@ -137,7 +137,7 @@ Aquí hay una lista de particiones disponibles
 Aquí puede configurar el tamaño y el formato de las particiones
 Administrador de ventanas dinámico altamente configurable
 / partición de inicio
-Nombre de host
+Nombre_de_host
 Nombre de host (actualmente
 idealmente más, hasta 20GiB
 En caso de duda, elija
@@ -194,7 +194,7 @@ No se ha seleccionado el Administrador de Display
 No se encontraron teclados que contengan
 No se ha encontrado ningún idioma para tu ubicación
 Ninguna
-Ninguno de esos
+Ninguno_de_esos
 No se han hecho previsiones para
 Tenga en cuenta que si no selecciona un dispositivo, Grub
 Tenga en cuenta que no podrá
@@ -203,7 +203,7 @@ Ahora necesitamos encontrar su ubicación en
 Ahora tiene la opción de agregar extras, como un navegador web
 Oficina
 del espacio restante asignado a
-De acuerdo
+De_acuerdo
 uno, pero agregar demasiados ralentizará su instalación
 una partición es necesaria para el directorio raíz
 Sólo ingrese un dispositivo, no incluya un número de partición
@@ -269,7 +269,7 @@ Seleccione una partición para el intercambio de los que
 Seleccione el dispositivo donde se instalará Grub
 Seleccione su teclado o Salir para intentarlo de nuevo.
 ¿Instalamos con este lenguaje?
-Reinicio del apagado
+Reinicio del_apagado
 Simple y limpio muelle del ambiente de escritorio Pantheon
 Panel simple / barra de tareas desarrollada específicamente para Openbox
 Simple pero potente transcodificador de video
@@ -375,4 +375,4 @@ Europa
 indio
 Pacífico
 UTC
-Ingresar manualmente
+Ingresar_manualmente
