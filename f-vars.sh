@@ -132,7 +132,7 @@ SetLanguage() {
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
 
   #Check
-  read -p "ls *.lan"
+  read -p "$(ls *.lan)"
 
   # Install the translator for situations where no translation is found on file
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
