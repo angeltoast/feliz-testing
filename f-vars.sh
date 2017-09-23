@@ -98,17 +98,23 @@ SetLanguage() {
   ;;
   *) LanguageFile="${Result}.lan"
     case $LanguageFile in
+    "Chinese-CN.lan") InstalLanguage="zh-CN"
+    ;;
     "Deutsche.lan") InstalLanguage="de"
+    ;;
+    "Dutch.lan") InstalLanguage="nl"
     ;;
     "Español.lan") InstalLanguage="es"
     ;;
     "Français.lan") InstalLanguage="fr"
     ;;
-    "Italiana.lan") InstalLanguage="it"
+    "Hindi.lan") InstalLanguage="hi"
+    ;;
+    "Italiano.lan") InstalLanguage="it"
     ;;
     "Polski.lan") InstalLanguage="pl"
     ;;
-    "Português-pt.lan") InstalLanguage="pt-PT"
+    "Português-PT.lan") InstalLanguage="pt-PT"
     ;;
     "Português-BR.lan") InstalLanguage="pt-BR"
     ;;
