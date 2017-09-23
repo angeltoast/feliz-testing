@@ -92,7 +92,7 @@ SetLanguage() {
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
   
-  listgen1 "Chinese-CN Deutsche Dutch Español Français Hindi Italiano Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  listgen1 "Deutsche Dutch Español Français Italiano Polski Português-PT Português-BR" "" "Ok"  # Available languages
   case $Result in
   "" | "Exit") LanguageFile=English.lan
         InstalLanguage="en"
@@ -100,8 +100,6 @@ SetLanguage() {
   *) LanguageFile="${Result}.lan"
     case $LanguageFile in
     "Chinese-CN.lan") InstalLanguage="zh-CN"
-      PrintOne "Loading fonts"
-      pacman -S ttf-hannom 2>> feliz.log
     ;;
     "Deutsche.lan") InstalLanguage="de"
     ;;
@@ -112,8 +110,6 @@ SetLanguage() {
     "Français.lan") InstalLanguage="fr"
     ;;
     "Hindi.lan") InstalLanguage="hi"
-      PrintOne "Loading fonts"
-      pacman -S ttf-indic-otf 2>> feliz.log
     ;;
     "Italiano.lan") InstalLanguage="it"
     ;;
@@ -130,9 +126,6 @@ SetLanguage() {
 
   # Get the selected language file
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-
-  #Check
-  read -p "$(ls *.lan)"
 
   # Install the translator for situations where no translation is found on file
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
