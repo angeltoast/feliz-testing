@@ -102,7 +102,6 @@ SetLanguage() {
     ;;
     *) InstalLanguage="en"
       LanguageFile="English.lan"
-    esac
   esac
 
   # Get the selected language file
