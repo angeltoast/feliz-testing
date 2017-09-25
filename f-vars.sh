@@ -91,36 +91,46 @@ SetLanguage() {
   print_heading
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-  listgen1 "$(ls *.lan | cut -d'.' -f1)" "" "Ok"  # List language files after removing file extension
+  
+  listgen1 "English Português-BR" "" "Ok"  # Available languages
   case $Result in
   "" | "Exit") LanguageFile=English.lan
-              InstalLanguage="en"
+        InstalLanguage="en"
   ;;
   *) LanguageFile="${Result}.lan"
     case $LanguageFile in
+    "Chinese-CN.lan") InstalLanguage="zh-CN"
+    ;;
     "Deutsche.lan") InstalLanguage="de"
+    ;;
+    "Dutch.lan") InstalLanguage="nl"
     ;;
     "Español.lan") InstalLanguage="es"
     ;;
     "Français.lan") InstalLanguage="fr"
     ;;
-    "Italiana.lan") InstalLanguage="it"
+    "Hindi.lan") InstalLanguage="hi"
+    ;;
+    "Italiano.lan") InstalLanguage="it"
     ;;
     "Polski.lan") InstalLanguage="pl"
     ;;
-    "Português-pt.lan") InstalLanguage="pt-PT"
+    "Português-PT.lan") InstalLanguage="pt-PT"
     ;;
-    "Português-br.lan") InstalLanguage="pt-BR"
+    "Português-BR.lan") InstalLanguage="pt-BR"
     ;;
     *) InstalLanguage="en"
       LanguageFile=English.lan
     esac
   esac
 
+  # Get the selected language file
+  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
+
   # Install the translator for situations where no translation is found on file
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
     PrintOne "Loading translator"
-    wget -q git.io/trans
+    wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
   fi
 
