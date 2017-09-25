@@ -92,7 +92,7 @@ SetLanguage() {
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
   
-  listgen1 "Deutsche Dutch Español Français Italiano Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  listgen1 "English Português-BR" "" "Ok"  # Available languages
   case $Result in
   "" | "Exit") LanguageFile=English.lan
         InstalLanguage="en"
