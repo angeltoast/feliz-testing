@@ -993,7 +993,8 @@ SetGrubDevice() {
   DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/'
 
   # Add an option to enter grub device manually
-  DevicesList="$DevicesList Enter_Manually"
+  Translate "Enter_Manually"
+  DevicesList="$DevicesList $Result"
   print_heading
   GrubDevice=""
   local Counter=0
