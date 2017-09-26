@@ -585,7 +585,7 @@ AllocateSwap() {
             PrintOne "$i " "$Result"
             PrintOne "Reformatting it will change the UUID, and if this swap"
             PrintOne "partition is used by another operating system, that"
-            PrintOne "system will no longer be unable to access the partition"
+            PrintOne "system will no longer be able to access the partition"
             PrintOne "Do you wish to reformat it?"
             Echo
             Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
