@@ -386,11 +386,11 @@ UserAdd() {
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
     arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
     arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
-    # arch_chroot "mkdir /home/${UserName}/Pictures/"
+    arch_chroot "mkdir /home/${UserName}/Pictures/"
     arch_chroot "mkdir /home/${UserName}/.config/libfm/"
     # Copy FelizOB files
 
-    cp themes /mnt/home/${UserName}/.themes 2>> feliz.log               # Copy egtk theme
+    cp -r themes /mnt/home/${UserName}/.themes 2>> feliz.log            # Copy egtk theme
     
     CheckExisting "/mnt/home/${UserName}/" ".conkyrc"
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log             # Conky configuration file
