@@ -94,7 +94,8 @@ SetLanguage() {
 
   listgen1 "English Polski Português-BR" "" "Ok"  # Available languages
   case $Result in
-    "Polski") InstalLanguage="pl"
+    "Polski") setfont LatArCyrHeb-19 -m 8859-2
+        InstalLanguage="pl"
       LanguageFile="Polish.lan"
     ;;
     "Português-BR") InstalLanguage="pt-BR"
