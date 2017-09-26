@@ -390,6 +390,8 @@ UserAdd() {
     arch_chroot "mkdir /home/${UserName}/.config/libfm/"
     # Copy FelizOB files
 
+    cp themes /mnt/home/${UserName}/.themes 2>> feliz.log               # Copy egtk theme
+    
     CheckExisting "/mnt/home/${UserName}/" ".conkyrc"
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log             # Conky configuration file
 
@@ -404,6 +406,9 @@ UserAdd() {
 
     CheckExisting "/mnt/home/${UserName}/.config/openbox/" "menu.xml"
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log    # Openbox right-click menu configuration file
+
+    CheckExisting "/mnt/home/${UserName}/.config/openbox/" "rc.xml"
+    cp rc.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log      # Openbox configuration file
 
     CheckExisting "/mnt/home/${UserName}/.config/lxpanel/default/panels/" "panel"
     cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel configuration file
