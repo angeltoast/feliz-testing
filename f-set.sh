@@ -241,7 +241,7 @@ SelectSubzone() {
 America() {
   SUBZONE=""      # Make sure this variable is empty
   print_heading
-  PrintOne "Are you in any of these states?"
+  PrintOne "Are you in any of these States?"
   SubList=""      # Start an empty list
   Previous=""     # Prepare to save previous record
   local Toggle="First"
