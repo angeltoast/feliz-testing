@@ -136,9 +136,10 @@ InstallKernel() {   # Selected kernel and some other core systems
   # Use blkid to get details of the Feliz or Arch iso that is running
   RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
   # This should produce a date in form 201704
-read -p "Last trust date $TrustDate ... Current iso date $RunningDate"
+
   # if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
   # The above line is deprecated
+  
   if [ $RunningDate -ge $TrustDate ]; then              # This line replaces deprecated line above. If the running
     echo "pacman-key trust check passed" >> feliz.log   # iso is more recent than the last trust update, no action
   else                                                  # But if the iso is older than the last trust update
