@@ -134,7 +134,7 @@ InstallKernel() {   # Selected kernel and some other core systems
   TrustDate=20170907  # Reset this to date of latest Arch Linux trust update
                       # Next trustdb check 2017-10-20
   # Use blkid to get details of the Feliz or Arch iso that is running
-  RunningDate=$(blkid | grep "feliz\|arch" | cut -f'=' -f3 | cut -d'-' -f2 | cut -b -6)
+  RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
   # This should produce a date in form 201704
 read -p "Last trust date $TrustDate ... Current iso date $RunningDate"
   # if [ -f feliz.log ] && [ $(head -n 1 feliz.log | grep '[0-9]') ] && [ $(head -n 1 feliz.log) -ge $TrustDate ]; then
