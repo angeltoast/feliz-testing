@@ -147,7 +147,7 @@ read -p "Last trust date $TrustDate ... Current iso date $RunningDate"
    # pacman-key --init
    # pacman-key --populate archlinux
    # pacman-key --refresh-keys
-    pacman -Sy archlinux-keyring
+    pacman -Sy --noconfirm archlinux-keyring
   fi
   Translate "kernel and core systems"
   TPecho "$_Installing " "$Result"
