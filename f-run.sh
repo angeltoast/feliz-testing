@@ -148,7 +148,7 @@ InstallKernel() {   # Selected kernel and some other core systems
    # pacman-key --init
    # pacman-key --populate archlinux
    # pacman-key --refresh-keys
-    pacman -Sy --noconfirm archlinux-keyring
+    pacman -Sy --noconfirm archlinux-keyring            # This is an experimental alternative to the above
   fi
   Translate "kernel and core systems"
   TPecho "$_Installing " "$Result"

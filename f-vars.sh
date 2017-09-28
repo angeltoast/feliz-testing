@@ -92,14 +92,18 @@ SetLanguage() {
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
-  listgen1 "English Polski Português-BR" "" "Ok"  # Available languages
+  listgen1 "English Ελληνικά Polski Português-BR" "" "Ok"  # Available languages
   case $Result in
+    "Ελληνικά") setfont LatArCyrHeb-19 -m 8859-2
+        InstalLanguage="el"
+      LanguageFile="Greek.lan"
+    ;;
     "Polski") setfont LatArCyrHeb-19 -m 8859-2
         InstalLanguage="pl"
       LanguageFile="Polish.lan"
     ;;
     "Português-BR") InstalLanguage="pt-BR"
-      LanguageFile="Português-BR.lan"
+      LanguageFile="Portuguese-BR.lan"
     ;;
     *) InstalLanguage="en"
       LanguageFile="English.lan"
