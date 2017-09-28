@@ -89,7 +89,7 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
 SetLanguage() {
   _Backtitle="Feliz2 - Arch Linux installation script"
   print_heading
-  setfont LatArCyrHeb-19 -m 8859-2                         # To display various characters
+  setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
