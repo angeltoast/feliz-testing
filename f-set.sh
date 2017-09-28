@@ -173,11 +173,12 @@ SetTimeZone() {
       zones="$zones $Result"
     done
     listgen1 "${zones}" "" "$_Ok"             # Allow user to select one
-
-    NativeZONE="$Response"                    # Save ZONE in native language, for display. But because the system requires it in  
-    ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)   # English, we need to get the system version of the selected item
+    CheckResult="$Result"
+    ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)   # System zone name of the selected item number
+    Translate "$ZONE"
+    NativeZONE="$Result"                      # Save ZONE in native language, for display  
     Echo
-    case $Result in
+    case $CheckResult in
       "") continue
       ;;
       *) SetSubZone                           # Call subzone function
