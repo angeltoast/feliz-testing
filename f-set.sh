@@ -167,14 +167,15 @@ SetTimeZone() {
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
     Echo
     zones=""
-    for x in ${Zones}                      # Convert to space-separated list
+    for x in ${Zones}                         # Convert to space-separated list
     do
       Translate "$x"                          # Translate
       zones="$zones $Result"
     done
-    listgen1 "${zones}" "" "$_Ok"         # Allow user to select one
-    # Because the list is translated, we need to get the system version of the selected item
-    ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)
+    listgen1 "${zones}" "" "$_Ok"             # Allow user to select one
+
+    NativeZONE="$Response"                    # Save ZONE in native language, for display. But because the system requires it in  
+    ZONE=$(echo "$Zones" | head -n $Response | tail -n 1)   # English, we need to get the system version of the selected item
     Echo
     case $Result in
       "") continue
@@ -231,7 +232,7 @@ SelectSubzone() {
   *) Translate "your nearest major city"
     _P3="$Result"
   esac
-  PrintOne "$_P1" "$ZONE"
+  PrintOne "$_P1" "$NativeZONE"
   PrintOne "" "$_P2"
   PrintOne "" "$_P3"
   Echo
