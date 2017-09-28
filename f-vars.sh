@@ -89,17 +89,16 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
 SetLanguage() {
   _Backtitle="Feliz2 - Arch Linux installation script"
   print_heading
+  setfont LatArCyrHeb-19 -m 8859-2                         # To display various characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
   listgen1 "English Ελληνικά Polski Português-BR" "" "Ok"  # Available languages
   case $Result in
-    "Ελληνικά") setfont LatArCyrHeb-19 -m 8859-2
-        InstalLanguage="el"
+    "Ελληνικά") InstalLanguage="el"
       LanguageFile="Greek.lan"
     ;;
-    "Polski") setfont LatArCyrHeb-19 -m 8859-2
-        InstalLanguage="pl"
+    "Polski") InstalLanguage="pl"
       LanguageFile="Polish.lan"
     ;;
     "Português-BR") InstalLanguage="pt-BR"
