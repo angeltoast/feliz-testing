@@ -64,8 +64,8 @@ Heading() { # Always use this function to clear the screen
   cursor_row=3                                # Save cursor row after heading
 }
 
-first_item() { # Aligned text according to screen size
-  local Width
+first_item() {                        # Aligned text according to screen size
+  local Width                         # Use only local variables
   Width=$(tput cols)
   local Length
   local Limit
@@ -121,9 +121,6 @@ Buttons() {
     echo "listgen-sgi line $LINENO - No buttons specified" > feliz.log
     return 1
   fi
-
-read -p "listgen at line $LINENO"
-    
   Button1="$(echo $2 | cut -d' ' -f1)"
   Len=$(echo $Button1 | wc -c)
   Button1Len=$((Len+2))                       # Add for braces
@@ -137,9 +134,6 @@ read -p "listgen at line $LINENO"
     Button2=""
     Button2Len=0
   fi
-
-read -p "listgen at line $LINENO"
-    
   ButtonStringLen=${#ButtonString}
   button_start=$(((width-Button1Len-Button2Len)/2))
   tput cup $button_row $button_start          # Reposition cursor
@@ -158,6 +152,9 @@ read -p "listgen at line $LINENO"
     tput cup $cursor_row $message_start       # Reposition cursor
     Echo "$3"                                 # Print message
   esac
+
+read -p "DEBUG listgen at line $LINENO"
+  
   ActiveMenu "$1"
   Echo
 }
@@ -176,6 +173,9 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
     tput cup $cursor_row $stpt                # Move cursor to selected position
     PrintRev "$Counter"                       # Print top item in reverse colour
   fi
+
+read -p "DEBUG listgen at line $LINENO"
+  
   while :
   do
     if [ $selected_button -eq 1 ]; then                   # Left button
@@ -189,6 +189,9 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
       printf "%-${Button2Len}s" "[ ${Button2} ]"          # Highlight second button
       tput sgr0                                           # Restore colour settings
     fi
+
+read -p "DEBUG listgen at line $LINENO"
+  
     read -rsn1 KeyPress                                   # Capture key press
     case "${KeyPress}" in
       "") # Ok/Return pressed
@@ -271,6 +274,9 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
       *) tput cup $cursor_row $stpt                         # Reposition cursor
       continue
     esac
+
+read -p "DEBUG listgen at line $LINENO"
+  
   done
 }
 
@@ -304,9 +310,6 @@ listgen1() { # Simple listing alternative to the bash 'select' function
         fi
       fi
     done
-
-read -p "listgen at line $LINENO"
-    
     # Now run through the file again to print each item
     Counter=0
     for i in $MenuList
@@ -326,9 +329,6 @@ read -p "listgen at line $LINENO"
     "") read -p "No buttons passed"
     ;;
     *) Buttons "Menu" "$3" "$Message"
-
-read -p "listgen at line $LINENO $3 $Message"
-    
     esac
     break
   done
