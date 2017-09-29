@@ -86,10 +86,27 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
   cursor_row=$((cursor_row+1))
 }
 
+CompareLength() {
+  # If length of translation is greater than previous, save it
+  Text="$1"
+    if [ ${#Text} -gt $MaxLen ]; then
+      MaxLen=${#Text}
+    fi
+}
+
+PaddLength() {  # If $1 is shorter than MaxLen, padd with spaces
+  Text="$1"
+  until [ ${#Text} -eq $MaxLen ]
+  do
+    Text="$Text "
+  done
+  Result="$Text"
+}
+
 SetLanguage() {
   _Backtitle="Feliz2 - Arch Linux installation script"
   print_heading
-  setfont LatGrkCyr-8x16 # try without local character set ...  -m 8859-2              # To display wide range of characters
+  setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
