@@ -77,8 +77,8 @@ first_item() { # Aligned text according to screen size
   fi
   
   if [ $2 ]; then     # If a second argument is passed, it will be length of variable
-    if [ $2 -ge $width ]; then        # Check to make sure it doesn't exceed console width
-      Length=$((width-2))
+    if [ $2 -ge $Width ]; then        # Check to make sure it doesn't exceed console width
+      Length=$((Width-2))
     else
       Length=$2
     fi
