@@ -320,6 +320,7 @@ listgen2() { # Advanced menuing function with extended descriptions
   esac
   Padding=" "
   MaxLen=2
+  Boundary=$((T_COLS-2))
   while :
   do
     Result=""
@@ -330,6 +331,13 @@ listgen2() { # Advanced menuing function with extended descriptions
     Max=$(echo $PrimaryFile | wc -w)
     for (( i=0; i < $Max; ++i ))
     do
+      # ----------------
+      if [ ${#LongDescription[${i}]} -ge $Boundary ]; then
+        Trimmed="${LongDescription[${i}]}"
+        Trimmed="$(echo Trimmed | cut -c 1-${Boundary})"
+        LongDescription[${i}]="$Trimmed"
+      fi
+      # ---------------
       if [ $i -eq 0 ]; then
         MaxLen=${#LongDescription[${i}]}
       else
