@@ -121,6 +121,9 @@ Buttons() {
     echo "listgen-sgi line $LINENO - No buttons specified" > feliz.log
     return 1
   fi
+
+read -p "listgen at line $LINENO"
+    
   Button1="$(echo $2 | cut -d' ' -f1)"
   Len=$(echo $Button1 | wc -c)
   Button1Len=$((Len+2))                       # Add for braces
@@ -134,6 +137,9 @@ Buttons() {
     Button2=""
     Button2Len=0
   fi
+
+read -p "listgen at line $LINENO"
+    
   ButtonStringLen=${#ButtonString}
   button_start=$(((width-Button1Len-Button2Len)/2))
   tput cup $button_row $button_start          # Reposition cursor
@@ -274,9 +280,6 @@ listgen1() { # Simple listing alternative to the bash 'select' function
   # 2) May be a translated message or empty
   # 3) Translated button text eg: 'Ok Exit' or just 'Ok'
   # Read listgen.manual for full details
-
-read -p "Received by listgen1 $1 $2 $3 $4"
-  
   case $2 in
     "") Message=""
     ;;
@@ -301,6 +304,9 @@ read -p "Received by listgen1 $1 $2 $3 $4"
         fi
       fi
     done
+
+read -p "listgen at line $LINENO"
+    
     # Now run through the file again to print each item
     Counter=0
     for i in $MenuList
@@ -320,6 +326,9 @@ read -p "Received by listgen1 $1 $2 $3 $4"
     "") read -p "No buttons passed"
     ;;
     *) Buttons "Menu" "$3" "$Message"
+
+read -p "listgen at line $LINENO $3 $Message"
+    
     esac
     break
   done
