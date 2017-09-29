@@ -152,9 +152,6 @@ Buttons() {
     tput cup $cursor_row $message_start       # Reposition cursor
     Echo "$3"                                 # Print message
   esac
-
-read -p "DEBUG listgen at line $LINENO"
-  
   ActiveMenu "$1"
   Echo
 }
@@ -173,9 +170,6 @@ ActiveMenu() {  # Receives 2 arguments: 1) Type (Menu, Yes/No); 2) Caller (listg
     tput cup $cursor_row $stpt                # Move cursor to selected position
     PrintRev "$Counter"                       # Print top item in reverse colour
   fi
-
-read -p "DEBUG listgen at line $LINENO"
-  
   while :
   do
     if [ $selected_button -eq 1 ]; then                   # Left button
@@ -189,9 +183,6 @@ read -p "DEBUG listgen at line $LINENO"
       printf "%-${Button2Len}s" "[ ${Button2} ]"          # Highlight second button
       tput sgr0                                           # Restore colour settings
     fi
-
-read -p "DEBUG listgen at line $LINENO"
-  
     read -rsn1 KeyPress                                   # Capture key press
     case "${KeyPress}" in
       "") # Ok/Return pressed
@@ -274,9 +265,6 @@ read -p "DEBUG listgen at line $LINENO"
       *) tput cup $cursor_row $stpt                         # Reposition cursor
       continue
     esac
-
-read -p "DEBUG listgen at line $LINENO"
-  
   done
 }
 

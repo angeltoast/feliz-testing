@@ -547,6 +547,9 @@ SetUserPassword() {
 
 Restart() {
   Translate "Shutdown Reboot"
+
+read -p "DEBUG f-run at line $LINENO Menu items = $Result Button = $_Ok"
+  
   listgen1 "$Result" "" "$_Ok"
   case $Response in
   1) shutdown -h now
