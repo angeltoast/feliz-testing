@@ -65,21 +65,30 @@ Heading() { # Always use this function to clear the screen
 }
 
 first_item() { # Aligned text according to screen size
-  local width=$(tput cols)
-  local lov=0
-  if [ $2 ]; then     # If a second argument is passed, it will be width of variable
-    if [ $2 -ge $width ]; then
-      lov=$((width-2))
+  local Width
+  Width=$(tput cols)
+  local Length
+  local Limit
+  local Text
+  Text="$1"
+  if [ ${#Text} -ge $Width ]; then    # Limit text to width - 2 characters
+    Limit=$((Width-2))
+    Text="${Text:0:$Limit}"
+  fi
+  
+  if [ $2 ]; then     # If a second argument is passed, it will be length of variable
+    if [ $2 -ge $width ]; then        # Check to make sure it doesn't exceed console width
+      Length=$((width-2))
     else
-      lov=$2
+      Length=$2
     fi
   else
-    lov=$MaxLen                           # Maximum length of Variable
-  if [ ${lov} -lt ${width} ]; then
-    stpt=$(( (width - lov) / 2 ))
+    Length=$MaxLen                           # Maximum length of Variable
   fi
+  stpt=$(( (Width - Length) / 2 ))
+
   tput cup $cursor_row $stpt                  # Move cursor to startpoint
-  printf "%-s\v" "$1"
+  printf "%-s\v" "$Text"
   cursor_row=$((cursor_row+1))
 }
 
