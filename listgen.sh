@@ -76,25 +76,24 @@ first_item() { # Aligned text according to screen size
     Text="${Text:0:$Limit}"
   fi
   
-  if [ $2 ]; then     # If a second argument is passed, it will be length of variable
-    if [ $2 -ge $Width ]; then        # Check to make sure it doesn't exceed console width
-      Length=$((Width-2))
+  if [ $2 ]; then                           # If second argument is passed, it will be length of $1
+    if [ $2 -ge $Width ]; then                # Check to see if it exceeds console width
+      Length=$((Width-2))                     # If it does, set length variable to 2 characters less than console width
     else
-      Length=$2
+      Length=$2                               # If not, set length variable to the value passed as $2
     fi
-  else
-    Length=$MaxLen                           # Maximum length of Variable
+  else                                      # If $2 is not passed
+    Length=$MaxLen                            # Set length to maximum length of list items
   fi
-  stpt=$(( (Width - Length) / 2 ))
-
-  tput cup $cursor_row $stpt                  # Move cursor to startpoint
+  stpt=$(( (Width - Length) / 2 ))          # Horizontal startpoint
+  tput cup $cursor_row $stpt                # Move cursor to startpoint
   printf "%-s\v" "$Text"
   cursor_row=$((cursor_row+1))
 }
 
-subsequent_item() { # Subsequent item(s) in an aligned list
-  tput cup $cursor_row $stpt                  # Move cursor to startpoint
-  printf "%-s\n" "$1"
+subsequent_item() {                         # Subsequent item(s) in an aligned list
+  tput cup $cursor_row $stpt                # Move cursor to startpoint
+  printf "%-s\n" "$1"                       # Print with a following newline
   cursor_row=$((cursor_row+1))
 }
 
@@ -275,6 +274,9 @@ listgen1() { # Simple listing alternative to the bash 'select' function
   # 2) May be a translated message or empty
   # 3) Translated button text eg: 'Ok Exit' or just 'Ok'
   # Read listgen.manual for full details
+
+read -p "Received by listgen1 $1 $2 $3 $4"
+  
   case $2 in
     "") Message=""
     ;;
