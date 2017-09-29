@@ -333,8 +333,8 @@ listgen2() { # Advanced menuing function with extended descriptions
     do
       # ----------------
       if [ ${#LongDescription[${i}]} -ge $Boundary ]; then
-        Trimmed="${LongDescription[${i}]}"
-        Trimmed="$(echo Trimmed | cut -c 1-Boundary)"
+        UnTrimmed="${LongDescription[${i}]}"
+        Trimmed="${UnTrimmed:0:$Boundary}"
         LongDescription[${i}]="$Trimmed"
       fi
       # ---------------
