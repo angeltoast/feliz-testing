@@ -263,6 +263,7 @@ UserName=""               # eg: archie
 Scope=""                  # Installation scope ... 'Full' or 'Basic'
 
 # Miscellaneous
+declare -a BeenThere      # Restrict translations to first pass
 PrimaryFile=""
 Translate="Y"             # May be set to N to stifle translation
 
