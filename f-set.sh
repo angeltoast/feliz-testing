@@ -675,6 +675,12 @@ PickLuxuries() { # User selects any combination from a store of extras
   Translate "Added so far"
   AddedSoFar="$Result"
   TransCatList=""
+  
+  for x in {1..9}         # Prepare array that records if a category
+  do                      # has already been translated
+    BeenThere[${x}]="N"   # Set each element to 'N'
+  done
+  
   for category in $CategoriesList
   do
     Translate "$category"
@@ -745,11 +751,6 @@ KeepOrDelete() {
 ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   Translate "Choose an item"
 
-  for x in {1..9}
-  do
-    BeenThere[${x}]="N"
-  done
-  
   while true
   do
     print_heading
@@ -760,38 +761,35 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     local Counter=1
     MaxLen=0
     case $Category in
-     1) if [ ${BeenThere[${Category}]} = "N" ]; then  # Only translate if not already done
+     1) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
           OptionsCounter=1
-          for Option in "${LongAccs[@]}"  # First translate all elements
+          for Option in "${LongAccs[@]}"              # First translate all elements
           do
             Translate "$Option"
-            LongAccs[${OptionsCounter}]="$Result" # Replace element with translation
+            LongAccs[${OptionsCounter}]="$Result"     # Replace element with translation
             (( OptionsCounter+=1 ))
           done
 
           for i in ${Accessories}
           do
-          # -------
             CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-          # -------  
             LongAccs1[${Counter}]="$i - ${LongAccs[${Counter}]}"
             (( Counter+=1 ))
           done
 
-# --------- Compare length of first item in array with length of longest item
+          # Compare length of first item in array with length of longest item
           FirstElement="${LongAccs1[1]}"
           if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
             PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
             LongAccs1[1]="$Result"                  # and add result as first element in LongAccs
           fi
-# --------------
         fi
         listgen2 "$Accessories" "$_Quit" "$_Ok $_Exit" "LongAccs1"
-        BeenThere[${Category}]="Y"
+        BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       2) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       2) if [ ${BeenThere[${Category}]} = "N" ]; then   # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongDesk[@]}"  # Translate all elements
+            for Option in "${LongDesk[@]}"          # Translate all elements
             do
               Translate "$Option"
               LongDesk[${OptionsCounter}]="$Result"
@@ -800,28 +798,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
           
             for i in ${Desktops}
             do
-            # -------
               CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-            # -------  
               LongDesk1[${Counter}]="$i - ${LongDesk[${Counter}]}"
               (( Counter+=1 ))
             done
 
-# --------------
             # Compare length of first item in array with length of longest item
             FirstElement="${LongDesk1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-              LongDesk1[1]="$Result"                # and add result as first element in LongAccs
+              LongDesk1[1]="$Result"                  # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Desktops" "$_Quit" "$_Ok $_Exit" "LongDesk1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       3) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       3) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongGraph[@]}"  # Translate all elements
+            for Option in "${LongGraph[@]}"           # Translate all elements
             do
               Translate "$Option"
               LongGraph[${OptionsCounter}]="$Result"
@@ -830,28 +824,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   
             for i in ${Graphical}
             do
-              # -------
-                CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-              # -------  
+              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
               LongGraph1[${Counter}]="$i - ${LongGraph[${Counter}]}"
               (( Counter+=1 ))
             done
-  
-# --------------
+
             # Compare length of first item in array with length of longest item
             FirstElement="${LongGraph1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-              LongGraph1[1]="$Result"                # and add result as first element in LongAccs
+              LongGraph1[1]="$Result"                 # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Graphical" "$_Quit" "$_Ok $_Exit" "LongGraph1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       4) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       4) if [ ${BeenThere[${Category}]} = "N" ]; then   # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongNet[@]}"  # Translate all elements
+            for Option in "${LongNet[@]}"             # Translate all elements
             do
               Translate "$Option"
               LongNet[${OptionsCounter}]="$Result"
@@ -860,28 +850,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   
             for i in ${Internet}
             do
-              # -------
-                CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-              # -------  
+              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
               LongNet1[${Counter}]="$i - ${LongNet[${Counter}]}"
               (( Counter+=1 ))
             done
 
-# --------------
             # Compare length of first item in array with length of longest item
             FirstElement="${LongNet1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-              LongNet1[1]="$Result"                # and add result as first element in LongAccs
+              LongNet1[1]="$Result"                   # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Internet" "$_Quit" "$_Ok $_Exit" "LongNet1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       5) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       5) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongMulti[@]}"  # Translate all elements
+            for Option in "${LongMulti[@]}"           # Translate all elements
             do
               Translate "$Option"
               LongMulti[${OptionsCounter}]="$Result"
@@ -890,28 +876,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   
             for i in ${Multimedia}
             do
-              # -------
-                CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-              # -------  
+              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
               LongMulti1[${Counter}]="$i - ${LongMulti[${Counter}]}"
               (( Counter+=1 ))
             done
   
-# --------------
             # Compare length of first item in array with length of longest item
             FirstElement="${LongMulti1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-              LongMulti1[1]="$Result"                # and add result as first element in LongAccs
+              LongMulti1[1]="$Result"                 # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Multimedia" "$_Quit" "$_Ok $_Exit" "LongMulti1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       6) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       6) if [ ${BeenThere[${Category}]} = "N" ]; then   # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongOffice[@]}"  # Translate all elements
+            for Option in "${LongOffice[@]}"          # Translate all elements
             do
               Translate "$Option"
               LongOffice[${OptionsCounter}]="$Result"
@@ -920,28 +902,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   
             for i in ${Office}
             do
-              # -------
-                CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-              # -------  
+              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
               LongOffice1[${Counter}]="$i - ${LongOffice[${Counter}]}"
               (( Counter+=1 ))
             done
   
-# --------------
             # Compare length of first item in array with length of longest item
             FirstElement="${LongOffice1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
               LongOffice1[1]="$Result"                # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Office" "$_Quit" "$_Ok $_Exit" "LongOffice1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       7) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       7) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongProg[@]}"  # Translate all elements
+            for Option in "${LongProg[@]}"            # Translate all elements
             do
               Translate "$Option"
               LongProg[${OptionsCounter}]="$Result"
@@ -950,28 +928,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 
             for i in ${Programming}
             do
-            # -------
               CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-            # -------  
               LongProg1[${Counter}]="$i - ${LongProg[${Counter}]}"
               (( Counter+=1 ))
             done
 
-# --------------
             # Compare length of first item in array with length of longest item
             FirstElement="${LongProg1[1]}"
             if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
               PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-              LongProg1[1]="$Result"                # and add result as first element in LongAccs
+              LongProg1[1]="$Result"                  # and add result as first element in LongAccs
             fi
-# --------------
           fi
           listgen2 "$Programming" "$_Quit" "$_Ok $_Exit" "LongProg1"
-          BeenThere[${Category}]="Y"
+          BeenThere[${Category}]="Y"                  # Prevent retranslation
        ;;
-       8) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+       8) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
             OptionsCounter=1
-            for Option in "${LongWMs[@]}"  # Translate all elements
+            for Option in "${LongWMs[@]}"             # Translate all elements
             do
               Translate "$Option"
               LongWMs[${OptionsCounter}]="$Result"
@@ -980,28 +954,24 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   
             for i in ${WindowManagers}
             do
-              # -------
-                CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-              # -------  
+              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
               LongWMs1[${Counter}]="$i - ${LongWMs[${Counter}]}"
               (( Counter+=1 ))
             done
   
-# --------------
           # Compare length of first item in array with length of longest item
           FirstElement="${LongWMs1[1]}"
           if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
             PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-            LongWMs1[1]="$Result"                # and add result as first element in LongAccs
+            LongWMs1[1]="$Result"                   # and add result as first element in LongAccs
           fi
-# --------------
         fi
         listgen2 "$WindowManagers" "$_Quit" "$_Ok $_Exit" "LongWMs1"
-        BeenThere[${Category}]="Y"
+        BeenThere[${Category}]="Y"                  # Prevent retranslation
       ;;
-      9) if [ ${BeenThere[${Category}]} = "N" ]; then        # Do not translate if not exited
+      9) if [ ${BeenThere[${Category}]} = "N" ]; then  # Do not translate if already done
           OptionsCounter=1
-          for Option in "${LongBars[@]}"  # Translate all elements
+          for Option in "${LongBars[@]}"            # Translate all elements
           do
             Translate "$Option"
             LongBars[${OptionsCounter}]="$Result"
@@ -1010,24 +980,20 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
 
           for i in ${Taskbars}
           do
-            # -------
-              CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
-            # -------  
+            CompareLength "$i - ${LongAccs[${Counter}]}"  # If total length is greater than previous, save it
             LongBars1[${Counter}]="$i - ${LongBars[${Counter}]}"
             (( Counter+=1 ))
           done
  
-# --------------
           # Compare length of first item in array with length of longest item
           FirstElement="${LongBars1[1]}"
           if [ ${#FirstElement} -lt $MaxLen ]; then # If shorter
             PaddLength "$FirstElement"              # Use PaddLength function to extend with spaces
-            LongBars1[1]="$Result"                # and add result as first element in LongAccs
+            LongBars1[1]="$Result"                  # and add result as first element in LongAccs
           fi
-# --------------
         fi
         listgen2 "$Taskbars" "$_Quit" "$_Ok $_Exit" "LongBars1"
-        BeenThere[${Category}]="Y"
+        BeenThere[${Category}]="Y"                  # Prevent retranslation
       ;;
       *) break
     esac
