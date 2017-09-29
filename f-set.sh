@@ -401,8 +401,10 @@ setlocale() { # Uses country-code in cities.list to match ZONE/SUBZONE to countr
         Language=$Item                                          # Use the abbreviation
       fi
       Echo
+      Translate "$Language"
+      _Language="$Result"
       Translate "Only one language found for your location"
-      PrintOne "$Result" ": $Language"
+      PrintOne "$Result" ": $_Language"
       PrintOne "Shall we install with this language?"    # Allow user to confirm
       Buttons "Yes/No" "$_Yes $_No" ""
       if [ $Result = "$_No" ]; then                       # User declines offered language

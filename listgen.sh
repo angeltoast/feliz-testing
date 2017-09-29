@@ -66,7 +66,15 @@ Heading() { # Always use this function to clear the screen
 
 first_item() { # Aligned text according to screen size
   local width=$(tput cols)
-  local lov=$MaxLen                           # Maximum length of Variable
+  local lov=0
+  if [ $2 ]; then     # If a second argument is passed, it will be width of variable
+    if [ $2 -ge $width ]; then
+      lov=$((width-2))
+    else
+      lov=$2
+    fi
+  else
+    lov=$MaxLen                           # Maximum length of Variable
   if [ ${lov} -lt ${width} ]; then
     stpt=$(( (width - lov) / 2 ))
   fi
@@ -556,7 +564,7 @@ SelectPage() {
 PrintPage() {
   Heading
   if [ "$Headline" ]; then
-    first_item "${Headline}"
+    first_item "${Headline}" "${#Headline}"
   fi
   ThisPage="${Pages[${PageNumber}]}"            # String of column numbers for this page
   PageWidth=${PageWidths[${PageNumber}]}        # Full width of this page

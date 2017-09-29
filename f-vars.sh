@@ -125,11 +125,13 @@ SetLanguage() {
       LanguageFile="English.lan"
   esac
 
-  # Get the selected language file
-  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-
+  # If the selected language file has not already been loaded
+  if [ !-f ${LanguageFile} ]; then        # Then download it
+    wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
+  fi
+  
   # Install the translator for situations where no translation is found on file
-  if [ $LanguageFile != "English.lan" ]; then   # Only if not English
+  if [ $LanguageFile != "English.lan" ] && [ !-f trans ]; then   # Only if not English and not already loaded
     PrintOne "Loading translator"
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
