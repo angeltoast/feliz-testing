@@ -236,8 +236,9 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No match found in English.lan, so translate using Google Translate to temporary file:
-     ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
-     Result=$(cat Result.file)
+    # ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
+    # Result=$(cat Result.file)
+      Result="$Text"
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac
