@@ -941,16 +941,21 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     if [ $SaveResult = "$_Exit" ]; then # Loop until user selects "Exit"
       break
     fi
-
+    Removed="N"
     TempList=""                         # Prepare temporary variable TempList
     for lux in $LuxuriesList            # See if chosen item is already on LuxuriesList
     do
-      if [ ${lux} != ${SaveResult} ]; then  # If not already in LuxuriesList, add to TempList
-        TempList="$TempList $SaveResult"    # If already on list, it will be removed
+      if [ ${lux} = ${SaveResult} ]; then # If already on list, it will be removed
+        Removed="Y"
+      else
+        TempList="$TempList $SaveResult" # If not already on list, add to TempList
       fi
     done
     LuxuriesList="$TempList"
-    case $SaveResult in                 # Check all DE & WM entries
+    if [ $Removed = "Y" ]; then        # If selected item was removed
+      continue                         # Don't process it any further
+    fi
+    case $SaveResult in                # Check all DE & WM entries
       "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" |  "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") DesktopEnvironment=$SaveResult
         for lux in $LuxuriesList
         do
