@@ -941,14 +941,20 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     if [ $SaveResult = "$_Exit" ]; then # Loop until user selects "Exit"
       break
     fi
-    Removed="N"
-    TempList=""                         # Prepare temporary variable TempList
-    for lux in $LuxuriesList            # See if chosen item is already on LuxuriesList
+    Removed="N"                         # Prepare temporary variables
+    TempList=""
+    for lux in $LuxuriesList            # Check LuxuriesList
     do
       if [ ${lux} = ${SaveResult} ]; then # If already on list, it will be removed
         Removed="Y"
+
+read -p "$LINENO :$SaveResult:${lux}:$TempList:"
+        
       else
         TempList="$TempList $SaveResult" # If not already on list, add to TempList
+
+read -p "$LINENO :$SaveResult:${lux}:$TempList:"
+        
       fi
     done
     LuxuriesList="$TempList"
