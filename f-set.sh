@@ -695,6 +695,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   do
     print_heading
     PrintOne "$AddedSoFar" ": ${LuxuriesList}"
+    PrintOne "You can add more items, or select items to delete"
     Echo
     PrintOne "${Categories[$Category]}" # $Category is number of item in CategoriesList
     # Translate items in selected category and pass to listgen2 for user to choose one item;
