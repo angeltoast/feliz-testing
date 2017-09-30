@@ -947,14 +947,8 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     do
       if [ ${lux} = ${SaveResult} ]; then # If already on list, it will be removed
         Removed="Y"
-
-read -p "$LINENO :$SaveResult:${lux}:$TempList:"
-        
       else
-        TempList="$TempList $SaveResult" # If not already on list, add to TempList
-
-read -p "$LINENO :$SaveResult:${lux}:$TempList:"
-        
+        TempList="$TempList ${lux}"       # If not already on LuxuriesList, add to TempList
       fi
     done
     LuxuriesList="$TempList"
