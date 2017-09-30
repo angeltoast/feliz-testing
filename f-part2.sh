@@ -30,14 +30,13 @@ DualBoot="N"      # For formatting EFI partition
 # EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
 # TestUEFI            41     EasyRecalc          262     WipeDevice         601
-# PartitioningEFI     54     EasyBoot            278     GuidedMBR          608
+#                            EasyBoot            278     GuidedMBR          608
 # AllocateEFI         97     EasyRoot            309     GuidedRoot         652
 # EasyEFI            136     EasySwap            354     GuidedSwap         701
 # EasyDevice         178     EasyHome            422     GuidedHome         771
 # EasyDiskSize       215     ActionEasyPart      469     ActionGuided       819
 # -----------------------    ------------------------    -----------------------
 
-# 1) Assess environment
 TestUEFI() { # Called at launch of Feliz script, before all other actions
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
@@ -49,54 +48,6 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   else
     UEFI=0                            # Set variable UEFI OFF
  fi
-}
-
-PartitioningEFI() {
-  local Proceed=""
-  AutoPart=0                          # Set flag to 'off' by default
-  while [ -z $Proceed ]
-  do
-    OptionsLimit=$((OptionsLimit-1))  # There are one fewer options in EFI than BIOS
-    OptionsList=""
-    local Counter=1
-    for Option in "${LongPartE[@]}"
-    do
-      if [ $Counter -eq 1 ] && [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option ignored if no partitions
-        Counter=2
-        continue
-      fi
-      Translate "$Option"
-      LongOption[${Counter}]="$Result"
-      OptionsList="$OptionsList $(echo $EFIPartitioningOptions | cut -d' ' -f${Counter})"
-      Counter=$((Counter+1))
-    done
-    Echo
-    listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
-    if [ $OptionsLimit -eq 2 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
-      Proceed=$(( Response +1 ))
-    else
-      Proceed=$Response
-    fi
-    Echo
-    case $Proceed in
-      1) echo "Manual partition allocation" >> feliz.log
-      ;;
-      2) print_heading
-        Echo
-        EasyEFI                 # New guided manual partitioning functions
-        tput setf 0             # Change foreground colour to black temporarily to hide error message
-        print_heading
-        partprobe 2>> feliz.log #Inform kernel of changes to partitions
-        tput sgr0               # Reset colour
-        ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-      ;;
-      3) ChooseDevice
-      ;;
-      *) not_found
-        Proceed=""
-        print_heading
-    esac
-  done
 }
 
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition

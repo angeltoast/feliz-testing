@@ -65,11 +65,11 @@ CheckParts() {  # Test for existing partitions
       PrintOne "If you choose to do nothing now, the script will"
       PrintOne "terminate to allow you to partition in some other way"
       Echo
-      if [ ${UEFI} -eq 1 ]; then
-        PartitioningEFI                   # Partitioning options for EFI
-      else
+   #   if [ ${UEFI} -eq 1 ]; then
+   #     PartitioningEFI                   # Partitioning options for EFI
+   #   else
         Partitioning                      # Partitioning options for BIOS
-      fi
+   #   fi
       if [ "$Result" = "$_Exit" ]; then   # Terminate
         print_heading
         Echo
@@ -241,7 +241,18 @@ Partitioning() {
         tput sgr0               # Reset colour
         CheckParts              # Restart partitioning
       ;;
-      3) GuidedMBR
+      3) if [ ${UEFI} -eq 1 ]; then
+          print_heading
+          Echo
+          EasyEFI                 # New guided manual partitioning functions
+          tput setf 0             # Change foreground colour to black temporarily to hide error message
+          print_heading
+          partprobe 2>> feliz.log #Inform kernel of changes to partitions
+          tput sgr0               # Reset colour
+          ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
+        else
+          GuidedMBR
+        fi
       ;;
       4) ChooseDevice
       ;;
@@ -323,28 +334,34 @@ AutoWarning() {
   done
 }
 
-partition_maker() { # Called from autopart()
+partition_maker() { # Called from autopart() for both EFI and BIOS systems
+                    # Receives up to 4 arguments
+                    # $1 is the starting point of the first partition
+                    # $2 is size of root partition
+                    # $3 if passed is size of home partition
+                    # $4 if passed is size of swap partition
+                    # Note that an appropriate partition table has already been created in autopart()
+                    #   If EFI the /boot partition has also been created at /dev/sda1 and set as bootable
+                    #   and the startpoint has been set to follow /boot
+                    
+  local StartPoint=$1                               # Local variable 
 
-# Change to: $1 = StartPoint; $2 = Root (set boot on for BIOS); $3 (if exists) = Home ; $4 (if exists) = Swap
-
-  local StartPoint=$1
-
-  # Set the device to be used to 'set x boot on'
+  # Set the device to be used to 'set x boot on'    # $MountDevice is numerical - eg: 1 in sda1
   if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   else
     MountDevice=1                                   # In BIOS = first partition = [sda]1
   fi
-
-  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # /root
-  Parted "set ${MountDevice} boot on"               # Bootable
-  RootPartition="${GrubDevice}${MountDevice}"       # Save
+  # First make /root at startpoint
+  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: mkpart primary ext4 1MiB 12GiB
+  Parted "set ${MountDevice} boot on"               # eg: set 1 boot on
+  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
   RootType="ext4"
-  StartPoint=$2                                     # Reset startpoint for /home or /swap
+  StartPoint=$2                                     # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))                    # Advance partition numbering
 
   if [ $3 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${3}" # /home
+    Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: mkpart primary ext4 12GiB 19GiB
     AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3      | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
@@ -354,7 +371,7 @@ partition_maker() { # Called from autopart()
   fi
 
   if [ $4 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # /swap
+    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # eg: mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
@@ -383,16 +400,16 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
 
   # Decide partition sizes
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-19-4))
-    partition_maker "${StartPoint}" "19GiB" "${HomeSize}GiB" "100%"
+    HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
+    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-3))
+    HomeSize=$((DiskSize-15-3))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
     partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-2))
+    RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
     partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
   elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-1))
+    RootSize=$((DiskSize-1))                        # /root 9 to 17GiB, /swap 1GiB
     partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
   else                                              # ------ Swap file and /root partition only -----
     partition_maker "${StartPoint}" "100%" "" ""
