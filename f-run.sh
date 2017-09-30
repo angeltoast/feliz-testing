@@ -80,8 +80,8 @@ MountPartitions() {
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
     mkfs.fat -F32 ${EFIPartition} 2>> feliz.log         # Format EFI boot partition
-    mkdir /mnt/boot                                     # Make mountpoint
-    mount ${EFIPartition} /mnt/boot                     # Mount it
+    mkdir -p /mnt/boot/EFI                              # Make mountpoint
+    mount ${EFIPartition} /mnt/boot/EFI                 # Mount it
   fi
   # 3) Swap
   if [ ${SwapPartition} ]; then
