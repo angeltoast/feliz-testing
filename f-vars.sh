@@ -2,7 +2,7 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 12th August 2017
+# Revision date: 30th September 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,45 @@
 #                  51 Franklin Street, Fifth Floor
 #                    Boston, MA 02110-1301 USA
 
-# 1) Global functions
+# In this module: Some global functions, and declaration of various arrays and variables
+# --------------------   ----------------------
+# Function        Line   Function          Line
+# --------------------   ----------------------
+# not_found         33   read_timed         109
+# Echo              39   CompareLength      128
+# TPread            44   PaddLength         136
+# print_heading     62   SetLanguage        145
+# PrintOne          74   Translate          226
+# PrintMany         96   Arrays & Variables 247
+# --------------------   ----------------------
+
+not_found() {
+  Echo
+  PrintOne "Please try again"
+  Buttons "Yes/No" "$_Ok"
+}
+
+Echo() { # Use in place of 'echo' for basic text print
+  printf "%-s\n" "$1"
+  cursor_row=$((cursor_row+1))
+}
+
+TPread() { # Aligned prompt for user-entry
+  # $1 = prompt ... Returns result through $Response
+  local T_COLS=$(tput cols)
+  local lov=${#1}
+  local stpt=0
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( (T_COLS - lov) / 2 ))
+  elif [ ${lov} -gt ${T_COLS} ]; then
+    stpt=0
+  else
+    stpt=$(( (T_COLS - 10) / 2 ))
+  fi
+  EMPTY="$(printf '%*s' $stpt)"
+  read -p "$EMPTY $1" Response
+  cursor_row=$((cursor_row+1))
+}
 
 print_heading() {   # Always use this function to clear the screen
   tput sgr0         # Make sure colour inversion is reset
@@ -205,8 +243,6 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   esac
 }
 
-# 2) Declaration of variables and arrays
-
 # Partition variables and arrays
 declare -a AddPartList    # Array of additional partitions eg: /dev/sda5
 declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
@@ -373,7 +409,7 @@ LongWMs[9]="Dynamic tiling window manager (requires Haskell compiler)"
 # Taskbars (Docks & Panels)
 Taskbars="cairo-dock docky dmenu fbpanel lxpanel plank tint2"
 LongBars[1]="Customizable dock & launcher application"
-LongBars[2]="Full fledged dock application"
+LongBars[2]="Fully fledged dock application"
 LongBars[3]="Fast and lightweight dynamic menu for X"
 LongBars[4]="Lightweight, NETWM compliant desktop panel"
 LongBars[5]="Lightweight X11 desktop panel (part of the LXDE desktop)"

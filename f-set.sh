@@ -22,52 +22,23 @@
 #                    Boston, MA 02110-1301 USA
 
 # In this module: functions for setting variables used during installation
-# --------------------   ------------------------
-# Function        Line   Function            Line
-# --------------------   ------------------------
-# not_found         46    getkeymap            517 
-# Echo              52    SearchKeyboards      575 
-# TPread            57    Username             612
-# SetKernel         74    SetHostname          628
-# ChooseMirrors     86    Options              645
-# ConfirmVbox      134    PickLuxuries         671
-# SetTimeZone      158    KeepOrDelete         711
-# SetSubZone       190    ShoppingList         743
-# SelectSubzone    219    ChooseDM             917
-# America          239    SetGrubDevice        971
-# FindCity         274    EnterGrubPath       1003
-# DoCities         325      --- Review stage ---
-# setlocale        351    FinalCheck          1031
-# AllLanguages     500    ManualSettings      1154
-# --------------------    -----------------------
-
-not_found() {
-  Echo
-  PrintOne "Please try again"
-  Buttons "Yes/No" "$_Ok"
-}
-
-Echo() { # Use in place of 'echo' for basic text print
-  printf "%-s\n" "$1"
-  cursor_row=$((cursor_row+1))
-}
-
-TPread() { # Aligned prompt for user-entry
-  # $1 = prompt ... Returns result through $Response
-  local T_COLS=$(tput cols)
-  local lov=${#1}
-  local stpt=0
-  if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(( (T_COLS - lov) / 2 ))
-  elif [ ${lov} -gt ${T_COLS} ]; then
-    stpt=0
-  else
-    stpt=$(( (T_COLS - 10) / 2 ))
-  fi
-  EMPTY="$(printf '%*s' $stpt)"
-  read -p "$EMPTY $1" Response
-  cursor_row=$((cursor_row+1))
-}
+# --------------------   -----------------------
+# Function        Line   Function           Line
+# --------------------   -----------------------
+# SetKernel         43   Username            588  
+# ChooseMirrors     56   SetHostname         604  
+# ConfirmVbox      107   Options             621  
+# SetTimeZone      131   PickLuxuries        647 
+# SetSubZone       165   
+# SelectSubzone    194   ShoppingList        692
+# America          214   ChooseDM            724
+# FindCity         249   SetGrubDevice      1008 
+# DoCities         299   EnterGrubPath      1062 
+# setlocale        325     --- Review stage --- 
+# AllLanguages     476   FinalCheck         1095
+# getkeymap        493   ManualSettings     1123
+# SearchKeyboards  551
+# --------------------   -----------------------
 
 SetKernel() {
   print_heading
@@ -718,41 +689,8 @@ PickLuxuries() { # User selects any combination from a store of extras
   fi
 }
 
-KeepOrDelete() {
-  Bagged="$1"
-  while true
-  do
-    print_heading
-    Translate "is already in your shopping list"
-    Message="$Bagged $Result"
-    Translate "Keep"
-    K="$Result"
-    Translate "Delete"
-    D="$Result"
-    Buttons "Yes/No" "$K $D" "$Message"
-    case $Response in
-      1) Temp="$LuxuriesList"
-        break
-      ;;
-      2) Validated="Y"
-        Temp=""
-        for lux in $LuxuriesList
-        do
-          if [ ${lux} != ${Bagged} ]; then
-            Temp="$Temp $lux"
-          fi
-        done
-        break
-      ;;
-      *) not_found
-    esac
-  done
-  LuxuriesList="$Temp"
-}
-
 ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   Translate "Choose an item"
-
   while true
   do
     print_heading
@@ -1003,14 +941,15 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
     if [ $SaveResult = "$_Exit" ]; then # Loop until user selects "Exit"
       break
     fi
-    for lux in $LuxuriesList            # Check that chosen item is not already on the list
+
+    TempList=""                         # Prepare temporary variable TempList
+    for lux in $LuxuriesList            # See if chosen item is already on LuxuriesList
     do
-      if [ ${lux} = ${SaveResult} ]; then
-        KeepOrDelete "$SaveResult"
-        Result=""
-        continue
+      if [ ${lux} != ${SaveResult} ]; then  # If not already in LuxuriesList, add to TempList
+        TempList="$TempList $SaveResult"    # If already on list, it will be removed
       fi
     done
+    LuxuriesList="$TempList"
     case $SaveResult in                 # Check all DE & WM entries
       "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" |  "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") DesktopEnvironment=$SaveResult
         for lux in $LuxuriesList
