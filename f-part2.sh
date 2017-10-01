@@ -70,15 +70,18 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
   Echo
   Translate "or Exit to try again"
   listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
-  Reply=$Response               # This will be the selected item in the list
+  Reply=$Response               # This will be the number of the selected item in the list
                                 # (not necessarily the partition number)
-  if [ $Result != "$_Exit" ]; then
+  if [ $Result != "$_Exit" ]; then  # But $Result is the identity (eg: /dev/sda1)
     PassPart=$Result
     SetLabel "$Result"
     UpdateArray                 # Remove the selected partition from $PartitionArray[]
   else                          # Exit selected
     CheckParts                  # Restart process
   fi
+
+read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+  
   Counter=0
   for i in ${PartitionList}
   do
@@ -90,6 +93,9 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 			Remaining="$Remaining $i"	# Add next available partition
 		fi
 	done
+
+read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+  
   PartitionList=$Remaining			# Replace original PartitionList with remaining options
   Parted "set 1 boot on"             # Make /root Bootable
 }
