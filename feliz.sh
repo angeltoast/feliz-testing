@@ -131,9 +131,9 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   TPecho "$_Installing " "Grub"
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
     pacstrap /mnt grub efibootmgr
-    arch_chroot "grub-install --efi-directory=/boot/EFI --target=x86_64-efi --bootloader-id=boot"
+    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
-      mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi
+      mv /mnt/boot/grubx64.efi /mnt/boot/bootx64.efi
     fi
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
