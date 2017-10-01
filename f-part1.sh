@@ -347,14 +347,13 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   local StartPoint=$1                               # Local variable 
 
   # Set the device to be used to 'set x boot on'    # $MountDevice is numerical - eg: 1 in sda1
-  if [ ${UEFI} -eq 1 ]; then                        # Installing in EFI environment
-    MountDevice=2                                   # Next partition after /boot = [sda]2
-  else
-    MountDevice=1                                   # In BIOS = first partition = [sda]1
-  fi
-  # First make /root at startpoint
+  MountDevice=1                                     # Start with first partition = [sda]1
+                                                    # Make /boot at startpoint
   Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
   Parted "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
+  if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
+    MountDevice=2                                   # Next partition after /boot = [sda]2
+  fi
   RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
   RootType="ext4"
   StartPoint=$2                                     # Increment startpoint for /home or /swap

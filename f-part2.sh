@@ -469,7 +469,7 @@ ActionEasyPart() { # EFI Final step. Uses the variables set above to create GPT 
     Var=$((Var*1024))                 # Convert to MiB
   fi
   EndPoint=$((Var+1))                 # Add start and finish. Result is MiBs, numerical only (has no unit)
-  Parted "mkpart ESP fat32 1MiB ${EndPoint}MiB"
+  Parted "mkpart primary fat32 1MiB ${EndPoint}MiB"
   Parted "set 1 boot on"
   EFIPartition="${GrubDevice}1"       # "/dev/sda1"
   NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
