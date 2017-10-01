@@ -153,39 +153,33 @@ SetLanguage() {
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
-  listgen1 "English 中文 Deutsche Ελληνικά Español Française Italiano हिन्दी Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  listgen1 "English Deutsche Ελληνικά Español Française Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
   case $Response in
-    2)  InstalLanguage="zh"
-      LanguageFile="Chinese-CN.lan"
-    ;;
-    3) InstalLanguage="de"
+    2) InstalLanguage="de"
       LanguageFile="German.lan"
     ;;
-    4) InstalLanguage="el"
+    3) InstalLanguage="el"
       LanguageFile="Greek.lan"
     ;;
-    5) InstalLanguage="es"
+    4) InstalLanguage="es"
       LanguageFile="Spanish.lan"
     ;;
-    6) InstalLanguage="fr"
+    5) InstalLanguage="fr"
       LanguageFile="French.lan"
     ;;
-    7) InstalLanguage="it"
+    6) InstalLanguage="it"
       LanguageFile="Italian.lan"
     ;;
-    8) InstalLanguage="hi"
-      LanguageFile="Hindi.lan"
-    ;;
-    9) InstalLanguage="nl"
+    7) InstalLanguage="nl"
       LanguageFile="Dutch.lan"
     ;;
-    10) InstalLanguage="pl"
+    8) InstalLanguage="pl"
       LanguageFile="Polish.lan"
     ;;
-    11) InstalLanguage="pt-PT"
+    9) InstalLanguage="pt-PT"
       LanguageFile="Portuguese-PT.lan"
     ;;
-    12) InstalLanguage="pt-BR"
+    10) InstalLanguage="pt-BR"
       LanguageFile="Portuguese-BR.lan"
     ;;
     *) InstalLanguage="en"
