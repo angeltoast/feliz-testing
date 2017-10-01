@@ -804,7 +804,7 @@ UpdateArray() { # Remove the selected partition from $PartitionArray[]
   do
     First=${p:0:4}          # Characters 1 to 5 of ${p}
     if [ $First ]; then
-      if [ ${PassPart} != ${First} ]; then
+      if [ ${PassPart} ] && [ ${PassPart} != ${First} ]; then
         NewArray[${Counter}]="$p"
         (( Counter+=1 ))
       fi
