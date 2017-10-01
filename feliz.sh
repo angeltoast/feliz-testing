@@ -133,8 +133,8 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     pacstrap /mnt grub efibootmgr                  # Install grub and efibootmgr
     arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
-      mkdir -p /${EFIPartition}/EFI/BOOT/BOOTX64.EFI
-      mv /mnt/boot/grubx64.efi /${EFIPartition}/EFI/BOOT/BOOTX64.EFI
+      mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
+      mv /mnt/boot/grubx64.efi /mnt/EFI/BOOT/BOOTX64.EFI
     fi
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
