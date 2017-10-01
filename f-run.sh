@@ -34,6 +34,8 @@
 # NewMirrorList        187       Restart              442
 # -------------------------      -------------------------
 
+# read -p "DEBUG f-run $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
 }
@@ -54,6 +56,7 @@ MountPartitions() {
   TPecho "Preparing and mounting partitions" ""
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log            # eg: umount /dev/sda1
+  
   # 1) Root partition
   case $RootType in
   "") echo "Not formatting root partition" >> feliz.log # If /root filetype not set - do nothing
@@ -77,17 +80,13 @@ MountPartitions() {
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
-
-read -p "DEBUG f-run #LINENOS"
-
+  
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
     mkfs.fat -F32 ${EFIPartition} 2>> feliz.log         # Format EFI boot partition
     mkdir -p /mnt/boot/EFI                              # Make mountpoint
     mount ${EFIPartition} /mnt/boot/EFI                 # Mount it
   fi
-  
-read -p "DEBUG f-run $LINENO"
 
   # 3) Swap
   if [ ${SwapPartition} ]; then
@@ -102,8 +101,6 @@ read -p "DEBUG f-run $LINENO"
     fi
     swapon ${SwapPartition} 2>> feliz.log               # eg: swapon /dev/sda2
   fi
-  
-read -p "DEBUG f-run $LINENO"
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
   local Counter=0
@@ -130,9 +127,6 @@ read -p "DEBUG f-run $LINENO"
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log       # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
-  
-read -p "DEBUG f-run $LINENO"
-
 }
 
 InstallKernel() {   # Selected kernel and some other core systems

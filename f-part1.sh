@@ -234,29 +234,17 @@ Partitioning() {
         clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
         tput sgr0               # Reset colour
-
-read -p "DEBUG f-part1 $LINENO"
-      
         CheckParts              # Restart partitioning
       ;;
       3) if [ ${UEFI} -eq 1 ]; then
           print_heading
           Echo
-
-read -p "DEBUG f-part1 $LINENO"
-      
           EasyEFI                 # New guided manual partitioning functions
-
-read -p "DEBUG f-part1 $LINENO"
-      
           tput setf 0             # Change foreground colour to black temporarily to hide error message
           print_heading
           partprobe 2>> feliz.log #Inform kernel of changes to partitions
           tput sgr0               # Reset colour
           ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-
-read -p "DEBUG f-part1 $LINENO"
-      
         else
           GuidedMBR
           tput setf 0             # Change foreground colour to black temporarily to hide error message

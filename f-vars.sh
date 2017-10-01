@@ -33,6 +33,8 @@
 # PrintMany         96   Arrays & Variables 247
 # --------------------   ----------------------
 
+# read -p "DEBUG f-vars $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
 not_found() {
   Echo
   PrintOne "Please try again"

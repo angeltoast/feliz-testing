@@ -37,6 +37,8 @@ DualBoot="N"      # For formatting EFI partition
 # EasyDiskSize       215     ActionEasyPart      469     ActionGuided       819
 # -----------------------    ------------------------    -----------------------
 
+# read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
 TestUEFI() { # Called at launch of Feliz script, before all other actions
  dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
  if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS

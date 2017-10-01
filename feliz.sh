@@ -33,6 +33,8 @@ source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
+# read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
 # ...............................................................................
 #                                   Settings phase                              .
 # ...............................................................................
