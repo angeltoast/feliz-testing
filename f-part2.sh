@@ -53,7 +53,7 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   else
     UEFI=0                            # Set variable UEFI OFF
   fi
- tput sgr0               # Reset colour
+ tput sgr0                            # Reset colour
 }
 
 AllocateEFI() { # Called at start of AllocateRoot, before allocating root partition
@@ -69,6 +69,9 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
   Translate "or Exit to try again"
+
+read -p "DEBUG f-part2 $LINENO"       # Basic debugging - copy and paste wherever a break is needed
+ 
   listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
   Reply=$Response               # This will be the number of the selected item in the list
                                 # (not necessarily the partition number)
@@ -80,8 +83,6 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
     CheckParts                  # Restart process
   fi
 
-read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
-  
   Counter=0
   for i in ${PartitionList}
   do
@@ -94,8 +95,6 @@ read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a 
 		fi
 	done
 
-read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
-  
   PartitionList=$Remaining			# Replace original PartitionList with remaining options
   Parted "set 1 boot on"             # Make /root Bootable
 }

@@ -127,6 +127,9 @@ ConfirmVbox() {
       ;;
       *) IsInVbox=""
     esac
+
+# read -p "DEBUG f-set $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
     return 0
   done
 }

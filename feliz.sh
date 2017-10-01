@@ -131,10 +131,13 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   TPecho "$_Installing " "Grub"
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
     pacstrap /mnt grub efibootmgr                  # Install grub and efibootmgr
-    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
+    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=grub"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
       mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
       mv /mnt/boot/grubx64.efi /mnt/EFI/BOOT/BOOTX64.EFI
+      
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
     fi
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -146,6 +149,8 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   else                                             # No grub device selected
     echo "Not installing Grub" >> feliz.log
   fi
+  
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
 
 # Generate fstab and set up swapfile
   genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
