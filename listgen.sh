@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Developed by Elizabeth Mills
-# Revision date: 8th July 2017
+# With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
+# Revision date: 1st October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,6 +54,8 @@ Instructions="Use arrow keys to move. Enter to select"
 # SelectPage      522    Used by listgenx to manage page handling
 # PrintPage       569    Used by listgenx to display selected page
 # --------------------   ------------------------
+
+# read -p "DEBUG listgen $LINENO"   # Basic debugging - copy and paste wherever a break is needed
 
 Heading() { # Always use this function to clear the screen
   tput sgr0                                   # Make sure colour inversion is reset
