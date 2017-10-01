@@ -235,10 +235,13 @@ Partitioning() {
       1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
       ;;
       2) cfdisk 2>> feliz.log
-        tput setf 0             # Change foreground colour to black temporarily to hide error message
-        clear
+      #  tput setf 0             # Change foreground colour to black temporarily to hide error message
+      #  clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
-        tput sgr0               # Reset colour
+      #  tput sgr0               # Reset colour
+
+read -p "DEBUG #LINENO"
+      
         CheckParts              # Restart partitioning
       ;;
       3) if [ ${UEFI} -eq 1 ]; then
@@ -250,6 +253,9 @@ Partitioning() {
           partprobe 2>> feliz.log #Inform kernel of changes to partitions
           tput sgr0               # Reset colour
           ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
+
+read -p "DEBUG #LINENO"
+      
         else
           GuidedMBR
         fi

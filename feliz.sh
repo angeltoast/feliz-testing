@@ -97,6 +97,8 @@ TPecho "Entering automatic installation phase"
 
 MountPartitions
 
+read -p "DEBUG #LINENO"
+      
 NewMirrorList
 
 InstallKernel

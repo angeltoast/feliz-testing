@@ -281,10 +281,7 @@ EasyRoot() { # EFI - Set variables: RootSize, RootType
     PrintOne "and perhaps also a /home partition"
     PrintOne "The /root partition should not be less than 8GiB"
     PrintOne "ideally more, up to 20GiB"
-    Echo
-    PrintOne "Please enter the desired size"
-    PrintOne "or, to allocate all the remaining space, enter: 100%"
-    Echo
+    AllocateAll
     Translate "Size"
     TPread "${Result} [eg: 12G or 100%]: "
     RESPONSE="${Response^^}"
@@ -343,9 +340,7 @@ EasySwap() { # EFI - Set variable: SwapSize
       PrintOne "it is not necessary to exceed 4GiB"
       Echo
     fi
-    PrintOne "Please enter the desired size"
-    PrintOne "or, to allocate all the remaining space, enter: 100%"
-    Echo
+    AllocateAll
     Translate "Size"
     sleep 1               # To prevent keyboard bounce
     TPread "$Result [eg: 2G or 100% or 0]: "
@@ -625,10 +620,7 @@ GuidedRoot() { # BIOS - Set variables: RootSize, RootType
     PrintOne "and perhaps also a /home partition"
     PrintOne "The /root partition should not be less than 8GiB"
     PrintOne "ideally more, up to 20GiB"
-    Echo
-    PrintOne "Please enter the desired size"
-    PrintOne "or, to allocate all the remaining space, enter: 100%"
-    Echo
+    AllocateAll
     Translate "Size"
     TPread "$Result [eg: 12G or 100%]: "
     RESPONSE="${Response^^}"
@@ -689,10 +681,7 @@ GuidedSwap() { # BIOS - Set variable: SwapSize
       PrintOne "it is not necessary to exceed 4GiB"
       PrintOne "You can use all the remaining space on the device, if you wish"
     fi
-    Echo
-    PrintOne "Please enter the desired size"
-    PrintOne "or, to allocate all the remaining space, enter: 100%"
-    Echo
+    AllocateAll
     Translate "Size"
     TPread "$Result [eg: 2G ... 100% ... 0]: "
     RESPONSE="${Response^^}"
@@ -741,10 +730,7 @@ GuidedHome() { # BIOS - Set variables: HomeSize, HomeType
     Translate "There is space for a"
     PrintOne "$Result" "$_HomePartition"
     PrintOne "You can use all the remaining space on the device, if you wish"
-    Echo
-    PrintOne "Please enter the desired size"
-    PrintOne "or, to allocate all the remaining space, enter: 100%"
-    Echo
+    AllocateAll
     Translate "Size"
     TPread "${Result} [eg: 100% or 0]: "
     RESPONSE="${Response^^}"
@@ -770,6 +756,14 @@ GuidedHome() { # BIOS - Set variables: HomeSize, HomeType
         fi
     esac
   done
+}
+
+AllocateAll() {
+  Echo
+  PrintOne "Please enter the desired size"
+  Translate "or, to allocate all the remaining space, enter"
+  PrintOne "$Result: " "100%"
+  Echo
 }
 
 ActionGuided() { # Final BIOS step - Uses the variables set above to create partition table & all partitions

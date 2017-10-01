@@ -77,6 +77,9 @@ MountPartitions() {
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
+
+read -p "DEBUG #LINENOS"
+
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
     mkfs.fat -F32 ${EFIPartition} 2>> feliz.log         # Format EFI boot partition
