@@ -65,6 +65,9 @@ CheckParts() {  # Test for existing partitions
       PrintOne "If you choose to do nothing now, the script will"
       PrintOne "terminate to allow you to partition in some other way"
       Echo
+
+read -p "DEBUG #LINENO"
+            
    #   if [ ${UEFI} -eq 1 ]; then
    #     PartitioningEFI                   # Partitioning options for EFI
    #   else
@@ -103,11 +106,14 @@ CheckParts() {  # Test for existing partitions
       Counter=$((Counter+1))
     done
     Echo
-    if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
-      PartitioningEFI                   # UEFI partitioning options
-    else                                # Installing in BIOS environment
+
+read -p "DEBUG #LINENO"
+      
+   # if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
+   #   PartitioningEFI                   # UEFI partitioning options
+   # else                                # Installing in BIOS environment
       Partitioning                      # BIOS partitioning options
-    fi
+   # fi
     MakePartitionList                   # Regenerate the array of partitions
   fi
 }
@@ -224,6 +230,9 @@ Partitioning() {
       OptionsList="$OptionsList $(echo $PartitioningOptions | cut -d' ' -f${Counter})"
       Counter=$((Counter+1))
     done
+
+read -p "DEBUG #LINENO"
+      
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     if [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
       Proceed=$((Response+1))
