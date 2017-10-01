@@ -44,10 +44,12 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   tput setf 0             # Change foreground colour to black temporarily to hide error messages
   dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
   if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
-    tput setf 0             # Change foreground colour to black temporarily to hide error messages
     # Mount efivarfs if it is not already mounted
     if [ ! $(mount | grep -q /sys/firmware/efi/efivars) ]; then
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+
+# read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
     fi
     UEFI=1                            # Set variable UEFI ON
   else
