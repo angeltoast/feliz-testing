@@ -80,11 +80,12 @@ MountPartitions() {
       mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
     fi                                                  # eg: mkfs.ext4 -L Arch-Root /dev/sda1
   esac
+  
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
   
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
-    mkfs.fat -F32 ${EFIPartition} 2>> feliz.log         # Format EFI boot partition
+    mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log        # Format EFI boot partition
     mkdir -p /mnt/boot                                  # Make mountpoint
     mount ${EFIPartition} /mnt/boot                     # Mount it
   fi
@@ -569,6 +570,7 @@ SetUserPassword() {
 Restart() {
   Translate "Shutdown Reboot"
   listgen1 "$Result" "" "$_Ok"
+  umount /mnt -R
   case $Response in
   1) shutdown -h now
   ;;

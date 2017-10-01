@@ -627,11 +627,8 @@ AllocateSwap() {
       fi
     fi
   done
-  print_heading
-  if [ $SwapPartition ]; then
-    Translate "Swap partition"
-    read_timed "$Result = $SwapPartition" 1
-  elif [ $SwapFile ]; then
+  Echo
+  if [ $SwapFile ]; then
     read_timed "Swap file = ${SwapFile}" 1
   else
     Translate "No provision has been made for swap"
