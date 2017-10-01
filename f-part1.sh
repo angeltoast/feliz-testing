@@ -66,7 +66,7 @@ CheckParts() {  # Test for existing partitions
       PrintOne "terminate to allow you to partition in some other way"
       Echo
 
-read -p "DEBUG #LINENO"
+read -p "DEBUG f-part1 $LINENO"
             
    #   if [ ${UEFI} -eq 1 ]; then
    #     PartitioningEFI                   # Partitioning options for EFI
@@ -107,7 +107,7 @@ read -p "DEBUG #LINENO"
     done
     Echo
 
-read -p "DEBUG #LINENO"
+read -p "DEBUG f-part1 $LINENO"
       
    # if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
    #   PartitioningEFI                   # UEFI partitioning options
@@ -231,7 +231,7 @@ Partitioning() {
       Counter=$((Counter+1))
     done
 
-read -p "DEBUG #LINENO"
+read -p "DEBUG f-part1 $LINENO"
       
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     if [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
@@ -249,7 +249,7 @@ read -p "DEBUG #LINENO"
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
       #  tput sgr0               # Reset colour
 
-read -p "DEBUG #LINENO"
+read -p "DEBUG f-part1 $LINENO"
       
         CheckParts              # Restart partitioning
       ;;
@@ -263,7 +263,7 @@ read -p "DEBUG #LINENO"
           tput sgr0               # Reset colour
           ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
 
-read -p "DEBUG #LINENO"
+read -p "DEBUG f-part1 $LINENO"
       
         else
           GuidedMBR

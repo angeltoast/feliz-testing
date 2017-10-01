@@ -78,7 +78,7 @@ MountPartitions() {
   esac
   mount ${RootPartition} /mnt 2>> feliz.log             # eg: mount /dev/sda1 /mnt
 
-read -p "DEBUG #LINENOS"
+read -p "DEBUG f-run #LINENOS"
 
   # 2) EFI (if required)
   if [ ${UEFI} -eq 1 ] && [ ${DualBoot} = "N" ]; then   # Check if /boot partition required
@@ -86,6 +86,9 @@ read -p "DEBUG #LINENOS"
     mkdir -p /mnt/boot/EFI                              # Make mountpoint
     mount ${EFIPartition} /mnt/boot/EFI                 # Mount it
   fi
+  
+read -p "DEBUG f-run $LINENO"
+
   # 3) Swap
   if [ ${SwapPartition} ]; then
     swapoff -a 2>> feliz.log                            # Make sure any existing swap cleared
@@ -99,6 +102,8 @@ read -p "DEBUG #LINENOS"
     fi
     swapon ${SwapPartition} 2>> feliz.log               # eg: swapon /dev/sda2
   fi
+  
+read -p "DEBUG f-run $LINENO"
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
   local Counter=0
@@ -125,6 +130,9 @@ read -p "DEBUG #LINENOS"
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log       # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
   done
+  
+read -p "DEBUG f-run $LINENO"
+
 }
 
 InstallKernel() {   # Selected kernel and some other core systems
