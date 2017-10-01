@@ -37,6 +37,8 @@
 # EditLabel           437       SetLabel            792
 # -----------------------      ------------------------
 
+# read -p "DEBUG f-part1 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+            
 CheckParts() {  # Test for existing partitions
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
   local Counter=0
@@ -65,14 +67,7 @@ CheckParts() {  # Test for existing partitions
       PrintOne "If you choose to do nothing now, the script will"
       PrintOne "terminate to allow you to partition in some other way"
       Echo
-
-read -p "DEBUG f-part1 $LINENO"
-            
-   #   if [ ${UEFI} -eq 1 ]; then
-   #     PartitioningEFI                   # Partitioning options for EFI
-   #   else
-        Partitioning                      # Partitioning options for BIOS
-   #   fi
+      Partitioning                      # Partitioning options
       if [ "$Result" = "$_Exit" ]; then   # Terminate
         print_heading
         Echo
@@ -106,15 +101,8 @@ read -p "DEBUG f-part1 $LINENO"
       Counter=$((Counter+1))
     done
     Echo
-
-read -p "DEBUG f-part1 $LINENO"
-      
-   # if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
-   #   PartitioningEFI                   # UEFI partitioning options
-   # else                                # Installing in BIOS environment
-      Partitioning                      # BIOS partitioning options
-   # fi
-    MakePartitionList                   # Regenerate the array of partitions
+    Partitioning                      # partitioning options
+    MakePartitionList                 # Regenerate the array of partitions
   fi
 }
 
@@ -231,8 +219,6 @@ Partitioning() {
       Counter=$((Counter+1))
     done
 
-read -p "DEBUG f-part1 $LINENO"
-      
     listgen2 "$OptionsList" "$_Quit" "$_Ok $_Exit" "LongOption"
     if [ $OptionsLimit -eq 3 ]; then # 'Existing Partitions' option is to be ignored if no partitions exist
       Proceed=$((Response+1))
@@ -244,10 +230,10 @@ read -p "DEBUG f-part1 $LINENO"
       1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
       ;;
       2) cfdisk 2>> feliz.log
-      #  tput setf 0             # Change foreground colour to black temporarily to hide error message
-      #  clear
+        tput setf 0             # Change foreground colour to black temporarily to hide error message
+        clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
-      #  tput sgr0               # Reset colour
+        tput sgr0               # Reset colour
 
 read -p "DEBUG f-part1 $LINENO"
       
@@ -256,7 +242,13 @@ read -p "DEBUG f-part1 $LINENO"
       3) if [ ${UEFI} -eq 1 ]; then
           print_heading
           Echo
+
+read -p "DEBUG f-part1 $LINENO"
+      
           EasyEFI                 # New guided manual partitioning functions
+
+read -p "DEBUG f-part1 $LINENO"
+      
           tput setf 0             # Change foreground colour to black temporarily to hide error message
           print_heading
           partprobe 2>> feliz.log #Inform kernel of changes to partitions
@@ -267,6 +259,10 @@ read -p "DEBUG f-part1 $LINENO"
       
         else
           GuidedMBR
+          tput setf 0             # Change foreground colour to black temporarily to hide error message
+          clear
+          partprobe 2>> feliz.log # Inform kernel of changes to partitions
+          tput sgr0               # Reset colour
         fi
       ;;
       4) ChooseDevice
@@ -368,15 +364,15 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
     MountDevice=1                                   # In BIOS = first partition = [sda]1
   fi
   # First make /root at startpoint
-  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: mkpart primary ext4 1MiB 12GiB
-  Parted "set ${MountDevice} boot on"               # eg: set 1 boot on
+  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  Parted "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
   RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
   RootType="ext4"
   StartPoint=$2                                     # Increment startpoint for /home or /swap
-  MountDevice=$((MountDevice+1))                    # Advance partition numbering
+  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
   if [ $3 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: mkpart primary ext4 12GiB 19GiB
+    Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3      | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
@@ -386,7 +382,7 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   fi
 
   if [ $4 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # eg: mkpart primary linux-swap 31GiB 100%
+    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
@@ -404,8 +400,8 @@ autopart() { # Consolidated partitioning for BIOS or EFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     Parted "mklabel gpt"                            # Create new filesystem
-    Parted "mkpart ESP fat32 1MiB 513MiB"           # EFI boot partition
-    Parted "set 1 boot on"
+    Parted "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
+   # Parted "set 1 boot on"     # This is done in partition_maker
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
