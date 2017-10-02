@@ -2,8 +2,8 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# With acknowlegements to Carl Duff and Dylan Schacht
-# Revision date: 17th September 2017
+# With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
+# Revision date: 1st October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ source listgen.sh    # Menuing functions
 source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
+
+# read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
 
 # ...............................................................................
 #                                   Settings phase                              .
@@ -125,15 +127,38 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
 # Grub
   TPecho "$_Installing " "Grub"
+    
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
+<<<<<<< HEAD
     pacstrap /mnt grub efibootmgr
     arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
       mv /mnt/boot/efi/boot/grubx64.efi /mnt/boot/efi/boot/bootx64.efi 2>> feliz.log
+=======
+    pacstrap /mnt grub efibootmgr                  # Install grub and efibootmgr
+    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
+
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
+    if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
+   # mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
+   #   arch_chroot "grub-install --efi-directory=/EFI/BOOT --target=x86_64-efi --bootloader-id=grub"
+      mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI
+   # else
+   #   arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=grub"
+>>>>>>> 2f4340b50587bc67f72a58932df443ba5d2a8906
     fi
+    
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
   elif [ -n ${GrubDevice} ]; then                  # Installing grub in BIOS environment
+    
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
     pacstrap /mnt grub 2>> feliz.log
     arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
     arch_chroot "os-prober"
@@ -141,6 +166,8 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   else                                             # No grub device selected
     echo "Not installing Grub" >> feliz.log
   fi
+  
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
 
 # Generate fstab and set up swapfile
   genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log

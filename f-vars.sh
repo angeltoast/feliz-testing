@@ -2,7 +2,8 @@
 
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
-# Revision date: 12th August 2017
+# With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
+# Revision date: 1st October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,13 +22,55 @@
 #                  51 Franklin Street, Fifth Floor
 #                    Boston, MA 02110-1301 USA
 
-# 1) Global functions
+# In this module: Some global functions, and declaration of various arrays and variables
+# --------------------   ----------------------
+# Function        Line   Function          Line
+# --------------------   ----------------------
+# not_found         33   read_timed         109
+# Echo              39   CompareLength      128
+# TPread            44   PaddLength         136
+# print_heading     62   SetLanguage        145
+# PrintOne          74   Translate          226
+# PrintMany         96   Arrays & Variables 247
+# --------------------   ----------------------
+
+# read -p "DEBUG f-vars $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+
+not_found() {
+  Echo
+  PrintOne "Please try again"
+  Buttons "Yes/No" "$_Ok"
+}
+
+Echo() { # Use in place of 'echo' for basic text print
+  printf "%-s\n" "$1"
+  cursor_row=$((cursor_row+1))
+}
+
+TPread() { # Aligned prompt for user-entry
+  # $1 = prompt ... Returns result through $Response
+  local T_COLS=$(tput cols)
+  local lov=${#1}
+  local stpt=0
+  if [ ${lov} -lt ${T_COLS} ]; then
+    stpt=$(( (T_COLS - lov) / 2 ))
+  elif [ ${lov} -gt ${T_COLS} ]; then
+    stpt=0
+  else
+    stpt=$(( (T_COLS - 10) / 2 ))
+  fi
+  EMPTY="$(printf '%*s' $stpt)"
+  read -p "$EMPTY $1" Response
+  cursor_row=$((cursor_row+1))
+}
 
 print_heading() {   # Always use this function to clear the screen
   tput sgr0         # Make sure colour inversion is reset
   clear
   T_COLS=$(tput cols)                   # Get width of terminal
-  tput cup 0 $(((T_COLS/2)-20))         # Move the cursor to left of center
+  LenBT=${#_Backtitle}
+  HalfBT=$((LenBT/2))
+  tput cup 0 $(((T_COLS/2)-HalfBT))     # Move the cursor to left of center
   printf "%-s\n" "$_Backtitle"          # Display backtitle
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
@@ -86,49 +129,69 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
   cursor_row=$((cursor_row+1))
 }
 
+CompareLength() {
+  # If length of translation is greater than previous, save it
+  Text="$1"
+    if [ ${#Text} -gt $MaxLen ]; then
+      MaxLen=${#Text}
+    fi
+}
+
+PaddLength() {  # If $1 is shorter than MaxLen, padd with spaces
+  Text="$1"
+  until [ ${#Text} -eq $MaxLen ]
+  do
+    Text="$Text "
+  done
+  Result="$Text"
+}
+
 SetLanguage() {
   _Backtitle="Feliz2 - Arch Linux installation script"
   print_heading
+  setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-  
-  listgen1 "English Português-BR" "" "Ok"  # Available languages
-  case $Result in
-  "" | "Exit") LanguageFile=English.lan
-        InstalLanguage="en"
-  ;;
-  *) LanguageFile="${Result}.lan"
-    case $LanguageFile in
-    "Chinese-CN.lan") InstalLanguage="zh-CN"
+
+  listgen1 "English Deutsche Ελληνικά Español Française Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  case $Response in
+    2) InstalLanguage="de"
+      LanguageFile="German.lan"
     ;;
-    "Deutsche.lan") InstalLanguage="de"
+    3) InstalLanguage="el"
+      LanguageFile="Greek.lan"
     ;;
-    "Dutch.lan") InstalLanguage="nl"
+    4) InstalLanguage="es"
+      LanguageFile="Spanish.lan"
     ;;
-    "Español.lan") InstalLanguage="es"
+    5) InstalLanguage="fr"
+      LanguageFile="French.lan"
     ;;
-    "Français.lan") InstalLanguage="fr"
+    6) InstalLanguage="it"
+      LanguageFile="Italian.lan"
     ;;
-    "Hindi.lan") InstalLanguage="hi"
+    7) InstalLanguage="nl"
+      LanguageFile="Dutch.lan"
     ;;
-    "Italiano.lan") InstalLanguage="it"
+    8) InstalLanguage="pl"
+      LanguageFile="Polish.lan"
     ;;
-    "Polski.lan") InstalLanguage="pl"
+    9) InstalLanguage="pt-PT"
+      LanguageFile="Portuguese-PT.lan"
     ;;
-    "Português-PT.lan") InstalLanguage="pt-PT"
-    ;;
-    "Português-BR.lan") InstalLanguage="pt-BR"
+    10) InstalLanguage="pt-BR"
+      LanguageFile="Portuguese-BR.lan"
     ;;
     *) InstalLanguage="en"
-      LanguageFile=English.lan
-    esac
+      LanguageFile="English.lan"
   esac
 
   # Get the selected language file
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
 
+  
   # Install the translator for situations where no translation is found on file
-  if [ $LanguageFile != "English.lan" ]; then   # Only if not English
+  if [ $LanguageFile != "English.lan" ]; then   # Only if not English and not already loaded
     PrintOne "Loading translator"
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
@@ -194,14 +257,13 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No match found in English.lan, so translate using Google Translate to temporary file:
-     ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
-     Result=$(cat Result.file)
+    # ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
+    # Result=$(cat Result.file)
+      Result="$Text"
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac
 }
-
-# 2) Declaration of variables and arrays
 
 # Partition variables and arrays
 declare -a AddPartList    # Array of additional partitions eg: /dev/sda5
@@ -262,6 +324,7 @@ UserName=""               # eg: archie
 Scope=""                  # Installation scope ... 'Full' or 'Basic'
 
 # Miscellaneous
+declare -a BeenThere      # Restrict translations to first pass
 PrimaryFile=""
 Translate="Y"             # May be set to N to stifle translation
 
@@ -368,7 +431,7 @@ LongWMs[9]="Dynamic tiling window manager (requires Haskell compiler)"
 # Taskbars (Docks & Panels)
 Taskbars="cairo-dock docky dmenu fbpanel lxpanel plank tint2"
 LongBars[1]="Customizable dock & launcher application"
-LongBars[2]="Full fledged dock application"
+LongBars[2]="Fully fledged dock application"
 LongBars[3]="Fast and lightweight dynamic menu for X"
 LongBars[4]="Lightweight, NETWM compliant desktop panel"
 LongBars[5]="Lightweight X11 desktop panel (part of the LXDE desktop)"

@@ -38,7 +38,7 @@ and perhaps also a /home partition
 and set up the partitions you have defined
 and you may run out of space during installation or at some later time
 A partition is needed for /root
-Are you in any of these states?
+Are you in any of these States?
 Are you sure you wish to continue?
 A simple scanner GUI
 assign a swap-file. It is advised to allow some swap
@@ -285,7 +285,7 @@ Success!
 Swap can be anything from 512MiB upwards but
 /swap partition
 Swap partition
-system will no longer be unable to access the partition
+system will no longer be able to access the partition
 Taskbars
 terminate to allow you to partition in some other way
 Testing
