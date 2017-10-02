@@ -119,34 +119,21 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   arch_chroot "hwclock --systohc --utc"
 
 # Networking
-  # if [ $Scope != "Basic" ]; then
-    arch_chroot "systemctl enable dhcpcd.service"
-    pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
-    arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
-  # fi
+  arch_chroot "systemctl enable dhcpcd.service"
+  pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
+  arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
 
 # Grub
   TPecho "$_Installing " "Grub"
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
-<<<<<<< HEAD
     pacstrap /mnt grub efibootmgr
     arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
       mv /mnt/boot/efi/boot/grubx64.efi /mnt/boot/efi/boot/bootx64.efi 2>> feliz.log
-=======
+    fi
     pacstrap /mnt grub efibootmgr                  # Install grub and efibootmgr
-    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot  ${GrubDevice}"
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
-<<<<<<< HEAD
-      mv /mnt/boot/grubx64.efi /mnt/boot/BOOTX64.EFI
-=======
-   # mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
-   #   arch_chroot "grub-install --efi-directory=/EFI/BOOT --target=x86_64-efi --bootloader-id=grub"
-      mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI
-   # else
-   #   arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=grub"
->>>>>>> 2f4340b50587bc67f72a58932df443ba5d2a8906
->>>>>>> 8ac4881cc12028abb236ba8eb9d1469cbf9ee703
+      mv /mnt/boot/grubx64.efi /mnt/boot/bootx64.efi
     fi
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
