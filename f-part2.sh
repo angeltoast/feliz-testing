@@ -44,14 +44,11 @@ TestUEFI() { # Called at launch of Feliz script, before all other actions
   tput setf 0             # Change foreground colour to black temporarily to hide error messages
   dmesg | grep -q "efi: EFI"           # Test for EFI (-q tells grep to be quiet)
   if [ $? -eq 0 ]; then                # check exit code; 0 = EFI, else BIOS
-    # Mount efivarfs if it is not already mounted
-    if [ ! $(mount | grep -q /sys/firmware/efi/efivars) ]; then
-      mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+    UEFI=1                             # Set variable UEFI ON
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
 
 # read -p "DEBUG f-part2 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
 
-    fi
-    UEFI=1                            # Set variable UEFI ON
   else
     UEFI=0                            # Set variable UEFI OFF
   fi
@@ -71,9 +68,6 @@ AllocateEFI() { # Called at start of AllocateRoot, before allocating root partit
 	PrintOne "This must be of type vfat, and may be about 512MiB"
   Echo
   Translate "or Exit to try again"
-
-read -p "DEBUG f-part2 $LINENO"       # Basic debugging - copy and paste wherever a break is needed
- 
   listgen2 "$PartitionList" "$Result" "$_Ok $_Exit" "PartitionArray"
   Reply=$Response               # This will be the number of the selected item in the list
                                 # (not necessarily the partition number)

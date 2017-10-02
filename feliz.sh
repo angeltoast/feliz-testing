@@ -127,14 +127,21 @@ sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 
 # Grub
   TPecho "$_Installing " "Grub"
+    
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
     pacstrap /mnt grub efibootmgr                  # Install grub and efibootmgr
+    arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot"
+
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
     if [ ${IsInVbox} = "VirtualBox" ]; then        # If in Virtualbox
-      mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
-      arch_chroot "grub-install --efi-directory=/EFI/BOOT --target=x86_64-efi --bootloader-id=grub"
-      mv /mnt/EFI/BOOT/grubx64.efi /mnt/EFI/BOOT/BOOTX64.EFI
-    else
-      arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=grub"
+   # mkdir -p /mnt/EFI/BOOT/BOOTX64.EFI
+   #   arch_chroot "grub-install --efi-directory=/EFI/BOOT --target=x86_64-efi --bootloader-id=grub"
+      mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/BOOT/BOOTX64.EFI
+   # else
+   #   arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=grub"
     fi
     
 read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
@@ -142,6 +149,9 @@ read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a br
     arch_chroot "os-prober"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
   elif [ -n ${GrubDevice} ]; then                  # Installing grub in BIOS environment
+    
+read -p "DEBUG feliz $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+   
     pacstrap /mnt grub 2>> feliz.log
     arch_chroot "grub-install --target=i386-pc --recheck ${GrubDevice}"
     arch_chroot "os-prober"
