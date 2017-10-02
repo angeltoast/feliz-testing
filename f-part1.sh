@@ -361,7 +361,7 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
 
   if [ $3 ]; then
     Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # /dev/sda3      | add to
+    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"

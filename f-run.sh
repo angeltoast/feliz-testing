@@ -167,7 +167,6 @@ InstallKernel() {   # Selected kernel and some other core systems
   TPecho "$_Installing " "$Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
-
 }
 
 AddCodecs() {
