@@ -276,7 +276,8 @@ setlocale() {
     SEARCHTERM=${SEARCHTERM// }             # Ensure no leading spaces
     SEARCHTERM=${SEARCHTERM%% }             # Ensure no trailing spaces
     # Find all matching entries in locale.gen - This will be a table of valid locales in the form: en_GB.UTF-8
-    LocaleList=$(grep "${SEARCHTERM}\.UTF-8" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f2 | grep -v "^UTF")
+    EXTSEARCHTERM="${SEARCHTERM}.UTF-8"
+    LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f1)
     HowMany=$(echo $LocaleList | wc -w)     # Count them
     Rows=$(tput lines)                      # to ensure menu doesn't over-run
     Rows=$((Rows-4))                        # Available (printable) rows
