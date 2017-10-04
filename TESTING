@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# This script is for testing modules within the feliz-testing repo
+
+testbed() {
+
+SetLanguage                            # Use appropriate language file
+ 
+setlocale                              # CountryLocale eg: en_GB.UTF-8
+  
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} CountryLocale is $CountryLocale"
+
+rm feliz.log
+rm *.lan
+
+}
+
+# ~~~~~~~
+# Execute
+# ~~~~~~~
+
+# Various variables
+
+PassedPath="$1"
+PassedFile="$2"
+
+Backtitle="Testbed"
+
+source f-set.sh
+source f-run.sh
+source f-vars.sh
+source f-part1.sh
+source f-part2.sh
+source listgen.sh
+
+testbed "$PassedPath" "$PassedFile"
+
+echo "End of test"
+
+exit
+
+# Code for checking arrays
+Counter=0
+for i in ${AddPartList[@]}
+do
+  echo ${AddPartList[$Counter]}
+  echo ${AddPartLabel[$Counter]}
+  echo ${AddPartType[$Counter]}
+  Counter=$((Counter+1))
+done
+

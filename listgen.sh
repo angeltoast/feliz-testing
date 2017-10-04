@@ -29,8 +29,8 @@
 
 # In this module:
 
-# All variables used by listgen initialised here
-declare -a Options        # For listgen functions
+# All variables used by listgen are initialised here
+declare -a Options
 Response=""
 Result=""
 Backtitle="Feliz2 - Arch Linux installation script"

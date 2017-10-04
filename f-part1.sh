@@ -38,8 +38,6 @@
 # EditLabel           437       SetLabel            792
 # -----------------------      ------------------------
 
-# read -p "DEBUG f-part1 $LINENO"   # Basic debugging - copy and paste wherever a break is needed
-            
 CheckParts() {  # Test for existing partitions
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
   local Counter=0

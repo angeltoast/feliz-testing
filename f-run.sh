@@ -35,8 +35,6 @@
 # NewMirrorList        187       Restart              442
 # -------------------------      -------------------------
 
-# read -p "DEBUG f-run $LINENO"   # Basic debugging - copy and paste wherever a break is needed
-
 arch_chroot() {  # From Lution AIS
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
 }

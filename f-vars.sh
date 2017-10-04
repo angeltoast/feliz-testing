@@ -34,7 +34,7 @@
 # PrintMany         96   Arrays & Variables 247
 # --------------------   ----------------------
 
-# read -p "DEBUG f-vars $LINENO"   # Basic debugging - copy and paste wherever a break is needed
+# read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
 
 not_found() {
   Echo
@@ -153,7 +153,7 @@ SetLanguage() {
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
 
-  listgen1 "English Deutsche Ελληνικά Español Française Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  listgen1 "English Deutsche Ελληνικά Español Français Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
   case $Response in
     2) InstalLanguage="de"
       LanguageFile="German.lan"
@@ -186,15 +186,17 @@ SetLanguage() {
       LanguageFile="English.lan"
   esac
 
-  # Get the selected language file
-  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-
+  # Get the required language files
+  PrintOne "Loading translator"
   
-  # Install the translator for situations where no translation is found on file
-  if [ $LanguageFile != "English.lan" ]; then   # Only if not English and not already loaded
-    PrintOne "Loading translator"
-    wget -q git.io/trans 2>> feliz.log
-    chmod +x ./trans
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} DEBUG"
+
+  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
+  if [ $LanguageFile != "English.lan" ]; then   # Only if not English
+    wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
+    # Install the translator for situations where no translation is found on file
+    # wget -q git.io/trans 2>> feliz.log
+    # chmod +x ./trans
   fi
 
   # Some common translations
