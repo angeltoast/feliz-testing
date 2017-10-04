@@ -26,18 +26,18 @@
 # --------------------   -----------------------
 # Function        Line   Function           Line
 # --------------------   -----------------------
-# SetKernel         43   SearchKeyboards     444
-# ChooseMirrors     56   Username            481
-# ConfirmVbox      107   SetHostname         497
-# SetTimeZone      135   Options             514
-# SetSubZone       169   PickLuxuries        540
-# SelectSubzone    198   ShoppingList        585
-# America          218   ChooseDM            875
-#                        SetGrubDevice       929
-# DoCities         303   EnterGrubPath       962
-# setlocale        329     --- Review stage --- 
-#                        FinalCheck          990
-# getkeymap        386   ManualSettings     1117
+# SetKernel         43   SearchKeyboards     364
+# ChooseMirrors     56   Username            401
+# ConfirmVbox      107   SetHostname         417
+# SetTimeZone      135   Options             434
+# SetSubZone       169   PickLuxuries        460
+# SelectSubzone    198   ShoppingList        505
+# America          208   ChooseDM            805
+#                        SetGrubDevice       849
+# DoCities         243   EnterGrubPath       882
+# setlocale        269     --- Review stage --- 
+#                        FinalCheck          910
+# getkeymap        306   ManualSettings     1037
 # --------------------   -----------------------
 
 SetKernel() {
@@ -285,11 +285,11 @@ setlocale() {
     do
       choosefrom="$choosefrom $l"           # Add each item to file for handling
     done
-    if [ -z "$choosefrom" ]; then           # If none found, start again
+    if [ -z "${choosefrom}" ]; then         # If none found, start again
       not_found
       Result=""
     else
-      Backtitle="https://wiki.archlinux.org/index.php/Locale" ""
+      _Backtitle="https://wiki.archlinux.org/index.php/Locale" ""
       print_heading
       PrintOne "Please choose the locale for the installed system"
       Translate "Choose one or Exit to search for alternatives"
