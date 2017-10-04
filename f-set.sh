@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 1st October 2017
+# Revision date: 4th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -273,7 +273,11 @@ setlocale() {
   CountryLocale=""
   while [ -z "$CountryLocale" ]
   do
-    SetTimeZone # First get ZONE/SUBZONE 
+
+    SetTimeZone # First get ZONE/SUBZONE
+      
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+
     ZoneID="${ZONE}/${SUBZONE}"  # Use a copy (eg: Europe/London) to find in cities.list (field $2 is the country code, eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
     SEARCHTERM=${SEARCHTERM// }             # Ensure no leading spaces

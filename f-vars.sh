@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 1st October 2017
+# Revision date: 4th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -187,14 +187,14 @@ SetLanguage() {
 
   # Get the required language files
   # PrintOne "Loading translator"
-  tput setf 0             # Change foreground colour to black temporarily to hide error message
+  # tput setf 0             # Change foreground colour to black temporarily to hide error message
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     # Install the translator for situations where no translation is found on file
     # wget -q git.io/trans 2>> feliz.log
     # chmod +x ./trans
-    tput sgr0               # Reset colour
+   # tput sgr0               # Reset colour
   fi
 
   # Some common translations

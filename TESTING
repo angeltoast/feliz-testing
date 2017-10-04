@@ -2,14 +2,16 @@
 
 # This script is for testing modules within the feliz-testing repo
 
+# read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+
 testbed() {
 
-SetLanguage                            # Use appropriate language file
+  SetLanguage                            # Use appropriate language file
  
-setlocale                              # CountryLocale eg: en_GB.UTF-8
+  setlocale                              # CountryLocale eg: en_GB.UTF-8
 
-rm feliz.log
-rm *.lan
+  rm feliz.log
+  rm *.lan
 
 }
 
