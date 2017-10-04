@@ -273,11 +273,7 @@ setlocale() {
   CountryLocale=""
   while [ -z "$CountryLocale" ]
   do
-
     SetTimeZone # First get ZONE/SUBZONE
-      
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-
     ZoneID="${ZONE}/${SUBZONE}"  # Use a copy (eg: Europe/London) to find in cities.list (field $2 is the country code, eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
     SEARCHTERM=${SEARCHTERM// }             # Ensure no leading spaces
@@ -296,8 +292,8 @@ read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SO
       not_found
       Result=""
     else
+      Backtitle="https://wiki.archlinux.org/index.php/Locale" ""
       print_heading
-      PrintOne "https://wiki.archlinux.org/index.php/Locale" ""
       PrintOne "Please choose the locale for the installed system"
       Translate "Choose one or Exit to search for alternatives"
       listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"    # User is offered list of valid codes for location
