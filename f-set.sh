@@ -286,9 +286,6 @@ setlocale() {
     do
       choosefrom="$choosefrom $l"           # Add each item to file for handling
     done
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} choosefrom is $choosefrom"
-
     if [ -z "${choosefrom}" ]; then         # If none found, start again
       print_heading
       not_found
