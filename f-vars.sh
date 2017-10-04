@@ -152,7 +152,6 @@ SetLanguage() {
   setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-
   listgen1 "English Deutsche Ελληνικά Español Français Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
   case $Response in
     2) InstalLanguage="de"
@@ -187,16 +186,15 @@ SetLanguage() {
   esac
 
   # Get the required language files
-  PrintOne "Loading translator"
-  
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} DEBUG"
-
+  # PrintOne "Loading translator"
+  tput setf 0             # Change foreground colour to black temporarily to hide error message
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     # Install the translator for situations where no translation is found on file
     # wget -q git.io/trans 2>> feliz.log
     # chmod +x ./trans
+    tput sgr0               # Reset colour
   fi
 
   # Some common translations

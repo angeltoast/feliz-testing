@@ -33,7 +33,7 @@
 # SetSubZone       169   PickLuxuries        540
 # SelectSubzone    198   ShoppingList        585
 # America          218   ChooseDM            875
-# FindCity         253   SetGrubDevice       929
+#                        SetGrubDevice       929
 # DoCities         303   EnterGrubPath       962
 # setlocale        329     --- Review stage --- 
 #                        FinalCheck          990
@@ -124,9 +124,6 @@ ConfirmVbox() {
       ;;
       *) IsInVbox=""
     esac
-
-# read -p "DEBUG f-set $LINENO"   # Basic debugging - copy and paste wherever a break is needed
-
     return 0
   done
 }
@@ -136,7 +133,7 @@ SetTimeZone() {
   until [ $SUBZONE ]
   do
     print_heading
-    PrintOne "To set the system clock, please first"
+    PrintOne "To set the system clock, please"
     PrintOne "choose the World Zone of your location"
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
     Echo
@@ -196,22 +193,19 @@ SetSubZone() {  # Use ZONE set in SetTimeZone to list available subzones
 
 SelectSubzone() {
   print_heading
-  Translate "Now we need to find your location in"
-  _P1="$Result"
-  Translate "Please enter the first letter of"
-  _P2="$Result"
-  case $Ocean in
-  1) Translate "the island or group where you are located"
-    _P3="$Result"
-    ;;
-  *) Translate "your nearest major city"
-    _P3="$Result"
-  esac
-  PrintOne "$_P1" "$NativeZONE"
-  PrintOne "" "$_P2"
-  PrintOne "" "$_P3"
   Echo
-  FindCity
+  PrintOne "To set the system clock, please"
+  Translate "now select your location in"
+  _P1="$Result"
+  PrintOne "$_P1" "$NativeZONE"
+  timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file  # Prepare file to use listgenx
+  Translate "Please choose your nearest location"
+  listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
+  if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
+    SUBZONE=""
+  else
+    SUBZONE="$Result"
+  fi
 }
 
 America() {
@@ -246,56 +240,6 @@ America() {
   *) SubGroup=$Result                     # Save subgroup for next function
     ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
     DoCities                              # City function for subgroups
-  esac
-}
-
-FindCity() {  # Called by SelectSubzone
-  Translate "enter ' ' to see a list"
-  TPread "$_or $Result: "
-  Echo
-  if [ -z ${Response} ]; then             # User has entered ' '
-    # Prepare file to use listgenx
-    timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2 > temp.file
-    Translate "Please choose your nearest location"
-    listgenx "$Result" "$_xNumber" "$_xExit" "$_xLeft" "$_xRight"
-    if [ $Result = "$_Exit" ] || [ $Result = "" ]; then
-      SetTimeZone
-    fi
-    SUBZONE="$Result"
-    return
-  else
-    Response="${Response:0:1}"        # In case user enters more than one letter
-    Zone2="${Response^^}"             # Convert the first letter to upper case
-  fi
-  subzones=""
-  local Rows=$(tput lines)            # Used to allow for longer (numbered) lists
-  Rows=$((Rows-6))                    # Available (printable) rows
-  local Counter=0
-  for x in ${SubZones[@]}             # Search long list of subzones that match ZONE
-  do                                  # to find those that start with user's letter
-    if [ ${x:0:1} = ${Zone2} ]; then  # If first character in subzone matches ...
-      subzones="$subzones $x"         # Save to list
-      Counter=$((Counter+1))
-    fi
-  done
-  if [ ${Counter} -eq 0 ]; then       # None found
-    not_found
-    return
-  fi
-  if [ $Counter -ge $Rows ]; then
-    echo "$subzones" > temp.file
-    Translate "Please choose your nearest location"
-    listgenx "$Result" "" ""
-  else
-    print_heading
-    PrintOne "Please choose your nearest location"
-    PrintOne "Choose one or Exit to search for alternatives"
-    listgen1 "$subzones" "" "$_Ok $_Exit"
-  fi
-  case $Result in
-    "$_Exit") SUBZONE=""
-    ;;
-    *) SUBZONE=$Result
   esac
 }
 
