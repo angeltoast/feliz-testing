@@ -280,7 +280,8 @@ setlocale() {
     SEARCHTERM=${SEARCHTERM%% }             # Ensure no trailing spaces
     # Find all matching entries in locale.gen - This will be a table of valid locales in the form: en_GB.UTF-8
     EXTSEARCHTERM="${SEARCHTERM}.UTF-8"
-    LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f1)
+    # LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f1)                # Arch
+    LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f2 | grep -v '^UTF') # Debian
     HowMany=$(echo $LocaleList | wc -w)     # Count them
     Rows=$(tput lines)                      # to ensure menu doesn't over-run
     Rows=$((Rows-4))                        # Available (printable) rows
@@ -297,13 +298,53 @@ setlocale() {
       print_heading
       PrintOne "Please choose the locale for the installed system"
       Translate "Choose one or Exit to search for alternatives"
-      listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"    # User is offered list of valid codes for location
-      if [ $Response -eq 0 ]; then                        # If user rejects all options
-        Result=""                                         # Start again
+      choosefrom="$choosefrom Edit_locale.gen"
+      listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"            # Offer list of valid codes for location
+      if [ $Response -eq 0 ]; then                                # If user rejects all options
+        CountryLocale=""                                          # Start again
+        continue
+      elif [ "$Result" == "Edit_locale.gen" ]; then              # User chooses manual edit
+        Mano                                                      # Use Nano to edit locale.gen
+        clear
+        if [ $Response -eq 1 ]; then                              # If Nano was used
+          LocaleGen="$(grep -v '#' /etc/locale.gen | grep ' ')"   # Find how many entries are
+          HowMany=$(echo $LocaleGen | wc -l)                      # uncommented in locale.gen
+          case ${HowMany} in
+          0) continue                                             # No uncommented lines
+          ;;                                                      # so restart
+          1) Result="$(echo $LocaleGen | cut -d' ' -f1)"                 # One uncommented line
+          ;;                                                      # so set it as locale
+          *) grep -v '#' /etc/locale.gen | grep ' ' > plucked     # Many uncommented lines
+            print_heading                                         # so allow user to pick one
+            PrintOne "https://wiki.archlinux.org/index.php/Locale" ""
+            Translate "Please choose the main locale for the installed system"  # edit line 238 English.lan
+            listgen1 "$(cat plucked)" "$Result" "$_Ok"  # Display them for one to be selected as main locale
+          esac
+        else                                            # Nano was not used
+          continue                                      # Start again
+        fi
       fi
     fi
-    CountryLocale="$Result"                               # Save selection
+    CountryLocale="$Result"                             # Save selection
     CountryCode=${CountryLocale:3:2}
+  done
+}
+
+Mano() {  # Use Nano to edit locale.gen
+  while true
+  do
+    print_heading
+    Echo
+    PrintOne "This will open Nano to enable you to uncomment locales" # New text for line  English.lan
+    Buttons "Yes/No" "Yes No" "Instructions"
+    case $Response in
+      "1" | "Y" | "y") nano /etc/locale.gen
+        return 1
+        ;;
+      "2" | "N" | "n") return
+        ;;
+      *) not_found
+    esac
   done
 }
 

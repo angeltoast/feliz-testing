@@ -109,7 +109,7 @@ TPread() { # Aligned prompt for user-entry
   # $1 = prompt ... Returns result through $Response
   local T_COLS=$(tput cols)
   local lov=${#1}
-  local stpt=0
+  stpt=0
   if [ ${lov} -lt ${T_COLS} ]; then
     stpt=$(( (T_COLS - lov) / 2 ))
   elif [ ${lov} -gt ${T_COLS} ]; then
@@ -146,7 +146,7 @@ PrintOne() {  # Receives up to 2 arguments. Translates and prints text
   fi
   local width=$(tput cols)
   EMPTY=" "
-  local stpt=0
+  stpt=0
   local lov=${#Text}
   if [ ${lov} -lt ${width} ]; then
     stpt=$(( (width - lov) / 2 ))
@@ -171,7 +171,7 @@ PrintMany() { # Receives up to 2 arguments. Translates and prints text
 read_timed() { # Timed display - $1 = text to display; $2 = duration
   local T_COLS=$(tput cols)
   local lov=${#1}
-  local stpt=0
+  stpt=0
   if [ $2 ]; then
     tim=$2
   else
