@@ -180,6 +180,7 @@ SetLanguage() {
     ;;
     10) InstalLanguage="pt-BR"
       LanguageFile="Portuguese-BR.lan"
+    ;;
     11) InstalLanguage="vi"
       LanguageFile="Vietnamese.lan"
     ;;
