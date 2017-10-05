@@ -74,6 +74,7 @@ SetLanguage() {
     ;;
     11) InstalLanguage="vi"
       LanguageFile="Vietnamese.lan"
+      setfont viscii10-8x16 -m 8859-2
     ;;
     *) InstalLanguage="en"
       LanguageFile="English.lan"
