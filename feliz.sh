@@ -98,9 +98,9 @@ TPecho "Entering automatic installation phase"
 MountPartitions
 
 NewMirrorList
-print_heading
+
 InstallKernel
-print_heading
+
 TPecho "Preparing local services" ""
 echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
 sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log

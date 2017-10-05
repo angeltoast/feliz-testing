@@ -129,7 +129,9 @@ print_heading() {   # Always use this function to clear the screen
   LenBT=${#_Backtitle}
   HalfBT=$((LenBT/2))
   tput cup 0 $(((T_COLS/2)-HalfBT))     # Move the cursor to left of center
+  tput bold
   printf "%-s\n" "$_Backtitle"          # Display backtitle
+  tput sgr0
   printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
   cursor_row=3                          # Save cursor row after heading
 }
