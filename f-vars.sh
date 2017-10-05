@@ -152,7 +152,7 @@ SetLanguage() {
   setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-  listgen1 "English Deutsche Ελληνικά Español Français Italiano Nederlands Polski Português-PT Português-BR" "" "Ok"  # Available languages
+  listgen1 "English Deutsche Ελληνικά Español Français Italiano Nederlands Polski Português-PT Português-BR Vietnamese" "" "Ok"  # Available languages
   case $Response in
     2) InstalLanguage="de"
       LanguageFile="German.lan"
@@ -180,6 +180,8 @@ SetLanguage() {
     ;;
     10) InstalLanguage="pt-BR"
       LanguageFile="Portuguese-BR.lan"
+    11) InstalLanguage="vi"
+      LanguageFile="Vietnamese.lan"
     ;;
     *) InstalLanguage="en"
       LanguageFile="English.lan"
