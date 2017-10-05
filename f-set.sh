@@ -336,7 +336,7 @@ Mano() {  # Use Nano to edit locale.gen
     print_heading
     Echo
     PrintOne "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
-    Buttons "Yes/No" "Yes No" "Instructions"
+    Buttons "Yes/No" "Yes No" "$_Instructions"
     case $Response in
       "1" | "Y" | "y") nano /etc/locale.gen
         return 1
