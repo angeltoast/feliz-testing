@@ -74,6 +74,7 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
 
   # Display instructions
   print_heading
+  Echo
   PrintOne "Next we will select mirrors for downloading your system."
   PrintOne "You will be able to choose from a list of countries which"
   PrintOne "have Arch Linux mirrors. It is possible to select more than"
@@ -109,6 +110,7 @@ ConfirmVbox() {
   while true
   do
     print_heading
+    Echo
     PrintOne "It appears that feliz is running in Virtualbox"
     PrintOne "If it is, feliz can install Virtualbox guest"
     PrintOne "utilities and make appropriate settings for you"
@@ -134,6 +136,7 @@ SetTimeZone() {
   until [ $SUBZONE ]
   do
     print_heading
+    Echo
     PrintOne "To set the system clock, please"
     PrintOne "choose the World Zone of your location"
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
@@ -314,7 +317,6 @@ setlocale() {
           1) Result="$(echo $LocaleGen | cut -d' ' -f1)"          # One uncommented line found
           ;;                                                      # so set it as locale
           *) print_heading                                        # Many uncommented lines found
-            PrintOne "https://wiki.archlinux.org/index.php/Locale" "" # Print wiki link
             Translate "Choose the main locale for your system"    # Ask user to pick one as main locale
             listgen1 "${LocaleGen}" "$Result" "$_Ok"              # Display them for one to be selected
           esac
@@ -409,6 +411,7 @@ SearchKeyboards() {
   while [ -z "$Countrykbd" ]
   do
     print_heading
+    Echo
     PrintOne "If you know the code for your keyboard layout, please enter"
     PrintOne "it now. If not, try entering a two-letter abbreviation"
     PrintOne "for your country or language and a list will be displayed"
@@ -445,6 +448,7 @@ SearchKeyboards() {
 UserName() {
   _Backtitle="https://wiki.archlinux.org/index.php/Users_and_groups"
   print_heading
+  Echo
   PrintOne "Enter a name for the primary user of the new system"
   PrintOne "If you don't create a username here, a default user"
   PrintOne "called 'archie' will be set up"
@@ -463,6 +467,7 @@ SetHostname() {
   _Backtitle="https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname"
   Entered="arch-linux"
   print_heading
+  Echo
   PrintOne "A hostname is needed. This will be a unique name to identify"
   PrintOne "your device on a network. If you do not enter one, the"
   PrintOne "default hostname of 'arch-linux' will be used"
@@ -480,6 +485,7 @@ SetHostname() {
 Options() { # User chooses between FelizOB, self-build or basic
   _Backtitle="https://wiki.archlinux.org/index.php/List_of_applications"
   print_heading
+  Echo
   PrintOne "Feliz now offers you a choice. You can ..."
   Echo
   PrintOne "Build your own system, by picking the"
@@ -489,7 +495,6 @@ Options() { # User chooses between FelizOB, self-build or basic
   PrintOne "complete lightweight system built on Openbox"
   PrintOne "..." "$_or ..."
   PrintOne "Just install a basic Arch Linux"
-  Echo
   Translate "Build_My_Own"
   BMO=$Result
   Translate "FelizOB_desktop"
@@ -537,6 +542,7 @@ PickLuxuries() { # User selects any combination from a store of extras
     else
       ShoppingList
       print_heading
+      Echo
       PrintOne "$AddedSoFar" ": ${LuxuriesList}"
       PrintOne "You can now choose from any of the other lists"
       PrintOne "or choose Exit to finish this part of the setup"
@@ -554,6 +560,7 @@ ShoppingList() { # Called by PickLuxuries after a category has been chosen.
   while true
   do
     print_heading
+    Echo
     PrintOne "$AddedSoFar" ": ${LuxuriesList}"
     PrintOne "You can add more items, or select items to delete"
     Echo
@@ -846,12 +853,12 @@ ChooseDM() { # Choose a display manager
       Counter=0
       DMList="GDM LightDM LXDM sddm SLIM XDM"
       print_heading
+      Echo
       PrintOne "A display manager provides a graphical login screen"
       Translate "If in doubt, choose"
       PrintOne "$Result " "LightDM"
       PrintOne "If you do not install a display manager, you will have"
       PrintOne "to launch your desktop environment manually"
-      Echo
       listgen1 "${DMList}" "" "$_Ok $_None"
       Reply=$Response
       for item in ${DMList}
@@ -902,6 +909,7 @@ SetGrubDevice() {
   Translate "Enter_Manually"
   DevicesList="$DevicesList $Result"
   print_heading
+  Echo
   GrubDevice=""
   local Counter=0
   PrintOne "Select the device where Grub is to be installed"

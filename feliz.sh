@@ -106,12 +106,12 @@ TPecho "Preparing local services" ""
   sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
 # Set up locale, etc               The local copy of locale.gen may have been manually edited in f-set.sh, so ...
-  GrepTest=$(grep "^${CountryLocale}" /etc/locale.gen)                # Check if main locale already set
+  GrepTest=$(grep "^${CountryLocale}" /etc/locale.gen)                # Check main locale not already set
   if [ -z $GrepTest ]; then                                           # If not, add it at bottom
     echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
   fi
-  GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # Check if secondary locale already set
-  if [ -z $GrepTest ]; then                                           # If not, add it at bottom
+  GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # Check secondary locale not already set
+  if [ -z $GrepTest ] && [ "${CountryLocale:0:2}" != "en" ]; then     # and main is not English, add it at bottom
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # Added for completeness
   fi
   cp -f /etc/locale.gen /mnt/etc/                                     # Copy to installed system
