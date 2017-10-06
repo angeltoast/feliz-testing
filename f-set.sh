@@ -26,18 +26,18 @@
 # --------------------   -----------------------
 # Function        Line   Function           Line
 # --------------------   -----------------------
-# SetKernel         43   SearchKeyboards     364
-# ChooseMirrors     56   Username            401
-# ConfirmVbox      107   SetHostname         417
-# SetTimeZone      135   Options             434
-# SetSubZone       169   PickLuxuries        460
-# SelectSubzone    198   ShoppingList        505
-# America          208   ChooseDM            805
-#                        SetGrubDevice       849
-# DoCities         243   EnterGrubPath       882
-# setlocale        269     --- Review stage --- 
-#                        FinalCheck          910
-# getkeymap        306   ManualSettings     1037
+# SetKernel         43   SearchKeyboards     410
+# ChooseMirrors     57   Username            447
+# ConfirmVbox      108   SetHostname         464
+# SetTimeZone      132   Options             482
+# SetSubZone       166   PickLuxuries        460
+# SelectSubzone    195   ShoppingList        505
+# America          209   ChooseDM            805
+# DoCities         244   SetGrubDevice       849
+# setlocale        270   EnterGrubPath       882
+# Mano             333     --- Review stage --- 
+# getkeymap        351   FinalCheck          910
+#                        ManualSettings     1037
 # --------------------   -----------------------
 
 SetKernel() {
@@ -137,7 +137,6 @@ SetTimeZone() {
     PrintOne "To set the system clock, please"
     PrintOne "choose the World Zone of your location"
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
-    Echo
     zones=""
     for x in ${Zones}                         # Convert to space-separated list
     do
@@ -296,8 +295,8 @@ setlocale() {
       Result=""
     else
       print_heading
-      PrintOne "Please choose the locale for the installed system"
-      Translate "Choose one or Exit to search for alternatives"
+      PrintOne "Choose the main locale for your system"
+      Translate "Choose one or Exit to retry"
       choosefrom="$choosefrom Edit_locale.gen"                    # Add manual edit option to menu
       listgen1 "${choosefrom}" "$Result" "$_Ok $_Exit"            # Offer list of valid codes for location
       if [ $Response -eq 0 ]; then                                # If user rejects all options
@@ -307,25 +306,24 @@ setlocale() {
         Mano                                                      # Use Nano to edit locale.gen
         clear
         if [ $Response -eq 1 ]; then                              # If Nano was used
-          LocaleGen="$(grep -v '#' /etc/locale.gen | grep ' ')"   # Find how many entries are
-          HowMany=$(echo $LocaleGen | wc -l)                      # uncommented in locale.gen
+          LocaleGen="$(grep -v '#' /etc/locale.gen | grep ' ' | cut -d' ' -f1)"  # Save list of entries that are
+          HowMany=$(echo "$LocaleGen" | wc -l)                    # uncommented in locale.gen & count them
           case ${HowMany} in
           0) continue                                             # No uncommented lines found
           ;;                                                      # so restart
           1) Result="$(echo $LocaleGen | cut -d' ' -f1)"          # One uncommented line found
           ;;                                                      # so set it as locale
-          *) grep -v '#' /etc/locale.gen | grep ' ' > plucked     # Many uncommented lines found
-            print_heading                                         # so allow user to pick one
-            PrintOne "https://wiki.archlinux.org/index.php/Locale" ""
-            Translate "Choose the main locale for your system"    # Line 238 English.lan
-            listgen1 "$(cat plucked)" "$Result" "$_Ok"  # Display them for one to be selected as main locale
+          *) print_heading                                        # Many uncommented lines found
+            PrintOne "https://wiki.archlinux.org/index.php/Locale" "" # Print wiki link
+            Translate "Choose the main locale for your system"    # Ask user to pick one as main locale
+            listgen1 "${LocaleGen}" "$Result" "$_Ok"              # Display them for one to be selected
           esac
-        else                  # Nano was not used
-          continue            # Start again
+        else                                                      # Nano was not used
+          continue                                                # Start again
         fi
       fi
     fi
-    CountryLocale="$Result"   # Save selection
+    CountryLocale="$Result"                                       # Save selection
     CountryCode=${CountryLocale:3:2}
   done
 }
