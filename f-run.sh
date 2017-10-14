@@ -52,7 +52,6 @@ TPecho() { # For displaying status while running on auto
 }
 
 MountPartitions() {
-  print_heading
   TPecho "Preparing and mounting partitions" ""
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
@@ -202,7 +201,6 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
   # In f-set.sh/ChooseMirrors the user has selected one or more countries with Arch Linux mirrors
   # These have been stored in the array CountryLong[@] declared in f-vars.sh
   # Now the mirrors associated with each of those countries must be extracted from the array
-  print_heading
   TPecho "Generating mirrorlist"
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
 
@@ -424,8 +422,10 @@ UserAdd() {
     arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
     arch_chroot "mkdir /home/${UserName}/Pictures/"
     arch_chroot "mkdir /home/${UserName}/.config/libfm/"
-    # Copy FelizOB files
 
+read -p "Check for system messages"
+    
+    # Copy FelizOB files
     cp -r themes /mnt/home/${UserName}/.themes 2>> feliz.log          # Copy egtk theme
     
     CheckExisting "/mnt/home/${UserName}/" ".conkyrc"
@@ -464,6 +464,9 @@ UserAdd() {
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                    # Wallpaper for desktop (set in desktop-items-0.conf)
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
+
+read -p "Check for system messages"
+    
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
