@@ -418,49 +418,83 @@ UserAdd() {
   if [ $DesktopEnvironment = "FelizOB" ]; then
     # Set up directories
     arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
-    arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
-    arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
-    arch_chroot "mkdir /home/${UserName}/Pictures/"
-    arch_chroot "mkdir /home/${UserName}/.config/libfm/"
 
-read -p "Check for system messages"
+read -p "echo $? Check for system messages"
+
+        arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
+
+read -p "echo $? Check for system messages"
+
+        arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
+
+read -p "echo $? Check for system messages"
+
+        arch_chroot "mkdir /home/${UserName}/Pictures/"
+
+read -p "echo $? Check for system messages"
+
+        arch_chroot "mkdir /home/${UserName}/.config/libfm/"
+
+read -p "echo $? Check for system messages"
     
     # Copy FelizOB files
     cp -r themes /mnt/home/${UserName}/.themes 2>> feliz.log          # Copy egtk theme
+
+read -p "echo $? Check for system messages"
     
     CheckExisting "/mnt/home/${UserName}/" ".conkyrc"
     cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log           # Conky configuration file
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/" ".compton.conf"
     cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log # Compton configuration file
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/" ".face"
     cp face.png /mnt/home/${UserName}/.face 2>> feliz.log             # Image for greeter
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/openbox/" "autostart"
     cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log # Autostart configuration file
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/openbox/" "menu.xml"
     cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log  # Openbox right-click menu configuration file
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/openbox/" "rc.xml"
     cp rc.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log    # Openbox configuration file
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/lxpanel/default/panels/" "panel"
     cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel configuration file
 
+read -p "echo $? Check for system messages"
+    
     cp feliz.png /mnt/usr/share/icons/ 2>> feliz.log                  # Icon for panel menu
     cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log    # Wallpaper for user
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/libfm/" "libfm.conf"
     cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log  # Configurations for pcmanfm
 
+read -p "echo $? Check for system messages"
+    
     CheckExisting "/mnt/home/${UserName}/.config/lxpanel/default/" "config"
     cp config /mnt/home/${UserName}/.config/lxpanel/default/ 2>> feliz.log # Desktop configurations for pcmanfm
 
     CheckExisting "/mnt/home/${UserName}/.config/pcmanfm/default/" "desktop-items-0.conf"
     cp desktop-items /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
 
+read -p "echo $? Check for system messages"
+    
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                    # Wallpaper for desktop (set in desktop-items-0.conf)
     # Set owner
     arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
