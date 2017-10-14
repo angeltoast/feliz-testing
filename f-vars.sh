@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # The Feliz2 installation scripts for Arch Linux
-# Developed by Elizabeth Mills
+# Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 6th October 2017
+# Revision date: 14th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 # --------------------   ----------------------
 # Function        Line   Function          Line
 # --------------------   ----------------------
+# SetLanguage       38
 # not_found         33   read_timed         109
 # Echo              39   CompareLength      128
 # TPread            44   PaddLength         136
@@ -40,7 +41,7 @@ SetLanguage() {
   # setfont LatGrkCyr-8x16 -m 8859-2                         # To display wide range of characters
   PrintOne "" "Idioma/Język/Language/Langue/Limba/Língua/Sprache"
   Echo
-  listgen1 "English Deutsche Ellinika Español Français Italiano Nederlands Polski Português-PT Português-BR Vietnamese" "" "Ok"  # Available languages
+  listgen1 "English Deutsche Ellinika Español Français Hindi Italiano Nederlands Polski Português-PT Português-BR Vietnamese" "" "Ok"  # Available languages
   case $Response in
     2) InstalLanguage="de"
       LanguageFile="German.lan"
@@ -55,22 +56,26 @@ SetLanguage() {
     5) InstalLanguage="fr"
       LanguageFile="French.lan"
     ;;
-    6) InstalLanguage="it"
+    6) InstalLanguage="hi"
+      LanguageFile="Hindi.lan"
+      setfont viscii10-8x16 -m 8859-2
+    ;;
+    7) InstalLanguage="it"
       LanguageFile="Italian.lan"
     ;;
-    7) InstalLanguage="nl"
+    8) InstalLanguage="nl"
       LanguageFile="Dutch.lan"
     ;;
-    8) InstalLanguage="pl"
+    9) InstalLanguage="pl"
       LanguageFile="Polish.lan"
     ;;
-    9) InstalLanguage="pt-PT"
+    10) InstalLanguage="pt-PT"
       LanguageFile="Portuguese-PT.lan"
     ;;
-    10) InstalLanguage="pt-BR"
+    11) InstalLanguage="pt-BR"
       LanguageFile="Portuguese-BR.lan"
     ;;
-    11) InstalLanguage="vi"
+    12) InstalLanguage="vi"
       LanguageFile="Vietnamese.lan"
       setfont viscii10-8x16 -m 8859-2
     ;;
