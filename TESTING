@@ -6,12 +6,11 @@
 
 testbed() {
 
-  SetLanguage                            # Use appropriate language file
- 
-  setlocale                              # CountryLocale eg: en_GB.UTF-8
-
-  rm feliz.log
-  rm *.lan
+  Result="Desktop Documents Downloads Music Pictures Public Templates Videos"
+  for i in ${Result}
+  do
+    echo "${i}"
+  done
 
 }
 
