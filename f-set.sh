@@ -64,6 +64,7 @@ ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
       PrintOne "Using the list supplied with the Arch iso"
       Echo
       PrintOne "Please press any key to continue"
+      read -n1
       cp /etc/pacman.d/mirrorlist > archmirrors.list
     fi
     # 2) Get line number of first country
@@ -144,7 +145,7 @@ SetTimeZone() {
   do
     print_heading
     Echo
-    PrintOne "To set the system clock, please"
+    PrintOne "To set the system clock, please first"
     PrintOne "choose the World Zone of your location"
     Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
     zones=""
