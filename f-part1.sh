@@ -54,7 +54,7 @@ function CheckParts()   # Called by feliz.sh
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)        # List of all partitions on all connected devices
 
-  PARTITIONS=$(echo "$ShowPartitions | wc -w")
+  PARTITIONS=$(echo $ShowPartitions | wc -w)
   
   if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
 
