@@ -6,11 +6,7 @@
 
 testbed() {
 
-  Result="Desktop Documents Downloads Music Pictures Public Templates Videos"
-  for i in ${Result}
-  do
-    echo "${i}"
-  done
+  echo "${1}" "${2}"
 
 }
 
@@ -20,9 +16,6 @@ testbed() {
 
 # Various variables
 
-PassedPath="$1"
-PassedFile="$2"
-
 Backtitle="Testbed"
 
 source f-set.sh
@@ -30,9 +23,8 @@ source f-run.sh
 source f-vars.sh
 source f-part1.sh
 source f-part2.sh
-source listgen.sh
 
-testbed "$PassedPath" "$PassedFile"
+testbed "$1" "$2"
 
 echo "End of test"
 
