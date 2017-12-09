@@ -145,6 +145,40 @@ PrintMany() { # Translates $1 and continues a Message with it
   Message="${Message}\n${Result}"
 }
 
+FinalOne() {  # Receives up to 2 arguments. Translates and prints text
+              # centred according to content and screen size
+  if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
+    Translate "$1"
+    Text="$Result"
+  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+    Text="$1 $2 $3"
+  else                             # If $2 contains text, don't translate any
+    Text="$1 $2 $3"
+  fi
+  local width=$(tput cols)
+  EMPTY=" "
+  stpt=0
+  local lov=${#Text}
+  if [ ${lov} -lt ${width} ]; then
+    stpt=$(( (width - lov) / 2 ))
+    EMPTY="$(printf '%*s' $stpt)"
+  fi
+  Echo "$EMPTY $Text"
+}
+
+FinalMany() { # Receives up to 2 arguments. Translates and prints text
+              # aligned to first row according to content and screen size
+  if [ ! "$2" ]; then  # If $2 is missing
+    Translate "$1"
+    Text="$Result"
+  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+    Text="$1 $2 $3"
+  else        # If $2 contains text, don't translate $1 or $2
+    Text="$1 $2"
+  fi
+  Echo "$EMPTY $Text"
+}
+
 read_timed() { # Timed display - $1 = text to display; $2 = duration
   local T_COLS=$(tput cols)
   local lov=${#1}

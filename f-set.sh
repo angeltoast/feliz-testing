@@ -836,14 +836,11 @@ function ChooseDM()
       Counter=0
       Translate "Display Manager"
       Title="$Result"
-      Translate "A display manager provides a graphical login screen"
-      Message="$Result"
-      Translate "If in doubt, choose"
-      Message="$Message\n$Result LightDM"
-      Translate "If you do not install a display manager, you will have"
-      Message="$Message\n$Result"
-      Translate "to launch your desktop environment manually"
-      Message="$Message\n$Result"
+      PrintOne "A display manager provides a graphical login screen"
+      PrintMany "If in doubt, choose"
+      Message="$Message LightDM"
+      PrintMany "If you do not install a display manager, you will have"
+      PrintMany "to launch your desktop environment manually"
       
       dialog --backtitle "$_Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
         "GDM" "-" \
@@ -860,10 +857,8 @@ function ChooseDM()
     *) # Warn that DM already set, and offer option to change it
       Translate "Display manager is already set as"
       Message="$Result : ${DisplayManager}"
-      Translate "Only one display manager can be active"
-      Message="$Message\n\n$Result"
-      Translate "Do you wish to change it?"
-      Message="$Message\n\n$Result"
+      PrintMany "Only one display manager can be active"
+      PrintMany "Do you wish to change it?"
       
       dialog --backtitle "$_Backtitle" --yesno "$Message" 10 50
       retval=$?
@@ -876,7 +871,7 @@ function ChooseDM()
   done
 }
 
-SetGrubDevice()
+function SetGrubDevice()
 { # Set path for grub to be installed
   GrubDevice=""
   while [ -z $GrubDevice ]
@@ -890,14 +885,10 @@ SetGrubDevice()
     Title="Grub"
     GrubDevice=""
     local Counter=0
-    Translate "Select the device where Grub is to be installed"
-    Message="$Result"
-    Translate "Note that if you do not select a device, Grub"
-    Message="$Message\n$Result"
-    Translate "will not be installed, and you will have to make"
-    Message="$Message\n$Result"
-    Translate "alternative arrangements for booting your new system"
-    Message="$Message\n$Result"
+    PrintOne "Select the device where Grub is to be installed"
+    PrintMany "Note that if you do not select a device, Grub"
+    PrintMany "will not be installed, and you will have to make"
+    PrintMany "alternative arrangements for booting your new system"
 
     Menu  20 60 # (arguments are dialog size) displays a menu and returns $retval and $Result
     if [ $Result = "$Enter_Manually" ]; then				# Call function to type in a path
@@ -909,18 +900,14 @@ SetGrubDevice()
   done
 }
 
-EnterGrubPath() # Manual input
+function EnterGrubPath() # Manual input
 { GrubDevice=""
   while [ -z "$GrubDevice" ]
   do
-    Translate "You have chosen to manually enter the path for Grub"
-    Message="$Result"
-    Translate "This should be in the form /dev/sdx or similar"
-    Message="$Message\n$Result"
-    Translate "Only enter a device, do not include a partition number"
-    Message="$Message\n$Result"
-    Translate "If in doubt, consult https://wiki.archlinux.org/index.php/GRUB"
-    Message="\n$Message\n$Result\n"
+    PrintOne "You have chosen to manually enter the path for Grub"
+    PrintMany "This should be in the form /dev/sdx or similar"
+    PrintMany "Only enter a device, do not include a partition number"
+    PrintMany "If in doubt, consult https://wiki.archlinux.org/index.php/GRUB"
     
     InputBox 15 60    # Text input dialog
     if [ $retval -eq 0 ]; then return; fi
@@ -1026,12 +1013,9 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
 function ConfirmVbox()
 { _Backtitle="https://wiki.archlinux.org/index.php/VirtualBox"
 
-  Translate  "It appears that feliz is running in Virtualbox"
-  Message="${Result}."
-  Translate  "If it is, feliz can install Virtualbox guest"
-  Message="$Message\n$Result"
-  Translate  "utilities and make appropriate settings for you"
-  Message="$Message\n$Result"
+  PrintOne  "It appears that feliz is running in Virtualbox"
+  PrintMany  "If it is, feliz can install Virtualbox guest"
+  PrintMany  "utilities and make appropriate settings for you"
   Translate "Install Virtualbox guest utilities?"
   Title="$Result"
     
@@ -1046,88 +1030,87 @@ function ConfirmVbox()
   fi
 }
 
-FinalCheck()
+function FinalCheck()
 { # Display all user settings before starting installation
   while true
   do
     print_heading
-    PrintOne "These are the settings you have entered."
-    PrintOne "Please check them before Feliz begins the installation"
+    FinalOne "These are the settings you have entered."
+    FinalOne "Please check them before Feliz begins the installation"
     Echo
     Translate "Zone/subZone will be"
-    PrintMany "1) $Result" "$ZONE/$SUBZONE"
+    FinalMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"
-    PrintMany "2) $Result" "$CountryLocale"
+    FinalMany "2) $Result" "$CountryLocale"
     Translate "Keyboard is"
-    PrintMany "3) $Result" "$Countrykbd"
+    FinalMany "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
       "VirtualBox") Translate "virtualbox guest modules"
-      PrintMany "4)" "$Result: $_Yes"
+      FinalMany "4)" "$Result: $_Yes"
       ;;
       *) Translate "virtualbox guest modules"
-      PrintMany "4)" "$Result: $_No"
+      FinalMany "4)" "$Result: $_No"
     esac
     if [ -z "$DisplayManager" ]; then
       Translate "No Display Manager selected"
-      PrintMany "5)" "$Result"
+      FinalMany "5)" "$Result"
     else
       Translate "Display Manager"
-      PrintMany "5) $Result" " = $DisplayManager"
+      FinalMany "5) $Result" " = $DisplayManager"
     fi
     Translate "Root and user settings"
-    PrintMany "6) $Result" "..."
+    FinalMany "6) $Result" "..."
     Translate "Hostname"
-    PrintMany "      $Result" "= '$HostName'"
+    FinalMany "      $Result" "= '$HostName'"
     Translate "User Name"
-    PrintMany "      $Result" "= '$UserName'"
+    FinalMany "      $Result" "= '$UserName'"
     Translate "The following extras have been selected"
-    PrintMany "7) $Result" "..."
+    FinalMany "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
     if [ $Scope = "Basic" ]; then
-      PrintOne "$_None" ""
+      FinalOne "$_None" ""
     elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
-      PrintOne "FelizOB" ""
+      FinalOne "FelizOB" ""
     elif [ -z "$LuxuriesList" ]; then
-      PrintOne "$_None" ""
+      FinalOne "$_None" ""
     else
       Translate="N"
-      PrintOne "${LuxuriesList}" ""
+      FinalOne "${LuxuriesList}" ""
       Translate="Y"
     fi
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
     Translate "Kernel"
     if [ $Kernel -eq 1 ]; then
-      PrintMany "8) $Result" "= 'LTS'"
+      FinalMany "8) $Result" "= 'LTS'"
     else
-      PrintMany "8) $Result" "= 'Latest'"
+      FinalMany "8) $Result" "= 'Latest'"
     fi
     # 9) Grub
     Translate "Grub will be installed on"
-    PrintMany "9) $Result" "= '$GrubDevice'"
+    FinalMany "9) $Result" "= '$GrubDevice'"
     # 10) Partitions 
     Translate "The following partitions have been selected"
-    PrintMany "10) $Result" "..."
+    FinalMany "10) $Result" "..."
     Translate="N"
-    PrintOne "${RootPartition} /root ${RootType}"
-    PrintMany "${SwapPartition} /swap"
+    FinalOne "${RootPartition} /root ${RootType}"
+    FinalMany "${SwapPartition} /swap"
     if [ -n "${AddPartList}" ]; then
       local Counter=0
       for Part in ${AddPartList}                    # Iterate through the list of extra partitions
       do                                            # Display each partition, mountpoint & format type
         if [ $Counter -ge 1 ]; then                 # Only display the first one
-          PrintMany "Too many to display all"
+          FinalMany "Too many to display all"
           break
         fi
-        PrintMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
+        FinalMany "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
         Counter=$((Counter+1))
-
       done
     fi
     Translate="Y"
     Response=20
     Echo
-    PrintOne "Press Enter to install with these settings, or"
+    FinalOne "Press Enter to install with these settings, or"
     Translate "Enter number for data to change"
     # Prompt user for a number
     local T_COLS=$(tput cols)
@@ -1142,8 +1125,7 @@ FinalCheck()
     fi
     EMPTY="$(printf '%*s' $stpt)"
     read -p "$EMPTY $1" retval
-    # cursor_row=$((cursor_row+1))   
-    
+
     Change=$retval
     case $Change in
       1) SetTimeZone
