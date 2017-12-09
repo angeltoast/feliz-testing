@@ -53,12 +53,8 @@ function CheckParts()   # Called by feliz.sh
   Title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)        # List of all partitions on all connected devices
-  local Counter=0
-  for i in $ShowPartitions
-  do
-    Counter=$((Counter+1))
-  done
-  PARTITIONS=${Counter}
+
+  PARTITIONS=$(echo "$ShowPartitions | wc -w")
   
   if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
 
@@ -132,30 +128,41 @@ function BuildPartitionLists()  # Called by CheckParts to generate details of ex
   # This is the 'master' list, and the two associative arrays are keyed to this.
   # 2) Saves any existing labels on any partitions into an associative array, Labelled[]
   # 3) Assembles information about all partitions in another associative array, PartitionArray
+  
   # 1) Make a simple list variable of all partitions up to sd*99
-                                            # | includes keyword " TYPE=" | select 1st field | ignore /dev/
+                                         # | includes keyword " TYPE=" | select 1st field | ignore /dev/
     PartitionList=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
     
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
     ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
-
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs
     do      
       Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
 
-  # 3) Add corresponding records to the other associative array, PartitionArray
+  # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
+
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+  
     for part in ${PartitionList}
     do
       # Get size and mountpoint of that partition
       SizeMount=$(lsblk -l | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
+
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} $SizeMount"
+  
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
       Type=$(blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
+
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} $Type"
+  
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
     done
 
-  # Add label and bootable flag to PartitionArray
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} ${PartitionArray[${part}]}"
+  
+    # Add label and bootable flag to PartitionArray
     for part in ${PartitionList}
     do
       # Test if flagged as bootable

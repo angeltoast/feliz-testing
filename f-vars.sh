@@ -290,7 +290,7 @@ Translate() { # Called by PrintOne & PrintMany and by other functions as require
 declare -a AddPartList    # Array of additional partitions eg: /dev/sda5
 declare -a AddPartMount   # Array of mountpoints for the same partitions eg: /home
 declare -a AddPartType    # Array of format type for the same partitions eg: ext4
-declare -A PartitionArray
+declare -A PartitionArray # Associative array of partition details
 declare -a NewArray       # For copying any array
 declare -A Labelled       # Associative array of labelled partitions
 BootSize=""               # Boot variable for EasyEFI
