@@ -28,10 +28,11 @@
 #
 source f-vars.sh     # Most variables and arrays are declared here
 source f-set.sh      # Functions to set variables used during installation
-source listgen.sh    # Menuing functions
 source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
+
+DIALOGRC=dialogrc
 
 # ...............................................................................
 #                                   Settings phase                              .

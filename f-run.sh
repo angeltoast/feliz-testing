@@ -71,7 +71,7 @@ MountPartitions() {
       mkfs.xfs -f ${RootPartition} 2>> feliz.log                      # eg: mkfs.xfs -f /dev/sda2
     else                                                              # /root is not btrfs
       Partition=${RootPartition: -4}                                  # Last 4 characters (eg: sda1)
-      Label="${LabellingArray[${Partition}]}"                         # Check to see if it has a label
+      Label="${Labelled[${Partition}]}"                         # Check to see if it has a label
       if [ -n "${Label}" ]; then                                      # If it has a label ...
         Label="-L ${Label}"                                           # ... prepare to use it
       fi
@@ -93,7 +93,7 @@ MountPartitions() {
     swapoff -a 2>> feliz.log                                          # Make sure any existing swap cleared
     if [ $MakeSwap = "Y" ]; then
       Partition=${SwapPartition: -4}                                  # Last 4 characters (eg: sda2)
-      Label="${LabellingArray[${Partition}]}"                         # Check for label
+      Label="${Labelled[${Partition}]}"                         # Check for label
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                                           # Prepare label
       fi
@@ -118,7 +118,7 @@ MountPartitions() {
       mkfs.xfs -f ${id} 2>> feliz.log                                 # eg: mkfs.xfs -f /dev/sda2
     elif [ "${AddPartType[$Counter]}" != "" ]; then                   # If no type, do not format
       Partition=${id: -4}                                             # Last 4 characters of ${id}
-      Label="${LabellingArray[${Partition}]}"
+      Label="${Labelled[${Partition}]}"
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                                           # Prepare label
       fi
