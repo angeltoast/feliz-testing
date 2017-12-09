@@ -37,12 +37,12 @@
 
 SetLanguage() {
   Backtitle="Feliz - Arch Linux installation script"
-  # setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
+  setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
   dialog --backtitle "$_Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
-           Please choose your language" 25 60 11 \
+           Please choose your language" 20 60 11 \
       en "English" \
       de "Deutsche" \
       el "Ελληνικά" \

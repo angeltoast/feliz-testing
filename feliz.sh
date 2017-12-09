@@ -32,7 +32,7 @@ source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
-DIALOGRC=dialogrc
+mv dialogrc .dialogrc
 
 # ...............................................................................
 #                                   Settings phase                              .
@@ -69,8 +69,6 @@ if [ $Scope != "Basic" ]; then         # If any extra apps have been added
 
 fi
 
-exit
-
 TestUEFI                               # Check if on UEFI system
 
 CheckParts                             # Check partition table & offer options
@@ -93,8 +91,6 @@ _Backtitle="$_Savetitle"
 print_heading
 TPecho "Preparations complete"
 TPecho "Entering automatic installation phase"
-
-exit
 
 # ...............................................................................
 #          Installation phase - no further user intervention from here          .

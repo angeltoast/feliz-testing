@@ -407,7 +407,7 @@ function setlocale()
       MenuVariable="$choosefrom Edit_locale.gen"                    # Add manual edit option to menu
       Cancel="Exit"
   
-      Menu  25 44 # New function (arguments are dialog size) to display a menu and return $Result
+      Menu  20 50 # New function (arguments are dialog size) to display a menu and return $Result
       Response="$retval"
   
       if [ $Response -eq 1 ]; then                                  # If user chooses <Exit>
@@ -507,7 +507,7 @@ function getkeymap()
       Translate "Please choose one"
       Title="$Result"
 
-      Menu 12 40 "--nocancel"
+      Menu 15 40 "--nocancel"
       case ${retval} in
         0) Countrykbd="${Result}"
         ;;
@@ -951,10 +951,8 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
     # Download latest list of Arch Mirrors to temporary file
     curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
     if [ $? -ne 0 ]; then
-      Translate "Unable to fetch list of mirrors from Arch Linux"
-      Message="$Result"
-      Translate "Using the list supplied with the Arch iso"
-      Message="${Message}\n${Result}"
+      PrintOne "Unable to fetch list of mirrors from Arch Linux"
+      PrintMany "Using the list supplied with the Arch iso"
       dialog --backtitle "$_Backtitle" \
        --msgbox "\n${Message}\n" 8 75
       cp /etc/pacman.d/mirrorlist > archmirrors.list
@@ -975,16 +973,11 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
     grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
 
   # 2) Display instructions
-    print_heading
-    Echo
-    Translate "Next we will select mirrors for downloading your system."
-    Message="$Result"
-    Translate "You will be able to choose from a list of countries which"
-    Message="${Message}\n${Result}"
-    Translate "have Arch Linux mirrors. It is possible to select more than"
-    Message="${Message}\n${Result}"
-    Translate "one, but adding too many will slow down your installation"
-    Message="${Message}\n${Result}\n"
+
+    PrintOne "Next we will select mirrors for downloading your system."
+    PrintMany "You will be able to choose from a list of countries which"
+    PrintMany "have Arch Linux mirrors. It is possible to select more than"
+    PrintMany "one, but adding too many will slow down your installation"
     dialog --backtitle "$_Backtitle" \
          --msgbox "\n${Message}\n" 10 75
 
