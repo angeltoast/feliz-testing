@@ -23,19 +23,19 @@
 #                    Boston, MA 02110-1301 USA
 
 # In this module - settings for partitioning:
-# ---------------------------    ------------------------
-# Functions              Line    Functions           Line
-# ---------------------------    ------------------------
-# CheckParts               41    EditLabel           393
-# BuildPartitionLists     130    AllocateRoot        430
-# Partitioning            178    CheckPartition      498
-# ChooseDevice            214    AllocateSwap        508   
-#                                NoPartitions        565
-# partition_maker         279    SetSwapFile         581
-# autopart                321    MorePartitions      603
-# ChoosePartitions        365    MakePartition       657
-# select_filesystem       380    PartitionMenu       717
-# ---------------------------    ------------------------
+# ------------------------    ------------------------
+# Functions           Line    Functions           Line
+# ------------------------    ------------------------
+# CheckParts            41    EditLabel           393
+# Build                130    AllocateRoot        430
+# Partitioning         178    CheckPartition      498
+# ChooseDevice         214    AllocateSwap        508   
+#                             NoPartitions        565
+# partition_maker      279    SetSwapFile         581
+# autopart             321    MorePartitions      603
+# ChoosePartitions     365    MakePartition       657
+# select_filesystem    380    PartitionMenu       717
+# ------------------------    ------------------------
 
 function CheckParts()   # Called by feliz.sh
 { # Test for existing partitions
@@ -52,12 +52,10 @@ function CheckParts()   # Called by feliz.sh
   LongPart4="$Result"
   Title="Partitioning"
 
-  ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)        # List of all partitions on all connected devices
-
+  ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
   PARTITIONS=$(echo $ShowPartitions | wc -w)
-  
-  if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
 
+  if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
     while [ $PARTITIONS -eq 0 ]
     do
       PrintOne "If you are uncertain about partitioning, you should read the Arch Wiki"
@@ -81,8 +79,8 @@ function CheckParts()   # Called by feliz.sh
       retval=$?
       if [ $retval -ne 0 ]; then return; fi
       Result=$(cat output.file)
-      Result=$((Result+1))              # Because this menu excludes option 1
-      Partitioning                      # Partitioning options
+      Result=$((Result+1))                # Because this menu excludes option 1
+      Partitioning                        # Partitioning options
       
       if [ "$Result" = "$_Exit" ]; then   # Terminate
         dialog --infobox "Exiting to allow you to partition the device" 6 30
@@ -90,17 +88,11 @@ function CheckParts()   # Called by feliz.sh
       fi
       # Check that partitions have been created
       ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-      Counter=0
-      for i in $ShowPartitions
-      do
-        Counter=$((Counter+1))
-      done
-      PARTITIONS=${Counter}
+      PARTITIONS=$(echo $ShowPartitions | wc -w)
     done
-    BuildPartitionLists                 # Generate list of partitions and matching array
+    BuildLists                          # Generate list of partitions and matching array
   else                                  # There are existing partitions on the device
-    BuildPartitionLists                 # Generate list of partitions and matching array
-
+    BuildLists                          # Generate list of partitions and matching array
     Translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
     
@@ -123,47 +115,33 @@ function CheckParts()   # Called by feliz.sh
   fi
 }
 
-function BuildPartitionLists()  # Called by CheckParts to generate details of existing partitions
-{ # !) Produces a list of partition IDs, from which items are removed as allocated to /root, etc.
-  # This is the 'master' list, and the two associative arrays are keyed to this.
+function BuildLists() # Called by CheckParts to generate details of existing partitions
+{ # 1) Produces a list of partition IDs, from which items are removed as allocated to root, etc.
+  #    This is the 'master' list, and the two associative arrays are keyed to this.
   # 2) Saves any existing labels on any partitions into an associative array, Labelled[]
   # 3) Assembles information about all partitions in another associative array, PartitionArray
-  
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-  
+
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-    PartitionList=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+    PartitionList=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
     
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
-    ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+    ListLabelledIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs
     do      
-      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
 
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-  
     for part in ${PartitionList}
     do
       # Get size and mountpoint of that partition
       SizeMount=$(lsblk -l | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} $SizeMount"
-  
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
-      Type=$(blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} $Type"
-  
+      Type=$(sudo blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
     done
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]} ${PartitionArray[${part}]}"
-  
     # Add label and bootable flag to PartitionArray
     for part in ${PartitionList}
     do
@@ -185,14 +163,14 @@ read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SO
 
 function BuildPartitionLists()  # First called by CheckParts to generate details of existing partitions for display
 {                               # Then to prepare partition arrays for selection for root, swap and others
-  # 1) Prepare two lists from attached devices using blkid (installed with Feliz)
+  # 1) Prepare two lists from attached devices using sudo blkid (installed with Feliz)
   
     # Following reported problems with labels, this block has been rewritten, and should work correctly now
     # So far it only selected parts of code have been tested in isolation
   
     # First a list of all partitions up to sd*99
     #                           |includes keyword " TYPE=" | select 1st field | ignore /dev/
-    ListTypeIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+    ListTypeIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
 
     # Add records from those two indexed arrays into the associative array
     local Counter=0
@@ -200,18 +178,18 @@ function BuildPartitionLists()  # First called by CheckParts to generate details
     do
       # Find the format type for that ID
       #                    | just the text after TYPE= | select text inside double quotations
-      Type=$(blkid /dev/$i | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
+      Type=$(sudo blkid /dev/$i | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       FileSystem[$i]=$Type # ... and save it to the associative array
     done
   # 2) Find all partitions with text "LABEL=" | select 1st field | remove /dev/ | remove colon
-    ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+    ListLabelledIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
   
     # Following reported problems with labels, this block has also been rewritten, and should work correctly now
   
     # If at least one labelled partition found, get a matching associative array of labels (remove quotes)
     for item in $ListLabelledIDs
     do      
-      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
     
     local HowManyLabelled="${#Labelled[@]}"
@@ -560,7 +538,7 @@ function AllocateRoot() # Called by ChoosePartitions
 
 function CheckPartition()
 { # Finds if there is an existing file system on the selected partition
-  CurrentType=$(blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+  CurrentType=$(sudo blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
     PrintOne "The selected partition"
@@ -594,7 +572,7 @@ function AllocateSwap()
             return
   ;;
   *) SwapPartition="/dev/$Result"
-    IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
+    IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       Translate "is already formatted as a swap partition"
       Message="$i $Result"
