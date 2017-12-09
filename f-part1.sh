@@ -100,6 +100,8 @@ function CheckParts()   # Called by feliz.sh
     BuildPartitionLists                 # Generate list of partitions and matching array
   else                                  # There are existing partitions on the device
     BuildPartitionLists                 # Generate list of partitions and matching array
+    
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
 
     Translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
@@ -128,6 +130,8 @@ function BuildPartitionLists()  # Called by CheckParts to generate details of ex
   # This is the 'master' list, and the two associative arrays are keyed to this.
   # 2) Saves any existing labels on any partitions into an associative array, Labelled[]
   # 3) Assembles information about all partitions in another associative array, PartitionArray
+  
+read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
   
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
