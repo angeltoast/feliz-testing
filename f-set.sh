@@ -71,12 +71,40 @@ function Checklist()
     done < checklist.file
     Items=$((Items/3))
 
+<<<<<<< HEAD
   # 2) Display the list for user-selection
     dialog --backtitle "$_Backtitle" --title " $Title " "$cancel" --no-tags "$Type" \
       "     Space to select/deselect.\n       < OK > when ready. " $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
 }
+=======
+ChooseMirrors() { # User selects one or more countries with Arch Linux mirrors
+    _Backtitle="https://wiki.archlinux.org/index.php/Mirrors"
+    # Prepare files of official Arch Linux mirrors
+    # 1) Download latest list of Arch Mirrors to temporary file
+    curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
+    if [ $? -ne 0 ]; then
+      PrintOne "Unable to fetch list of mirrors from Arch Linux"
+      PrintOne "Using the list supplied with the Arch iso"
+      Echo
+      PrintOne "Please press any key to continue"
+      read -n1
+      cp /etc/pacman.d/mirrorlist > archmirrors.list
+    fi
+    # 2) Get line number of first country
+    FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
+    # 3) Remove header and save in new file
+    tail -n +${FirstLine} archmirrors.list > allmirrors.list
+    # 4) Delete temporary file
+    rm archmirrors.list
+    # 5) Create countries.list from allmirrors.list, using '##' to identify
+    #                        then removing the '##' and leading spaces
+    #                                       and finally save to new file for later reference
+    grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
+    # Shorten Bosnia and Herzegovina to BosniaHerzegov
+    sed -i 's/Bosnia and Herzegovina/BosniaHerzegov/g' countries.list
+>>>>>>> c5826350cf0d6fa4a60655637c7cf4af45d7085a
 
 function Menu()
 { # Display a simple menu from $MenuVariable and return selection as $Result
@@ -172,6 +200,7 @@ function SetTimeZone()
   SUBZONE=""
   while true
   do
+<<<<<<< HEAD
     Translate "To set the system clock, please first"
     Message="$Result"
     Translate "choose the World Zone of your location"
@@ -182,6 +211,15 @@ function SetTimeZone()
     Items=0
     Counter=1
     while read -r Item                                        # Read items from the zones file
+=======
+    print_heading
+    Echo
+    PrintOne "To set the system clock, please first"
+    PrintOne "choose the World Zone of your location"
+    Zones=$(timedatectl list-timezones | cut -d'/' -f1 | uniq) # Ten world zones
+    zones=""
+    for x in ${Zones}                         # Convert to space-separated list
+>>>>>>> c5826350cf0d6fa4a60655637c7cf4af45d7085a
     do
       Translate "$Item"
       Item="$Result"
