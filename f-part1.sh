@@ -134,15 +134,15 @@ function BuildPartitionLists()  # Called by CheckParts to generate details of ex
   # 3) Assembles information about all partitions in another associative array, PartitionArray
   # 1) Make a simple list variable of all partitions up to sd*99
                                             # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-    PartitionList=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+    PartitionList=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
     
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
-    ListLabelledIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+    ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
 
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs
     do      
-      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
 
   # 3) Add corresponding records to the other associative array, PartitionArray
@@ -151,7 +151,7 @@ function BuildPartitionLists()  # Called by CheckParts to generate details of ex
       # Get size and mountpoint of that partition
       SizeMount=$(lsblk -l | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
-      Type=$(sudo blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
+      Type=$(blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
     done
 
@@ -202,7 +202,7 @@ function BuildPartitionLists()  # First called by CheckParts to generate details
     # If at least one labelled partition found, get a matching associative array of labels (remove quotes)
     for item in $ListLabelledIDs
     do      
-      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
     
     local HowManyLabelled="${#Labelled[@]}"
@@ -551,7 +551,7 @@ function AllocateRoot() # Called by ChoosePartitions
 
 function CheckPartition()
 { # Finds if there is an existing file system on the selected partition
-  CurrentType=$(sudo blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+  CurrentType=$(blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
     PrintOne "The selected partition"
@@ -585,7 +585,7 @@ function AllocateSwap()
             return
   ;;
   *) SwapPartition="/dev/$Result"
-    IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
+    IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       Translate "is already formatted as a swap partition"
       Message="$i $Result"
