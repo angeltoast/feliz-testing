@@ -100,8 +100,6 @@ function CheckParts()   # Called by feliz.sh
     BuildPartitionLists                 # Generate list of partitions and matching array
   else                                  # There are existing partitions on the device
     BuildPartitionLists                 # Generate list of partitions and matching array
-    
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
 
     Translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
