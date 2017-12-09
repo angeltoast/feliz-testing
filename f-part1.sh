@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 9th December 2017
+# Revision date: 5th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -127,7 +127,6 @@ function CheckParts()   # Called by feliz.sh
   fi
 }
 
-<<<<<<< HEAD
 function BuildPartitionLists()  # Called by CheckParts to generate details of existing partitions
 { # !) Produces a list of partition IDs, from which items are removed as allocated to /root, etc.
   # This is the 'master' list, and the two associative arrays are keyed to this.
@@ -173,7 +172,8 @@ function BuildPartitionLists()  # Called by CheckParts to generate details of ex
       # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
       #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
     done
-=======
+}
+
 function BuildPartitionLists()  # First called by CheckParts to generate details of existing partitions for display
 {                               # Then to prepare partition arrays for selection for root, swap and others
   # 1) Prepare two lists from attached devices using blkid (installed with Feliz)
@@ -263,7 +263,6 @@ function BuildPartitionLists()  # First called by CheckParts to generate details
       (( Counter+=1 ))
     done
   PARTITIONS=${Counter}
->>>>>>> c5826350cf0d6fa4a60655637c7cf4af45d7085a
 }
 
 function Partitioning()  # Called by CheckParts after user selects an action.

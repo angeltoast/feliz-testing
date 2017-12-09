@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 9th December 2017
+# Revision date: 14th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,6 +69,8 @@ if [ $Scope != "Basic" ]; then         # If any extra apps have been added
 
 fi
 
+exit
+
 TestUEFI                               # Check if on UEFI system
 
 CheckParts                             # Check partition table & offer options
@@ -91,6 +93,8 @@ _Backtitle="$_Savetitle"
 print_heading
 TPecho "Preparations complete"
 TPecho "Entering automatic installation phase"
+
+exit
 
 # ...............................................................................
 #          Installation phase - no further user intervention from here          .

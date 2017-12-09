@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 9th December 2017
+# Revision date: 5th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ SetLanguage() {
 }
 
 function not_found()
-{ # Global function - optional arguments: $1 & $2 for box size  -  $3 is text message 
+{ # Global function - optional arguments: $1 & $2 for box size
   if [ $1 ] && [ -n $1 ]; then
     Height="$1"
   else
@@ -106,12 +106,25 @@ function not_found()
   else
     Length=25
   fi
-  dialog --title " Not Found " --msgbox "\n$3" $Height $Length
+  dialog --title " Not Found " --msgbox "\n$Message" $Height $Length
 }
 
 Echo() { # Use in place of 'echo' for basic text print
   printf "%-s\n" "$1"
   cursor_row=$((cursor_row+1))
+}
+
+print_heading() {   # Always use this function to clear the screen
+  clear
+  T_COLS=$(tput cols)                   # Get width of terminal
+  LenBT=${#_Backtitle}                  # Length of backtitle
+  HalfBT=$((LenBT/2))
+  tput cup 0 $(((T_COLS/2)-HalfBT))     # Move the cursor to left of center
+  tput bold
+  printf "%-s\n" "$_Backtitle"          # Display backtitle
+  tput sgr0
+  # printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
+  cursor_row=3                          # Save cursor row after heading
 }
 
 InputBox() {  # General-purpose input box
