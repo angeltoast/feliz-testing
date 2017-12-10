@@ -6,10 +6,7 @@
 
 testbed() {
 
-  # echo "${1}" "${2}"
-
-  PickLuxuries
-
+  echo "${1}" "${2}"
 
 }
 

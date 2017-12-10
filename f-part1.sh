@@ -500,7 +500,7 @@ function AllocateSwap()
       PrintMany "system will no longer be able to access the partition"
       PrintMany "Do you wish to reformat it?"
       MakeSwap="N"
-      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 13 70 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return; fi
         MakeSwap="Y"

@@ -690,8 +690,6 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
     fi
   done
 
-read -p "$DesktopEnvironment"
-  
 }
 
 function ShoppingList() # Called by PickLuxuries after a category has been chosen.
@@ -926,59 +924,64 @@ function SetKernel()
 }
 
 function ChooseMirrors() # User selects one or more countries with Arch Linux mirrors
-{ 
-  # 1) Prepare files of official Arch Linux mirrors
-    # Download latest list of Arch Mirrors to temporary file
-    curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
-    if [ $? -ne 0 ]; then
-      PrintOne "Unable to fetch list of mirrors from Arch Linux"
-      PrintMany "Using the list supplied with the Arch iso"
-      dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 8 75
-      cp /etc/pacman.d/mirrorlist > archmirrors.list
-    fi
-
-    # Get line number of first country
-    FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
-    
-    # Remove header and save in new file
-    tail -n +${FirstLine} archmirrors.list > allmirrors.list
-    
-    # Delete temporary file
-    rm archmirrors.list
-    
-    # Create list of countries from allmirrors.list, using '##' to identify
-    #                        then removing the '##' and leading spaces
-    #                                       and finally save to new file for later reference
-    grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
-
-  # 2) Display instructions
-
-    PrintOne "Next we will select mirrors for downloading your system."
-    PrintMany "You will be able to choose from a list of countries which"
-    PrintMany "have Arch Linux mirrors. It is possible to select more than"
-    PrintMany "one, but adding too many will slow down your installation"
-    dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
-
-    # 3) User-selection of countries starts here:
-    Translate "Please choose a country"
-    Title="$Result"
-    
-    Checklist 25 70 "--nocancel" "--checklist"
+{
+  Country=""
+  while [ -z "$Country" ]
+  do
+    # 1) Prepare files of official Arch Linux mirrors
+      # Download latest list of Arch Mirrors to temporary file
+      curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
+      if [ $? -ne 0 ]; then
+        PrintOne "Unable to fetch list of mirrors from Arch Linux"
+        PrintMany "Using the list supplied with the Arch iso"
+        dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 8 75
+        cp /etc/pacman.d/mirrorlist > archmirrors.list
+      fi
   
-    if [ $retval -eq 0 ] && [ "$Result" != "" ]; then
-      break
-    else
-      read -p "You must select at leat one. Please press [ Enter ]"
-    fi
- 
-  # 6) Add to array for use during installation
-    Counter=1
-    for Item in $(cat output.file)                            # Read items from the output.file
-    do                                                        # and copy each one to the variable
-      Result="$(head -n ${Item} checklist.file | tail -n 1)"  # Read item from countries file
-      CountryLong[${Counter}]="$Result"                       # CountryLong is declared in f-vars.sh
-      Counter=$((Counter+1))
-    done
+      # Get line number of first country
+      FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
+      
+      # Remove header and save in new file
+      tail -n +${FirstLine} archmirrors.list > allmirrors.list
+      
+      # Delete temporary file
+      rm archmirrors.list
+      
+      # Create list of countries from allmirrors.list, using '##' to identify
+      #                        then removing the '##' and leading spaces
+      #                                       and finally save to new file for later reference
+      grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
+  
+    # 2) Display instructions
+  
+      PrintOne "Next we will select mirrors for downloading your system."
+      PrintMany "You will be able to choose from a list of countries which"
+      PrintMany "have Arch Linux mirrors. It is possible to select more than"
+      PrintMany "one, but adding too many will slow down your installation"
+      dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
+  
+      # 3) User-selection of countries starts here:
+      Translate "Please choose a country"
+      Title="$Result"
+      
+      Checklist 25 70 "--nocancel" "--checklist"
+  
+      if [ $retval -eq 0 ] && [ "$Result" != "" ]; then
+        Country="$result"
+      else
+        Message="You must select at least one."
+        continue
+      fi
+   
+    # 6) Add to array for use during installation
+      Counter=1
+      for Item in $(cat output.file)                            # Read items from the output.file
+      do                                                        # and copy each one to the variable
+        Result="$(head -n ${Item} checklist.file | tail -n 1)"  # Read item from countries file
+        CountryLong[${Counter}]="$Result"                       # CountryLong is declared in f-vars.sh
+        Counter=$((Counter+1))
+      done
+  done
 }
 
 function ConfirmVbox()
