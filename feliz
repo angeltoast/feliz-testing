@@ -87,7 +87,6 @@ fi
 
 FinalCheck                             # Allow user to change any variables
 
-_Backtitle="$_Savetitle"
 print_heading
 TPecho "Preparations complete"
 TPecho "Entering automatic installation phase"

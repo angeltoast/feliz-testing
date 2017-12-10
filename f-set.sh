@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 5th December 2017
+# Revision date: 10th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ function Checklist()
     Items=$((Items/3))
 
   # 2) Display the list for user-selection
-    dialog --backtitle "$_Backtitle" --title " $Title " "$cancel" --no-tags "$Type" \
+    dialog --title " $Title " "$cancel" --no-tags "$Type" \
       "     Space to select/deselect.\n       < OK > when ready. " $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -80,28 +80,27 @@ function Checklist()
 
 function ChooseMirrors()
 { # User selects one or more countries with Arch Linux mirrors
-    _Backtitle="https://wiki.archlinux.org/index.php/Mirrors"
-    # Prepare files of official Arch Linux mirrors
-    # 1) Download latest list of Arch Mirrors to temporary file
-    curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
-    if [ $? -ne 0 ]; then
-      PrintOne "Unable to fetch list of mirrors from Arch Linux"
-      PrintMany "Using the list supplied with the Arch iso"
-      not_found 6 30
-      cp /etc/pacman.d/mirrorlist > archmirrors.list
-    fi
-    # 2) Get line number of first country
-    FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
-    # 3) Remove header and save in new file
-    tail -n +${FirstLine} archmirrors.list > allmirrors.list
-    # 4) Delete temporary file
-    rm archmirrors.list
-    # 5) Create countries.list from allmirrors.list, using '##' to identify
-    #                        then removing the '##' and leading spaces
-    #                                       and finally save to new file for later reference
-    grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
-    # Shorten Bosnia and Herzegovina to BosniaHerzegov
-    sed -i 's/Bosnia and Herzegovina/BosniaHerzegov/g' countries.list
+  # Prepare files of official Arch Linux mirrors
+  # 1) Download latest list of Arch Mirrors to temporary file
+  curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
+  if [ $? -ne 0 ]; then
+    PrintOne "Unable to fetch list of mirrors from Arch Linux"
+    PrintMany "Using the list supplied with the Arch iso"
+    not_found 6 30
+    cp /etc/pacman.d/mirrorlist > archmirrors.list
+  fi
+  # 2) Get line number of first country
+  FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
+  # 3) Remove header and save in new file
+  tail -n +${FirstLine} archmirrors.list > allmirrors.list
+  # 4) Delete temporary file
+  rm archmirrors.list
+  # 5) Create countries.list from allmirrors.list, using '##' to identify
+  #                        then removing the '##' and leading spaces
+  #                                       and finally save to new file for later reference
+  grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
+  # Shorten Bosnia and Herzegovina to BosniaHerzegov
+  sed -i 's/Bosnia and Herzegovina/BosniaHerzegov/g' countries.list
 }
 
 function Menu()
@@ -133,13 +132,13 @@ function Menu()
   # Display the list for user-selection (two options: cancel or nocancel)
   case "$nocancel" in
   1) # The nocancel option
-    dialog --backtitle "$_Backtitle" --title " $Title " --nocancel --menu \
+    dialog --title " $Title " --nocancel --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
   ;;
   *) # The cancel-label option 
-    dialog --backtitle "$_Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
+    dialog --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -179,13 +178,13 @@ function NumberMenu()
   # Display the list for user-selection (two options: cancel or nocancel)
   case "$nocancel" in
   1) # The nocancel option
-    dialog --backtitle "$_Backtitle" --title " $Title " --nocancel --menu \
+    dialog --title " $Title " --nocancel --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
   ;;
   *) # The cancel-label option 
-    dialog --backtitle "$_Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
+    dialog --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -216,7 +215,7 @@ function SetTimeZone()
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
   
-    dialog --backtitle "$_Backtitle" --no-cancel --menu \
+    dialog --no-cancel --menu \
         "\n      $Message\n" 20 50 $Counter "${ItemList[@]}" 2>output.file
         
     retval=$?
@@ -279,7 +278,7 @@ function SetSubZone() # Called from SetTimeZone
     Cancel="Back"
     Message=""
     
-    Menu  24 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
+    Menu  23 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
     if [ $retval -eq 0 ]; then
       SUBZONE="$Result"
     else
@@ -367,11 +366,8 @@ function setlocale()
 { CountryLocale=""
   while [ -z "$CountryLocale" ]
   do
-    _Backtitle="https://wiki.archlinux.org/index.php/Time#Time_zone"
-    
     SetTimeZone # First get a validated ZONE/SUBZONE
-    
-    _Backtitle="https://wiki.archlinux.org/index.php/Locale"
+
     ZoneID="${ZONE}/${SUBZONE}"   # Use a copy (eg: Europe/London) to find in cities.list
                                   # (field 2 in cities.list is the country code (eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
@@ -400,14 +396,13 @@ function setlocale()
       not_found 10 30 "Locale not found"
       Result=""
     else
-      Translate "Choose the main locale for your system"
-      Title="$Result"
-      Translate "Choose one or Exit to retry"
-      Message="$Result"
+      Title="Locale"
+      PrintOne "Choose the main locale for your system"
+      PrintMany "Choose one or Exit to retry"
       MenuVariable="$choosefrom Edit_locale.gen"                    # Add manual edit option to menu
       Cancel="Exit"
   
-      Menu  20 50 # New function (arguments are dialog size) to display a menu and return $Result
+      Menu  20 50 # Arguments are dialog size. To display a menu and return $Result & $retval
       Response="$retval"
   
       if [ $Response -eq 1 ]; then                                  # If user chooses <Exit>
@@ -444,7 +439,7 @@ Mano() {  # Use Nano to edit locale.gen
     Translate "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
     Message="$Result"
     Title=""
-    dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 6 55 2>output.file
+    dialog --title " $Title " --yesno "\n$Message" 6 55 2>output.file
     retval=$?
     case $retval in
       0) nano /etc/locale.gen
@@ -459,7 +454,7 @@ Mano() {  # Use Nano to edit locale.gen
 }
 
 function getkeymap()
-{ _Backtitle="https://wiki.archlinux.org/index.php/Keyboard_configuration_in_console"
+{ 
   country="${CountryLocale,,}"                                          # From SetLocale - eg: en_gb.utf-8
   case ${country:3:2} in                                                # eg: gb
   "gb") Term="uk"
@@ -472,24 +467,23 @@ function getkeymap()
   if [ ! $Found ]; then
     Found=0
   fi
-  
+
+  Title="$(echo $Result | cut -d' ' -f1)"
   Countrykbd=""
   while [ -z "$Countrykbd" ]
   do
     case $Found in
     0)  # If the search found no matches
-      Translate "Sorry, no keyboards found based on your location"
-      read_timed "$Result" 2
+      PrintOne "Sorry, no keyboards found based on your location"
+      Translate "Keyboard is"
+      dialog --msgbox "$Message"
       SearchKeyboards
     ;;
     1)  # If the search found one match
-      Translate "Only one keyboard found based on your location"
-      Message="$Result"
-      Translate "Do you wish to accept this? Select No to search for alternatives"
-      Message="${Message}\n${Result}"
+      PrintOne "Only one keyboard found based on your location"
+      PrintMany "Do you wish to accept this? Select No to search for alternatives"
       
-      dialog --backtitle "$_Backtitle" --yesno "\n$Message" 10 55 2>output.file
-      
+      dialog --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       Result="$(cat output.file)"
       
@@ -504,8 +498,7 @@ function getkeymap()
     ;;
     *) # If the search found multiple matches
       MenuVariable="$ListKbs"
-      Translate "Please choose one"
-      Title="$Result"
+      PrintOne "Please choose one"
 
       Menu 15 40 "--nocancel"
       case ${retval} in
@@ -525,16 +518,10 @@ function SearchKeyboards()
   Countrykbd=""
   while [ -z "$Countrykbd" ]
   do
-    Translate "If you know the code for your keyboard layout, please enter"
-    Message="$Result"
-    Translate "it now. If not, try entering a two-letter abbreviation"
-    Message="${Message}\n${Result}"
-    Translate "for your country or language and a list will be displayed"
-    Message="${Message}\n${Result}"
-    Translate "Alternatively, enter ' ' to start again"
-    Message="${Message}\n${Result}\n"
-    Translate "eg: 'dvorak' or 'us'"
-    Message="${Message}\n${Result}\n"
+    PrintOne "If you know the code for your keyboard layout, please enter"
+    PrintMany "it now. If not, try entering a two-letter abbreviation"
+    PrintMany "for your country or language and a list will be displayed"
+    PrintMany "eg: 'dvorak' or 'us'"
     
     dialog --inputbox "$Message" 14 70 2>output.file
     retval=$?
@@ -547,10 +534,7 @@ function SearchKeyboards()
     ListKbs=$(grep ${Term} keymaps.list)
     if [ -n "${ListKbs}" ]; then  # If a match or matches found
       MenuVariable="$ListKbs"
-      Translate "Select your keyboard, or Exit to try again"
-      Message="$Result"
-      Translate "Please choose one"
-      Title="$Result"
+      PrintOne "Please choose one"
 
       Menu 15 40
       if [ ${retval} -eq 1 ]; then    # Try again
@@ -576,14 +560,10 @@ function SearchKeyboards()
 }
 
 function UserName()
-{ _Backtitle="https://wiki.archlinux.org/index.php/Users_and_groups"
-
-  Translate "Enter a name for the primary user of the new system"
-  Message="$Result"
-  Translate "If you don't create a username here, a default user"
-  Message="${Message}\n${Result}"
-  Translate "called 'archie' will be set up"
-  Message="${Message}\n${Result}\n"
+{ 
+  PrintOne "Enter a name for the primary user of the new system"
+  PrintMany "If you don't create a username here, a default user"
+  PrintMany "called 'archie' will be set up"
   Translate "User Name"
   Title="${Result}"
   
@@ -601,13 +581,9 @@ function UserName()
 
 function SetHostname()
 {
-  _Backtitle="https://wiki.archlinux.org/index.php/Network_configuration#Set_the_hostname"
-  Translate "A hostname is needed. This will be a unique name to identify"
-  Message="$Result"
-  Translate "your device on a network. If you do not enter one, the"
-  Message="${Message}\n${Result}"
-  Translate "default hostname of 'arch-linux' will be used"
-  Message="${Message}\n${Result}\n"
+  PrintOne "A hostname is needed. This will be a unique name to identify"
+  PrintMany "your device on a network. If you do not enter one, the"
+  PrintMany "default hostname of 'arch-linux' will be used"
   Translate "Enter a hostname for your computer"
   Title="${Result}: "
 
@@ -624,9 +600,8 @@ function SetHostname()
 }
 
 function Options() # User chooses between FelizOB, self-build or basic
-{ _Backtitle="https://wiki.archlinux.org/index.php/List_of_applications"
-  Translate "Feliz now offers you a choice. You can ..."
-  Message="${Result}"
+{ 
+  PrintOne "Feliz now offers you a choice. You can ..."
   Translate "Build your own system, by picking the"
   Message="${Message}\n\n1) ${Result}"
   Translate "software you wish to install"
@@ -645,8 +620,8 @@ function Options() # User chooses between FelizOB, self-build or basic
   Translate "Basic_Arch_Linux"
   BAL="$Result"
   
-  dialog --backtitle "$_Backtitle" --title " Options " --nocancel --menu "$Message" \
-      24 50 3 \
+  dialog --title " Options " --nocancel --menu "$Message" \
+      22 50 3 \
       1 "$BMO" \
       2 "$FOB" \
       3  "$BAL" 2>output.file
@@ -679,15 +654,13 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
   do
     # Prepare information messages
     if [ -z "$LuxuriesList" ]; then
-      Translate "Now you have the option to add extras, such as a web browser"
-      Message="$Result"
-      Translate "desktop environment, etc, from the following categories"
-      Message="\n${Message}\n${Result}"
+      PrintOne "Now you have the option to add extras, such as a web browser"
+      PrintMany "desktop environment, etc, from the following categories"
     fi
     # Display categories as numbered list
     Title="Arch Linux"
     MenuVariable="${TransCatList}"
-    NumberMenu  24 70 "Done"              # Displays numbered menu
+    NumberMenu  22 70 "Done"              # Displays numbered menu
     # Process exit variables
     if [ $retval -ne 0 ]; then
       if [ -n "${LuxuriesList}" ]; then
@@ -702,10 +675,8 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
       if [ -n "$LuxuriesList" ]; then
         Translate "Added so far"
         Message="$Result: ${LuxuriesList}\n"
-        Translate "You can now choose from any of the other lists"
-        Message="${Message}\n${Result},"
-        Translate "or choose Exit to finish this part of the setup"
-        Message="${Message} ${Result}\n"
+        PrintMany "You can now choose from any of the other lists"
+        PrintMany "or choose Exit to finish this part of the setup"
       fi
     fi
   done
@@ -715,8 +686,7 @@ function ShoppingList() # Called by PickLuxuries after a category has been chose
 { # Prepares to call 'select_from' function with copy data
   Translate "Added so far"
   Message="$Result: ${LuxuriesList}\n"
-  Translate "You can add more items, or select items to delete"
-  Message="${Message}\n${Result}"
+  PrintMany "You can add more items, or select items to delete"
   Title="${Categories[$Category]}" # $Category is number of item in CategoriesList
   
   local Counter=1
@@ -817,7 +787,7 @@ function select_from() # Called by ShoppingList
     fi
     # Display the contents of the temporary array in a Dialog menu
     Items=$(( Counter/3 ))
-    dialog --backtitle "$_Backtitle" --title " $Title " --nocancel --checklist \
+    dialog --title " $Title " --nocancel --checklist \
       "$Message" 20 79 $Items "${TempArray[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -830,7 +800,6 @@ function ChooseDM()
 { # Choose a display manager
   while true
   do
-    _Backtitle="https://wiki.archlinux.org/index.php/Display_manager"
     case "$DisplayManager" in
     "") # Only offered if no other display manager has been set
       Counter=0
@@ -842,7 +811,7 @@ function ChooseDM()
       PrintMany "If you do not install a display manager, you will have"
       PrintMany "to launch your desktop environment manually"
       
-      dialog --backtitle "$_Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
+      dialog --title " $Title " --menu "\n$Message" 20 60 6 \
         "GDM" "-" \
         "LightDM" "-" \
         "LXDM" "-" \
@@ -860,7 +829,7 @@ function ChooseDM()
       PrintMany "Only one display manager can be active"
       PrintMany "Do you wish to change it?"
       
-      dialog --backtitle "$_Backtitle" --yesno "$Message" 10 50
+      dialog --yesno "$Message" 10 50
       retval=$?
       if [ $retval -eq 0 ]; then      # User wishes to change DM
         DisplayManager=""             # Clear DM variable before restarting
@@ -877,7 +846,6 @@ function SetGrubDevice()
   while [ -z $GrubDevice ]
   do
     DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/'
-    _Backtitle="https://wiki.archlinux.org/index.php/GRUB"
     # Add an option to enter grub device manually
     Translate "Enter_Manually"
     Enter_Manually="$Result"
@@ -925,8 +893,7 @@ function EnterGrubPath() # Manual input
 }
 
 function SetKernel()
-{ _Backtitle="https://wiki.archlinux.org/index.php/Kernels"
-
+{ 
   Translate " Choose your kernel "
   Title="$Result"
   Translate "The Long-Term-Support kernel offers stabilty"
@@ -936,7 +903,7 @@ function SetKernel()
   Translate "If in doubt, choose"
   Default="${Result} LTS"
 
-  dialog --backtitle "$_Backtitle" --title "$Title" --nocancel \
+  dialog --title "$Title" --nocancel \
         --radiolist "\n  $Default" 10 70 2 \
         "1" "$LTS" ON \
         "2" "$Latest" off 2>output.file
@@ -945,16 +912,14 @@ function SetKernel()
 }
 
 function ChooseMirrors() # User selects one or more countries with Arch Linux mirrors
-{ _Backtitle="https://wiki.archlinux.org/index.php/Mirrors"
-  
+{ 
   # 1) Prepare files of official Arch Linux mirrors
     # Download latest list of Arch Mirrors to temporary file
     curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
     if [ $? -ne 0 ]; then
       PrintOne "Unable to fetch list of mirrors from Arch Linux"
       PrintMany "Using the list supplied with the Arch iso"
-      dialog --backtitle "$_Backtitle" \
-       --msgbox "\n${Message}\n" 8 75
+      dialog --msgbox "\n${Message}\n" 8 75
       cp /etc/pacman.d/mirrorlist > archmirrors.list
     fi
 
@@ -978,8 +943,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
     PrintMany "You will be able to choose from a list of countries which"
     PrintMany "have Arch Linux mirrors. It is possible to select more than"
     PrintMany "one, but adding too many will slow down your installation"
-    dialog --backtitle "$_Backtitle" \
-         --msgbox "\n${Message}\n" 10 75
+    dialog --msgbox "\n${Message}\n" 10 75
 
     # 3) User-selection of countries starts here:
     Translate "Please choose a country"
@@ -1004,15 +968,14 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
 }
 
 function ConfirmVbox()
-{ _Backtitle="https://wiki.archlinux.org/index.php/VirtualBox"
-
+{ 
   PrintOne  "It appears that feliz is running in Virtualbox"
   PrintMany  "If it is, feliz can install Virtualbox guest"
   PrintMany  "utilities and make appropriate settings for you"
   Translate "Install Virtualbox guest utilities?"
   Title="$Result"
     
-  dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
 
   if [ $retval -eq 0 ]  # Yes
@@ -1163,7 +1126,7 @@ function ManualSettings()
     Translate "User Name"
     Uname="$Result"
     
-    dialog --backtitle "$_Backtile" --title " $Uname & $Hname " --cancel-label "Done" \
+    dialog --title " $Uname & $Hname " --cancel-label "Done" \
 	  --menu "\nChoose an item" 10 40 2 \
       "$Uname"  "$UserName" \
       "$Hname" 	"$HostName"   2> output.file

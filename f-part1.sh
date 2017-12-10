@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 5th December 2017
+# Revision date: 10th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,8 +39,7 @@
 
 function CheckParts()   # Called by feliz.sh
 { # Test for existing partitions
-  _Backtitle="https://wiki.archlinux.org/index.php/Partitioning"
-        
+
   # Partitioning menu options="leave cfdisk guided auto"
   Translate "Choose from existing partitions"
   LongPart1="$Result"
@@ -72,7 +71,7 @@ function CheckParts()   # Called by feliz.sh
       PrintMany "If you choose to do nothing now, the script will"
       PrintMany "terminate to allow you to partition in some other way"
  
-      dialog --backtitle "$_Backtitle" --title " $Title " --nocancel --menu "$Message" 24 70 4 \
+      dialog --title " $Title " --nocancel --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
@@ -101,7 +100,7 @@ function CheckParts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$_Backtitle" --title " $Title " --nocancel --menu "$Message" 24 78 4 \
+    dialog --title " $Title " --nocancel --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
@@ -159,97 +158,6 @@ function BuildLists() # Called by CheckParts to generate details of existing par
       # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
       #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
     done
-}
-
-function BuildPartitionLists()  # First called by CheckParts to generate details of existing partitions for display
-{                               # Then to prepare partition arrays for selection for root, swap and others
-  # 1) Prepare two lists from attached devices using sudo blkid (installed with Feliz)
-  
-    # Following reported problems with labels, this block has been rewritten, and should work correctly now
-    # So far it only selected parts of code have been tested in isolation
-  
-    # First a list of all partitions up to sd*99
-    #                           |includes keyword " TYPE=" | select 1st field | ignore /dev/
-    ListTypeIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
-
-    # Add records from those two indexed arrays into the associative array
-    local Counter=0
-    for i in ${ListTypeIDs}
-    do
-      # Find the format type for that ID
-      #                    | just the text after TYPE= | select text inside double quotations
-      Type=$(sudo blkid /dev/$i | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
-      FileSystem[$i]=$Type # ... and save it to the associative array
-    done
-  # 2) Find all partitions with text "LABEL=" | select 1st field | remove /dev/ | remove colon
-    ListLabelledIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
-  
-    # Following reported problems with labels, this block has also been rewritten, and should work correctly now
-  
-    # If at least one labelled partition found, get a matching associative array of labels (remove quotes)
-    for item in $ListLabelledIDs
-    do      
-      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
-    done
-    
-    local HowManyLabelled="${#Labelled[@]}"
-    
-      # Test results
-      #  echo "$HowManyLabelled $ListLabelledIDs"
-      #  for item in "${Labelled[@]}"
-      #  do      
-      #    echo ${!Labelled[@]} $item
-      #  done
-  # 3) Find any partitions flagged as bootable
-  
-    # This block has not yet been checked
-  
-    ListAll=$(sfdisk -l 2>/dev/null | grep /dev | grep '*' | cut -d' ' -f1 | cut -d'/' -f3)
-    declare -a Flagged
-    Counter=0
-    for i in $ListAll
-    do
-      Flagged[${Counter}]="$i"
-      Counter=$((Counter+1))
-    done
-    local HowManyFlagged="${#Flagged[@]}"
-  # 4) Prepare list of short identifiers (sda1 sda2 ...)
-    PartitionList=""
-    ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-  # 5) Run through short identifiers, checking the three arrays for a match
-    Counter=0 # For count of partitions
-    Label=""
-    for part in ${ShowPartitions}
-    do
-    # First test Flagged
-      local x=0
-      until [ ${x} -eq ${HowManyFlagged} ]
-      do
-        if [ $part = "${Flagged[$x]}" ]; then
-          Bootable="(Bootable)"
-          break
-        else
-          Bootable=""
-        fi
-        x=$((x+1))
-      done
-      # Next test Labelled
-      ThisPart=${Labelled[${part}]} # Find the record in Labelled that matches the current iteration
-      if [ -n "${ThisPart}" ]; then
-        Label="${ThisPart}"
-      fi
-      # Finally get the filesystem type
-      ThisPart=${FileSystem[${part}]} # Find the record in FileSystem that matches the current iteration
-      #          | add space after $part to maintain proper sort order | use fields 1, 4 & 7
-      LongID=$(lsblk -l | grep "${part} " | awk '{print $1 " " $4 " " $7}') # eg: sda5 7.5G [SWAP]
-      # and save the complex result of the above steps in PartitionArray, which was declared in f-vars.sh
-      PartitionArray[${Counter}]="$LongID $ThisPart ${Labelled[$part]} ${Bootable}" # Counter starts at 0
-      Label=""
-      # Save the short ID for later functions
-      PartitionList="${PartitionList} ${part}"
-      (( Counter+=1 ))
-    done
-  PARTITIONS=${Counter}
 }
 
 function Partitioning()  # Called by CheckParts after user selects an action.
@@ -324,7 +232,7 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
       PrintMany "Are you sure you wish to continue?"
       Message="${Message}\n${Result}"
   
-      dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+      dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       case $retval in
       0) autopart 
@@ -466,7 +374,7 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
     Translate "Enter a new label"
     Edit="$Result"
 
-    dialog --backtitle "$_Backtitle" --title " Options " --menu "$Message" \
+    dialog --title " Options " --menu "$Message" \
       24 50 3 \
       1 "$Keep" \
       2 "$Delete" \
@@ -534,6 +442,9 @@ function AllocateRoot() # Called by ChoosePartitions
   if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
     Parted "set ${MountDevice} boot on"             # Make /root bootable
   fi
+
+  PartitionList=$(echo "$PartitionList" | sed "s/$PassPart //") # Remove the used partition from the list
+  
 }
 
 function CheckPartition()
@@ -559,7 +470,7 @@ function AllocateSwap()
   Translate "If you skip this step, no swap will be allocated"
   Title="$Result"
 
-  SavePartitionList="$PartitionList Swapfile"
+  SavePartitionList="$PartitionList"
   PartitionList="$PartitionList swapfile"
   
   SwapFile=""
@@ -581,7 +492,7 @@ function AllocateSwap()
       PrintMany "system will no longer be able to access the partition"
       PrintMany "Do you wish to reformat it?"
       MakeSwap="N"
-      dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+      dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return; fi
         MakeSwap="Y"
@@ -593,7 +504,7 @@ function AllocateSwap()
     
     PartitionList=$SavePartitionList        # Restore original PartitionList and remove selected partition
     if [ $Result != "swapfile" ]; then
-      PartitionList=$(echo "$PartitionList" | sed "s/$Result//")
+      PartitionList=$(echo "$PartitionList" | sed "s/$Result //") # Remove the used partition from the list
     fi
       
     if [ $SwapFile ]; then
@@ -611,7 +522,7 @@ function NoPartitions()
   PrintMany "but you can allocate a swap file, if you wish"
   Title="Create a swap file?"
 
-  dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
   case $retval in
   0) SetSwapFile
@@ -644,49 +555,31 @@ function SetSwapFile()
 
 function MorePartitions()
 { # If partitions remain unallocated, user may select for /home, etc
-  local Elements=0
-  AddedToRemaining=0
-  TempPartList=""
-  for i in ${PartitionList}
-  do
-    Elements=$((Elements+1))   # Count elements in PartitionList
-  done
+  local Elements=$(echo "$PartitionList" | wc -w)
 
   while [ $Elements -gt 0 ]
   do
-    Remaining=""
     PrintOne "The following partitions are available"
     PrintMany "If you wish to use one, select it from the list"
 
     PartitionMenu
 
-    if [ $retval -eq 0 ]; then
-      PassPart=${Result:0:4}
+    case $retval in
+    0) PassPart=${Result:0:4}
+    ;;
+    *) return
+    esac
+
+    Partition="/dev/$Part"
+    MakePartition # Call function to complete details
+    Label="${Labelled[${PassPart}]}"
+    if [ -n "${Label}" ]; then
+      EditLabel $PassPart
     fi
-    Echo
-    for Part in ${PartitionList} # Iterate through the list
-    do
-      Partition=""
-      PartitionType=""
-      if [ $Part = $Result ] && [ $Result != "$_Exit" ]; then
-        Partition="/dev/$Part"
-        MakePartition # Call complete details
-        Label="${Labelled[${PassPart}]}"
-        if [ -n "${Label}" ]; then
-          EditLabel $PassPart
-        fi
-      elif [ "$Part" != "$_Exit" ]; then    # Part is not selected and not 'Exit'
-        Remaining="$Remaining $Part"        # Add unused partition to temp list
-        AddedToRemaining=$((AddedToRemaining+1))
-      fi
-    done
-    PartitionList=$Remaining  # Replace original PartitionList with temp list
-    if [ "$Result" = "$_Exit" ]; then
-      Elements=0
-      break
-    else
-      Elements=$AddedToRemaining
-    fi
+
+    PartitionList=$(echo "$PartitionList" | sed "s/$PassPart //") # Remove the used partition from the list
+    Elements=$(echo "$PartitionList" | wc -w)
+
   done
   # Ensure that if AddPartList (the defining array) is empty, all others are too
   if [ -z ${#AddPartList[@]} ]
@@ -706,20 +599,19 @@ function MakePartition()
   CheckPartition   # Before going to select_filesystem, check the partition
   if [ ${CurrentType} ]; then
     PrintOne "You can choose to leave it as it is, by selecting Exit, but not"
-    PrintOne "reformatting an existing partition can have unexpected consequences"
-    Echo
+    PrintMany "reformatting an existing partition can have unexpected consequences"
   fi
   # 2) Select filesystem
   select_filesystem
   AddPartType[$ExtraPartitions]="${PartitionType}"  # Add it to AddPartType list
   # 3) Get a mountpoint
-  LoopRepeat="Y"
-  while [ ${LoopRepeat} = "Y" ]
+  PartMount=""
+  while [ ${PartMount} = "" ]
   do
     PrintOne "Enter a mountpoint for"
-    Message="$Message ${Partition}"
+    Message="$Message ${Partition}\n(eg: /home) ... "
     
-    InputBox "(eg: /home) ... /"
+    InputBox 
     
     # Check that entry includes '/'
     CheckInput=${Response:0:1}        # First character of ${Response}
@@ -743,16 +635,11 @@ function MakePartition()
       do
         MountPointCounter=$((MountPointCounter+1))
         if [ $MountPoint = $PartMount ]; then
-          read_timed "Mountpoint ${PartMount} has already been used. Please use a different mountpoint."
+          dialog --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
         else
-          LoopRepeat="N"
-          break
+          PartMount=""
         fi
       done
-    fi
-    if [ ${LoopRepeat} = "N" ]
-    then
-      break
     fi
   done
   AddPartMount[$ExtraPartitions]="${PartMount}"
@@ -774,7 +661,7 @@ function PartitionMenu()
     fi
   done
 
-  dialog --backtitle "$_Backtitle" --title " $Title " --menu \
+  dialog --title " $Title " --menu \
       "$Message" \
       25 78 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?

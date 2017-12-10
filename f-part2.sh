@@ -53,7 +53,7 @@ function TestUEFI() # Called at launch of Feliz script, before all other actions
 
 function AllocateEFI() # Called at start of AllocateRoot, before allocating root partition
 {  # Uses list of available partitions in PartitionList created in f-part1.sh/BuildPartitionLists
-  _Backtitle="https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface"
+
 	Remaining=""
 	local Counter=0
   Partition=""
@@ -68,14 +68,14 @@ function AllocateEFI() # Called at start of AllocateRoot, before allocating root
   PassPart="/dev/${Result}" # eg: sda1
   SetLabel "/dev/${Result}"
 	EFIPartition="/dev/${Result}"
-  PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove selected item
+  PartitionList=$(echo "$PartitionList" | sed "s/$Result //")  # Remove selected item
 
   Parted "set 1 boot on"    # Make /root Bootable
 }
 
 function EasyEFI()
 { # Main EFIfunction - Inform user of purpose, call each step
-  _Backtitle="https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface"
+
   EasyDevice                # Get details of device to use
   EasyDiskSize              # Get available space in MiB
 
@@ -98,7 +98,7 @@ function EasyEFI()
     PrintMany "assign a swap-file. It is advised to allow some swap"
     PrintMany "Do you wish to allocate a swapfile?"
 
-    dialog --backtitle "$_Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+    dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
     retval=$?
     if [ $retval -eq 0 ]; then
       print_heading

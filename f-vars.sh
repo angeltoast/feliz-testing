@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 5th December 2017
+# Revision date: 10th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,13 +36,13 @@
 # --------------------   ----------------------
 
 SetLanguage() {
-  Backtitle="Feliz - Arch Linux installation script"
+  
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
-  dialog --backtitle "$_Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
+  dialog --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
-           Please choose your language" 20 60 11 \
+           Please choose your language" 22 60 11 \
       en "English" \
       de "Deutsche" \
       el "Ελληνικά" \
@@ -116,15 +116,6 @@ Echo() { # Use in place of 'echo' for basic text print
 
 print_heading() {   # Always use this function to clear the screen
   clear
-  T_COLS=$(tput cols)                   # Get width of terminal
-  LenBT=${#_Backtitle}                  # Length of backtitle
-  HalfBT=$((LenBT/2))
-  tput cup 0 $(((T_COLS/2)-HalfBT))     # Move the cursor to left of center
-  tput bold
-  printf "%-s\n" "$_Backtitle"          # Display backtitle
-  tput sgr0
-  # printf "%$(tput cols)s\n"|tr ' ' '-'  # Draw a line across width of terminal
-  cursor_row=3                          # Save cursor row after heading
 }
 
 InputBox() {  # General-purpose input box
@@ -145,14 +136,15 @@ PrintMany() { # Translates $1 and continues a Message with it
   Message="${Message}\n${Result}"
 }
 
-FinalOne() {  # Receives up to 2 arguments. Translates and prints text
+function FinalOne() # Called by FinalCheck to display all user-defined variables
+{  # Receives up to 2 arguments. Translates and prints text
               # centred according to content and screen size
   if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
     Translate "$1"
     Text="$Result"
-  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+  elif [ $Translate = "N" ]; then   # If Translate variable unset, don't translate any
     Text="$1 $2 $3"
-  else                             # If $2 contains text, don't translate any
+  else                              # If $2 contains text, don't translate any
     Text="$1 $2 $3"
   fi
   local width=$(tput cols)
@@ -166,14 +158,15 @@ FinalOne() {  # Receives up to 2 arguments. Translates and prints text
   Echo "$EMPTY $Text"
 }
 
-FinalMany() { # Receives up to 2 arguments. Translates and prints text
-              # aligned to first row according to content and screen size
-  if [ ! "$2" ]; then  # If $2 is missing
+function FinalMany() # Called by FinalCheck to display all user-defined variables
+{ # Receives up to 2 arguments. Translates and prints text
+              # aligned to FinalOne according to content and screen size
+  if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
     Translate "$1"
     Text="$Result"
-  elif [ $Translate = "N" ]; then  # If Translate variable unset, don't translate any
+  elif [ $Translate = "N" ]; then   # If Translate variable unset, don't translate any
     Text="$1 $2 $3"
-  else        # If $2 contains text, don't translate $1 or $2
+  else                              # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
   Echo "$EMPTY $Text"
@@ -216,13 +209,6 @@ PaddLength() {  # If $1 is shorter than MaxLen, padd with spaces
 }
 
 Common() {  # Some common translations
-  if [ -f "TESTING" ]; then
-    Translate "Feliz - Testing"
-  else
-    Translate "$Backtitle"
-  fi
-  _Backtitle="$Result"
-  _Savetitle="$_Backtitle"
   Translate "Cancel"
   _Cancel="$Result"
   Translate "Loading"
@@ -266,9 +252,9 @@ Common() {  # Some common translations
   _HomePartition="$Result"
 }
 
-Translate() { # Called by PrintOne & PrintMany and by other functions as required
-                # $1 is text to be translated
-  Text="${1%% }"   # Ensure no trailing spaces
+function Translate()  # Called by PrintOne & PrintMany and by other functions as required
+{                     # $1 is text to be translated
+  Text="${1%% }"      # Ensure no trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $Translate = "N" ]; then
     Result="$Text"
     return
