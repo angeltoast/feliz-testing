@@ -374,7 +374,7 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
     Translate "Enter a new label"
     Edit="$Result"
 
-    dialog --title " Options " --menu "$Message" \
+    dialog --title " $PassPart " --menu "$Message" \
       24 50 3 \
       1 "$Keep" \
       2 "$Delete" \
@@ -384,14 +384,14 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
     Result="$(cat output.file)"  
     # Save to the -A array
     case $Result in
-      1) Labelled[$PartitionID]=$Label
+      1) Labelled[$PassPart]=$Label
       ;;
-      2) Labelled[$PartitionID]=""
+      2) Labelled[$PassPart]=""
       ;;
       3) Message="Enter a new label"                  # English.lan #87
         InputBox 10 40
         if [[ -z $Result || $retval -ne 0 ]]; then return; fi
-        Labelled[$PartitionID]=$Result
+        Labelled[$PassPart]=$Result
     esac
   fi
 }
@@ -443,8 +443,8 @@ function AllocateRoot() # Called by ChoosePartitions
     Parted "set ${MountDevice} boot on"             # Make /root bootable
   fi
 
-  PartitionList=$(echo "$PartitionList" | sed "s/$PassPart //") # Remove the used partition from the list
-  
+  PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
+
 }
 
 function CheckPartition()
@@ -504,7 +504,7 @@ function AllocateSwap()
     
     PartitionList=$SavePartitionList        # Restore original PartitionList and remove selected partition
     if [ $Result != "swapfile" ]; then
-      PartitionList=$(echo "$PartitionList" | sed "s/$Result //") # Remove the used partition from the list
+      PartitionList=$(echo "$PartitionList" | sed "s/$Result//") # Remove the used partition from the list
     fi
       
     if [ $SwapFile ]; then
@@ -577,7 +577,7 @@ function MorePartitions()
       EditLabel $PassPart
     fi
 
-    PartitionList=$(echo "$PartitionList" | sed "s/$PassPart //") # Remove the used partition from the list
+    PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
     Elements=$(echo "$PartitionList" | wc -w)
 
   done

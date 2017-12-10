@@ -676,7 +676,6 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
         Translate "Added so far"
         Message="$Result: ${LuxuriesList}\n"
         PrintMany "You can now choose from any of the other lists"
-        PrintMany "or choose Exit to finish this part of the setup"
       fi
     fi
   done
@@ -762,13 +761,15 @@ function select_from() # Called by ShoppingList
       CopyArray[${OptionsCounter}]="$Result"    # Replace element with translation
     done
     # Then build the temporary array for the checklist dialog
-    Counter=0
+    local Counter=0
+    local CopyCounter=0
     for i in ${Copycat}
     do
       (( Counter+=1 ))
       TempArray[${Counter}]="$i"
       (( Counter+=1 ))
-      TempArray[${Counter}]="${CopyArray[${Counter}/2]}"
+      (( CopyCounter+=1 ))
+      TempArray[${Counter}]="${CopyArray[${CopyCounter}]}"
       (( Counter+=1 ))
       TempArray[${Counter}]="OFF"
       for a in ${LuxuriesList}                  # Check against LuxuriesList - if on list, mark ON
