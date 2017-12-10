@@ -335,14 +335,22 @@ function autopart() # Called by ChooseDevice
 function ChoosePartitions()  # Called by feliz.sh after CheckParts
 { # Calls AllocateRoot, AllocateSwap, NoPartitions, MorePartitions
   if [ $AutoPart -eq 0 ]; then
-    AllocateRoot                         # Allow user to select root partition
-    if [ -n "${PartitionList}" ]; then   # If there are unallocated partitions
-      AllocateSwap                       # Display display them for user to choose swap
-    else                                 # If there is no partition for swap
-      NoPartitions                       # Inform user and allow swapfile
+    AllocateRoot                        # Allow user to select root partition
+    if [ -n "${PartitionList}" ]; then  # If there are unallocated partitions
+      AllocateSwap                      # Display display them for user to choose swap
+    else                                # If there is no partition for swap
+      NoPartitions                      # Inform user and allow swapfile
     fi
-    if [ -n "${PartitionList}" ]; then   # Check contents of PartitionList again
-      MorePartitions                     # Allow user to allocate any remaining partitions
+    
+    for i in ${PartitionList}           # Check contents of PartitionList
+    do
+      echo $i > output.file             # If anything found, echo to file
+      break                             # Break on first find
+    done
+    Result="$(cat output.file)"         # Check for output
+    if [ "${Result}" = "" ]; then       # If any remaining partitions
+      MorePartitions                    # Allow user to allocate
+      if [ $retval -ne 0 ]; then return; fi # Exit on user <cancel>
     fi
   fi
 }
@@ -407,15 +415,13 @@ function AllocateRoot() # Called by ChoosePartitions
   Partition=""
   PartitionType=""
   PrintOne "Please select a partition to use for /root"
+  
   PartitionMenu
-echo "$Result"
   Reply=$retval
   PassPart=${Result:0:4}          # eg: sda4
   MountDevice=${PassPart:3:2}     # Save the device number for 'set x boot on'
   Partition="/dev/$Result"
   RootPartition="${Partition}"
-
-read -p "$RootPartition"
 
   # Before going to select_filesystem, check if there is an existing file system on the selected partition
   CheckPartition  # This sets variable CurrentType and starts the Message
@@ -441,8 +447,8 @@ read -p "$RootPartition"
     EditLabel $PassPart
   fi
 
-  if [ ${UEFI} -eq 0 ]; then                        # Installing in BIOS environment
-    Parted "set ${MountDevice} boot on"             # Make /root bootable
+  if [ ${UEFI} -eq 0 ]; then                    # Installing in BIOS environment
+    Parted "set ${MountDevice} boot on"         # Make /root bootable
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
@@ -488,7 +494,7 @@ function AllocateSwap()
     IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       Translate "is already formatted as a swap partition"
-      Message="$i $Result"
+      Message="$SwapPartition $Result"
       PrintMany "Reformatting it will change the UUID, and if this swap"
       PrintMany "partition is used by another operating system, that"
       PrintMany "system will no longer be able to access the partition"
@@ -666,7 +672,7 @@ function PartitionMenu()
 
   dialog --backtitle "$Backtitle" --title " $Title " --menu \
       "$Message" \
-      25 78 ${Items} "${ItemList[@]}" 2>output.file
+      20 78 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
 }

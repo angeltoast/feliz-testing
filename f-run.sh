@@ -518,9 +518,9 @@ Translate "Success!"
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-  #   echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-  #   arch_chroot "passwd root" < /tmp/.passwd >> feliz.log
-  #   rm /tmp/.passwd 2>> feliz.log
+     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+     arch_chroot "passwd root" < /tmp/.passwd >> feliz.log
+     rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
       Title="Error"
@@ -535,30 +535,19 @@ Translate "Success!"
 }
 
 SetUserPassword() {
-  Translate "Success!"
-  Title="$Result"
-  Translate "minutes"
-  mins="$Result"
-  Translate "seconds"
-  secs="$Result"
-  PrintMany "Finished installing in"
-  Message="$Message ${DIFFMIN} $mins ${DIFFSEC} ${secs}\n"
-  PrintMany "Finally we need to set passwords"
-  Message="${Message}\n"
-  PrintMany "Note that you will not be able to"
-  PrintMany "see passwords as you enter them"
-  Message="${Message}\n"
-  
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
     PrintMany "Enter a password for"
     Message="${Message} ${UserName}\n"
-    dialog --backtitle "$Backtitle" --title "$Title" --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    PrintMany "Note that you will not be able to"
+    PrintMany "see passwords as you enter them"
+    Message="${Message}\n"
+    dialog --backtitle "$Backtitle" --title "$UserName" --insecure --nocancel --passwordbox "$Message" 12 50 2>output.file
     Pass1=$(cat output.file)
     rm output.file
     Translate "Re-enter the password for"
-    dialog --backtitle "$Backtitle" --insecure --nocancel --passwordbox "$Result ${UserName}\n" 10 50 2>output.file
+    dialog --backtitle "$Backtitle" --title "$UserName" --insecure --nocancel --passwordbox "$Result ${UserName}\n" 10 50 2>output.file
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
@@ -599,7 +588,7 @@ Restart() {
       2 "$Item2" 2>output.file
   retval=$?
   rm output.file
-  umount /mnt -R
+  # umount /mnt -R
   case $retval in
   0) shutdown -h now
   ;;

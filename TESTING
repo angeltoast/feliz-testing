@@ -8,9 +8,7 @@ testbed() {
 
   # echo "${1}" "${2}"
 
-  CheckParts
-
-  ChoosePartitions
+  PickLuxuries
 
 
 }

@@ -278,7 +278,7 @@ function SetSubZone() # Called from SetTimeZone
     Cancel="Back"
     Message=""
     
-    Menu  22 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
+    Menu  20 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
     if [ $retval -eq 0 ]; then
       SUBZONE="$Result"
     else
@@ -669,7 +669,7 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
       else
         Scope="Basic"
       fi
-      return
+      break
     else
       Category=$Result
       ShoppingList                        # Function to add items to LuxuriesList
@@ -680,6 +680,18 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
       fi
     fi
   done
+  
+  for i in $LuxuriesList                        # Run through list
+  do
+    Check="$(echo $Desktops | grep $i)"         # Test if a DE
+    if [ -n "$Check" ]; then
+      DesktopEnvironment="$i"                   # Add the first and break
+      break
+    fi
+  done
+
+read -p "$DesktopEnvironment"
+  
 }
 
 function ShoppingList() # Called by PickLuxuries after a category has been chosen.
