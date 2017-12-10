@@ -72,7 +72,7 @@ function Checklist()
     Items=$((Items/3))
 
   # 2) Display the list for user-selection
-    dialog --title " $Title " "$cancel" --no-tags "$Type" \
+    dialog --backtitle "$Backtitle" --title " $Title " "$cancel" --no-tags "$Type" \
       "     Space to select/deselect.\n       < OK > when ready. " $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -132,13 +132,13 @@ function Menu()
   # Display the list for user-selection (two options: cancel or nocancel)
   case "$nocancel" in
   1) # The nocancel option
-    dialog --title " $Title " --nocancel --menu \
+    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
   ;;
   *) # The cancel-label option 
-    dialog --title " $Title " --cancel-label "$cancel" --menu \
+    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -178,13 +178,13 @@ function NumberMenu()
   # Display the list for user-selection (two options: cancel or nocancel)
   case "$nocancel" in
   1) # The nocancel option
-    dialog --title " $Title " --nocancel --menu \
+    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
   ;;
   *) # The cancel-label option 
-    dialog --title " $Title " --cancel-label "$cancel" --menu \
+    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -215,7 +215,7 @@ function SetTimeZone()
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
   
-    dialog --no-cancel --menu \
+    dialog --backtitle "$Backtitle" --no-cancel --menu \
         "\n      $Message\n" 20 50 $Counter "${ItemList[@]}" 2>output.file
         
     retval=$?
@@ -439,7 +439,7 @@ Mano() {  # Use Nano to edit locale.gen
     Translate "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
     Message="$Result"
     Title=""
-    dialog --title " $Title " --yesno "\n$Message" 6 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 6 55 2>output.file
     retval=$?
     case $retval in
       0) nano /etc/locale.gen
@@ -476,14 +476,14 @@ function getkeymap()
     0)  # If the search found no matches
       PrintOne "Sorry, no keyboards found based on your location"
       Translate "Keyboard is"
-      dialog --msgbox "$Message"
+      dialog --backtitle "$Backtitle" --msgbox "$Message"
       SearchKeyboards
     ;;
     1)  # If the search found one match
       PrintOne "Only one keyboard found based on your location"
       PrintMany "Do you wish to accept this? Select No to search for alternatives"
       
-      dialog --yesno "\n$Message" 10 55 2>output.file
+      dialog --backtitle "$Backtitle" --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       Result="$(cat output.file)"
       
@@ -523,7 +523,7 @@ function SearchKeyboards()
     PrintMany "for your country or language and a list will be displayed"
     PrintMany "eg: 'dvorak' or 'us'"
     
-    dialog --inputbox "$Message" 14 70 2>output.file
+    dialog --backtitle "$Backtitle" --inputbox "$Message" 14 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
     if [ $retval -eq 1 ] || [ $Result = "" ]; then
@@ -567,7 +567,7 @@ function UserName()
   Translate "User Name"
   Title="${Result}"
   
-  dialog --title " $Title " --inputbox "$Message" 12 70 2>output.file
+  dialog --backtitle "$Backtitle" --title " $Title " --inputbox "$Message" 12 70 2>output.file
   retval=$?
   Result="$(cat output.file)"
 
@@ -587,7 +587,7 @@ function SetHostname()
   Translate "Enter a hostname for your computer"
   Title="${Result}: "
 
-  dialog --title " $Title " --inputbox "$Message" 12 70 2>output.file
+  dialog --backtitle "$Backtitle" --title " $Title " --inputbox "$Message" 12 70 2>output.file
   retval=$?
   Result="$(cat output.file)"
 
@@ -620,7 +620,7 @@ function Options() # User chooses between FelizOB, self-build or basic
   Translate "Basic_Arch_Linux"
   BAL="$Result"
   
-  dialog --title " Options " --nocancel --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " Options " --nocancel --menu "$Message" \
       22 50 3 \
       1 "$BMO" \
       2 "$FOB" \
@@ -788,7 +788,7 @@ function select_from() # Called by ShoppingList
     fi
     # Display the contents of the temporary array in a Dialog menu
     Items=$(( Counter/3 ))
-    dialog --title " $Title " --nocancel --checklist \
+    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --checklist \
       "$Message" 20 79 $Items "${TempArray[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -812,7 +812,7 @@ function ChooseDM()
       PrintMany "If you do not install a display manager, you will have"
       PrintMany "to launch your desktop environment manually"
       
-      dialog --title " $Title " --menu "\n$Message" 20 60 6 \
+      dialog --backtitle "$Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
         "GDM" "-" \
         "LightDM" "-" \
         "LXDM" "-" \
@@ -830,7 +830,7 @@ function ChooseDM()
       PrintMany "Only one display manager can be active"
       PrintMany "Do you wish to change it?"
       
-      dialog --yesno "$Message" 10 50
+      dialog --backtitle "$Backtitle" --yesno "$Message" 10 50
       retval=$?
       if [ $retval -eq 0 ]; then      # User wishes to change DM
         DisplayManager=""             # Clear DM variable before restarting
@@ -904,7 +904,7 @@ function SetKernel()
   Translate "If in doubt, choose"
   Default="${Result} LTS"
 
-  dialog --title "$Title" --nocancel \
+  dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
         --radiolist "\n  $Default" 10 70 2 \
         "1" "$LTS" ON \
         "2" "$Latest" off 2>output.file
@@ -920,7 +920,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
     if [ $? -ne 0 ]; then
       PrintOne "Unable to fetch list of mirrors from Arch Linux"
       PrintMany "Using the list supplied with the Arch iso"
-      dialog --msgbox "\n${Message}\n" 8 75
+      dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 8 75
       cp /etc/pacman.d/mirrorlist > archmirrors.list
     fi
 
@@ -944,7 +944,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
     PrintMany "You will be able to choose from a list of countries which"
     PrintMany "have Arch Linux mirrors. It is possible to select more than"
     PrintMany "one, but adding too many will slow down your installation"
-    dialog --msgbox "\n${Message}\n" 10 75
+    dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
 
     # 3) User-selection of countries starts here:
     Translate "Please choose a country"
@@ -976,7 +976,7 @@ function ConfirmVbox()
   Translate "Install Virtualbox guest utilities?"
   Title="$Result"
     
-  dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
 
   if [ $retval -eq 0 ]  # Yes
@@ -1127,7 +1127,7 @@ function ManualSettings()
     Translate "User Name"
     Uname="$Result"
     
-    dialog --title " $Uname & $Hname " --cancel-label "Done" \
+    dialog --backtitle "$Backtitle" --title " $Uname & $Hname " --cancel-label "Done" \
 	  --menu "\nChoose an item" 10 40 2 \
       "$Uname"  "$UserName" \
       "$Hname" 	"$HostName"   2> output.file

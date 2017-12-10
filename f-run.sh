@@ -481,111 +481,130 @@ CheckExisting() {                                                     # Test if 
 }
 
 SetRootPassword() {
-  print_heading
-  Echo
-  PrintOne "Success!"
-  Echo
+Translate "Success!"
+  Title="$Result"
   Translate "minutes"
   mins="$Result"
   Translate "seconds"
   secs="$Result"
-  Translate "Finished installing in"
-  PrintOne "$Result" "${DIFFMIN} $mins ${DIFFSEC} $secs"
-  Echo
-  PrintOne "Finally we need to set passwords"
-  Echo
-  PrintOne "Note that you will not be able to"
-  PrintOne "see passwords as you enter them"
-  Echo
+  PrintMany "Finished installing in"
+  Message="$Message ${DIFFMIN} $mins ${DIFFSEC} ${secs}\n"
+  PrintMany "Finally we need to set passwords"
+  Message="${Message}\n"
+  PrintMany "Note that you will not be able to"
+  PrintMany "see passwords as you enter them"
+  Message="${Message}\n"
+  
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    Translate "Enter a password for"
-    read -s -p "               $Result root: " Pass1
-    Echo
+    PrintMany "Enter a password for"
+    Message="${Message} root\n"
+    dialog --backtitle "$Backtitle" --title "$Title" --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    Pass1=$(cat output.file)
+    rm output.file
     Translate "Re-enter the password for"
-    read -s -p "               $Result root: " Pass2
-    Echo
+    dialog --backtitle "$Backtitle" --insecure --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
+    Pass2=$(cat output.file)
+    rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      print_heading
+      Title="Error"
       PrintOne "Passwords cannot be blank"
-      Echo
-      PrintOne "Please try again"
-      Echo
-      PrintOne "Note that you will not be able to"
-      PrintOne "see passwords as you enter them"
-      Echo
+      PrintMany "Please try again"
+      Message="${Message}\n"
+      PrintMany "Note that you will not be able to"
+      PrintMany "see passwords as you enter them"
+      Message="${Message}\n"
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-     arch_chroot "passwd root" < /tmp/.passwd >> feliz.log
-     rm /tmp/.passwd 2>> feliz.log
+  #   echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+  #   arch_chroot "passwd root" < /tmp/.passwd >> feliz.log
+  #   rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
-      print_heading
+      Title="Error"
       PrintOne "Passwords don't match"
-      Echo
-      PrintOne "Please try again"
-      Echo
-      PrintOne "Note that you will not be able to"
-      PrintOne "see passwords as you enter them"
-      Echo
+      PrintMany "Please try again"
+      Message="${Message}\n"
+      PrintMany "Note that you will not be able to"
+      PrintMany "see passwords as you enter them"
+      Message="${Message}\n"
     fi
   done
 }
 
 SetUserPassword() {
-  print_heading
-  Echo
+  Translate "Success!"
+  Title="$Result"
+  Translate "minutes"
+  mins="$Result"
+  Translate "seconds"
+  secs="$Result"
+  PrintMany "Finished installing in"
+  Message="$Message ${DIFFMIN} $mins ${DIFFSEC} ${secs}\n"
+  PrintMany "Finally we need to set passwords"
+  Message="${Message}\n"
+  PrintMany "Note that you will not be able to"
+  PrintMany "see passwords as you enter them"
+  Message="${Message}\n"
+  
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    Translate "Enter a password for"
-    read -s -p "               $Result $UserName: " Pass1
-    Echo
+    PrintMany "Enter a password for"
+    Message="${Message} ${UserName}\n"
+    dialog --backtitle "$Backtitle" --title "$Title" --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    Pass1=$(cat output.file)
+    rm output.file
     Translate "Re-enter the password for"
-    read -s -p "               $Result $UserName: " Pass2
-    Echo
+    dialog --backtitle "$Backtitle" --insecure --nocancel --passwordbox "$Result ${UserName}\n" 10 50 2>output.file
+    Pass2=$(cat output.file)
+    rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      print_heading
+      Title="Error"
       PrintOne "Passwords cannot be blank"
-      Echo
-      PrintOne "Please try again"
-      Echo
-      PrintOne "Note that you will not be able to"
-      PrintOne "see passwords as you enter them"
-      Echo
+      PrintMany "Please try again"
+      Message="${Message}\n"
+      PrintMany "Note that you will not be able to"
+      PrintMany "see passwords as you enter them"
+      Message="${Message}\n"
       continue
     fi
     if [ $Pass1 = $Pass2 ]; then
-      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-      arch_chroot "passwd ${UserName}" < /tmp/.passwd >> feliz.log
-      rm /tmp/.passwd 2>> feliz.log
-      Repeat="N"
+     echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
+     arch_chroot "passwd ${UserName}" < /tmp/.passwd >> feliz.log
+     rm /tmp/.passwd 2>> feliz.log
+     Repeat="N"
     else
-      print_heading
+      Title="Error"
       PrintOne "Passwords don't match"
-      Echo
-      PrintOne "Please try again"
-      Echo
-      PrintOne "Note that you will not be able to"
-      PrintOne "see passwords as you enter them"
-      Echo
+      PrintMany "Please try again"
+      Message="${Message}\n"
+      PrintMany "Note that you will not be able to"
+      PrintMany "see passwords as you enter them"
+      Message="${Message}\n"
     fi
   done
 }
 
 Restart() {
-  print_heading
   Translate "Shutdown Reboot"
-  listgen1 "$Result" "" "$_Ok"
+  Item1="$(echo $Result | cut -d' ' -f1)"
+  Item2="$(echo $Result | cut -d' ' -f2)"
+
+  dialog --backtitle "$Backtitle" --title " Finish " --nocancel --menu "$Message" \
+      8 30 2 \
+      1 "$Item1" \
+      2 "$Item2" 2>output.file
+  retval=$?
+  rm output.file
   umount /mnt -R
-  case $Response in
-  1) shutdown -h now
+  case $retval in
+  0) shutdown -h now
   ;;
-  2) reboot
+  1) reboot
   ;;
-  *) exit 1
+  *) exit
   esac
 }

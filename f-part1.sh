@@ -71,7 +71,7 @@ function CheckParts()   # Called by feliz.sh
       PrintMany "If you choose to do nothing now, the script will"
       PrintMany "terminate to allow you to partition in some other way"
  
-      dialog --title " $Title " --nocancel --menu "$Message" 24 70 4 \
+      dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
@@ -82,7 +82,7 @@ function CheckParts()   # Called by feliz.sh
       Partitioning                        # Partitioning options
       
       if [ "$Result" = "$_Exit" ]; then   # Terminate
-        dialog --infobox "Exiting to allow you to partition the device" 6 30
+        dialog --backtitle "$Backtitle" --infobox "Exiting to allow you to partition the device" 6 30
         shutdown -h now
       fi
       # Check that partitions have been created
@@ -100,7 +100,7 @@ function CheckParts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --title " $Title " --nocancel --menu "$Message" 24 78 4 \
+    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
@@ -232,7 +232,7 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
       PrintMany "Are you sure you wish to continue?"
       Message="${Message}\n${Result}"
   
-      dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       case $retval in
       0) autopart 
@@ -374,7 +374,7 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
     Translate "Enter a new label"
     Edit="$Result"
 
-    dialog --title " $PassPart " --menu "$Message" \
+    dialog --backtitle "$Backtitle" --title " $PassPart " --menu "$Message" \
       24 50 3 \
       1 "$Keep" \
       2 "$Delete" \
@@ -492,7 +492,7 @@ function AllocateSwap()
       PrintMany "system will no longer be able to access the partition"
       PrintMany "Do you wish to reformat it?"
       MakeSwap="N"
-      dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return; fi
         MakeSwap="Y"
@@ -522,7 +522,7 @@ function NoPartitions()
   PrintMany "but you can allocate a swap file, if you wish"
   Title="Create a swap file?"
 
-  dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
   case $retval in
   0) SetSwapFile
@@ -635,7 +635,7 @@ function MakePartition()
       do
         MountPointCounter=$((MountPointCounter+1))
         if [ $MountPoint = $PartMount ]; then
-          dialog --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
+          dialog --backtitle "$Backtitle" --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
         else
           PartMount=""
         fi
@@ -661,7 +661,7 @@ function PartitionMenu()
     fi
   done
 
-  dialog --title " $Title " --menu \
+  dialog --backtitle "$Backtitle" --title " $Title " --menu \
       "$Message" \
       25 78 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?

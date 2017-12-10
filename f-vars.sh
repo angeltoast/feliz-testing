@@ -39,7 +39,7 @@ SetLanguage() {
   
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
-  dialog --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
+  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
            Please choose your language" 22 60 11 \
@@ -106,7 +106,7 @@ function not_found()
   else
     Length=25
   fi
-  dialog --title " Not Found " --msgbox "\n$Message" $Height $Length
+  dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message" $Height $Length
 }
 
 Echo() { # Use in place of 'echo' for basic text print
@@ -120,7 +120,7 @@ print_heading() {   # Always use this function to clear the screen
 
 InputBox() {  # General-purpose input box
             # $1 & $2 are box size
-  dialog --title " $Title " --clear \
+  dialog --backtitle "$Backtitle" --title " $Title " --clear \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)

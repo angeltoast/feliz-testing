@@ -41,6 +41,8 @@ mv dialogrc .dialogrc
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
+Backtitle="Feliz"
+
 SetLanguage                            # Use appropriate language file
 
 timedatectl set-ntp true

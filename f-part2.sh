@@ -98,7 +98,7 @@ function EasyEFI()
     PrintMany "assign a swap-file. It is advised to allow some swap"
     PrintMany "Do you wish to allocate a swapfile?"
 
-    dialog --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
     retval=$?
     if [ $retval -eq 0 ]; then
       print_heading
@@ -175,7 +175,7 @@ function EasyDiskSize()
     Message="$Message ${FreeSpace}MiB:"
     PrintOne "This is not enough for an installation"
     Translate "Exit"
-    dialog --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
     exit
   elif [ ${FreeSpace} -lt 4096 ]; then    # If less than 4GiB
     PrintOne "Your device has only"
@@ -183,13 +183,13 @@ function EasyDiskSize()
     PrintMany "This is just enough for a basic"
     PrintMany "installation, but you should choose light applications only"
     PrintMany "and you may run out of space during installation or at some later time"
-    dialog --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
   elif [ ${FreeSpace} -lt 8192 ]; then    # If less than 8GiB
     PrintOne "Your device has"
     Messgae="$Message ${FreeSpace}MiB:"
     PrintMany "This is enough for"
     PrintMany "installation, but you should choose light applications only"
-    dialog --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
   fi
 }
 
@@ -230,7 +230,7 @@ function EasyBoot()
     Echo
     if [ ${CheckInput} != "M" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
       PrintOne "You must include M, G or %"
-      dialog --infobox "$Message" 10 60
+      dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
       BootSize=""
     else
       BootSize="${RESPONSE}"
@@ -387,7 +387,7 @@ function last_chance()
   Message="$Message ${UseDisk}"
   PrintMany "Are you sure you wish to continue?"
 
-  dialog --yesno "$Message" 30 75
+  dialog --backtitle "$Backtitle" --yesno "$Message" 30 75
 }
 
 function ActionEasyPart()
@@ -504,7 +504,7 @@ function ActionEasyPart()
   
   AutoPart=1                  # Treat as auto-partitioned. Set flag to 'on' for mounting
 
-  dialog --title "$Title" --yesno "$Message" 20 70
+  dialog --backtitle "$Backtitle" --title "$Title" --yesno "$Message" 20 70
 }
 
 function WipeDevice()
@@ -525,7 +525,7 @@ function GuidedMBR()
   PrintMany "This facility is restricted to creating /root, /swap and /home"
   Message="${Message}\n"
   PrintMany "Are you sure you wish to continue?"
-  dialog --yesno "$Message" 15 70
+  dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
   if [ $retval -eq 2 ]; then
     CheckParts                # Go right back to start
   fi
@@ -538,7 +538,7 @@ function GuidedMBR()
     PrintMany "assign a swap-file. It is advised to allow some swap"
     Message="${Message}\n"
     PrintMany "Do you wish to allocate a swapfile?"
-    dialog --yesno "$Message" 15 70
+    dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
     if [ $retval -eq 1 ]; then
       SetSwapFile # Note: Global variable SwapFile is set by SetSwapFile
     fi            # and SwapFile is created during installation by MountPartitions
@@ -585,7 +585,7 @@ function GuidedRoot()
       RootSize=""
     elif [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
       PrintOne "You must include M, G or %"
-      dialog --msgbox "$Message"
+      dialog --backtitle "$Backtitle" --msgbox "$Message"
       RootSize=""
     else
       RootSize=$RESPONSE
@@ -641,7 +641,7 @@ function GuidedSwap()
 
     case ${RESPONSE} in
     '') PrintOne "Do you wish to allocate a swapfile?"
-      dialog --yesno "$Message" 10 50
+      dialog --backtitle "$Backtitle" --yesno "$Message" 10 50
       if [ $retval -eq 0 ]; then
         print_heading
         SetSwapFile
@@ -652,7 +652,7 @@ function GuidedSwap()
       CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
         PrintOne "You must include M, G or %"
-        dialog --msgbox "$Message"
+        dialog --backtitle "$Backtitle" --msgbox "$Message"
         SwapSizeSize=""
       else
         SwapSize=$RESPONSE
@@ -693,7 +693,7 @@ function GuidedHome()
         CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
         PrintOne "You must include M, G or %"
-        dialog --msgbox "$Message"
+        dialog --backtitle "$Backtitle" --msgbox "$Message"
         HomeSize=""
       else
         HomeSize=$RESPONSE
