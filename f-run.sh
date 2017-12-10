@@ -71,7 +71,7 @@ MountPartitions() {
       mkfs.xfs -f ${RootPartition} 2>> feliz.log                      # eg: mkfs.xfs -f /dev/sda2
     else                                                              # /root is not btrfs
       Partition=${RootPartition: -4}                                  # Last 4 characters (eg: sda1)
-      Label="${Labelled[${Partition}]}"                         # Check to see if it has a label
+      Label="${Labelled[${Partition}]}"                               # Check to see if it has a label
       if [ -n "${Label}" ]; then                                      # If it has a label ...
         Label="-L ${Label}"                                           # ... prepare to use it
       fi
@@ -594,7 +594,7 @@ Restart() {
   Item2="$(echo $Result | cut -d' ' -f2)"
 
   dialog --backtitle "$Backtitle" --title " Finish " --nocancel --menu "$Message" \
-      8 30 2 \
+      12 30 2 \
       1 "$Item1" \
       2 "$Item2" 2>output.file
   retval=$?

@@ -278,7 +278,7 @@ function SetSubZone() # Called from SetTimeZone
     Cancel="Back"
     Message=""
     
-    Menu  23 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
+    Menu  22 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
     if [ $retval -eq 0 ]; then
       SUBZONE="$Result"
     else
@@ -402,7 +402,7 @@ function setlocale()
       MenuVariable="$choosefrom Edit_locale.gen"                    # Add manual edit option to menu
       Cancel="Exit"
   
-      Menu  20 50 # Arguments are dialog size. To display a menu and return $Result & $retval
+      Menu 17 50 # Arguments are dialog size. To display a menu and return $Result & $retval
       Response="$retval"
   
       if [ $Response -eq 1 ]; then                                  # If user chooses <Exit>
@@ -499,8 +499,8 @@ function getkeymap()
     *) # If the search found multiple matches
       MenuVariable="$ListKbs"
       PrintOne "Please choose one"
-
-      Menu 15 40 "--nocancel"
+      Translate "None_of_these"
+      Menu 15 40 "$Result"
       case ${retval} in
         0) Countrykbd="${Result}"
         ;;
@@ -655,12 +655,13 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
     # Prepare information messages
     if [ -z "$LuxuriesList" ]; then
       PrintOne "Now you have the option to add extras, such as a web browser"
+      Message="\n${Message}"
       PrintMany "desktop environment, etc, from the following categories"
     fi
     # Display categories as numbered list
     Title="Arch Linux"
     MenuVariable="${TransCatList}"
-    NumberMenu  22 70 "Done"              # Displays numbered menu
+    NumberMenu  20 70 "Done"              # Displays numbered menu of categories
     # Process exit variables
     if [ $retval -ne 0 ]; then
       if [ -n "${LuxuriesList}" ]; then
@@ -1081,7 +1082,7 @@ function FinalCheck()
       stpt=$(( (T_COLS - 10) / 2 ))
     fi
     EMPTY="$(printf '%*s' $stpt)"
-    read -p "$EMPTY $1" retval
+    read -p "$EMPTY $Result" retval
 
     Change=$retval
     case $Change in

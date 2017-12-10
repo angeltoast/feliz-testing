@@ -42,7 +42,7 @@ SetLanguage() {
   dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
-           Please choose your language" 22 60 11 \
+           Please choose your language" 21 60 11 \
       en "English" \
       de "Deutsche" \
       el "Ελληνικά" \

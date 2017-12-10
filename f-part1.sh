@@ -26,15 +26,15 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# CheckParts            41    EditLabel           393
-# Build                130    AllocateRoot        430
-# Partitioning         178    CheckPartition      498
-# ChooseDevice         214    AllocateSwap        508   
-#                             NoPartitions        565
-# partition_maker      279    SetSwapFile         581
-# autopart             321    MorePartitions      603
-# ChoosePartitions     365    MakePartition       657
-# select_filesystem    380    PartitionMenu       717
+# CheckParts            41    EditLabel           362
+# BuildLists           117    AllocateRoot        399
+# Partitioning         163    CheckPartition      450
+# ChooseDevice         199    AllocateSwap        462   
+# partition_maker      248    NoPartitions        519
+# autopart             290    SetSwapFile         536
+# ChoosePartitions     335    MorePartitions      556
+# select_filesystem    350    MakePartition       593
+#                             PartitionMenu       648
 # ------------------------    ------------------------
 
 function CheckParts()   # Called by feliz.sh
@@ -408,13 +408,15 @@ function AllocateRoot() # Called by ChoosePartitions
   PartitionType=""
   PrintOne "Please select a partition to use for /root"
   PartitionMenu
-
+echo "$Result"
   Reply=$retval
   PassPart=${Result:0:4}          # eg: sda4
   MountDevice=${PassPart:3:2}     # Save the device number for 'set x boot on'
   Partition="/dev/$Result"
   RootPartition="${Partition}"
-  
+
+read -p "$RootPartition"
+
   # Before going to select_filesystem, check if there is an existing file system on the selected partition
   CheckPartition  # This sets variable CurrentType and starts the Message
   
@@ -502,9 +504,10 @@ function AllocateSwap()
         fi
     fi
     
-    PartitionList=$SavePartitionList        # Restore original PartitionList and remove selected partition
+    PartitionList="$SavePartitionList"                            # Restore PartitionList (without 'swapfile')
+    
     if [ $Result != "swapfile" ]; then
-      PartitionList=$(echo "$PartitionList" | sed "s/$Result//") # Remove the used partition from the list
+      PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
       
     if [ $SwapFile ]; then
