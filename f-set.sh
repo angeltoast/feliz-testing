@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 10th December 2017
+# Revision date: 14th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -656,12 +656,14 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
     fi
   done
   
-  for i in $LuxuriesList                        # Run through list
+  for i in $LuxuriesList                              # Run through list
   do
-    Check="$(echo $Desktops | grep $i)"         # Test if a DE
+    Check="$(echo $Desktops | grep $i)"               # Test if a DE
     if [ -n "$Check" ]; then
-      DesktopEnvironment="$i"                   # Add the first and break
-      break
+      DesktopEnvironment="$i"                         # Add as DE
+      if [[ "$DesktopEnvironment" == "Gnome" ]; then  # Gnome installs own DM, so add and break
+        break
+      fi
     fi
   done
 
@@ -769,7 +771,8 @@ function select_from() # Called by ShoppingList
     if [ -n "$LuxuriesList" ]; then
       for i in ${Copycat}
       do
-        LuxuriesList=$(echo "$LuxuriesList" | sed "s/$i//")
+      #  LuxuriesList=$(echo "$LuxuriesList" | sed "s/$i//")
+        LuxuriesList="${LuxuriesList//${i} }"
       done
     fi
     # Display the contents of the temporary array in a Dialog menu
@@ -941,7 +944,8 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       Checklist 25 70 "--nocancel" "--checklist"
       Country="$Result"
       if [ "$Country" = "" ]; then
-        PrintOne "You must select at least one."
+        Translate "You must select at least one."
+        Title="$Result"
       else   
         # Add to array for use during installation
         Counter=0
@@ -981,7 +985,6 @@ function FinalCheck()
     print_heading
     FinalOne "These are the settings you have entered."
     FinalOne "Please check them before Feliz begins the installation"
-    echo
     Translate "Zone/subZone will be"
     FinalMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"
@@ -1053,9 +1056,8 @@ function FinalCheck()
     fi
     Translate="Y"
     Response=20
-    echo
     FinalOne "Press Enter to install with these settings, or"
-    Translate "Enter number for data to change"
+    Translate "Enter number for data to change: "
     # Prompt user for a number
     local T_COLS=$(tput cols)
     local lov=${#Result}

@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 9th December 2017
+# Revision date: 14th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -152,13 +152,13 @@ function EasyDevice()
 }
 
 function EasyDiskSize()
-{ # EFI - Establish size of device in MiB and inform user
+{ # Establish size of device in MiB and inform user
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
-  # 3) Remove last character for calculations
+  # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
   Available=${DiskSize:0:Chars-1} # Separate the value from the unit
-  # 4) Must be integer, so remove any decimal point and any character following
+  # Must be integer, so remove any decimal point and any character following
   Available=${Available%.*}
   if [ $Unit = "G" ]; then
     FreeSpace=$((Available*1024))
@@ -169,7 +169,7 @@ function EasyDiskSize()
   else
     FreeSpace=$Available
   fi
-  # 5) Warn user if space is limited
+  # Warn user if space is limited
   if [ ${FreeSpace} -lt 2048 ]; then      # If less than 2GiB
     PrintOne "Your device has only"
     Message="$Message ${FreeSpace}MiB:"
@@ -517,8 +517,6 @@ function WipeDevice()
 
 function GuidedMBR()
 { # Main MBR function - Inform user of purpose, call each step
-  EasyDevice                  # Get details of device to use
-  EasyDiskSize                # Get available space in MiB
   PrintOne "Here you can set the size and format of the partitions"
   PrintMany "you wish to create. When ready, Feliz will wipe the disk"
   PrintMany "and create a new partition table with your settings"
@@ -529,6 +527,8 @@ function GuidedMBR()
   if [ $retval -eq 2 ]; then
     CheckParts                # Go right back to start
   fi
+  EasyDevice                  # Get details of device to use
+  EasyDiskSize                # Get available space in MiB
   GuidedRoot                  # Create /root partition
   EasyRecalc "$RootSize"      # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]; then

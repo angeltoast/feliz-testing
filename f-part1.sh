@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 10th December 2017
+# Revision date: 14th October 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -335,7 +335,13 @@ function autopart() # Called by ChooseDevice
 function ChoosePartitions()  # Called by feliz.sh after CheckParts
 { # Calls AllocateRoot, AllocateSwap, NoPartitions, MorePartitions
   if [ $AutoPart -eq 0 ]; then
-    AllocateRoot                        # Allow user to select root partition
+  
+    RootPartition=""
+    while [[ "$RootPartition" == "" ]]
+    do
+      AllocateRoot                      # User must select root partition
+    done
+                                        # All others are optional
     if [ -n "${PartitionList}" ]; then  # If there are unallocated partitions
       AllocateSwap                      # Display display them for user to choose swap
     else                                # If there is no partition for swap
@@ -417,7 +423,11 @@ function AllocateRoot() # Called by ChoosePartitions
   PrintOne "Please select a partition to use for /root"
   
   PartitionMenu
-  Reply=$retval
+  if [ $retval -ne 0 ]; then 
+    PartitionType=""
+    return
+  fi
+  
   PassPart=${Result:0:4}          # eg: sda4
   MountDevice=${PassPart:3:2}     # Save the device number for 'set x boot on'
   Partition="/dev/$Result"
@@ -436,12 +446,12 @@ function AllocateRoot() # Called by ChoosePartitions
   select_filesystem  20 75      # This sets variable PartitionType
   
   if [ $retval -ne 0 ]; then    # User has cancelled the operation
-    PartitionType=""
+    PartitionType=""            # PartitionType can be empty (will not be formatted)
   else
     PartitionType="$Result"
   fi
   
-  RootType="${PartitionType}"                   # PartitionType can be empty (will not be formatted)
+  RootType="${PartitionType}" 
   Label="${Labelled[${PassPart}]}"
   if [ -n "${Label}" ]; then
     EditLabel $PassPart

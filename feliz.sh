@@ -43,24 +43,24 @@ echo "${StartTime}" >> feliz.log
 
 Backtitle="Feliz"
 
-SetLanguage                            # Use appropriate language file
+SetLanguage                           # Use appropriate language file
 
 timedatectl set-ntp true
 
 # Localisation
-setlocale                              # CountryLocale eg: en_GB.UTF-8
-getkeymap                              # Select keyboard layout eg: uk
+setlocale                             # CountryLocale eg: en_GB.UTF-8
+getkeymap                             # Select keyboard layout eg: uk
 SetHostname
 
-Options                                # Re-added 12 August 2017
+Options                               # Re-added 12 August 2017
 
-if [ $Scope != "Basic" ]; then         # If any extra apps have been added
+if [ $Scope != "Basic" ]; then        # If any extra apps have been added
 
-  if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ]; then
-    ChooseDM
+  if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]; then
+    ChooseDM                          # Gnome and FelizOB install their own DM
   fi
 
-  UserName                             # Enter name of primary user
+  UserName                            # Enter name of primary user
 
   # Check if running in Virtualbox, and offer to include guest utilities
   if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
