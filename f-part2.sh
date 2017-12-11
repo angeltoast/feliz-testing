@@ -102,7 +102,7 @@ function EasyEFI()
     retval=$?
     if [ $retval -eq 0 ]; then
       print_heading
-      Echo
+      echo
       SetSwapFile           # Note: Global variable SwapFile is set by SetSwapFile
     fi                      # (SwapFile is created during installation by MountPartitions)
   fi
@@ -227,7 +227,7 @@ function EasyBoot()
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
     CheckInput=${RESPONSE: -1}
-    Echo
+    echo
     if [ ${CheckInput} != "M" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
       PrintOne "You must include M, G or %"
       dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
@@ -261,7 +261,7 @@ function EasyRoot()
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
-    Echo
+    echo
     if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
       PrintOne "You must include M, G or %"
       RootSize=""
@@ -313,7 +313,7 @@ EasySwap() { # EFI - Set variable: SwapSize
     case ${RESPONSE} in
     '' | 0) PrintOne "Do you wish to allocate a swapfile?"
       Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
-      Echo
+      echo
       if [ $Response -eq 1 ]; then
         SetSwapFile
       fi
@@ -357,7 +357,7 @@ function EasyHome()
 
     InputBox 30 75
     RESPONSE="${Result^^}"
-    Echo
+    echo
     case ${RESPONSE} in
       "" | 0) HomeSize=""
       ;;
@@ -580,7 +580,7 @@ function GuidedRoot()
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
-    Echo
+    echo
     if [ -z ${CheckInput} ]; then
       RootSize=""
     elif [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
@@ -685,7 +685,7 @@ function GuidedHome()
 
     InputBox 12 70
     RESPONSE="${Result^^}"
-    Echo
+    echo
     case ${RESPONSE} in
     "") return
     ;;

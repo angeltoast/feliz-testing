@@ -26,14 +26,14 @@
 # --------------------   -----------------------
 # Function        Line   Function           Line
 # --------------------   -----------------------
-# Checklist         43   Options             604
-# Menu              80   PickLuxuries        647
+# Checklist         44   Options             604
+# Menu              81   PickLuxuries        647
 # NumberMenu       124   ShoppingList        695
 # SetTimeZone      170   select_from         755
-# SetSubZone       224   ChooseDM            810
-# America          268   SetGrubDevice       860
-# DoCities         319   EnterGrubPath       893
-# setlocale        342   SetKernel           921
+# SetSubZone       222   ChooseDM            810
+# America          266   SetGrubDevice       860
+# DoCities         317   EnterGrubPath       893
+# setlocale        340   SetKernel           921
 # Mano             417   ChooseMirrors       941
 # getkeymap        437   ConfirmVbox        1007
 # SearchKeyboards  499    --- Review stage --- 
@@ -42,13 +42,15 @@
 # --------------------   -----------------------
 
 function Checklist()
-{ # New function to display a Dialog checklist from checklist.file
-  # $1 and $2 are dialog box size; $3 is optional "--nocancel" $4 is checklist/radiolist switch
+{ # Display a Dialog checklist from checklist.file
+  # $1 and $2 are dialog box size
+  # $3 is optional "--nocancel"
   if [ $3 ] && [ $3 = "--nocancel" ]; then 
     cancel="$3"
   else
     cancel=""
   fi
+  # $4 is checklist/radiolist switch
   if [ $4 ]; then 
     Type="$4"
   else
@@ -56,51 +58,26 @@ function Checklist()
   fi
   
   # 1) Prepare list for display
-    declare -a ItemList=()                                    # Array will hold entire checklist
+    declare -a ItemList=()                              # Array will hold entire checklist
     Items=0
     Counter=0
-    while read -r Item                                        # Read items from the existing list
-    do                                                        # and copy each one to the variable
+    while read -r Item                                  # Read items from the existing list
+    do                                                  # and copy each one to the variable
       Counter=$((Counter+1)) 
       Items=$((Items+1))
       ItemList[${Items}]="${Item}"
       Items=$((Items+1))
       ItemList[${Items}]="${Item}" 
       Items=$((Items+1))
-      ItemList[${Items}]="off"                            # with added off switch and newline
+      ItemList[${Items}]="off"                          # with added off switch and newline
     done < checklist.file
     Items=$((Items/3))
 
   # 2) Display the list for user-selection
     dialog --backtitle "$Backtitle" --title " $Title " "$cancel" --no-tags --separate-output "$Type" \
-      "     Space to select/deselect.\n       < OK > when ready. " $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+      "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
-    Result=$(cat output.file)
-}
-
-function ChooseMirrors()
-{ # User selects one or more countries with Arch Linux mirrors
-  # Prepare files of official Arch Linux mirrors
-  # 1) Download latest list of Arch Mirrors to temporary file
-  curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
-  if [ $? -ne 0 ]; then
-    PrintOne "Unable to fetch list of mirrors from Arch Linux"
-    PrintMany "Using the list supplied with the Arch iso"
-    not_found 6 30
-    cp /etc/pacman.d/mirrorlist > archmirrors.list
-  fi
-  # 2) Get line number of first country
-  FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
-  # 3) Remove header and save in new file
-  tail -n +${FirstLine} archmirrors.list > allmirrors.list
-  # 4) Delete temporary file
-  rm archmirrors.list
-  # 5) Create countries.list from allmirrors.list, using '##' to identify
-  #                        then removing the '##' and leading spaces
-  #                                       and finally save to new file for later reference
-  grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > countries.list
-  # Shorten Bosnia and Herzegovina to BosniaHerzegov
-  sed -i 's/Bosnia and Herzegovina/BosniaHerzegov/g' countries.list
+    Result=$(cat output.file)                           # Return values to calling function
 }
 
 function Menu()
@@ -959,9 +936,8 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       PrintMany "one, but adding too many will slow down your installation"
       dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
   
-      Translate "Please choose a country"
-      Title="$Result"
-      
+      PrintOne "Please choose a country"
+
       Checklist 25 70 "--nocancel" "--checklist"
       Country="$Result"
       if [ "$Country" = "" ]; then
@@ -1005,7 +981,7 @@ function FinalCheck()
     print_heading
     FinalOne "These are the settings you have entered."
     FinalOne "Please check them before Feliz begins the installation"
-    Echo
+    echo
     Translate "Zone/subZone will be"
     FinalMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"
@@ -1077,7 +1053,7 @@ function FinalCheck()
     fi
     Translate="Y"
     Response=20
-    Echo
+    echo
     FinalOne "Press Enter to install with these settings, or"
     Translate "Enter number for data to change"
     # Prompt user for a number

@@ -89,7 +89,6 @@ fi
 
 FinalCheck                             # Allow user to change any variables
 
-print_heading
 TPecho "Preparations complete"
 TPecho "Entering automatic installation phase"
 
@@ -136,7 +135,6 @@ TPecho "Preparing local services" ""
     echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
   fi
 # Grub
-  print_heading
   TPecho "$_Installing " "Grub"
   if [ ${GrubDevice} = "EFI" ]; then               # Installing grub in UEFI environment
     pacstrap /mnt grub efibootmgr
@@ -158,7 +156,6 @@ TPecho "Preparing local services" ""
   echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
   echo -e "Section \"InputClass\"\nIdentifier \"system-keyboard\"\nMatchIsKeyboard \"on\"\nOption \"XkbLayout\" \"${Countrykbd}\"\nEndSection" > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf 2>> feliz.log
 # Extra processes for desktop installation
-  print_heading
   if [ $Scope != "Basic" ]; then
     AddCodecs # Various bits
     if [ ${IsInVbox} = "VirtualBox" ]; then                   # If in Virtualbox
@@ -191,8 +188,4 @@ if [ $Scope != "Basic" ]; then
 fi
 
 cp feliz.log ltsgroup.txt /mnt/etc                            # Copy installation log for reference
-print_heading
-Echo
-PrintOne "Congratulations, installation is complete"
-Echo
 Restart                                                       # Options to shutdown or reboot

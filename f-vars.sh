@@ -28,7 +28,7 @@
 # --------------------   ----------------------
 # SetLanguage       38   read_timed         161
 # not_found         97   CompareLength      180
-# Echo             102   PaddLength         188
+# echo             102   PaddLength         188
 # InputBox         107   Common             197
 # print_heading    114   Translate          246
 # PrintOne         127   Arrays & Variables 266
@@ -109,11 +109,6 @@ function not_found()
   dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message" $Height $Length
 }
 
-Echo() { # Use in place of 'echo' for basic text print
-  printf "%-s\n" "$1"
-  cursor_row=$((cursor_row+1))
-}
-
 print_heading() {   # Always use this function to clear the screen
   clear
 }
@@ -155,7 +150,7 @@ function FinalOne() # Called by FinalCheck to display all user-defined variables
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  Echo "$EMPTY $Text"
+  echo "$EMPTY $Text"
 }
 
 function FinalMany() # Called by FinalCheck to display all user-defined variables
@@ -169,7 +164,7 @@ function FinalMany() # Called by FinalCheck to display all user-defined variable
   else                              # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
-  Echo "$EMPTY $Text"
+  echo "$EMPTY $Text"
 }
 
 read_timed() { # Timed display - $1 = text to display; $2 = duration

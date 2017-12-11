@@ -48,11 +48,10 @@ TPecho() { # For displaying status while running on auto
   tput bold
   PrintOne "$1" "$2" "$3"
   tput sgr0
-  Echo
+  echo
 }
 
 MountPartitions() {
-  clear
   TPecho "Preparing and mounting partitions" ""
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
@@ -170,7 +169,6 @@ InstallKernel() { # Selected kernel and some other core systems
 }
 
 AddCodecs() {
-  clear
   TPecho "$_Installing " "codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
   clear
@@ -202,7 +200,6 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
   # In f-set.sh/ChooseMirrors the user has selected one or more countries with Arch Linux mirrors
   # These have been stored in the array CountryLong[@] declared in f-vars.sh
   # Now the mirrors associated with each of those countries must be extracted from the array
-  clear
   TPecho "Generating mirrorlist"
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
 
@@ -249,7 +246,6 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
 }
 
 InstallDM() { # Disable any existing display manager
-  clear
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
   TPecho "$_Installing " "${DisplayManager}"
@@ -264,7 +260,6 @@ InstallDM() { # Disable any existing display manager
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  clear
   # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "$_Installing " "FelizOB"
@@ -377,7 +372,6 @@ InstallLuxuries() { # Install desktops and other extras
 }
 
 InstallYaourt() {
-  clear
   TPecho "$_Installing " "Yaourt"
   arch=$(uname -m)
   if [ ${arch} = "x86_64" ]; then                                     # Identify 64 bit architecture
@@ -399,7 +393,6 @@ InstallYaourt() {
 }
 
 UserAdd() {
-  clear
   CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
   # If not already exist, create user
   if [ -z "${CheckUsers}" ]; then
@@ -489,7 +482,7 @@ SetRootPassword() {
   mins="$Result"
   Translate "seconds"
   secs="$Result"
-  PrintMany "Finished installing in"
+  PrintOne "Finished installing in"
   Message="$Message ${DIFFMIN} $mins ${DIFFSEC} ${secs}\n"
   PrintMany "Finally we need to set passwords"
   Message="${Message}\n"
@@ -596,12 +589,13 @@ Restart() {
       1 "$Item1" \
       2 "$Item2" 2>output.file
   retval=$?
+  Result="$(cat output.file)"
   rm output.file
   # umount /mnt -R
-  case $retval in
-  0) shutdown -h now
+  case $Result in
+  1) shutdown -h now
   ;;
-  1) reboot
+  2) reboot
   ;;
   *) exit
   esac

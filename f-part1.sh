@@ -174,7 +174,7 @@ function Partitioning()  # Called by CheckParts after user selects an action.
     ;;
     3) if [ ${UEFI} -eq 1 ]; then
         print_heading
-        Echo
+        echo
         EasyEFI                 # New guided manual partitioning functions
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
@@ -216,7 +216,7 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
         PrintMany "   (Remember, this is auto-partition, and any data"
         Translate "on the chosen device will be destroyed)"
         Message="${Message}\n      ${Result}\n"
-        Echo
+        echo
         
         Menu 15 60
         if [ $retval -ne 0 ]; then return; fi
