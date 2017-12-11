@@ -659,9 +659,12 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
   for i in $LuxuriesList                              # Run through list
   do
     Check="$(echo $Desktops | grep $i)"               # Test if a DE
-    if [ -n "$Check" ]; then
+    if [ -n "$Check" ]; then                          # This is just to set a primary DE variable
       DesktopEnvironment="$i"                         # Add as DE
-      if [ "$DesktopEnvironment" = "Gnome" ]; then  # Gnome installs own DM, so add and break
+      if [ "$DesktopEnvironment" = "Gnome" ]; then    # Gnome installs own DM, so break after adding
+        break
+      elif [ "$DesktopEnvironment" = "Budgie" ]; then # Budgie relies on Gnome, and Gnome
+        DesktopEnvironment="Gnome"                    # installs own DM, so break after adding
         break
       fi
     fi

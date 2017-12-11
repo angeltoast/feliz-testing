@@ -152,7 +152,6 @@ InstallKernel() { # Selected kernel and some other core systems
     pacman-key --refresh-keys
     pacman -Sy --noconfirm archlinux-keyring
   fi
-  clear
   Translate "kernel and core systems"
   TPecho "$_Installing " "$Result"
   case $Kernel in
@@ -171,21 +170,17 @@ InstallKernel() { # Selected kernel and some other core systems
 AddCodecs() {
   TPecho "$_Installing " "codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
-  clear
   Translate "Wireless Tools"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
   # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
-  clear
   Translate "Graphics tools"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
-  clear
   Translate "opensource video drivers"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
-  clear
   Translate "fonts"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt ttf-liberation 2>> feliz.log
@@ -290,6 +285,7 @@ InstallLuxuries() { # Install desktops and other extras
         ;;
       "Budgie") TPecho "$_Installing " "Budgie"
           pacstrap /mnt budgie-desktop gnome 2>> feliz.log
+          systemctl enable gdm.service
         ;;
       "Cinnamon") TPecho "$_Installing Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log
@@ -303,6 +299,7 @@ InstallLuxuries() { # Install desktops and other extras
       "Gnome") TPecho "$_Installing " "Gnome"
           pacstrap /mnt gnome 2>> feliz.log
           pacstrap /mnt gnome-extra 2>> feliz.log
+          systemctl enable gdm.service
         ;;
       "i3") TPecho "$_Installing " "i3 window manager"
           pacstrap /mnt i3 2>> feliz.log                              # i3 group includes i3-wm

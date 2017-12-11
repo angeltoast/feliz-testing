@@ -112,7 +112,7 @@ TPecho "Preparing local services" ""
     echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
   fi
   GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # Check secondary locale not already set
-  if [ -z $GrepTest ] && [ "${CountryLocale:0:2}" != "en" ]; then     # and main is not English, add it at bottom
+  if [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then     # and main is not English, add it at bottom
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # Added for completeness
   fi
   cp -f /etc/locale.gen /mnt/etc/                                     # Copy to installed system
