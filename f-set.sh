@@ -655,16 +655,14 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
       fi
     fi
   done
-  
+
   for i in $LuxuriesList                              # Run through list
   do
     Check="$(echo $Desktops | grep $i)"               # Test if a DE
     if [ -n "$Check" ]; then                          # This is just to set a primary DE variable
       DesktopEnvironment="$i"                         # Add as DE
       if [ "$DesktopEnvironment" = "Gnome" ]; then    # Gnome installs own DM, so break after adding
-        break
-      elif [ "$DesktopEnvironment" = "Budgie" ]; then # Budgie relies on Gnome, and Gnome
-        DesktopEnvironment="Gnome"                    # installs own DM, so break after adding
+        DisplayManager=""
         break
       fi
     fi
@@ -791,46 +789,25 @@ function select_from() # Called by ShoppingList
 
 function ChooseDM()
 { # Choose a display manager
-  while true
-  do
-    case "$DisplayManager" in
-    "") # Only offered if no other display manager has been set
-      Counter=0
-      Translate "Display Manager"
-      Title="$Result"
-      PrintOne "A display manager provides a graphical login screen"
-      PrintMany "If in doubt, choose"
-      Message="$Message LightDM"
-      PrintMany "If you do not install a display manager, you will have"
-      PrintMany "to launch your desktop environment manually"
-      
-      dialog --backtitle "$Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
-        "GDM" "-" \
-        "LightDM" "-" \
-        "LXDM" "-" \
-        "sddm" "-" \
-        "SLIM" "-" \
-        "XDM" "-" 2> output.file
-      retval=$?
-      if [ $retval -ne 0 ]; then return; fi
-      DisplayManager="$(cat output.file)"
-      return
-    ;;
-    *) # Warn that DM already set, and offer option to change it
-      Translate "Display manager is already set as"
-      Message="$Result : ${DisplayManager}"
-      PrintMany "Only one display manager can be active"
-      PrintMany "Do you wish to change it?"
-      
-      dialog --backtitle "$Backtitle" --yesno "$Message" 10 50
-      retval=$?
-      if [ $retval -eq 0 ]; then      # User wishes to change DM
-        DisplayManager=""             # Clear DM variable before restarting
-      else
-        return
-      fi
-    esac
-  done
+  Counter=0
+  Translate "Display Manager"
+  Title="$Result"
+  PrintOne "A display manager provides a graphical login screen"
+  PrintMany "If in doubt, choose"
+  Message="$Message LightDM"
+  PrintMany "If you do not install a display manager, you will have"
+  PrintMany "to launch your desktop environment manually"
+  
+  dialog --backtitle "$Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
+    "GDM" "-" \
+    "LightDM" "-" \
+    "LXDM" "-" \
+    "sddm" "-" \
+    "SLIM" "-" \
+    "XDM" "-" 2> output.file
+  retval=$?
+  if [ $retval -ne 0 ]; then return; fi
+  DisplayManager="$(cat output.file)"
 }
 
 function SetGrubDevice()
@@ -985,9 +962,9 @@ function FinalCheck()
 { # Display all user settings before starting installation
   while true
   do
-    print_heading
     FinalOne "These are the settings you have entered."
-    FinalOne "Please check them before Feliz begins the installation"
+    FinalMany "Please check them before Feliz begins the installation"
+    Message="\n${Message}\n"
     Translate "Zone/subZone will be"
     FinalMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"

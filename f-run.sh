@@ -284,8 +284,7 @@ InstallLuxuries() { # Install desktops and other extras
           pacstrap /mnt awesome 2>> feliz.log
         ;;
       "Budgie") TPecho "$_Installing " "Budgie"
-          pacstrap /mnt budgie-desktop gnome 2>> feliz.log
-          systemctl enable gdm.service
+          pacstrap /mnt budgie-desktop 2>> feliz.log
         ;;
       "Cinnamon") TPecho "$_Installing Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log

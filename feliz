@@ -51,7 +51,7 @@ timedatectl set-ntp true
 setlocale                             # CountryLocale eg: en_GB.UTF-8
 getkeymap                             # Select keyboard layout eg: uk
 SetHostname
-
+DesktopEnvironment=""
 Options                               # Re-added 12 August 2017
 
 if [ $Scope != "Basic" ]; then        # If any extra apps have been added
