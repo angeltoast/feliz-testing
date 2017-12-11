@@ -808,9 +808,7 @@ function ChooseDM()
   retval=$?
   if [ $retval -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
-
-read -p "$DisplayManager"
-  
+  DisplayManager="${DisplayManager,,}"
 }
 
 function SetGrubDevice()
@@ -966,9 +964,10 @@ function FinalCheck()
   while true
   do
     clear
+    echo
     FinalOne "These are the settings you have entered."
     FinalMany "Please check them before Feliz begins the installation"
-    Message="\n${Message}\n"
+    echo
     Translate "Zone/subZone will be"
     FinalMany "1) $Result" "$ZONE/$SUBZONE"
     Translate "Locale will be set to"
