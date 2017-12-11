@@ -58,12 +58,12 @@ function Checklist()
   # 1) Prepare list for display
     declare -a ItemList=()                                    # Array will hold entire checklist
     Items=0
-    Counter=1
+    Counter=0
     while read -r Item                                        # Read items from the existing list
     do                                                        # and copy each one to the variable
-      Items=$((Items+1))
-      ItemList[${Items}]="${Counter}"
       Counter=$((Counter+1)) 
+      Items=$((Items+1))
+      ItemList[${Items}]="${Item}"
       Items=$((Items+1))
       ItemList[${Items}]="${Item}" 
       Items=$((Items+1))
@@ -965,7 +965,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       Checklist 25 70 "--nocancel" "--checklist"
       Country="$result"
       if [ "$Result" != "" ]; then
-        PrintMany "You must select at least one."
+        PrintOne "You must select at least one."
       else   
         # Add to array for use during installation
         Counter=1
