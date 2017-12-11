@@ -661,7 +661,7 @@ function PickLuxuries()  # Menu of categories of selected items from the Arch re
     Check="$(echo $Desktops | grep $i)"               # Test if a DE
     if [ -n "$Check" ]; then
       DesktopEnvironment="$i"                         # Add as DE
-      if [[ "$DesktopEnvironment" == "Gnome" ]; then  # Gnome installs own DM, so add and break
+      if [ "$DesktopEnvironment" = "Gnome" ]; then  # Gnome installs own DM, so add and break
         break
       fi
     fi
