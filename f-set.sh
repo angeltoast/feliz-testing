@@ -72,7 +72,7 @@ function Checklist()
     Items=$((Items/3))
 
   # 2) Display the list for user-selection
-    dialog --backtitle "$Backtitle" --title " $Title " "$cancel" --no-tags "$Type" \
+    dialog --backtitle "$Backtitle" --title " $Title " "$cancel" --no-tags --separate-output "$Type" \
       "     Space to select/deselect.\n       < OK > when ready. " $1 $2 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -964,16 +964,15 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       
       Checklist 25 70 "--nocancel" "--checklist"
       Country="$result"
-      if [ "$Result" != "" ]; then
+      if [ "$Country" = "" ]; then
         PrintOne "You must select at least one."
       else   
         # Add to array for use during installation
-        Counter=1
+        Counter=0
         for Item in $(cat output.file)                            # Read items from the output.file
         do                                                        # and copy each one to the variable
-          Result="$(head -n ${Item} checklist.file | tail -n 1)"  # Read item from countries file
-          CountryLong[${Counter}]="$Result"                       # CountryLong is declared in f-vars.sh
           Counter=$((Counter+1))
+          CountryLong[${Counter}]="$Item"                         # CountryLong is declared in f-vars.sh
         done
         if [ $Counter -lt 1 ]; then Country=""; fi
       fi
