@@ -963,7 +963,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       Title="$Result"
       
       Checklist 25 70 "--nocancel" "--checklist"
-      Country="$result"
+      Country="$Result"
       if [ "$Country" = "" ]; then
         PrintOne "You must select at least one."
       else   
