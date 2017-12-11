@@ -481,7 +481,7 @@ CheckExisting() {                                                     # Test if 
 }
 
 SetRootPassword() {
-Translate "Success!"
+  Translate "Success!"
   Title="$Result"
   Translate "minutes"
   mins="$Result"
@@ -494,17 +494,19 @@ Translate "Success!"
   PrintMany "Note that you will not be able to"
   PrintMany "see passwords as you enter them"
   Message="${Message}\n"
-  
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
     PrintMany "Enter a password for"
     Message="${Message} root\n"
-    dialog --backtitle "$Backtitle" --title "$Title" --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    
+    dialog --backtitle "$Backtitle" --title " $Title " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
     Pass1=$(cat output.file)
     rm output.file
     Translate "Re-enter the password for"
-    dialog --backtitle "$Backtitle" --insecure --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
+    Message="${Message} root\n"
+    
+    dialog --backtitle "$Backtitle" --insecure --title " Root " --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
@@ -535,19 +537,24 @@ Translate "Success!"
 }
 
 SetUserPassword() {
+  PrintOne "Enter a password for"
+  Message="${Message} ${UserName}\n"
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
-    PrintMany "Enter a password for"
-    Message="${Message} ${UserName}\n"
     PrintMany "Note that you will not be able to"
     PrintMany "see passwords as you enter them"
     Message="${Message}\n"
-    dialog --backtitle "$Backtitle" --title "$UserName" --insecure --nocancel --passwordbox "$Message" 12 50 2>output.file
+    
+    dialog --backtitle "$Backtitle" --title " $UserName " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+
     Pass1=$(cat output.file)
     rm output.file
-    Translate "Re-enter the password for"
-    dialog --backtitle "$Backtitle" --title "$UserName" --insecure --nocancel --passwordbox "$Result ${UserName}\n" 10 50 2>output.file
+    PrintOne "Re-enter the password for"
+    Message="${Message} $UserName\n"
+    
+    dialog --backtitle "$Backtitle" --title " $UserName " --insecure --nocancel --passwordbox "$Message" 10 50 2>output.file
+    
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then

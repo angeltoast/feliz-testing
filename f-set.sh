@@ -574,8 +574,7 @@ function UserName()
   if [ -z $Result ]; then
     UserName="archie"
   else
-    Entered=${Result,,}
-    UserName=${Entered}
+    UserName=${Result,,}
   fi
 }
 
@@ -594,8 +593,7 @@ function SetHostname()
   if [ -z $Result ]; then
     HostName="arch-linux"
   else
-    Entered=${Result,,}
-    HostName=${Entered}
+    HostName=${Result,,}
   fi
 }
 
