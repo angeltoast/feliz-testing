@@ -52,6 +52,7 @@ TPecho() { # For displaying status while running on auto
 }
 
 MountPartitions() {
+  clear
   TPecho "Preparing and mounting partitions" ""
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
@@ -131,7 +132,8 @@ MountPartitions() {
 
 InstallKernel() { # Selected kernel and some other core systems
 
-  LANG=C                                                              # Set the locale for all processes run from the current shell 
+  # Set the locale for all processes run from the current shell 
+  LANG=C
 
   # And this, to solve keys issue if an older Feliz or Arch iso is running after keyring changes
   # Passes test if the date of the running iso is more recent than the date of the latest Arch trust update
@@ -139,20 +141,19 @@ InstallKernel() { # Selected kernel and some other core systems
   # Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
   RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
 
-  TrustDate=201709                                                    # Reset this to date of latest Arch Linux trust update
-                                                                      # Next trustdb check 2017-10-20
-  print_heading
-  if [ $RunningDate -ge $TrustDate ]; then                            # If the running iso is more recent than
-    echo "pacman-key trust check passed" >> feliz.log                 # the last trust update, no action is taken
-  else                                                                # But if the iso is older than the last trust update
-    TPecho "Updating keys"                                            # Then the keys are updated
+  TrustDate=201709                                                # Reset this to date of latest Arch Linux trust update
+                                                                  # Next trustdb check 2017-10-20
+  if [ $RunningDate -ge $TrustDate ]; then                        # If the running iso is more recent than
+    echo "pacman-key trust check passed" >> feliz.log             # the last trust update, no action is taken
+  else                                                            # But if the iso is older than the last trust update
+    TPecho "Updating keys"                                        # Then the keys are updated
     pacman-db-upgrade
     pacman-key --init
     pacman-key --populate archlinux
     pacman-key --refresh-keys
-    pacman -Sy --noconfirm archlinux-keyring                          # This is an experimental alternative to the above
+    pacman -Sy --noconfirm archlinux-keyring
   fi
-  print_heading
+  clear
   Translate "kernel and core systems"
   TPecho "$_Installing " "$Result"
   case $Kernel in
@@ -169,24 +170,24 @@ InstallKernel() { # Selected kernel and some other core systems
 }
 
 AddCodecs() {
-  print_heading
+  clear
   TPecho "$_Installing " "codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
-  print_heading
+  clear
   Translate "Wireless Tools"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
   # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
-  print_heading
+  clear
   Translate "Graphics tools"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
-  print_heading
+  clear
   Translate "opensource video drivers"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
-  print_heading
+  clear
   Translate "fonts"
   TPecho "$_Installing " "$Result"
   pacstrap /mnt ttf-liberation 2>> feliz.log
@@ -201,6 +202,7 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
   # In f-set.sh/ChooseMirrors the user has selected one or more countries with Arch Linux mirrors
   # These have been stored in the array CountryLong[@] declared in f-vars.sh
   # Now the mirrors associated with each of those countries must be extracted from the array
+  clear
   TPecho "Generating mirrorlist"
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
 
@@ -247,7 +249,7 @@ NewMirrorList() { # Use rankmirrors (script in /usr/bin/ from Arch) to generate 
 }
 
 InstallDM() { # Disable any existing display manager
-  print_heading
+  clear
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
   TPecho "$_Installing " "${DisplayManager}"
@@ -262,7 +264,7 @@ InstallDM() { # Disable any existing display manager
 }
 
 InstallLuxuries() { # Install desktops and other extras
-  print_heading
+  clear
   # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
     TPecho "$_Installing " "FelizOB"
@@ -375,7 +377,7 @@ InstallLuxuries() { # Install desktops and other extras
 }
 
 InstallYaourt() {
-  print_heading
+  clear
   TPecho "$_Installing " "Yaourt"
   arch=$(uname -m)
   if [ ${arch} = "x86_64" ]; then                                     # Identify 64 bit architecture
@@ -397,7 +399,7 @@ InstallYaourt() {
 }
 
 UserAdd() {
-  print_heading
+  clear
   CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
   # If not already exist, create user
   if [ -z "${CheckUsers}" ]; then
