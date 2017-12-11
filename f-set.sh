@@ -927,6 +927,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
   while [ -z "$Country" ]
   do
     # 1) Prepare files of official Arch Linux mirrors
+
       # Download latest list of Arch Mirrors to temporary file
       curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
       if [ $? -ne 0 ]; then
@@ -950,7 +951,7 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       #                                       and finally save to new file for later reference
       grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
   
-    # 2) Display instructions
+    # 2) Display instructions and user selects from list of countries
   
       PrintOne "Next we will select mirrors for downloading your system."
       PrintMany "You will be able to choose from a list of countries which"
@@ -958,27 +959,24 @@ function ChooseMirrors() # User selects one or more countries with Arch Linux mi
       PrintMany "one, but adding too many will slow down your installation"
       dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
   
-      # 3) User-selection of countries starts here:
       Translate "Please choose a country"
       Title="$Result"
       
       Checklist 25 70 "--nocancel" "--checklist"
-  
-      if [ $retval -eq 0 ] && [ "$Result" != "" ]; then
-        Country="$result"
-      else
-        Message="You must select at least one."
-        continue
+      Country="$result"
+      if [ "$Result" != "" ]; then
+        PrintMany "You must select at least one."
+      else   
+        # Add to array for use during installation
+        Counter=1
+        for Item in $(cat output.file)                            # Read items from the output.file
+        do                                                        # and copy each one to the variable
+          Result="$(head -n ${Item} checklist.file | tail -n 1)"  # Read item from countries file
+          CountryLong[${Counter}]="$Result"                       # CountryLong is declared in f-vars.sh
+          Counter=$((Counter+1))
+        done
+        if [ $Counter -lt 1 ]; then Country=""; fi
       fi
-   
-    # 6) Add to array for use during installation
-      Counter=1
-      for Item in $(cat output.file)                            # Read items from the output.file
-      do                                                        # and copy each one to the variable
-        Result="$(head -n ${Item} checklist.file | tail -n 1)"  # Read item from countries file
-        CountryLong[${Counter}]="$Result"                       # CountryLong is declared in f-vars.sh
-        Counter=$((Counter+1))
-      done
   done
 }
 
