@@ -26,19 +26,19 @@
 # --------------------   -----------------------
 # Function        Line   Function           Line
 # --------------------   -----------------------
-# Checklist         44   Options             604
-# Menu              81   PickLuxuries        647
-# NumberMenu       124   ShoppingList        695
-# SetTimeZone      170   select_from         755
-# SetSubZone       222   ChooseDM            810
-# America          266   SetGrubDevice       860
-# DoCities         317   EnterGrubPath       893
-# setlocale        340   SetKernel           921
-# Mano             417   ChooseMirrors       941
-# getkeymap        437   ConfirmVbox        1007
+# Checklist         44   Options             577
+# Menu              81   PickLuxuries        616
+# NumberMenu       124   ShoppingList        673
+# SetTimeZone      170   select_from         732
+# SetSubZone       222   ChooseDM            788
+# America          266   SetGrubDevice       813
+# DoCities         317   EnterGrubPath       841
+# setlocale        340   SetKernel           865
+# Mano             417   ChooseMirrors       884
+# getkeymap        437   ConfirmVbox         942
 # SearchKeyboards  499    --- Review stage --- 
-# Username         556   FinalCheck         1030
-# SetHostname      580   ManualSettings     1162
+# Username         539   FinalCheck          961
+# SetHostname      558   ManualSettings     1090
 # --------------------   -----------------------
 
 function Checklist()
@@ -808,6 +808,9 @@ function ChooseDM()
   retval=$?
   if [ $retval -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
+
+read -p "$DisplayManager"
+  
 }
 
 function SetGrubDevice()
@@ -962,6 +965,7 @@ function FinalCheck()
 { # Display all user settings before starting installation
   while true
   do
+    clear
     FinalOne "These are the settings you have entered."
     FinalMany "Please check them before Feliz begins the installation"
     Message="\n${Message}\n"

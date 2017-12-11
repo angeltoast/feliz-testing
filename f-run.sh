@@ -248,8 +248,7 @@ InstallDM() { # Disable any existing display manager
   "lightdm") pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
   ;;
-  *)
-    pacstrap /mnt "${DisplayManager}" 2>> feliz.log
+  *) pacstrap /mnt "${DisplayManager}" 2>> feliz.log
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >> feliz.log
   esac
 }
@@ -271,7 +270,7 @@ InstallLuxuries() { # Install desktops and other extras
   fi
 
   # Display manager - runs only once
-  if [ -n "${DisplayManager}" ]; then                                 # Not triggered by FelizOB
+  if [ -n "${DisplayManager}" ]; then                                 # Not triggered by FelizOB or Gnome
     InstallDM                                                         # Clear any pre-existing DM and install this one
   fi
 
