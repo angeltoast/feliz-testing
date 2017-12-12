@@ -535,10 +535,10 @@ function guided_MBR()  # Called by f-part1.sh/Partitioning as the first step in 
   Message="${Message}\n"
   PrintMany "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
-  if [ $retval -eq 2 ]; then CheckParts; fi   # Go right back to start
-  SelectDevice                                  # Get details of device to use
-  RecalSpace                                # Get available space in MiB
-  guided_MBR_root                                  # Create /root partition
+  if [ $retval -ne 0 ]; then CheckParts; fi   # Go right back to start
+  SelectDevice                                # Get details of device to use
+  RecalSpace                                  # Get available space in MiB
+  guided_MBR_root                             # Create /root partition
   RecalSpace "$RootSize"                      # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]
   then 
