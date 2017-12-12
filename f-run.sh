@@ -46,7 +46,7 @@ Parted() {
 TPecho() { # For displaying status while running on auto
   echo
   tput bold
-  PrintOne "$1" "$2" "$3"
+  FinalOne "$1" "$2" "$3"
   tput sgr0
   echo
 }

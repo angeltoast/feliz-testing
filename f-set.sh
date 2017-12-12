@@ -966,7 +966,7 @@ function FinalCheck()
     clear
     echo
     FinalOne "These are the settings you have entered."
-    FinalMany "Please check them before Feliz begins the installation"
+    FinalOne "Please check them before Feliz begins the installation"
     echo
     Translate "Zone/subZone will be"
     FinalMany "1) $Result" "$ZONE/$SUBZONE"

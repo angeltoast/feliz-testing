@@ -96,6 +96,14 @@ TPecho "Entering automatic installation phase"
 #          Installation phase - no further user intervention from here          .
 # ...............................................................................
 
+if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]    # If installing on EFI and Guided Partitioning
+  action_EFI
+elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]  # If installing on BIOS and Guided Partitioning
+  action_MBR
+elif [ "$AutoPart" = "ON" ]                           # If Auto Partitioning
+  autopart
+fi
+
 MountPartitions
 
 NewMirrorList
@@ -111,8 +119,8 @@ TPecho "Preparing local services" ""
   if [ -z $GrepTest ]; then                                           # If not, add it at bottom
     echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
   fi
-  GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # Check secondary locale not already set
-  if [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then   # and main is not English, add it at bottom
+  GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # If secondary locale not already set, and main
+  if [ $GrepTest ] && [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then # is not English, add it at bottom
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # Added for completeness
   fi
   cp -f /etc/locale.gen /mnt/etc/                                     # Copy to installed system

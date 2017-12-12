@@ -165,7 +165,7 @@ function Partitioning()  # Called by CheckParts after user selects an action.
   case $Result in
     1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
     ;;
-    2) cfdisk 2>> feliz.log
+    2) cfdisk 2>> feliz.log     # Open cfdisk for manual partitioning
       tput setf 0               # Change foreground colour to black temporarily to hide error message
       clear
       partprobe 2>> feliz.log   # Inform kernel of changes to partitions
@@ -173,16 +173,14 @@ function Partitioning()  # Called by CheckParts after user selects an action.
       return                    # Restart partitioning
     ;;
     3) if [ ${UEFI} -eq 1 ]; then
-        print_heading
-        echo
-        EasyEFI                 # New guided manual partitioning functions
+        guided_EFI               # Guided manual partitioning functions
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log #Inform kernel of changes to partitions
         tput sgr0               # Reset colour
         ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
       else
-        GuidedMBR
+        guided_MBR
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
@@ -198,8 +196,8 @@ function Partitioning()  # Called by CheckParts after user selects an action.
 
 function ChooseDevice()  # Called from Partitioning or PartitioningEFI
 { # Choose device for autopartition
-  AutoPart=0
-  until [ ${AutoPart} -gt 0 ]
+  AutoPart="OFF"
+  until [ ${AutoPart} != "OFF" ]
   do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
@@ -235,7 +233,7 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
       dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       case $retval in
-      0) autopart 
+      0) AutoPart="ON" 
           ;;
       1) UseDisk=""
           ;;
@@ -301,7 +299,6 @@ function autopart() # Called by ChooseDevice
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     Parted "mklabel gpt"                            # Create new filesystem
     Parted "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
-   # Parted "set 1 boot on"     # This is done in partition_maker
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
@@ -329,15 +326,14 @@ function autopart() # Called by ChooseDevice
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   tput sgr0                                         # Reset colour
-  AutoPart=1                                        # Set auto-partition flag to 'on'
 }
 
 function ChoosePartitions()  # Called by feliz.sh after CheckParts
 { # Calls AllocateRoot, AllocateSwap, NoPartitions, MorePartitions
-  if [ $AutoPart -eq 0 ]; then
+  if [ $AutoPart -eq "OFF" ]; then
   
     RootPartition=""
-    while [[ "$RootPartition" == "" ]]
+    while [ "$RootPartition" = "" ]
     do
       AllocateRoot                      # User must select root partition
     done
