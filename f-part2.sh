@@ -82,15 +82,15 @@ function EnterSize()  # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_H
   Message="$Message 100%"
 }
 
-function SelectDevice()# Called by guided_EFI & guided_MBR
-{ # EFI - User chooses device to use for auto partition from all connected devices
+function SelectDevice() # Called by feliz.sh
+{ # User chooses device to use for auto partition from all connected devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=$(echo "$DiskDetails" | wc -w)
   if [ $Counter -gt 1 ]   # If there are multiple devices
   then                    # ask user which to use
     UseDisk=""            # Reset for user choice
-    while [ -z $UseDisk ]
+    while [ "$UseDisk" = "" ]
     do
       PrintOne "There are"
       Message="$Message $Counter"
@@ -116,7 +116,7 @@ function SelectDevice()# Called by guided_EFI & guided_MBR
   GrubDevice="/dev/${UseDisk}"  # Full path of selected device
 }
 
-function GetDiskSize() # Called by guided_MBR & guided_EFI
+function GetDiskSize() # Called by feliz.sh
 {
   # Establish size of device in MiB and inform user
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
@@ -169,7 +169,7 @@ function GetDiskSize() # Called by guided_MBR & guided_EFI
 }
 
 function RecalSpace() # Called by guided_MBR & guided_EFI
-{  # EFI - Calculate remaining disk space
+{  # Calculate remaining disk space
   local Passed=$1
   case ${Passed: -1} in
     "%") Calculator=$FreeSpace          # Allow for 100%
@@ -189,13 +189,17 @@ function guided_EFI()  # Called by f-part1.sh/Partitioning as the first step
 { #  in EFI guided partitioning option - Inform user of purpose, call each step
 
   SelectDevice                # Get details of device to use
-  GetDiskSize              # Get available space in MiB
+  GetDiskSize                 # Get available space in MiB
 
   PrintOne "Here you can set the size and format of the partitions"
   PrintMany "you wish to create. When ready, Feliz will wipe the disk"
   PrintMany "and create a new partition table with your settings"
   Message="${Message}\n"
-  PrintMany "We begin with the"
+  PrintMany "Are you sure you wish to continue?"
+  dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
+  if [ $retval -ne 0 ]; then CheckParts; fi   # Go right back to start
+  
+  PrintOne "We begin with the"
   Message="$Message $_BootPartition"
 
   guided_EFI_Boot                  # Create /boot partition
@@ -534,11 +538,12 @@ function guided_MBR()  # Called by f-part1.sh/Partitioning as the first step in 
   PrintMany "This facility is restricted to creating /root, /swap and /home"
   Message="${Message}\n"
   PrintMany "Are you sure you wish to continue?"
+
   dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
   if [ $retval -ne 0 ]; then CheckParts; fi   # Go right back to start
-  SelectDevice                                # Get details of device to use
-  RecalSpace                                  # Get available space in MiB
+
   guided_MBR_root                             # Create /root partition
+
   RecalSpace "$RootSize"                      # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]
   then 

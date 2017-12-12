@@ -47,6 +47,11 @@ SetLanguage                           # Use appropriate language file
 
 timedatectl set-ntp true
 
+TestUEFI                              # Check if on UEFI system
+
+SelectDevice                          # Detect all available devices & allow user to select
+GetDiskSize                           # First make sure that there is space for installation
+
 # Localisation
 setlocale                             # CountryLocale eg: en_GB.UTF-8
 getkeymap                             # Select keyboard layout eg: uk
@@ -70,8 +75,6 @@ if [ $Scope != "Basic" ]; then        # If any extra apps have been added
   fi
 
 fi
-
-TestUEFI                               # Check if on UEFI system
 
 CheckParts                             # Check partition table & offer options
 
