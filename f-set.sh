@@ -880,7 +880,7 @@ function select_kernel()
     dialog --backtitle "$Backtitle" --title "$Title" --radiolist "\n  $Default" 10 70 2 \
       "1" "$LTS" ON \
       "2" "$Latest" off 2>output.file
-    if [ $? -ne 0 ]; then Result="1"
+    if [ $? -ne 0 ]; then Result="1"; fi
     Result=$(cat output.file)
     Kernel=${Result} # Set the Kernel variable (1 = LTS; 2 = Latest)
   done
@@ -973,7 +973,9 @@ function abandon()
   message_first_line "Feliz cannot continue the installation without"
   Message="$Message $1"
   message_subsequent "Are you sure you want to cancel it?"
-  dialog --yesno "$Message" 10 60
+  dialog --backtitle "$Backtitle" --yesno "$Message" 10 60 2> output.file
+  retval=$?
+  Result="$(cat output.file)"
 }
 
 function final_check()
