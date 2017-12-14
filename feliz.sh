@@ -89,11 +89,8 @@ function the_start() # All user interraction takes place in this function
       if [ $? -eq 0 ]; then break; fi
     done
 
-    while true
-    do
-      select_kernel                           # Select kernel and device for Grub
-      if [ $? -ne 0 ]; then continue; fi
-    done
+    select_kernel                           # Select kernel and device for Grub
+    if [ $? -ne 0 ]; then exit; fi
     
     while true
     do
