@@ -23,23 +23,24 @@
 #                    Boston, MA 02110-1301 USA
 
 # In this module: functions for setting variables used during installation
-# --------------------      ---------------------------
-# Function        Line      Function               Line
-# --------------------      ---------------------------
-# checklist_dialog     44   type_of_installation    577
-# menu_dialog          81   pick_category           616
-# number_menu_dialog  124   choose_extras           673
-# set_timezone        170   display_extras          732
-# set_subzone         222   choose_display_manager  788
-# america             266   select_grub_device      813
-# america_subgroups   317   enter_grub_path         841
-# setlocale           340   select_kernel           865
-# edit_locale         417   choose_mirrors          884
-# getkeymap           437   confirm_virtualbox      942
-# search_keyboards    499    --- Review Stage --- 
-# set_username        539   final_check             961
-# set_hostname        558   manual_settings        1090
-# -----------------------   ---------------------------
+# --------------------------  ---------------------------
+# Function             Line   Function               Line
+# --------------------------  ---------------------------
+# checklist_dialog       44   set_hostname            588
+# menu_dialog            83   type_of_installation    607
+# number_menu_dialog    126   pick_category           646
+# localisation_settings 173   choose_extras           703
+# desktop_settings      189   display_extras          762
+# set_timezone          200   choose_display_manager  820
+# set_subzone           252   select_grub_device      844
+# america               296   enter_grub_path         872
+# america_subgroups     347   select_kernel           896
+# setlocale             370   choose_mirrors          915
+# edit_locale           443   confirm_virtualbox      973
+# get_keymap            463     --- Review Stage ---
+# search_keyboards      523   final_check             992
+# set_username          569   manual_settings        1122
+# -------------------------   ---------------------------
 
 function checklist_dialog()
 { # Display a Dialog checklist from checklist.file
@@ -176,7 +177,7 @@ function localisation_settings()              # Locale, keyboard & hostname
   do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
     if [ $? -ne 0 ]; then continue; fi
-    getkeymap                                 # Select keyboard layout eg: uk
+    get_keymap                                 # Select keyboard layout eg: uk
     if [ $? -ne 0 ]; then continue; fi
     set_hostname
     localisation=$?
@@ -459,7 +460,7 @@ edit_locale() {  # Use Nano to edit locale.gen
   done
 }
 
-function getkeymap()
+function get_keymap() # Display list of locale-appropriate keyboards for user to choose
 { 
   country="${CountryLocale,,}"                                          # From SetLocale - eg: en_gb.utf-8
   case ${country:3:2} in                                                # eg: gb
@@ -502,6 +503,8 @@ function getkeymap()
       loadkeys ${Countrykbd} 2>> feliz.log
     ;;
     *) # If the search found multiple matches
+      Title="Keyboards"
+      message_first_line "Select your keyboard, or Exit to try again"
       menu_dialogVariable="$ListKbs"
       message_first_line "Please choose one"
       translate "None_of_these"
@@ -519,7 +522,7 @@ function getkeymap()
   return 0
 }
 
-function search_keyboards() # Called by getkeymap when all other options failed 
+function search_keyboards() # Called by get_keymap when all other options failed 
 { # User can enter search criteria to find a keyboard layout 
   Countrykbd=""
   while [ -z "$Countrykbd" ]
@@ -565,7 +568,7 @@ function search_keyboards() # Called by getkeymap when all other options failed
   done
 }
 
-function UserName()
+function set_username()
 { 
   message_first_line "Enter a name for the primary user of the new system"
   message_subsequent "If you don't create a username here, a default user"
@@ -578,9 +581,9 @@ function UserName()
   Result="$(cat output.file)"
 
   if [ -z $Result ]; then
-    UserName="archie"
+    set_username="archie"
   else
-    UserName=${Result,,}
+    set_username=${Result,,}
   fi
 }
 
@@ -893,22 +896,27 @@ function enter_grub_path() # Manual input
 }
 
 function select_kernel()
-{ 
-  translate " Choose your kernel "
-  Title="$Result"
-  translate "The Long-Term-Support kernel offers stabilty"
-  LTS="$Result"
-  translate "The Latest kernel has all the new features"
-  Latest="$Result"
-  translate "If in doubt, choose"
-  Default="${Result} LTS"
-
-  dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
-        --radiolist "\n  $Default" 10 70 2 \
-        "1" "$LTS" ON \
-        "2" "$Latest" off 2>output.file
-  Response=$(cat output.file)
-  Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
+{
+  Kernel=0
+  until [ $Kernel -ne 0 ]
+  do
+    translate " Choose your kernel "
+    Title="$Result"
+    translate "The Long-Term-Support kernel offers stabilty"
+    LTS="$Result"
+    translate "The Latest kernel has all the new features"
+    Latest="$Result"
+    translate "If in doubt, choose"
+    Default="${Result} LTS"
+  
+    dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
+      --radiolist "\n  $Default" 10 70 2 \
+      "1" "$LTS" ON \
+      "2" "$Latest" off 2>output.file
+    Response=$(cat output.file)
+    Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
+  done
+  return 0
 }
 
 function choose_mirrors() # User selects one or more countries with Arch Linux mirrors
@@ -1022,7 +1030,7 @@ function final_check()
     translate "Hostname"
     print_subsequent "      $Result" "= '$HostName'"
     translate "User Name"
-    print_subsequent "      $Result" "= '$UserName'"
+    print_subsequent "      $Result" "= '$set_username'"
     translate "The following extras have been selected"
     print_subsequent "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
@@ -1090,7 +1098,7 @@ function final_check()
       ;;
       2) setlocale
       ;;
-      3) getkeymap
+      3) get_keymap
       ;;
       4) confirm_virtualbox
       ;;
@@ -1130,7 +1138,7 @@ function manual_settings()
     
     dialog --backtitle "$Backtitle" --title " $Uname & $Hname " --cancel-label "Done" \
 	  --menu "\nChoose an item" 10 40 2 \
-      "$Uname"  "$UserName" \
+      "$Uname"  "$set_username" \
       "$Hname" 	"$HostName"   2> output.file
     retvar=$?
     if [ $retvar -ne 0 ]; then return; fi
@@ -1138,16 +1146,16 @@ function manual_settings()
 
     case $Result in
       "$Uname") translate "Enter new username (currently"
-          Message="$Result ${UserName})"
+          Message="$Result ${set_username})"
           Title="$Uname"
           dialog_inputbox 10 30
           if [ $retvar -ne 0 ]; then return; fi
           if [ -z $Result ]; then
-           Result="$UserName"
+           Result="$set_username"
           fi
-          UserName=${Result,,}
-          UserName=${UserName// }             # Ensure no spaces
-          UserName=${UserName%% }
+          set_username=${Result,,}
+          set_username=${set_username// }             # Ensure no spaces
+          set_username=${set_username%% }
         ;;
       "$Hname") translate "Enter new hostname (currently"
           Message="$Result ${HostName})"
