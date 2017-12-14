@@ -26,30 +26,30 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# CheckParts            41    EditLabel           362
-# BuildLists           117    AllocateRoot        399
-# Partitioning         163    CheckPartition      450
-# ChooseDevice         199    AllocateSwap        462   
-# partition_maker      248    NoPartitions        519
-# autopart             290    SetSwapFile         536
-# ChoosePartitions     335    MorePartitions      556
-# select_filesystem    350    MakePartition       593
-#                             PartitionMenu       648
+# check_parts           41    edit_label          386
+# build_lists          117    allocate_root       425
+# partitioning_options 163    check_filesystem    483
+# choose_device        203    allocate_swap       495   
+# partition_maker      252    no_swap_partition   554
+# autopart             294    set_swap_file       571
+# allocate_partitions  337    more_partitions     592 /
+# select_filesystem    373    choose_mountpoint   628 /
+# display_partitions   683 /
 # ------------------------    ------------------------
 
-function CheckParts()   # Called by feliz.sh
+function check_parts()   # Called by feliz.sh
 { # Test for existing partitions
 
-  # Partitioning menu options="leave cfdisk guided auto"
-  Translate "Choose from existing partitions"
+  # partitioning_options menu options="leave cfdisk guided auto"
+  translate "Choose from existing partitions"
   LongPart1="$Result"
-  Translate "Open cfdisk so I can partition manually"
+  translate "Open cfdisk so I can partition manually"
   LongPart2="$Result"
-  Translate "Guided manual partitioning tool"
+  translate "Guided manual partitioning tool"
   LongPart3="$Result"
-  Translate "Allow feliz to partition the whole device"
+  translate "Allow feliz to partition the whole device"
   LongPart4="$Result"
-  Title="Partitioning"
+  Title="partitioning_options"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
   PARTITIONS=$(echo $ShowPartitions | wc -w)
@@ -57,42 +57,43 @@ function CheckParts()   # Called by feliz.sh
   if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
     while [ $PARTITIONS -eq 0 ]
     do
-      PrintOne "If you are uncertain about partitioning, you should read the Arch Wiki"
-      PrintMany "There are no partitions on the device, and at least"
+      message_first_line "If you are uncertain about partitioning, you should read the Arch Wiki"
+      message_subsequent "There are no partitions on the device, and at least"
       if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
-        PrintMany "two partitions are needed - one for EFI /boot, and"
-        PrintMany "one partition is needed for the root directory"
-        PrintMany "There is a guided manual partitioning option"
-        PrintMany "or you can exit now to use an external tool"
+        message_subsequent "two partitions are needed - one for EFI /boot, and"
+        message_subsequent "one partition is needed for the root directory"
+        message_subsequent "There is a guided manual partitioning option"
+        message_subsequent "or you can exit now to use an external tool"
       else                                # Installing in BIOS environment
-        PrintMany "one partition is needed for the root directory"
+        message_subsequent "one partition is needed for the root directory"
       fi
       Message="${Message}\n"
-      PrintMany "If you choose to do nothing now, the script will"
-      PrintMany "terminate to allow you to partition in some other way"
+      message_subsequent "If you choose to do nothing now, the script will"
+      message_subsequent "terminate to allow you to partition in some other way"
  
       dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
       retval=$?
-      if [ $retval -ne 0 ]; then return; fi
+      if [ $retval -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
       Result=$((Result+1))                # Because this menu excludes option 1
-      Partitioning                        # Partitioning options
-      
+      partitioning_options                        # partitioning_options options
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
       if [ "$Result" = "$_Exit" ]; then   # Terminate
         dialog --backtitle "$Backtitle" --infobox "Exiting to allow you to partition the device" 6 30
-        shutdown -h now
+        exit
       fi
       # Check that partitions have been created
       ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
       PARTITIONS=$(echo $ShowPartitions | wc -w)
     done
-    BuildLists                          # Generate list of partitions and matching array
+    build_lists                          # Generate list of partitions and matching array
   else                                  # There are existing partitions on the device
-    BuildLists                          # Generate list of partitions and matching array
-    Translate "Here is a list of available partitions"
+    build_lists                          # Generate list of partitions and matching array
+    translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
     
     for part in ${PartitionList}
@@ -106,15 +107,16 @@ function CheckParts()   # Called by feliz.sh
       3 "$LongPart3" \
       4 "$LongPart4" 2>output.file
     retval=$?
-
-    if [ $retval -ne 0 ]; then return; fi
+    if [ $retval -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
 
-    Partitioning        # Action user selection
+    partitioning_options        # Action user selection
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
   fi
 }
 
-function BuildLists() # Called by CheckParts to generate details of existing partitions
+function build_lists() # Called by check_parts to generate details of existing partitions
 { # 1) Produces a list of partition IDs, from which items are removed as allocated to root, etc.
   #    This is the 'master' list, and the two associative arrays are keyed to this.
   # 2) Saves any existing labels on any partitions into an associative array, Labelled[]
@@ -160,7 +162,7 @@ function BuildLists() # Called by CheckParts to generate details of existing par
     done
 }
 
-function Partitioning()  # Called by CheckParts after user selects an action.
+function partitioning_options()  # Called by check_parts after user selects an action.
 { # Directs response to selected option
   case $Result in
     1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
@@ -170,10 +172,12 @@ function Partitioning()  # Called by CheckParts after user selects an action.
       clear
       partprobe 2>> feliz.log   # Inform kernel of changes to partitions
       tput sgr0                 # Reset colour
-      return                    # Restart partitioning
+      return                    # finish partitioning
     ;;
     3) if [ ${UEFI} -eq 1 ]; then
-        guided_EFI               # Guided manual partitioning functions
+        guided_EFI              # Guided manual partitioning functions
+        retval=$?
+        if [ $retval -ne 0 ]; then return 1; fi
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log #Inform kernel of changes to partitions
@@ -181,20 +185,22 @@ function Partitioning()  # Called by CheckParts after user selects an action.
         ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
       else
         guided_MBR
+        if [ $? -ne 0 ]; then return 1; fi
         tput setf 0             # Change foreground colour to black temporarily to hide error message
         clear
         partprobe 2>> feliz.log # Inform kernel of changes to partitions
         tput sgr0               # Reset colour
       fi
     ;;
-    4) ChooseDevice
+    4) choose_device
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
     ;;
     *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
-
   esac
 }
 
-function ChooseDevice()  # Called from Partitioning or PartitioningEFI
+function choose_device()  # Called from partitioning_options or partitioning_optionsEFI
 { # Choose device for autopartition
   AutoPart="OFF"
   until [ ${AutoPart} != "OFF" ]
@@ -202,22 +208,22 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
     local Counter=$(echo "$DiskDetails" | wc -w)
-    MenuVariable="$DiskDetails"
+    menu_dialogVariable="$DiskDetails"
     UseDisk=""
     if [ $Counter -gt 1 ]
     then
       while [ -z $UseDisk ]
       do
-        Translate "These are the available devices"
+        translate "These are the available devices"
         Title="$Result"
-        PrintOne "Which do you wish to use for this installation?"
-        PrintMany "   (Remember, this is auto-partition, and any data"
-        Translate "on the chosen device will be destroyed)"
+        message_first_line "Which do you wish to use for this installation?"
+        message_subsequent "   (Remember, this is auto-partition, and any data"
+        translate "on the chosen device will be destroyed)"
         Message="${Message}\n      ${Result}\n"
         echo
         
-        Menu 15 60
-        if [ $retval -ne 0 ]; then return; fi
+        menu_dialog 15 60
+        if [ $retval -ne 0 ]; then return 1; fi
         UseDisk="${Result}"
       done
     else
@@ -225,21 +231,21 @@ function ChooseDevice()  # Called from Partitioning or PartitioningEFI
     fi
 
       Title="Warning"
-      Translate "This will erase any data on"
+      translate "This will erase any data on"
       Message="${Result} /dev/${UseDisk}"
-      PrintMany "Are you sure you wish to continue?"
+      message_subsequent "Are you sure you wish to continue?"
       Message="${Message}\n${Result}"
-  
       dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       case $retval in
-      0) AutoPart="ON" 
-          ;;
+      0) AutoPart="ON"
+        return 0
+      ;;
       1) UseDisk=""
-          ;;
+      ;;
       *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
       esac
-    return
+      return 1
   done
 }
 
@@ -258,8 +264,8 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   # Set the device to be used to 'set x boot on'    # $MountDevice is numerical - eg: 1 in sda1
   MountDevice=1                                     # Start with first partition = [sda]1
                                                     # Make /boot at startpoint
-  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  Parted "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  parted_script "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
   if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   fi
@@ -269,7 +275,7 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
   if [ $3 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
+    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
@@ -279,13 +285,13 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   fi
 
   if [ $4 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
 }
 
-function autopart() # Called by ChooseDevice
+function autopart() # Called by choose_device
 { # Consolidated automatic partitioning for BIOS or EFI environment
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
@@ -297,12 +303,12 @@ function autopart() # Called by ChooseDevice
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
-    Parted "mklabel gpt"                            # Create new filesystem
-    Parted "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
+    parted_script "mklabel gpt"                            # Create new filesystem
+    parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
-    Parted "mklabel msdos"                          # Create new filesystem
+    parted_script "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
 
@@ -328,20 +334,26 @@ function autopart() # Called by ChooseDevice
   tput sgr0                                         # Reset colour
 }
 
-function ChoosePartitions()  # Called by feliz.sh after CheckParts
-{ # Calls AllocateRoot, AllocateSwap, NoPartitions, MorePartitions
+function allocate_partitions()  # Called by feliz.sh after check_parts
+{ # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
   if [ $AutoPart -eq "OFF" ]; then
   
     RootPartition=""
     while [ "$RootPartition" = "" ]
     do
-      AllocateRoot                      # User must select root partition
+      allocate_root                      # User must select root partition
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
     done
                                         # All others are optional
     if [ -n "${PartitionList}" ]; then  # If there are unallocated partitions
-      AllocateSwap                      # Display display them for user to choose swap
+      allocate_swap                      # Display display them for user to choose swap
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
     else                                # If there is no partition for swap
-      NoPartitions                      # Inform user and allow swapfile
+      no_swap_partition                      # Inform user and allow swapfile
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
     fi
     
     for i in ${PartitionList}           # Check contents of PartitionList
@@ -351,37 +363,39 @@ function ChoosePartitions()  # Called by feliz.sh after CheckParts
     done
     Result="$(cat output.file)"         # Check for output
     if [ "${Result}" = "" ]; then       # If any remaining partitions
-      MorePartitions                    # Allow user to allocate
-      if [ $retval -ne 0 ]; then return; fi # Exit on user <cancel>
+      more_partitions                    # Allow user to allocate
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
     fi
   fi
 }
 
-function select_filesystem()  # Called by AllocateRoot and MorePartitions (via MakePartition)
+function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)
 { # User chooses filesystem from menu
-  Translate "Please select the file system for"
+  translate "Please select the file system for"
   Title="$Result ${Partition}"
-  PrintMany "It is not recommended to mix the btrfs file-system with others"
-  MenuVariable="ext4 ext3 btrfs xfs"
+  message_subsequent "It is not recommended to mix the btrfs file-system with others"
+  menu_dialogVariable="ext4 ext3 btrfs xfs"
   
-  Menu $1 $2
-
+  menu_dialog $1 $2
+  retval=$?
+  if [ $retval -ne 0 ]; then return 1; fi
   PartitionType="$Result"
 }
 
-function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
+function edit_label() # Called by allocate_root, allocate_swap & more_partitions
 { # If a partition has a label, allow user to change or keep it
   Label="${Labelled[$1]}"
   
   if [ -n "${Label}" ]; then
     # Inform the user and accept input
-    Translate "The partition you have chosen is labelled"
+    translate "The partition you have chosen is labelled"
     Message="$Result '${Label}'"
-    Translate "Keep that label"
+    translate "Keep that label"
     Keep="$Result"
-    Translate "Delete the label"
+    translate "Delete the label"
     Delete="$Result"
-    Translate "Enter a new label"
+    translate "Enter a new label"
     Edit="$Result"
 
     dialog --backtitle "$Backtitle" --title " $PassPart " --menu "$Message" \
@@ -390,7 +404,7 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
       2 "$Delete" \
       3 "$Edit" 2>output.file
     retval=$?
-    if [ $retval -ne 0 ]; then return; fi
+    if [ $retval -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"  
     # Save to the -A array
     case $Result in
@@ -399,29 +413,34 @@ function EditLabel() # Called by AllocateRoot, AllocateSwap & MorePartitions
       2) Labelled[$PassPart]=""
       ;;
       3) Message="Enter a new label"                  # English.lan #87
-        InputBox 10 40
-        if [[ -z $Result || $retval -ne 0 ]]; then return; fi
+        dialog_inputbox 10 40
+        retval=$?
+        if [ $retval -ne 0 ]; then return 1; fi
+        if [ -z $Result ]; then return 1; fi
         Labelled[$PassPart]=$Result
     esac
   fi
 }
 
-function AllocateRoot() # Called by ChoosePartitions
+function allocate_root() # Called by allocate_partitions
 { # Display partitions for user-selection of one as /root
   #  (uses list of all available partitions in PartitionList)
 
   if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
-    AllocateEFI                   # First allocate the /boot partition (sets boot on for EFI)
+    allocate_uefi                   # First allocate the /boot partition (sets boot on for EFI)
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
   fi
   Remaining=""
   Partition=""
   PartitionType=""
-  PrintOne "Please select a partition to use for /root"
+  message_first_line "Please select a partition to use for /root"
   
-  PartitionMenu
-  if [ $retval -ne 0 ]; then 
+  display_partitions
+  retval=$?
+  if [ $retval -ne 0 ]; then
     PartitionType=""
-    return
+    return 1
   fi
   
   PassPart=${Result:0:4}          # eg: sda4
@@ -430,17 +449,17 @@ function AllocateRoot() # Called by ChoosePartitions
   RootPartition="${Partition}"
 
   # Before going to select_filesystem, check if there is an existing file system on the selected partition
-  CheckPartition  # This sets variable CurrentType and starts the Message
+  check_filesystem  # This sets variable CurrentType and starts the Message
   
   if [ -n ${CurrentType} ]; then
-    PrintMany "You can choose to leave it as it is, but should"
-    PrintMany "understand that not reformatting the /root"
-    PrintMany "partition can have unexpected consequences"
+    message_subsequent "You can choose to leave it as it is, but should"
+    message_subsequent "understand that not reformatting the /root"
+    message_subsequent "partition can have unexpected consequences"
   fi
   
   # Now select a filesystem
   select_filesystem  20 75      # This sets variable PartitionType
-  
+  retval=$?
   if [ $retval -ne 0 ]; then    # User has cancelled the operation
     PartitionType=""            # PartitionType can be empty (will not be formatted)
   else
@@ -450,38 +469,38 @@ function AllocateRoot() # Called by ChoosePartitions
   RootType="${PartitionType}" 
   Label="${Labelled[${PassPart}]}"
   if [ -n "${Label}" ]; then
-    EditLabel $PassPart
+    edit_label $PassPart
   fi
 
   if [ ${UEFI} -eq 0 ]; then                    # Installing in BIOS environment
-    Parted "set ${MountDevice} boot on"         # Make /root bootable
+    parted_script "set ${MountDevice} boot on"         # Make /root bootable
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
 
 }
 
-function CheckPartition()
+function check_filesystem()
 { # Finds if there is an existing file system on the selected partition
   CurrentType=$(sudo blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
-    PrintOne "The selected partition"
-    Translate "is currently formatted to"
+    message_first_line "The selected partition"
+    translate "is currently formatted to"
     Message="$Message $Result $CurrentType"
-    PrintMany "Reformatting it will remove all data currently on it"
+    message_subsequent "Reformatting it will remove all data currently on it"
   fi
 }
 
-function AllocateSwap()
+function allocate_swap()
 {
-  PrintOne "Select a partition for swap from the ones that"
-  PrintMany "remain, or you can allocate a swap file"
-  PrintMany "Warning: Btrfs does not support swap files"
+  message_first_line "Select a partition for swap from the ones that"
+  message_subsequent "remain, or you can allocate a swap file"
+  message_subsequent "Warning: Btrfs does not support swap files"
   
   SwapPartition=""
   
-  Translate "If you skip this step, no swap will be allocated"
+  translate "If you skip this step, no swap will be allocated"
   Title="$Result"
 
   SavePartitionList="$PartitionList"
@@ -489,31 +508,32 @@ function AllocateSwap()
   
   SwapFile=""
   
-  PartitionMenu
-  if [ $retval -ne 0 ]; then return; fi
+  display_partitions
+  retval=$?
+  if [ $retval -ne 0 ]; then return 1; fi
   case "$Result" in
-  "swapfile") SetSwapFile
+  "swapfile") set_swap_file
             SwapPartition=""
-            return
+            return 0
   ;;
   *) SwapPartition="/dev/$Result"
     IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
-      Translate "is already formatted as a swap partition"
+      translate "is already formatted as a swap partition"
       Message="$SwapPartition $Result"
-      PrintMany "Reformatting it will change the UUID, and if this swap"
-      PrintMany "partition is used by another operating system, that"
-      PrintMany "system will no longer be able to access the partition"
-      PrintMany "Do you wish to reformat it?"
+      message_subsequent "Reformatting it will change the UUID, and if this swap"
+      message_subsequent "partition is used by another operating system, that"
+      message_subsequent "system will no longer be able to access the partition"
+      message_subsequent "Do you wish to reformat it?"
       MakeSwap="N"
       dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 13 70 2>output.file
       retval=$?
-      if [ $retval -ne 0 ]; then return; fi
-        MakeSwap="Y"
-        Label="${Labelled[${Result}]}"
-        if [ -n "${Label}" ]; then
-          EditLabel "$PassPart"
-        fi
+      if [ $retval -ne 0 ]; then return 1; fi
+      MakeSwap="Y"
+      Label="${Labelled[${Result}]}"
+      if [ -n "${Label}" ]; then
+        edit_label "$PassPart"
+      fi
     fi
     
     PartitionList="$SavePartitionList"                            # Restore PartitionList (without 'swapfile')
@@ -525,22 +545,22 @@ function AllocateSwap()
     if [ $SwapFile ]; then
       dailog --msgbox "Swap file = ${SwapFile}" 5 20
     elif [ $SwapPartition = "" ]; then
-      Translate "No provision has been made for swap"
+      translate "No provision has been made for swap"
       dailog --msgbox "$Result" 6 30
     fi
   esac
 }
 
-function NoPartitions()
+function no_swap_partition()
 { # There are no unallocated partitions
-  PrintOne "There are no partitions available for swap"
-  PrintMany "but you can allocate a swap file, if you wish"
+  message_first_line "There are no partitions available for swap"
+  message_subsequent "but you can allocate a swap file, if you wish"
   Title="Create a swap file?"
 
   dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
   case $retval in
-  0) SetSwapFile
+  0) set_swap_file
     SwapPartition=""
    ;;
   *) SwapPartition=""
@@ -548,18 +568,19 @@ function NoPartitions()
   esac
 }
 
-function SetSwapFile()
+function set_swap_file()
 {
   LoopRepeat="Y"
   while [ ${LoopRepeat} = "Y" ]
   do
-    PrintOne "Allocate the size of your swap file"
-    InputBox "M = Megabytes, G = Gigabytes [eg: 512M or 2G]: "
-    RESPONSE="${Response^^}"
+    message_first_line "Allocate the size of your swap file"
+    dialog_inputbox "M = Megabytes, G = Gigabytes [eg: 512M or 2G]: "
+    if [ $retval -ne 0 ]; then return 1; fi
+    RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
     CheckInput=$(grep "G\|M" <<< "${RESPONSE}" )
     if [ -z ${CheckInput} ]; then
-      PrintOne "You must include M or G"
+      message_first_line "You must include M or G"
       SwapFile=""
     else
       SwapFile=$RESPONSE
@@ -568,28 +589,27 @@ function SetSwapFile()
   done
 }
 
-function MorePartitions()
+function more_partitions()
 { # If partitions remain unallocated, user may select for /home, etc
   local Elements=$(echo "$PartitionList" | wc -w)
 
   while [ $Elements -gt 0 ]
   do
-    PrintOne "The following partitions are available"
-    PrintMany "If you wish to use one, select it from the list"
+    message_first_line "The following partitions are available"
+    message_subsequent "If you wish to use one, select it from the list"
 
-    PartitionMenu
-
-    case $retval in
-    0) PassPart=${Result:0:4}
-    ;;
-    *) return
-    esac
-
-    Partition="/dev/$Part"
-    MakePartition # Call function to complete details
+    display_partitions 
+    if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
+    PassPart=${Result:0:4}                  # $retval 0 means user selected a partition; isolate first 4 characters
+    Partition="/dev/$PassPart"
+    choose_mountpoint                           # Complete details
+    retval=$?                               # May return 1 if cancelled by user
+    if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no details added, so abort
+    
     Label="${Labelled[${PassPart}]}"
     if [ -n "${Label}" ]; then
-      EditLabel $PassPart
+      edit_label $PassPart
+      
     fi
 
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
@@ -605,33 +625,33 @@ function MorePartitions()
   fi
 }
 
-function MakePartition()
-{ # Called by MorePartitions
-  # Add the selected partition to the array for extra partitions
-  # 1) Save to AddPartList (eg: /dev/sda5)
-  ExtraPartitions=${#AddPartList[@]}
-  AddPartList[$ExtraPartitions]="${Partition}"
-  CheckPartition   # Before going to select_filesystem, check the partition
+function choose_mountpoint() # Called by more_partitions
+{ # Allows user to choose filesystem and mountpoint
+  # Returns 0 if completed, 1 if interrupted
+
+  check_filesystem                                    # Before going to select_filesystem, check the partition
   if [ ${CurrentType} ]; then
-    PrintOne "You can choose to leave it as it is, by selecting Exit, but not"
-    PrintMany "reformatting an existing partition can have unexpected consequences"
+    message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
+    message_subsequent "reformatting an existing partition can have unexpected consequences"
   fi
-  # 2) Select filesystem
+  
   select_filesystem
-  AddPartType[$ExtraPartitions]="${PartitionType}"  # Add it to AddPartType list
-  # 3) Get a mountpoint
+  retval=$?                                         # May return 1 if cancelled by user; no filesystem selected
+  if [ $retval -ne 0 ]; then return 1; fi           # $retval greater than 0 means user cancelled or escaped, so abort
+
   PartMount=""
   while [ ${PartMount} = "" ]
   do
-    PrintOne "Enter a mountpoint for"
+    message_first_line "Enter a mountpoint for"
     Message="$Message ${Partition}\n(eg: /home) ... "
     
-    InputBox 
+    dialog_inputbox                                        # Get a mountpoint
+    retval=$?                                       # May return 1 if cancelled by user; no mountpoint selected
+    if [ $retval -ne 0 ]; then return 1; fi         # $retval greater than 0 means user cancelled or escaped, so abort
     
-    # Check that entry includes '/'
-    CheckInput=${Response:0:1}        # First character of ${Response}
-    case ${CheckInput} in
-      '') PrintOne "You must enter a valid mountpoint"
+    CheckInput=${Response:0:1}                      # First character of ${Response}
+    case ${CheckInput} in                           # Check that entry includes '/'
+      '') message_first_line "You must enter a valid mountpoint"
           PartMount=""
           ;;
       *) if [ ${CheckInput} != "/" ]; then
@@ -640,44 +660,45 @@ function MakePartition()
             PartMount="${Response}"
         fi
     esac
-    # Check that the mountpoint has not already been used
-    MountPointCounter=0
-    if [ -z ${AddPartMount} ]; then
-      LoopRepeat="N"
-    else
-      # Go through AddPartMount checking each item against PartMount
-      for MountPoint in ${AddPartMount}
+
+    if [ ${#AddPartMount[@]} -gt 0 ]; then          # If there are existing (extra) mountpoints
+      for MountPoint in ${AddPartMount}             # Go through AddPartMount checking each item against PartMount
       do
-        MountPointCounter=$((MountPointCounter+1))
-        if [ $MountPoint = $PartMount ]; then
+        if [ $MountPoint = $PartMount ]; then       # If the mountpoint has already been used
           dialog --backtitle "$Backtitle" --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
-        else
           PartMount=""
+          break
         fi
       done
     fi
   done
+  # Add the selected partition to the arrays for extra partitions
+  ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
+  AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
+  AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
   AddPartMount[$ExtraPartitions]="${PartMount}"
+  return 0
 }
 
-function PartitionMenu()
-{ # Uses $PartitionList & ${PartitionArray[@]} to generate a menu
+function display_partitions() # Called by more_partitions, allocate_swap & allocate_root
+{ # Uses $PartitionList & ${PartitionArray[@]} to generate a menu of available partitions
+  # Sets $retval (0/1) and $Result (Item text)
+  # Calling function must validate output
   declare -a ItemList=()                                    # Array will hold entire list
   Items=0
   for Item in $PartitionList
   do 
     Items=$((Items+1))
-    ItemList[${Items}]="${Item}"                         # and copy each one to the array
+    ItemList[${Items}]="${Item}"                            # and copy each one to the array
     Items=$((Items+1))
     if [ "$Item" = "swapfile" ]; then
       ItemList[${Items}]="Use a swap file"
     else
-      ItemList[${Items}]="${PartitionArray[${Item}]}"                            # Second element is required
+      ItemList[${Items}]="${PartitionArray[${Item}]}"       # Second element is required
     fi
   done
 
-  dialog --backtitle "$Backtitle" --title " $Title " --menu \
-      "$Message" \
+  dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" \
       20 78 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)

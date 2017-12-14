@@ -26,16 +26,16 @@
 # --------------------   ----------------------
 # Function        Line   Function          Line
 # --------------------   ----------------------
-# SetLanguage       38   read_timed         161
-# not_found         97   CompareLength      180
-# echo             102   PaddLength         188
-# InputBox         107   Common             197
-# print_heading    114   Translate          246
-# PrintOne         127   Arrays & Variables 266
-# PrintMany        148      ... and onwards
+# set_language        38   read_timed           161
+# not_found           97   compare_length       180
+# dialog_inputbox    107   padd_length          188
+# message_first_line 127   common_translations  197
+# message_subsequent 148   translate            246
+# print_first_line   127   Arrays & Variables   266
+# print_subsequent   127      ... and onwards
 # --------------------   ----------------------
 
-SetLanguage() {
+set_language() {
   
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
@@ -83,7 +83,7 @@ SetLanguage() {
   esac
   
   # Get the required language files
-  # PrintOne "Loading translator"
+  # message_first_line "Loading translator"
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
@@ -91,7 +91,7 @@ SetLanguage() {
     # wget -q git.io/trans 2>> feliz.log
     # chmod +x ./trans
   fi
-  Common # Set common translations
+  common_translations # Set common translations
 }
 
 function not_found()
@@ -106,38 +106,34 @@ function not_found()
   else
     Length=25
   fi
-  dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message" $Height $Length
+  dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message $3" $Height $Length
 }
 
-print_heading() {   # Always use this function to clear the screen
-  clear
-}
-
-InputBox() {  # General-purpose input box
-            # $1 & $2 are box size
+dialog_inputbox() {  # General-purpose input box
+              # $1 & $2 are box size
   dialog --backtitle "$Backtitle" --title " $Title " --clear \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
 }
 
-PrintOne() {  # Translates $1 and starts a Message with it
-  Translate "$1"
+message_first_line() {  # translates $1 and starts a Message with it
+  translate "$1"
   Message="$Result"
 }
 
-PrintMany() { # Translates $1 and continues a Message with it
-  Translate "$1"
+message_subsequent() { # translates $1 and continues a Message with it
+  translate "$1"
   Message="${Message}\n${Result}"
 }
 
-function FinalOne() # Called by FinalCheck to display all user-defined variables
-{  # Receives up to 2 arguments. Translates and prints text
+function print_first_line() # Called by FinalCheck to display all user-defined variables
+{  # Receives up to 2 arguments. translates and prints text
               # centred according to content and screen size
   if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
-    Translate "$1"
+    translate "$1"
     Text="$Result"
-  elif [ $Translate = "N" ]; then   # If Translate variable unset, don't translate any
+  elif [ $translate = "N" ]; then   # If translate variable unset, don't translate any
     Text="$1 $2 $3"
   else                              # If $2 contains text, don't translate any
     Text="$1 $2 $3"
@@ -153,13 +149,13 @@ function FinalOne() # Called by FinalCheck to display all user-defined variables
   echo "$EMPTY $Text"
 }
 
-function FinalMany() # Called by FinalCheck to display all user-defined variables
-{ # Receives up to 2 arguments. Translates and prints text
-              # aligned to FinalOne according to content and screen size
+function print_subsequent() # Called by FinalCheck to display all user-defined variables
+{ # Receives up to 2 arguments. translates and prints text
+              # aligned to print_first_line according to content and screen size
   if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
-    Translate "$1"
+    translate "$1"
     Text="$Result"
-  elif [ $Translate = "N" ]; then   # If Translate variable unset, don't translate any
+  elif [ $translate = "N" ]; then   # If translate variable unset, don't translate any
     Text="$1 $2 $3"
   else                              # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
@@ -186,7 +182,7 @@ read_timed() { # Timed display - $1 = text to display; $2 = duration
   cursor_row=$((cursor_row+1))
 }
 
-CompareLength() {
+compare_length() {
   # If length of translation is greater than previous, save it
   Text="$1"
     if [ ${#Text} -gt $MaxLen ]; then
@@ -194,7 +190,7 @@ CompareLength() {
     fi
 }
 
-PaddLength() {  # If $1 is shorter than MaxLen, padd with spaces
+padd_length() {  # If $1 is shorter than MaxLen, padd with spaces
   Text="$1"
   until [ ${#Text} -eq $MaxLen ]
   do
@@ -203,54 +199,54 @@ PaddLength() {  # If $1 is shorter than MaxLen, padd with spaces
   Result="$Text"
 }
 
-Common() {  # Some common translations
-  Translate "Cancel"
+common_translations() {  # Some common translations
+  translate "Cancel"
   _Cancel="$Result"
-  Translate "Loading"
+  translate "Loading"
   _Loading="$Result"
-  Translate "Installing"
+  translate "Installing"
   _Installing="$Result"
   # listgen1/2 variables
-  Translate "Ok"
+  translate "Ok"
   _Ok="$Result"
-  Translate "Exit"
+  translate "Exit"
   _Exit="$Result"
-  Translate "Exit to finish"
+  translate "Exit to finish"
   _Quit="$Result"
-  Translate "Use arrow keys to move. Enter to select"
+  translate "Use arrow keys to move. Enter to select"
   _Instructions="${Result}"
-  Translate "Yes"
+  translate "Yes"
   _Yes="$Result"
-  Translate "No"
+  translate "No"
   _No="$Result"
-  Translate "None"
+  translate "None"
   _None="$Result"
-  Translate "or"
+  translate "or"
   _or="$Result"
   # listgenx variables
-  Translate "Please enter the number of your selection"
+  translate "Please enter the number of your selection"
   _xNumber="$Result"
-  Translate "or ' ' to exit"
+  translate "or ' ' to exit"
   _xExit="$Result"
-  Translate "'<' for previous page"
+  translate "'<' for previous page"
   _xLeft="$Result"
-  Translate "'>' for next page"
+  translate "'>' for next page"
   _xRight="$Result"
   # Partitioning
-  Translate "/boot partition"
+  translate "/boot partition"
   _BootPartition="$Result"
-  Translate "/root partition"
+  translate "/root partition"
   _RootPartition="$Result"
-  Translate "/swap partition"
+  translate "/swap partition"
   _SwapPartition="$Result"
-  Translate "/home partition"
+  translate "/home partition"
   _HomePartition="$Result"
 }
 
-function Translate()  # Called by PrintOne & PrintMany and by other functions as required
+function translate()  # Called by message_first_line & message_subsequent and by other functions as required
 {                     # $1 is text to be translated
   Text="${1%% }"      # Ensure no trailing spaces
-  if [ $LanguageFile = "English.lan" ] || [ $Translate = "N" ]; then
+  if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then
     Result="$Text"
     return
   fi
@@ -258,7 +254,7 @@ function Translate()  # Called by PrintOne & PrintMany and by other functions as
   #                      exact match only | restrict to first find | display only number
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
-  "" | 0) # No match found in English.lan, so translate using Google Translate to temporary file:
+  "" | 0) # No match found in English.lan, so translate using Google translate to temporary file:
     # ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
     # Result=$(cat Result.file)
       Result="$Text"
@@ -322,7 +318,7 @@ Scope=""                  # Installation scope ... 'Full' or 'Basic'
 # Miscellaneous
 declare -a BeenThere      # Restrict translations to first pass
 PrimaryFile=""
-Translate="Y"             # May be set to N to stifle translation
+translate="Y"             # May be set to N to stifle translation
 
 # ---- Arrays for extra Applications ----
 CategoriesList="Accessories Desktop_Environments Graphical Internet Multimedia Office Programming Window_Managers Taskbars"
