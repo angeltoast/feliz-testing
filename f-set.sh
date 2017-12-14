@@ -865,8 +865,8 @@ function enter_grub_path() # Manual input
 
 function select_kernel()
 {
-  Kernel=0
-  until [ $Kernel -ne 0 ]
+  Kernel="0"
+  until [ "$Kernel" != "0" ]
   do
     translate " Choose your kernel "
     Title="$Result"
@@ -877,7 +877,7 @@ function select_kernel()
     translate "If in doubt, choose"
     Default="${Result} LTS"
   
-    dialog --backtitle "$Backtitle" --title "$Title" --radiolist "\n  $Default" 10 70 2 \
+    dialog --backtitle "$Backtitle" --title "$Title" --no-tags --radiolist "\n  $Default" 10 70 2 \
       "1" "$LTS" ON \
       "2" "$Latest" off 2>output.file
     if [ $? -ne 0 ]; then Result="1"; fi
