@@ -37,7 +37,7 @@
 # america_subgroups     347   select_kernel           896
 # setlocale             370   choose_mirrors          915
 # edit_locale           443   confirm_virtualbox      973
-# get_keymap            463     --- Review Stage ---
+# get_keymap            463   abandon
 # search_keyboards      523   final_check             992
 # set_username          569   manual_settings        1122
 # -------------------------   ---------------------------
@@ -45,15 +45,9 @@
 function checklist_dialog()
 { # Display a Dialog checklist from checklist.file
   # $1 and $2 are dialog box size
-  # $3 is optional "--nocancel"
-  if [ $3 ] && [ $3 = "--nocancel" ]; then 
-    cancel="$3"
-  else
-    cancel=""
-  fi
-  # $4 is checklist/radiolist switch
-  if [ $4 ]; then 
-    Type="$4"
+  # $3 is checklist/radiolist switch
+  if [ $3 ]; then 
+    Type="--radiolist"
   else
     Type="--checklist"
   fi
@@ -84,15 +78,11 @@ function checklist_dialog()
 function menu_dialog()
 { # Display a simple menu from $menu_dialogVariable and return selection as $Result
   # $1 and $2 are dialog box size;
-  # $3 is optional: can be "--nocancel" or the text for --cancel-label
+  # $3 is optional: can be the text for --cancel-label
     
-  if [ $3 ] && [ $3 = "--nocancel" ]; then 
-    nocancel=1
-  elif [ $3 ]; then
-    nocancel=0
+  if [ $3 ]; then
     cancel="$3"
   else
-    nocancel=0
     cancel="Cancel"
   fi
   
@@ -107,20 +97,11 @@ function menu_dialog()
     ItemList[${Items}]="-"                                  # Second element is required
   done
    
-  # Display the list for user-selection (two options: cancel or nocancel)
-  case "$nocancel" in
-  1) # The nocancel option
-    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu \
+  # Display the list for user-selection
+  dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    retval=$?
-  ;;
-  *) # The cancel-label option 
-    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
-      "$Message" \
-      $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    retval=$?
-  esac
+  retval=$?
   Result=$(cat output.file)
 }
 
@@ -128,15 +109,11 @@ function number_menu_dialog()
 { # Similar to menu_dialog. Display a menu from $menu_dialogVariable and return selection as $Result
   # The only difference is that this menu displays numbered items
   # $1 and $2 are dialog box size;
-  # $3 is optional: can be "--nocancel" or the text for --cancel-label
+  # $3 is optional: can be the text for --cancel-label
     
-  if [ $3 ] && [ $3 = "--nocancel" ]; then 
-    nocancel=1
-  elif [ $3 ]; then
-    nocancel=0
+  if [ $3 ]; then
     cancel="$3"
   else
-    nocancel=0
     cancel="Cancel"
   fi
   
@@ -153,20 +130,11 @@ function number_menu_dialog()
     ItemList[${Items}]="${Item}"                            # Second element is required
   done
    
-  # Display the list for user-selection (two options: cancel or nocancel)
-  case "$nocancel" in
-  1) # The nocancel option
-    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu \
+  # Display the list for user-selection
+  dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    retval=$?
-  ;;
-  *) # The cancel-label option 
-    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
-      "$Message" \
-      $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    retval=$?
-  esac
+  retval=$?
   Result=$(cat output.file)
 }
 
@@ -427,7 +395,7 @@ function setlocale()
           ;;
           *) translate "Choose the main locale for your system"     # If many uncommented lines found
             Message="$Result"
-            checklist_dialog 10 40 "--nocancel" "--radiolist"       # Ask user to pick one as main locale
+            checklist_dialog 10 40 "--radiolist"                    # Ask user to pick one as main locale
           esac
         else                                                        # Nano was not used
           continue                                                  # Start again
@@ -627,7 +595,7 @@ function type_of_installation() # User chooses between FelizOB, self-build or ba
   translate "Basic_Arch_Linux"
   BAL="$Result"
   
-  dialog --backtitle "$Backtitle" --title " type_of_installation " --nocancel --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " type_of_installation " --menu "$Message" \
       22 50 3 \
       1 "$BMO" \
       2 "$FOB" \
@@ -810,7 +778,7 @@ function display_extras() # Called by choose_extras
     fi
     # Display the contents of the temporary array in a Dialog menu
     Items=$(( Counter/3 ))
-    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --checklist \
+    dialog --backtitle "$Backtitle" --title " $Title " --checklist \
       "$Message" 20 79 $Items "${TempArray[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
@@ -909,12 +877,12 @@ function select_kernel()
     translate "If in doubt, choose"
     Default="${Result} LTS"
   
-    dialog --backtitle "$Backtitle" --title "$Title" --nocancel \
-      --radiolist "\n  $Default" 10 70 2 \
+    dialog --backtitle "$Backtitle" --title "$Title" --radiolist "\n  $Default" 10 70 2 \
       "1" "$LTS" ON \
       "2" "$Latest" off 2>output.file
-    Response=$(cat output.file)
-    Kernel=${Response} # Set the Kernel variable (1 = LTS; 2 = Latest)
+    if [ $? -ne 0 ]; then Result="1"
+    Result=$(cat output.file)
+    Kernel=${Result} # Set the Kernel variable (1 = LTS; 2 = Latest)
   done
   return 0
 }
@@ -938,7 +906,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       # Get line number of first country
       FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
       
-      # Remove header and save in new file
+      # Remove text prior to FirstLine and save in new file
       tail -n +${FirstLine} archmirrors.list > allmirrors.list
       
       # Delete temporary file
@@ -953,16 +921,20 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
   
       message_first_line "Next we will select mirrors for downloading your system."
       message_subsequent "You will be able to choose from a list of countries which"
-      message_subsequent "have Arch Linux mirrors. It is possible to select more than"
-      message_subsequent "one, but adding too many will slow down your installation"
+      message_subsequent "have Arch Linux mirrors."
       dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
   
       message_first_line "Please choose a country"
 
-      checklist_dialog 25 70 "--nocancel" "--checklist"
+      checklist_dialog 25 70 "--radiolist"
+      if [ "$Result" = "" ]
+      then
+        Result="Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch"
+      fi
+
       Country="$Result"
       if [ "$Country" = "" ]; then
-        translate "You must select at least one."
+        translate "Please select one."
         Title="$Result"
       else   
         # Add to array for use during installation
@@ -994,6 +966,14 @@ function confirm_virtualbox()
   else                  # No
     IsInVbox=""
   fi
+}
+
+function abandon()
+{
+  message_first_line "Feliz cannot continue the installation without"
+  Message="$Message $1"
+  message_subsequent "Are you sure you want to cancel it?"
+  dialog --yesno "$Message" 10 60
 }
 
 function final_check()

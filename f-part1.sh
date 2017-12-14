@@ -49,7 +49,7 @@ function check_parts()   # Called by feliz.sh
   LongPart3="$Result"
   translate "Allow feliz to partition the whole device"
   LongPart4="$Result"
-  Title="partitioning_options"
+  Title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
   PARTITIONS=$(echo $ShowPartitions | wc -w)
@@ -71,11 +71,12 @@ function check_parts()   # Called by feliz.sh
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
  
-      dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu "$Message" 24 70 4 \
+      dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
       retval=$?
+      if [ $retval -ne 0 ]; then abandon "$Title"; fi
       if [ $retval -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
       Result=$((Result+1))                # Because this menu excludes option 1
@@ -91,7 +92,7 @@ function check_parts()   # Called by feliz.sh
       PARTITIONS=$(echo $ShowPartitions | wc -w)
     done
     build_lists                          # Generate list of partitions and matching array
-  else                                  # There are existing partitions on the device
+  else                                   # There are existing partitions on the device
     build_lists                          # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
@@ -101,16 +102,17 @@ function check_parts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$Backtitle" --title " $Title " --nocancel --menu "$Message" 24 78 4 \
+    dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
       4 "$LongPart4" 2>output.file
     retval=$?
+    if [ $retval -ne 0 ]; then abandon "$Title"; fi
     if [ $retval -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
 
-    partitioning_options        # Action user selection
+    partitioning_options                # Action user selection
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
   fi
@@ -336,38 +338,38 @@ function autopart() # Called by choose_device
 
 function allocate_partitions()  # Called by feliz.sh after check_parts
 { # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
-  if [ $AutoPart -eq "OFF" ]; then
+  AutoPart="OFF" ]
   
     RootPartition=""
     while [ "$RootPartition" = "" ]
     do
-      allocate_root                      # User must select root partition
+      allocate_root                       # User must select root partition
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
     done
-                                        # All others are optional
-    if [ -n "${PartitionList}" ]; then  # If there are unallocated partitions
-      allocate_swap                      # Display display them for user to choose swap
+                                          # All others are optional
+    if [ -n "${PartitionList}" ]; then    # If there are unallocated partitions
+      allocate_swap                       # Display display them for user to choose swap
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
-    else                                # If there is no partition for swap
+    else                                  # If there is no partition for swap
       no_swap_partition                      # Inform user and allow swapfile
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
     fi
     
-    for i in ${PartitionList}           # Check contents of PartitionList
+    for i in ${PartitionList}             # Check contents of PartitionList
     do
-      echo $i > output.file             # If anything found, echo to file
-      break                             # Break on first find
+      echo $i > output.file               # If anything found, echo to file
+      break                               # Break on first find
     done
-    Result="$(cat output.file)"         # Check for output
-    if [ "${Result}" = "" ]; then       # If any remaining partitions
-      more_partitions                    # Allow user to allocate
+    Result="$(cat output.file)"           # Check for output
+    if [ "${Result}" = "" ]; then         # If any remaining partitions
+      more_partitions                     # Allow user to allocate
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
     fi
-  fi
+
 }
 
 function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)

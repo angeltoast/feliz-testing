@@ -104,11 +104,12 @@ function select_device() # Called by feliz.sh
         message_first_line "" "$Counter) $i"
       done
 
-      translate "Please enter the number of your selection"
-      Title="$Result"
+      Title="Selecting a device"
       echo $DiskDetails > checklist.file
 
-      checklist_dialog 12 60 "--nocancel" "--radiolist"
+      checklist_dialog 12 60 "--radiolist"
+      if [ $retval -ne 0 ]; then abandon "$Title"; fi
+      if [ $retval -ne 0 ]; then return 1; fi
       UseDisk="${Result}"
     done
   fi
