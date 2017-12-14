@@ -22,7 +22,7 @@
 #                  51 Franklin Street, Fifth Floor
 #                    Boston, MA 02110-1301 USA
 
-# Main module - this is a copy of feliz.sh for compatibility with older iso
+# Main module
 
 # Include source files
 source f-vars.sh     # Most variables and arrays are declared here
@@ -89,17 +89,11 @@ function the_start() # All user interraction takes place in this function
       if [ $? -eq 0 ]; then break; fi
     done
 
-    while true
-    do
-      select_kernel                           # Select kernel and device for Grub
-      if [ $? -ne 0 ]; then continue; fi
-    done
+    select_kernel                           # Select kernel and device for Grub
+    if [ $? -ne 0 ]; then exit; fi
     
-    while true
-    do
-      choose_mirrors                          # Added 2017-09-17
-      if [ $? -ne 0 ]; then continue; fi
-    done
+    choose_mirrors                          # Added 2017-09-17
+    if [ $? -ne 0 ]; then continue; fi
 
     if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
       GrubDevice="EFI"                        # Set variable

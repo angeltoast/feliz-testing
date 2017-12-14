@@ -89,14 +89,11 @@ function the_start() # All user interraction takes place in this function
       if [ $? -eq 0 ]; then break; fi
     done
 
-    select_kernel                           # Select kernel and device for Grub
+    select_kernel                             # Select kernel and device for Grub
     if [ $? -ne 0 ]; then exit; fi
     
-    while true
-    do
-      choose_mirrors                          # Added 2017-09-17
-      if [ $? -ne 0 ]; then continue; fi
-    done
+    choose_mirrors                            # Added 2017-09-17
+    if [ $? -ne 0 ]; then continue; fi
 
     if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
       GrubDevice="EFI"                        # Set variable
