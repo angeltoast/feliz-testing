@@ -917,7 +917,6 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       #                        then removing the '##' and leading spaces
       #                                       and finally save to new file for reference by dialog
       grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
-      rm allmirrors.list
       
     # 2) Display instructions and user selects from list of countries
       Title="Mirrors"
