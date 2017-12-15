@@ -26,36 +26,36 @@
 # --------------------------  ---------------------------
 # Function             Line   Function               Line
 # --------------------------  ---------------------------
-# checklist_dialog       44   set_hostname            588
-# menu_dialog            83   type_of_installation    607
-# number_menu_dialog    126   pick_category           646
-# localisation_settings 173   choose_extras           703
-# desktop_settings      189   display_extras          762
-# set_timezone          200   choose_display_manager  820
-# set_subzone           252   select_grub_device      844
-# america               296   enter_grub_path         872
-# america_subgroups     347   select_kernel           896
-# setlocale             370   choose_mirrors          915
+# checklist_dialog       44   set_hostname            566
+# menu_dialog            83   type_of_installation    585
+# number_menu_dialog    126   pick_category           624
+# localisation_settings 173   choose_extras           681
+# desktop_settings      189   display_extras          740
+# set_timezone          200   choose_display_manager  798
+# set_subzone           252   select_grub_device      822
+# america               296   enter_grub_path         850
+# america_subgroups     347   select_kernel           874
+# setlocale             419   choose_mirrors          898
 # edit_locale           443   confirm_virtualbox      973
-# get_keymap            463   abandon
-# search_keyboards      523   final_check             992
-# set_username          569   manual_settings        1122
+# get_keymap            439   abandon
+# search_keyboards      501   final_check             992
+# set_username          547   manual_settings        1122
 # -------------------------   ---------------------------
 
-function checklist_dialog()
+function checklist_dialog() # Calling function prepares checklist.file 
 { # Display a Dialog checklist from checklist.file
   # $1 and $2 are dialog box size
   # $3 is checklist/radiolist switch
   if [ $3 ]; then 
-    Type="--radiolist"
+    Type=1  # Radiolist
   else
-    Type="--checklist"
+    Type=2  # Checklist
   fi
   
   # 1) Prepare list for display
-    declare -a ItemList=()                              # Array will hold entire checklist
-    Items=0
-    Counter=0
+    local -a ItemList=()                              # Array will hold entire checklist
+    local Items=0
+    local Counter=0
     while read -r Item                                  # Read items from the existing list
     do                                                  # and copy each one to the variable
       Counter=$((Counter+1)) 
@@ -66,13 +66,19 @@ function checklist_dialog()
       Items=$((Items+1))
       ItemList[${Items}]="off"                          # with added off switch and newline
     done < checklist.file
-    Items=$((Items/3))
+    Items=$Counter
 
   # 2) Display the list for user-selection
-    dialog --backtitle "$Backtitle" --title " $Title " "$cancel" --no-tags --separate-output "$Type" \
+    case $Type in
+    1) dialog --backtitle "$Backtitle" --title " $Title " --no-tags --radiolist \
       "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+    ;;
+    *) dialog --backtitle "$Backtitle" --title " $Title " --no-tags --separate-output --checklist \
+      "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+    esac
     retval=$?
     Result=$(cat output.file)                           # Return values to calling function
+    rm checklist.file
 }
 
 function menu_dialog()
@@ -902,31 +908,28 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
         dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 8 75
         cp /etc/pacman.d/mirrorlist > archmirrors.list
       fi
-  
       # Get line number of first country
       FirstLine=$(grep -n "Australia" archmirrors.list | head -n 1 | cut -d':' -f1)
-      
       # Remove text prior to FirstLine and save in new file
       tail -n +${FirstLine} archmirrors.list > allmirrors.list
-      
-      # Delete temporary file
       rm archmirrors.list
-      
       # Create list of countries from allmirrors.list, using '##' to identify
       #                        then removing the '##' and leading spaces
-      #                                       and finally save to new file for later reference
+      #                                       and finally save to new file for reference by dialog
       grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
-  
+      rm allmirrors.list
+      
     # 2) Display instructions and user selects from list of countries
-  
+      Title="Mirrors"
       message_first_line "Next we will select mirrors for downloading your system."
       message_subsequent "You will be able to choose from a list of countries which"
       message_subsequent "have Arch Linux mirrors."
+      
       dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
   
       message_first_line "Please choose a country"
 
-      checklist_dialog 25 70 "--radiolist"
+      checklist_dialog 25 70 "radio"
       if [ "$Result" = "" ]
       then
         Result="Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch"

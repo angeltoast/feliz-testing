@@ -85,14 +85,16 @@ function the_start() # All user interraction takes place in this function
     do
       check_parts                             # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then continue; fi
-      allocate_partitions                     # Assign /root /swap & others
+      if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
+        allocate_partitions                   # Assign /root /swap & others
+      fi
       if [ $? -eq 0 ]; then break; fi
     done
 
     select_kernel                             # Select kernel and device for Grub
     if [ $? -ne 0 ]; then exit; fi
     
-    choose_mirrors                            # Added 2017-09-17
+    choose_mirrors                            # 
     if [ $? -ne 0 ]; then continue; fi
 
     if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
