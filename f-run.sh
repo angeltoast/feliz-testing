@@ -399,79 +399,79 @@ function install_yaourt()
 
 function user_add() # Adds user and copies FelizOB configurations
 {
-  CheckUsers=`cat /mnt/etc/passwd | grep ${UserName}`
+  CheckUsers=`cat /mnt/etc/passwd | grep ${user_name}`
   # If not already exist, create user
   if [ -z "${CheckUsers}" ]; then
     install_message "Adding user and setting up groups"
-    arch_chroot "useradd ${UserName} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
+    arch_chroot "useradd ${user_name} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user
-    arch_chroot "cp /etc/skel/.bashrc /home/${UserName}"
-    arch_chroot "chown -R ${UserName}:users /home/${UserName}"
+    arch_chroot "cp /etc/skel/.bashrc /home/${user_name}"
+    arch_chroot "chown -R ${user_name}:users /home/${user_name}"
     sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers 2>> feliz.log
   fi
   # Create main user folders
   translate "Desktop Documents Downloads Music Pictures Public Templates Videos"
   for i in ${Result}
   do
-    arch_chroot "mkdir /home/${UserName}/${i}"
-    arch_chroot "chown -R ${UserName}: /home/${UserName}/${i}"
+    arch_chroot "mkdir /home/${user_name}/${i}"
+    arch_chroot "chown -R ${user_name}: /home/${user_name}/${i}"
   done
   # FelizOB
   if [ $DesktopEnvironment = "FelizOB" ]; then
     # Set up directories
-    arch_chroot "mkdir -p /home/${UserName}/.config/openbox/"
-    arch_chroot "mkdir -p /home/${UserName}/.config/pcmanfm/default/"
-    arch_chroot "mkdir -p /home/${UserName}/.config/lxpanel/default/panels/"
-    arch_chroot "mkdir /home/${UserName}/Pictures/"
-    arch_chroot "mkdir /home/${UserName}/.config/libfm/"
+    arch_chroot "mkdir -p /home/${user_name}/.config/openbox/"
+    arch_chroot "mkdir -p /home/${user_name}/.config/pcmanfm/default/"
+    arch_chroot "mkdir -p /home/${user_name}/.config/lxpanel/default/panels/"
+    arch_chroot "mkdir /home/${user_name}/Pictures/"
+    arch_chroot "mkdir /home/${user_name}/.config/libfm/"
 
     # Copy FelizOB files
-    cp -r themes /mnt/home/${UserName}/.themes 2>> feliz.log          # Copy egtk theme
+    cp -r themes /mnt/home/${user_name}/.themes 2>> feliz.log          # Copy egtk theme
 
-    check_existing "/mnt/home/${UserName}/" ".conkyrc"
-    cp conkyrc /mnt/home/${UserName}/.conkyrc 2>> feliz.log           # Conky configuration file
+    check_existing "/mnt/home/${user_name}/" ".conkyrc"
+    cp conkyrc /mnt/home/${user_name}/.conkyrc 2>> feliz.log           # Conky configuration file
 
-    check_existing "/mnt/home/${UserName}/" ".compton.conf"
-    cp compton.conf /mnt/home/${UserName}/.compton.conf 2>> feliz.log # Compton configuration file
+    check_existing "/mnt/home/${user_name}/" ".compton.conf"
+    cp compton.conf /mnt/home/${user_name}/.compton.conf 2>> feliz.log # Compton configuration file
 
-    check_existing "/mnt/home/${UserName}/" ".face"
-    cp face.png /mnt/home/${UserName}/.face 2>> feliz.log             # Image for greeter
+    check_existing "/mnt/home/${user_name}/" ".face"
+    cp face.png /mnt/home/${user_name}/.face 2>> feliz.log             # Image for greeter
 
-    check_existing "/mnt/home/${UserName}/.config/openbox/" "autostart"
-    cp autostart /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log # Autostart configuration file
+    check_existing "/mnt/home/${user_name}/.config/openbox/" "autostart"
+    cp autostart /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log # Autostart configuration file
 
-    check_existing "/mnt/home/${UserName}/.config/openbox/" "menu.xml"
-    cp menu.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log  # Openbox right-click menu configuration file
+    check_existing "/mnt/home/${user_name}/.config/openbox/" "menu.xml"
+    cp menu.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log  # Openbox right-click menu configuration file
 
-    check_existing "/mnt/home/${UserName}/.config/openbox/" "rc.xml"
-    cp rc.xml /mnt/home/${UserName}/.config/openbox/ 2>> feliz.log    # Openbox configuration file
+    check_existing "/mnt/home/${user_name}/.config/openbox/" "rc.xml"
+    cp rc.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log    # Openbox configuration file
 
-    check_existing "/mnt/home/${UserName}/.config/lxpanel/default/panels/" "panel"
-    cp panel /mnt/home/${UserName}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel configuration file
+    check_existing "/mnt/home/${user_name}/.config/lxpanel/default/panels/" "panel"
+    cp panel /mnt/home/${user_name}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel configuration file
 
     cp feliz.png /mnt/usr/share/icons/ 2>> feliz.log                  # Icon for panel menu
-    cp wallpaper.jpg /mnt/home/${UserName}/Pictures/ 2>> feliz.log    # Wallpaper for user
+    cp wallpaper.jpg /mnt/home/${user_name}/Pictures/ 2>> feliz.log    # Wallpaper for user
 
-    check_existing "/mnt/home/${UserName}/.config/libfm/" "libfm.conf"
-    cp libfm.conf /mnt/home/${UserName}/.config/libfm/ 2>> feliz.log  # Configurations for pcmanfm
+    check_existing "/mnt/home/${user_name}/.config/libfm/" "libfm.conf"
+    cp libfm.conf /mnt/home/${user_name}/.config/libfm/ 2>> feliz.log  # Configurations for pcmanfm
 
-    check_existing "/mnt/home/${UserName}/.config/lxpanel/default/" "config"
-    cp config /mnt/home/${UserName}/.config/lxpanel/default/ 2>> feliz.log # Desktop configurations for pcmanfm
+    check_existing "/mnt/home/${user_name}/.config/lxpanel/default/" "config"
+    cp config /mnt/home/${user_name}/.config/lxpanel/default/ 2>> feliz.log # Desktop configurations for pcmanfm
 
-    check_existing "/mnt/home/${UserName}/.config/pcmanfm/default/" "desktop-items-0.conf"
-    cp desktop-items /mnt/home/${UserName}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
+    check_existing "/mnt/home/${user_name}/.config/pcmanfm/default/" "desktop-items-0.conf"
+    cp desktop-items /mnt/home/${user_name}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
 
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                    # Wallpaper for desktop (set in desktop-items-0.conf)
     # Set owner
-    arch_chroot "chown -R ${UserName}:users /home/${UserName}/"
+    arch_chroot "chown -R ${user_name}:users /home/${user_name}/"
 
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
   case $Countrykbd in
-  "uk") echo "setxkbmap -layout gb" >> /mnt/home/${UserName}/.bashrc 2>> feliz.log
+  "uk") echo "setxkbmap -layout gb" >> /mnt/home/${user_name}/.bashrc 2>> feliz.log
   ;;
-  *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/${UserName}/.bashrc 2>> feliz.log
+  *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/${user_name}/.bashrc 2>> feliz.log
   esac
 }
 
@@ -542,7 +542,7 @@ function set_root_password()
 function set_user_password()
 {
   message_first_line "Enter a password for"
-  Message="${Message} ${UserName}\n"
+  Message="${Message} ${user_name}\n"
   Repeat="Y"
   while [ $Repeat = "Y" ]
   do
@@ -550,14 +550,14 @@ function set_user_password()
     message_subsequent "see passwords as you enter them"
     Message="${Message}\n"
     
-    dialog --backtitle "$Backtitle" --title " $UserName " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $user_name " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
 
     Pass1=$(cat output.file)
     rm output.file
     message_first_line "Re-enter the password for"
-    Message="${Message} $UserName\n"
+    Message="${Message} $user_name\n"
     
-    dialog --backtitle "$Backtitle" --title " $UserName " --insecure --nocancel --passwordbox "$Message" 10 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $user_name " --insecure --nocancel --passwordbox "$Message" 10 50 2>output.file
     
     Pass2=$(cat output.file)
     rm output.file
@@ -573,7 +573,7 @@ function set_user_password()
     fi
     if [ $Pass1 = $Pass2 ]; then
      echo -e "${Pass1}\n${Pass2}" > /tmp/.passwd
-     arch_chroot "passwd ${UserName}" < /tmp/.passwd >> feliz.log
+     arch_chroot "passwd ${user_name}" < /tmp/.passwd >> feliz.log
      rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else

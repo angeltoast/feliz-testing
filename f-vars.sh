@@ -312,7 +312,7 @@ DisplayManager=""         # eg: lightdm
 
 # Root and user variables
 HostName=""               # eg: arch-linux
-UserName=""               # eg: archie
+user_name=""              # eg: archie
 Scope=""                  # Installation scope ... 'Full' or 'Basic'
 
 # Miscellaneous

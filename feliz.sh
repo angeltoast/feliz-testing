@@ -70,7 +70,7 @@ function the_start() # All user interraction takes place in this function
         choose_display_manager                  # User selects from list of display managers
       fi
 
-      UserName                                  # Enter name of primary user
+      set_username                              # Enter name of primary user
     
       # Check if running in Virtualbox, and offer to include guest utilities
       if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
@@ -120,9 +120,28 @@ function preparation()  # Prepare the environment for the installation phase
     autopart                                                  # In f-part1.sh
   fi
   
+if [ $? -ne 0 ]; then  
+  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+fi
+
   mount_partitions                                            # In f-run.sh
+  
+if [ $? -ne 0 ]; then  
+  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+fi
+
   mirror_list                                                 # In f-run.sh
+  
+if [ $? -ne 0 ]; then  
+  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+fi
+
   install_kernel                                              # In f-run.sh
+  
+if [ $? -ne 0 ]; then  
+  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
+fi
+
 }
 
 function the_middle() # The installation phase

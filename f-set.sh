@@ -555,9 +555,9 @@ function set_username()
   Result="$(cat output.file)"
 
   if [ -z $Result ]; then
-    set_username="archie"
+    user_name="archie"
   else
-    set_username=${Result,,}
+    user_name=${Result,,}
   fi
 }
 
@@ -1015,7 +1015,7 @@ function final_check()
     translate "Hostname"
     print_subsequent "      $Result" "= '$HostName'"
     translate "User Name"
-    print_subsequent "      $Result" "= '$set_username'"
+    print_subsequent "      $Result" "= '$user_name'"
     translate "The following extras have been selected"
     print_subsequent "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
@@ -1123,7 +1123,7 @@ function manual_settings()
     
     dialog --backtitle "$Backtitle" --title " $Uname & $Hname " --cancel-label "Done" \
 	  --menu "\nChoose an item" 10 40 2 \
-      "$Uname"  "$set_username" \
+      "$Uname"  "$user_name" \
       "$Hname" 	"$HostName"   2> output.file
     retvar=$?
     if [ $retvar -ne 0 ]; then return; fi
@@ -1131,16 +1131,16 @@ function manual_settings()
 
     case $Result in
       "$Uname") translate "Enter new username (currently"
-          Message="$Result ${set_username})"
+          Message="$Result ${user_name})"
           Title="$Uname"
           dialog_inputbox 10 30
           if [ $retvar -ne 0 ]; then return; fi
           if [ -z $Result ]; then
-           Result="$set_username"
+           Result="$user_name"
           fi
-          set_username=${Result,,}
-          set_username=${set_username// }             # Ensure no spaces
-          set_username=${set_username%% }
+          user_name=${Result,,}
+          user_name=${user_name// }             # Ensure no spaces
+          user_name=${user_name%% }
         ;;
       "$Hname") translate "Enter new hostname (currently"
           Message="$Result ${HostName})"
