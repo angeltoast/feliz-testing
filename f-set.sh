@@ -77,11 +77,12 @@ function localisation_settings()              # Locale, keyboard & hostname
   until [ $localisation -eq 0 ]               # Each function must return 0 before next function can be called
   do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
-    if [ $? -ne 0 ]; then continue; fi
+    if [ $? -ne 0 ]; then return 1; fi
     get_keymap                                 # Select keyboard layout eg: uk
-    if [ $? -ne 0 ]; then continue; fi
+    if [ $? -ne 0 ]; then return 1; fi
     set_hostname
     localisation=$?
+    if [ $? -ne 0 ]; then return 1; fi
   done
   return $localisation 
 }
@@ -121,10 +122,10 @@ function set_timezone()
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
   
-    dialog --backtitle "$Backtitle" --no-cancel --no-tags --menu \
+    dialog --backtitle "$Backtitle" --no-tags --menu \
         "\n      $Message\n" 20 50 $Counter "${ItemList[@]}" 2>output.file
-        
     retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Result="$(head -n ${Response} zones.file | tail -n 1)"  # Read item from target language file
     NativeZONE="$Result"                                    # Save ZONE in user's language, for display  
@@ -141,11 +142,11 @@ function set_timezone()
     fi
     
     # We now have a zone! eg: Europe
-    set_subzone                          # Call subzone function
-    if [ "$SUBZONE" != "" ]; then       # If non-empty, Check "${ZONE}/$SUBZONE" against 
-                                        # "timedatectl list-timezones"
+    set_subzone                             # Call subzone function
+    if [ "$SUBZONE" != "" ]; then           # If non-empty, Check "${ZONE}/$SUBZONE" against 
+                                            # "timedatectl list-timezones"
       timedatectl list-timezones | grep "${ZONE}/$SUBZONE" > /dev/null
-      if [ $? -eq 0 ]; then return; fi    # If "${ZONE}/$SUBZONE" found, return to caller
+      if [ $? -eq 0 ]; then return 0; fi    # If "${ZONE}/$SUBZONE" found, return to caller
     fi
   done
 }
@@ -189,8 +190,9 @@ function set_subzone() # Called from set_timezone
       SUBZONE="$Result"
     else
       SUBZONE=""
+      return 1
     fi
-    return
+    return 0
   done
 }
 
@@ -274,7 +276,7 @@ function setlocale()
   do
     set_timezone # First get a validated ZONE/SUBZONE
     retval=$?
-    if [ $retval -ne 0 ]; then continue; fi
+    if [ $retval -ne 0 ]; then return 1; fi
     ZoneID="${ZONE}/${SUBZONE}"   # Use a copy (eg: Europe/London) to find in cities.list
                                   # (field 2 in cities.list is the country code (eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
@@ -310,8 +312,8 @@ function setlocale()
       Cancel="Exit"
   
       menu_dialog 17 50 # Arguments are dialog size. To display a menu and return $Result & $retval
+      if [ $retval -ne 0 ]; then return 1; fi
       Response="$retval"
-  
       if [ $Response -eq 1 ]; then                                  # If user chooses <Exit>
         CountryLocale=""                                            # Start again
         continue
@@ -736,8 +738,10 @@ function display_extras() # Called by choose_extras
     fi
     # Display the contents of the temporary array in a Dialog menu
     Items=$(( Counter/3 ))
-    dialog --backtitle "$Backtitle" --title " $Title " --checklist \
+    
+    dialog --backtitle "$Backtitle" --title " $Title " --no-cancel --checklist \
       "$Message" 20 79 $Items "${TempArray[@]}" 2>output.file
+      
     retval=$?
     Result=$(cat output.file)
     # Add selected items to LuxuriesList

@@ -32,9 +32,9 @@
 # choose_device        203    allocate_swap       495   
 # partition_maker      252    no_swap_partition   554
 # autopart             294    set_swap_file       571
-# allocate_partitions  337    more_partitions     592 /
-# select_filesystem    373    choose_mountpoint   628 /
-# display_partitions   683 /
+# allocate_partitions  337    more_partitions     592 
+# select_filesystem    373    choose_mountpoint   628 
+# display_partitions   683 
 # ------------------------    ------------------------
 
 function check_parts()   # Called by feliz.sh
@@ -375,6 +375,7 @@ function select_filesystem()  # Called by allocate_root and more_partitions (via
   # User chooses filesystem from menu
   translate "Please select the file system for"
   Title="$Result ${Partition}"
+  Message="\n${Message}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
   menu_dialogVariable="ext4 ext3 btrfs xfs"
   
@@ -427,7 +428,7 @@ function allocate_root() # Called by allocate_partitions
 { # Display partitions for user-selection of one as /root
   #  (uses list of all available partitions in PartitionList)
 
-  if [ ${UEFI} -eq 1 ]; then      # Installing in UEFI environment
+  if [ ${UEFI} -eq 1 ]; then        # Installing in UEFI environment
     allocate_uefi                   # First allocate the /boot partition (sets boot on for EFI)
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
@@ -436,7 +437,6 @@ function allocate_root() # Called by allocate_partitions
   Partition=""
   PartitionType=""
   message_first_line "Please select a partition to use for /root"
-  
   display_partitions
   retval=$?
   if [ $retval -ne 0 ]; then
@@ -451,7 +451,7 @@ function allocate_root() # Called by allocate_partitions
 
   # Before going to select_filesystem, check if there is an existing file system on the selected partition
   check_filesystem  # This sets variable CurrentType and starts the Message
-  
+  Message="\n${Message}"
   if [ -n ${CurrentType} ]; then
     message_subsequent "You can choose to leave it as it is, but should"
     message_subsequent "understand that not reformatting the /root"
@@ -459,7 +459,7 @@ function allocate_root() # Called by allocate_partitions
   fi
   
   # Now select a filesystem
-  select_filesystem  20 75      # This sets variable PartitionType
+  select_filesystem  18 75      # This sets variable PartitionType
   retval=$?
   if [ $retval -ne 0 ]; then    # User has cancelled the operation
     PartitionType=""            # PartitionType can be empty (will not be formatted)
@@ -685,6 +685,7 @@ function display_partitions() # Called by more_partitions, allocate_swap & alloc
 { # Uses $PartitionList & ${PartitionArray[@]} to generate a menu of available partitions
   # Sets $retval (0/1) and $Result (Item text)
   # Calling function must validate output
+
   declare -a ItemList=()                                    # Array will hold entire list
   Items=0
   for Item in $PartitionList
@@ -700,7 +701,7 @@ function display_partitions() # Called by more_partitions, allocate_swap & alloc
   done
 
   dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" \
-      20 78 ${Items} "${ItemList[@]}" 2>output.file
+      18 70 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
 }

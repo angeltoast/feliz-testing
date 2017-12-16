@@ -39,7 +39,7 @@ set_language() {
   
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
-  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --menu \
+  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
            Please choose your language" 21 60 11 \

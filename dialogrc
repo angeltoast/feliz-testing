@@ -11,6 +11,7 @@
 # String     -  "string"
 # Boolean    -  <ON|OFF>
 # Attribute  -  (foreground,background,highlight?)
+# 0 black, 1 red, 2 green, 3 yellow, 4 blue, 5 magenta, 6 cyan and 7 white
 
 # Set aspect-ratio
 aspect = 0
@@ -37,14 +38,14 @@ screen_color = (WHITE,BLACK,OFF)
 shadow_color = (BLACK,BLACK,OFF)
 
 # Dialog box color
-dialog_color = (WHITE,BLACK,OFF)
+dialog_color = (YELLOW,BLACK,OFF)
 
 # Dialog box title color
-title_color = (WHITE,BLACK,OFF)
+title_color = (RED,BLACK,OFF)
 
 # Dialog box border color
-border_color = (WHITE,BLACK,OFF)
-border2_color = (WHITE,BLACK,OFF)
+border_color = (CYAN,BLACK,OFF)
+border2_color = (CYAN,BLACK,OFF)
 
 # Active button color
 button_active_color = (BLACK,WHITE,OFF)
