@@ -262,13 +262,15 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
   dialog --backtitle "Feliz" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi
 
-  guided_MBR_root                             # Create /root partition
+  guided_MBR_root                                    # Create /root partition
   if [ $? -ne 0 ]; then return 1; fi
 
   recalculate_space "$RootSize"                      # Recalculate remaining space after adding /root
+
   if [ ${FreeSpace} -gt 0 ]
-  then 
+  then
     guided_MBR_swap
+    if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
   else
     message_first_line "There is no space for a /swap partition, but you can"
     message_subsequent "assign a swap-file. It is advised to allow some swap"
@@ -277,13 +279,9 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
     if [ $? -ne 0 ]; then return 0; fi
     set_swap_file # Note: Global variable SwapFile is set by set_swap_file
-                  # and SwapFile is created during installation by mount_partitions
-  fi
-  
-  if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
+  fi              # and SwapFile is created during installation by mount_partitions
 
   if [ ${FreeSpace} -gt 2 ]; then guided_MBR_home; fi
-
 }
 
 function guided_EFI_Boot() # Called by guided_EFI
@@ -498,6 +496,7 @@ function guided_MBR_root() # Called by guided_MBR
       RootType=${PartitionType}
     fi
   done
+  return 0
 }
 
 function guided_MBR_swap() # Called by guided_MBR
@@ -505,7 +504,7 @@ function guided_MBR_swap() # Called by guided_MBR
   # Clear display, show /boot and /root
   FreeGigs=$((FreeSpace/1024))
   SwapSize=""
-  while [ SwapSizeSize = "" ]
+  while [ "$SwapSize" = "" ]
   do
     # Clear display, show /root and available space
     Title="/swap"

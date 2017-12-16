@@ -337,7 +337,7 @@ function autopart() # Called by choose_device
 
 function allocate_partitions()  # Called by feliz.sh after check_parts
 { # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
-  AutoPart="OFF" ]
+  AutoPart="OFF"
   
   RootPartition=""
   while [ "$RootPartition" = "" ]
