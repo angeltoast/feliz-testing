@@ -95,16 +95,16 @@ function menu_dialog()
   # Prepare array for display
   declare -a ItemList=()                                    # Array will hold entire list
   Items=0
-  for Item in $menu_dialogVariable                                 # Read items from the variable
-  do 
+  for Item in $menu_dialogVariable                          # Read items from the variable
+  do                                                        # and copy each one to the array
     Items=$((Items+1))
-    ItemList[${Items}]="${Item}"                            # and copy each one to the array
+    ItemList[${Items}]="${Item}"                            # First element is tag
     Items=$((Items+1))
-    ItemList[${Items}]="-"                                  # Second element is required
+    ItemList[${Items}]="${Item}"                            # Second element is required
   done
    
   # Display the list for user-selection
-  dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
+  dialog --backtitle "$Backtitle" --title " $Title " --no-tags --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
@@ -928,7 +928,22 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
   
       message_first_line "Please choose a country"
 
-      checklist_dialog 25 70 "radio"
+      declare -a ItemList=()                              # Array will hold entire list
+      Items=0
+      while read -r Item                                  # Read items from the file
+      do                                                  # and copy each one to the array
+        Items=$((Items+1))
+        ItemList[${Items}]="${Item}"                      # First element is tag
+        Items=$((Items+1))
+        ItemList[${Items}]="${Item}"                      # Second element is required
+      done < checklist.file
+
+      dialog --backtitle "$Backtitle" --title " $Title " --no-tags --menu "$Message" \
+        25 60 ${Items} "${ItemList[@]}" 2>output.file
+      retval=$?
+      Result=$(cat output.file)                           # Return values to calling function
+      rm checklist.file
+exit      
       if [ "$Result" = "" ]
       then
         Result="Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch"
