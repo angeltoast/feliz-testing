@@ -943,7 +943,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       retval=$?
       Result=$(cat output.file)                           # Return values to calling function
       rm checklist.file
-exit      
+
       if [ "$Result" = "" ]
       then
         Result="Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch"
