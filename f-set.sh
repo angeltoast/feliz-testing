@@ -189,12 +189,12 @@ function set_timezone()
       translate "$Item"
       Item="$Result"
       Items=$((Items+1))
-      ItemList[${Items}]="${Item}"                            # First column is the item
+      ItemList[${Items}]="${Counter}"                         # First column (tag) is the item number
       Items=$((Items+1))
-      ItemList[${Items}]="-"                                  # Second column is a placeholder
+      ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
   
-    dialog --backtitle "$Backtitle" --no-cancel --menu \
+    dialog --backtitle "$Backtitle" --no-cancel --no-tags --menu \
         "\n      $Message\n" 20 50 $Counter "${ItemList[@]}" 2>output.file
         
     retval=$?
