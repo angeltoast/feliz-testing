@@ -552,6 +552,8 @@ function type_of_installation() # User chooses between FelizOB, self-build or ba
 function pick_category()  # menu_dialog of categories of selected items from the Arch repos
 { translate "Added so far"
   AddedSoFar="$Result"
+  translate "Done"
+  Done="$Result"
   # translate the categories
   TransCatList=""
   for category in $CategoriesList
@@ -587,7 +589,7 @@ function pick_category()  # menu_dialog of categories of selected items from the
     done
      
     # Display the list for user-selection
-    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
+    dialog --backtitle "$Backtitle" --title " $Title " --no-tags --cancel-label "$Done" --menu \
         "$Message" \
         20 70 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -834,8 +836,8 @@ function select_kernel()
     Default="${Result} LTS"
   
     dialog --backtitle "$Backtitle" --title "$Title" --no-tags --menu "\n  $Default" 10 70 2 \
-      "1" "$LTS" ON \
-      "2" "$Latest" off 2>output.file
+      "1" "$LTS" \
+      "2" "$Latest" 2>output.file
     if [ $? -ne 0 ]; then Result="1"; fi
     Result=$(cat output.file)
     Kernel=${Result} # Set the Kernel variable (1 = LTS; 2 = Latest)
