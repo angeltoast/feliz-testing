@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 14th October 2017
+# Revision date: 16th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,14 +26,15 @@
 # -------------------------    ---------------------------
 # Functions           Line     Functions              Line
 # -------------------------    ---------------------------
-# arch_chroot            38    install_display_manager 249
-# parted_script          43    install_extras          263
-# install_message        48    istall_yaourt           377
-# mount_partitions       57    user_add                399
-#                              check_existing          477
-# install_kernel        137    set_root_password       485
-# add_codecs            175    set_user_password       542
-# mirror_list           199    finish                  591
+# arch_chroot            40    mirror_list             384
+# parted_script          45    install_display_manager 432
+# install_message        50    install_extras          446
+# action_MBR             59    install_yaourt          560
+# action_EFI            135    user_add                582
+# mount_partitions      242    check_existing          660
+# install_kernel        322    set_root_password       667
+# add_codecs            360    set_user_password       724
+#                              finish                  773
 # -------------------------    ---------------------------
 
 function arch_chroot() # From Lution AIS - calls arch-chroot with options
@@ -53,6 +54,189 @@ function install_message() # For displaying status while running on auto
   print_first_line "$1" "$2" "$3"
   tput sgr0
   echo
+}
+
+function action_MBR() # Called by guided_MBR
+{ # Uses the variables set above to create partition table & all partitions
+
+  # Root partition
+  # --------------
+    # Calculate end-point
+    Unit=${RootSize: -1}                # Save last character of root (eg: G)
+    Chars=${#RootSize}                  # Count characters in root variable
+    Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
+    if [ ${Unit} = "G" ]; then
+      Var=$((Var*1024))                 # Convert to MiB
+      EndPart=$((1+Var))                # Start at 1MiB
+      EndPoint="${EndPart}MiB"          # Append unit
+    elif [ ${Unit} = "M" ]; then
+      EndPart=$((1+Var))                # Start at 1MiB
+      EndPoint="${EndPart}MiB"          # Append unit
+    elif [ ${Unit} = "%" ]; then
+      EndPoint="${Var}%"
+    fi
+    parted_script "mkpart primary ext4 1MiB ${EndPoint}"
+    parted_script "set 1 boot on"
+    RootPartition="${GrubDevice}1"      # "/dev/sda1"
+    NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
+  
+  # Swap partition
+  # --------------
+    if [ $SwapSize ]; then
+      # Calculate end-point
+      Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
+      Chars=${#SwapSize}                # Count characters in swap variable
+      Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
+      if [ ${Unit} = "G" ]; then
+        Var=$((Var*1024))               # Convert to MiB
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Append unit
+      elif [ ${Unit} = "M" ]; then
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Append unit
+      elif [ ${Unit} = "%" ]; then
+        EndPoint="${Var}%"
+      fi
+      # Make the partition
+      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+      SwapPartition="${GrubDevice}2"    # "/dev/sda2"
+      MakeSwap="Y"
+      NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
+    fi
+  
+  # Home partition
+  # --------------
+    if [ $HomeSize ]; then
+      # Calculate end-point
+      Unit=${HomeSize: -1}              # Save last character of home (eg: G)
+      Chars=${#HomeSize}                # Count characters in home variable
+      Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
+      if [ ${Unit} = "G" ]; then
+        Var=$((Var*1024))               # Convert to MiB
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Append unit
+      elif [ ${Unit} = "M" ]; then
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Append unit
+      elif [ ${Unit} = "%" ]; then
+        EndPoint="${Var}%"
+      fi
+      # Make the partition
+      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+      HomePartition="${GrubDevice}3"    # "/dev/sda3"
+      Home="Y"
+      AddPartList[0]="${GrubDevice}3"   # /dev/sda3     | add to
+      AddPartMount[0]="/home"           # Mountpoint    | array of
+      AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
+    fi
+  AutoPart="GUIDED"                     # Set flag for formatting and mounting
+}
+
+function action_EFI() # Called during installation phase
+{ # Uses the variables set above to create GPT partition table & all partitions
+
+  # Format the drive for EFI
+    tput setf 0                 # Change foreground colour to black temporarily to hide error message
+    sgdisk --zap-all /dev/sda   # Remove all partitions
+    wipefs -a /dev/sda          # Remove filesystem
+    tput sgr0                   # Reset colour
+    parted_script "mklabel gpt"        # Create EFI partition table
+  # Boot partition
+  # --------------
+    # Calculate end-point
+    Unit=${BootSize: -1}                # Save last character of boot (eg: M)
+    Chars=${#BootSize}                  # Count characters in boot variable
+    Var=${BootSize:0:Chars-1}           # Remove unit character from boot variable
+    if [ ${Unit} = "G" ]; then
+      Var=$((Var*1024))                 # Convert to MiB
+    fi
+    EndPoint=$((Var+1))                 # Add start and finish. Result is MiBs, numerical only (has no unit)
+    parted_script "mkpart primary fat32 1MiB ${EndPoint}MiB"
+    parted_script "set 1 boot on"
+    EFIPartition="${GrubDevice}1"       # "/dev/sda1"
+    NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
+  
+  # Root partition
+  # --------------
+    # Calculate end-point
+    Unit=${RootSize: -1}                # Save last character of root (eg: G)
+    Chars=${#RootSize}                  # Count characters in root variable
+    Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
+    if [ ${Unit} = "G" ]; then
+      Var=$((Var*1024))                 # Convert to MiB
+      EndPart=$((NextStart+Var))        # Add to previous end
+      EndPoint="${EndPart}MiB"          # Add unit
+    elif [ ${Unit} = "M" ]; then
+      EndPart=$((NextStart+Var))        # Add to previous end
+      EndPoint="${EndPart}MiB"          # Add unit
+    elif [ ${Unit} = "%" ]; then
+      EndPoint="${Var}%"
+    fi
+    # Make the partition
+    parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
+    RootPartition="${GrubDevice}2"      # "/dev/sda2"
+    NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
+  
+  # Swap partition
+  # --------------
+    if [ $SwapSize ]; then
+      # Calculate end-point
+      Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
+      Chars=${#SwapSize}                # Count characters in swap variable
+      Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
+      if [ ${Unit} = "G" ]; then
+        Var=$((Var*1024))               # Convert to MiB
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Add unit
+      elif [ ${Unit} = "M" ]; then
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Add unit
+      elif [ ${Unit} = "%" ]; then
+        EndPoint="${Var}%"
+      fi
+      # Make the partition
+      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+      SwapPartition="${GrubDevice}3"    # "/dev/sda3"
+      MakeSwap="Y"
+      NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
+    fi
+  
+  # Home partition
+  # --------------
+    if [ $HomeSize ]; then
+      # Calculate end-point
+      Unit=${HomeSize: -1}              # Save last character of home (eg: G)
+      Chars=${#HomeSize}                # Count characters in home variable
+      Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
+      if [ ${Unit} = "G" ]; then
+        Var=$((Var*1024))               # Convert to MiB
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Add unit
+      elif [ ${Unit} = "M" ]; then
+        EndPart=$((NextStart+Var))      # Add to previous end
+        EndPoint="${EndPart}MiB"        # Add unit
+      elif [ ${Unit} = "%" ]; then
+        EndPoint="${Var}%"
+      fi
+      # Make the partition
+      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+      HomePartition="${GrubDevice}4"    # "/dev/sda4"
+      Home="Y"
+      AddPartList[0]="${GrubDevice}4"   # /dev/sda4     | add to
+      AddPartMount[0]="/home"           # Mountpoint    | array of
+      AddPartType[0]="ext4"             # Filesystem    | additional partitions
+    fi
+
+  translate "partitioning_options of"
+  Title="${Result} ${GrubDevice}"
+  Message="${Message}\n${TBootPartition}: $(lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}')"
+  Message="${Message}\n${TRootPartition}: $(lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}')"
+  Message="${Message}\n${TSwapPartition}: $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')"
+  Message="${Message}\n${THomePartition}: $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')"
+
+  dialog --backtitle "$Backtitle" --title "$Title" --yesno "$Message" 20 70
+  if [ $? -ne 0 ]; then return 1; fi
+  AutoPart="GUIDED"                     # If accepted, set flag for formatting and mounting
 }
 
 function mount_partitions()
