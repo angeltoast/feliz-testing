@@ -26,60 +26,20 @@
 # --------------------------  ---------------------------
 # Function             Line   Function               Line
 # --------------------------  ---------------------------
-# checklist_dialog       44   set_hostname            566
-# menu_dialog            83   type_of_installation    585
-# number_menu_dialog    126   pick_category           624
-# localisation_settings 173   choose_extras           681
-# desktop_settings      189   display_extras          740
-# set_timezone          200   choose_display_manager  798
-# set_subzone           252   select_grub_device      822
-# america               296   enter_grub_path         850
-# america_subgroups     347   select_kernel           874
-# setlocale             419   choose_mirrors          898
-# edit_locale           443   confirm_virtualbox      973
-# get_keymap            439   abandon
-# search_keyboards      501   final_check             992
-# set_username          547   manual_settings        1122
+# menu_dialog            44   type_of_installation    485
+# localisation_settings  74   pick_category           524
+# desktop_settings       89   choose_extras           581
+# set_timezone          100   display_extras          640
+# set_subzone           152   choose_display_manager  698
+# america               196   select_grub_device      722
+# america_subgroups     247   enter_grub_path         750
+# setlocale             319   select_kernel           774
+# edit_locale           343   choose_mirrors          798
+# get_keymap            339   confirm_virtualbox      873
+# search_keyboards      401   
+# set_username          447   final_check             892
+# set_hostname          466   manual_settings        1022
 # -------------------------   ---------------------------
-
-function checklist_dialog() # Calling function prepares checklist.file 
-{ # Display a Dialog checklist from checklist.file
-  # $1 and $2 are dialog box size
-  # $3 is checklist/radiolist switch
-  if [ $3 ]; then 
-    Type=1  # Radiolist
-  else
-    Type=2  # Checklist
-  fi
-  
-  # 1) Prepare list for display
-    local -a ItemList=()                              # Array will hold entire checklist
-    local Items=0
-    local Counter=0
-    while read -r Item                                  # Read items from the existing list
-    do                                                  # and copy each one to the variable
-      Counter=$((Counter+1)) 
-      Items=$((Items+1))
-      ItemList[${Items}]="${Item}"
-      Items=$((Items+1))
-      ItemList[${Items}]="${Item}" 
-      Items=$((Items+1))
-      ItemList[${Items}]="off"                          # with added off switch and newline
-    done < checklist.file
-    Items=$Counter
-
-  # 2) Display the list for user-selection
-    case $Type in
-    1) dialog --backtitle "$Backtitle" --title " $Title " --no-tags --radiolist \
-      "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    ;;
-    *) dialog --backtitle "$Backtitle" --title " $Title " --no-tags --separate-output --checklist \
-      "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-    esac
-    retval=$?
-    Result=$(cat output.file)                           # Return values to calling function
-    rm checklist.file
-}
 
 function menu_dialog()
 { # Display a simple menu from $menu_dialogVariable and return selection as $Result
@@ -105,39 +65,6 @@ function menu_dialog()
    
   # Display the list for user-selection
   dialog --backtitle "$Backtitle" --title " $Title " --no-tags --cancel-label "$cancel" --menu \
-      "$Message" \
-      $1 $2 ${Items} "${ItemList[@]}" 2>output.file
-  retval=$?
-  Result=$(cat output.file)
-}
-
-function number_menu_dialog()
-{ # Similar to menu_dialog. Display a menu from $menu_dialogVariable and return selection as $Result
-  # The only difference is that this menu displays numbered items
-  # $1 and $2 are dialog box size;
-  # $3 is optional: can be the text for --cancel-label
-    
-  if [ $3 ]; then
-    cancel="$3"
-  else
-    cancel="Cancel"
-  fi
-  
-  # Prepare array for display
-  declare -a ItemList=()                                    # Array will hold entire list
-  Items=0
-  Counter=1
-  for Item in $menu_dialogVariable                                 # Read items from the variable
-  do 
-    Items=$((Items+1))
-    ItemList[${Items}]="${Counter}"                         # and copy each one to the array
-    Counter=$((Counter+1))
-    Items=$((Items+1))
-    ItemList[${Items}]="${Item}"                            # Second element is required
-  done
-   
-  # Display the list for user-selection
-  dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
       "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
@@ -389,19 +316,22 @@ function setlocale()
         CountryLocale=""                                            # Start again
         continue
       elif [ "$Result" == "Edit_locale.gen" ]; then                 # User chooses manual edit
-        edit_locale                                                        # Use Nano to edit locale.gen
+        edit_locale                                                 # Use Nano to edit locale.gen
         retval=$?
         if [ $retval -eq 0 ]; then  # If Nano was used, get list of uncommented entries
-          grep -v '#' /etc/locale.gen | grep ' ' | cut -d' ' -f1 > checklist.file 
-          HowMany=$(wc -l checklist.file | cut -d' ' -f1)           # Count them
+          grep -v '#' /etc/locale.gen | grep ' ' | cut -d' ' -f1 > list.file 
+          HowMany=$(wc -l list.file | cut -d' ' -f1)                # Count them
           case ${HowMany} in
           0) continue                                               # No uncommented lines found, so restart
           ;;
-          1) Result="$(cat checklist.file)"                         # One uncommented line found, so set it as locale
+          1) Result="$(cat list.file)"                              # One uncommented line found, so set it as locale
           ;;
           *) translate "Choose the main locale for your system"     # If many uncommented lines found
             Message="$Result"
-            checklist_dialog 10 40 "--radiolist"                    # Ask user to pick one as main locale
+            # Prepare list for display
+            menu_dialogVariable="$(cat list.file)"
+
+            menu_dialog 20 60                                       # Display in menu
           esac
         else                                                        # Nano was not used
           continue                                                  # Start again
@@ -642,7 +572,27 @@ function pick_category()  # menu_dialog of categories of selected items from the
     # Display categories as numbered list
     Title="Arch Linux"
     menu_dialogVariable="${TransCatList}"
-    number_menu_dialog  20 70 "Done"              # Displays numbered menu of categories
+
+    # Prepare array for display
+    declare -a ItemList=()                                    # Array will hold entire list
+    Items=0
+    Counter=1
+    for Item in $menu_dialogVariable                                 # Read items from the variable
+    do 
+      Items=$((Items+1))
+      ItemList[${Items}]="${Counter}"                         # and copy each one to the array
+      Counter=$((Counter+1))
+      Items=$((Items+1))
+      ItemList[${Items}]="${Item}"                            # Second element is required
+    done
+     
+    # Display the list for user-selection
+    dialog --backtitle "$Backtitle" --title " $Title " --cancel-label "$cancel" --menu \
+        "$Message" \
+        20 70 ${Items} "${ItemList[@]}" 2>output.file
+    retval=$?
+    Result=$(cat output.file)
+    
     # Process exit variables
     if [ $retval -ne 0 ]; then
       if [ -n "${LuxuriesList}" ]; then
@@ -804,17 +754,17 @@ function choose_display_manager()
   message_subsequent "If you do not install a display manager, you will have"
   message_subsequent "to launch your desktop environment manually"
   
-  dialog --backtitle "$Backtitle" --title " $Title " --menu "\n$Message" 20 60 6 \
-    "GDM" "-" \
-    "LightDM" "-" \
-    "LXDM" "-" \
-    "sddm" "-" \
-    "SLIM" "-" \
-    "XDM" "-" 2> output.file
+  dialog --backtitle "$Backtitle" --title " $Title " --no-tags --menu "\n$Message" 20 60 6 \
+    "gdm" "GDM" \
+    "lightdm" "LightDM" \
+    "lxdm" "LXDM" \
+    "sddm" "SDDM" \
+    "slim" "SLIM" \
+    "xdm" "XDM" 2> output.file
   retval=$?
   if [ $retval -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
-  DisplayManager="${DisplayManager,,}"
+
 }
 
 function select_grub_device()
@@ -883,7 +833,7 @@ function select_kernel()
     translate "If in doubt, choose"
     Default="${Result} LTS"
   
-    dialog --backtitle "$Backtitle" --title "$Title" --no-tags --radiolist "\n  $Default" 10 70 2 \
+    dialog --backtitle "$Backtitle" --title "$Title" --no-tags --menu "\n  $Default" 10 70 2 \
       "1" "$LTS" ON \
       "2" "$Latest" off 2>output.file
     if [ $? -ne 0 ]; then Result="1"; fi
@@ -916,7 +866,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       # Create list of countries from allmirrors.list, using '##' to identify
       #                        then removing the '##' and leading spaces
       #                                       and finally save to new file for reference by dialog
-      grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > checklist.file
+      grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > list.file
       
     # 2) Display instructions and user selects from list of countries
       Title="Mirrors"
@@ -936,13 +886,13 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
         ItemList[${Items}]="${Item}"                      # First element is tag
         Items=$((Items+1))
         ItemList[${Items}]="${Item}"                      # Second element is required
-      done < checklist.file
+      done < list.file
 
       dialog --backtitle "$Backtitle" --title " $Title " --no-tags --menu "$Message" \
         25 60 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
       Result=$(cat output.file)                           # Return values to calling function
-      rm checklist.file
+      rm list.file
 
       if [ "$Result" = "" ]
       then
@@ -983,16 +933,6 @@ function confirm_virtualbox()
   else                  # No
     IsInVbox=""
   fi
-}
-
-function abandon()
-{
-  message_first_line "Feliz cannot continue the installation without"
-  Message="$Message $1"
-  message_subsequent "Are you sure you want to cancel it?"
-  dialog --backtitle "$Backtitle" --yesno "$Message" 10 60 2> output.file
-  retval=$?
-  Result="$(cat output.file)"
 }
 
 function final_check()

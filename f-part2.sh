@@ -105,9 +105,30 @@ function select_device() # Called by feliz.sh
       done
 
       Title="Selecting a device"
-      echo $DiskDetails > checklist.file
+      echo $DiskDetails > list.file
 
-      checklist_dialog 12 60 "--radiolist"
+      # Prepare list for display as a radiolist
+      local -a ItemList=()                                # Array will hold entire checklist
+      local Items=0
+      local Counter=0
+      while read -r Item                                  # Read items from the file
+      do                                                  # and copy each one to the variable
+        Counter=$((Counter+1)) 
+        Items=$((Items+1))
+        ItemList[${Items}]="${Item}"
+        Items=$((Items+1))
+        ItemList[${Items}]="${Item}" 
+        Items=$((Items+1))
+        ItemList[${Items}]="off"                          # with added off switch and newline
+      done < list.file
+      Items=$Counter
+
+      dialog --backtitle "$Backtitle" --title " $Title " --no-tags --radiolist \
+        "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+      retval=$?
+      Result=$(cat output.file)                           # Return values to calling function
+      rm list.file
+      
       if [ $retval -ne 0 ]; then abandon "$Title"; fi
       if [ $retval -ne 0 ]; then return 1; fi
       UseDisk="${Result}"
