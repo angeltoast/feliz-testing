@@ -174,7 +174,7 @@ function partitioning_options()  # Called by check_parts after user selects an a
       clear
       partprobe 2>> feliz.log   # Inform kernel of changes to partitions
       tput sgr0                 # Reset colour
-      return                    # finish partitioning
+      return 0                  # finish partitioning
     ;;
     3) if [ ${UEFI} -eq 1 ]; then
         guided_EFI              # Guided manual partitioning functions
@@ -231,23 +231,22 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     else
       UseDisk=$DiskDetails
     fi
-
-      Title="Warning"
-      translate "This will erase any data on"
-      Message="${Result} /dev/${UseDisk}"
-      message_subsequent "Are you sure you wish to continue?"
-      Message="${Message}\n${Result}"
-      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
-      retval=$?
-      case $retval in
-      0) AutoPart="ON"
-        return 0
-      ;;
-      1) UseDisk=""
-      ;;
-      *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
-      esac
-      return 1
+    Title="Warning"
+    translate "This will erase any data on"
+    Message="${Result} /dev/${UseDisk}"
+    message_subsequent "Are you sure you wish to continue?"
+    Message="${Message}\n${Result}"
+    dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+    retval=$?
+    case $retval in
+    0) AutoPart="ON"
+      return 0
+    ;;
+    1) UseDisk=""
+    ;;
+    *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
+    esac
+    return 1
   done
 }
 
@@ -340,36 +339,35 @@ function allocate_partitions()  # Called by feliz.sh after check_parts
 { # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
   AutoPart="OFF" ]
   
-    RootPartition=""
-    while [ "$RootPartition" = "" ]
-    do
-      allocate_root                       # User must select root partition
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
-    done
-                                          # All others are optional
-    if [ -n "${PartitionList}" ]; then    # If there are unallocated partitions
-      allocate_swap                       # Display display them for user to choose swap
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
-    else                                  # If there is no partition for swap
-      no_swap_partition                      # Inform user and allow swapfile
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
-    fi
-    
-    for i in ${PartitionList}             # Check contents of PartitionList
-    do
-      echo $i > output.file               # If anything found, echo to file
-      break                               # Break on first find
-    done
-    Result="$(cat output.file)"           # Check for output
-    if [ "${Result}" = "" ]; then         # If any remaining partitions
-      more_partitions                     # Allow user to allocate
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
-    fi
-
+  RootPartition=""
+  while [ "$RootPartition" = "" ]
+  do
+    allocate_root                       # User must select root partition
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
+  done
+                                        # All others are optional
+  if [ -n "${PartitionList}" ]; then    # If there are unallocated partitions
+    allocate_swap                       # Display display them for user to choose swap
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
+  else                                  # If there is no partition for swap
+    no_swap_partition                      # Inform user and allow swapfile
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
+  fi
+  
+  for i in ${PartitionList}             # Check contents of PartitionList
+  do
+    echo $i > output.file               # If anything found, echo to file
+    break                               # Break on first find
+  done
+  Result="$(cat output.file)"           # Check for output
+  if [ "${Result}" = "" ]; then         # If any remaining partitions
+    more_partitions                     # Allow user to allocate
+    retval=$?
+    if [ $retval -ne 0 ]; then return 1; fi
+  fi
 }
 
 function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)
@@ -572,12 +570,12 @@ function no_swap_partition()
 
 function set_swap_file()
 {
-  LoopRepeat="Y"
-  while [ ${LoopRepeat} = "Y" ]
+  SwapFile=""
+  while [ ${SwapFile} = "" ]
   do
     message_first_line "Allocate the size of your swap file"
     dialog_inputbox "M = Megabytes, G = Gigabytes [eg: 512M or 2G]: "
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $retval -ne 0 ]; then SwapFile=""; return 0; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
     CheckInput=$(grep "G\|M" <<< "${RESPONSE}" )

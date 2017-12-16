@@ -286,7 +286,7 @@ RootPartition=""          # eg: /dev/sda2
 RootType=""               # eg: ext4
 Partition=""              # eg: sda1
 Ignorelist=""             # Used in review process
-AutoPart=0                # Flag - changes to 1 if auto-partition is chosen
+AutoPart="OFF"            # Flag - changes to 1 if auto-partition is chosen
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
 

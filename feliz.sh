@@ -85,6 +85,7 @@ function the_start() # All user interraction takes place in this function
     do
       check_parts                             # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then continue; fi
+      
       if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
         allocate_partitions                   # Assign /root /swap & others
       fi
@@ -119,28 +120,12 @@ function preparation()  # Prepare the environment for the installation phase
   elif [ "$AutoPart" = "ON" ]; then                           # If Auto partitioning_options
     autopart                                                  # In f-part1.sh
   fi
-  
-if [ $? -ne 0 ]; then  
-  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-fi
 
   mount_partitions                                            # In f-run.sh
-  
-if [ $? -ne 0 ]; then  
-  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-fi
 
   mirror_list                                                 # In f-run.sh
-  
-if [ $? -ne 0 ]; then  
-  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-fi
 
   install_kernel                                              # In f-run.sh
-  
-if [ $? -ne 0 ]; then  
-  read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-fi
 
 }
 
@@ -214,7 +199,7 @@ function the_middle() # The installation phase
           pacstrap /mnt virtualbox-guest-modules-arch 2>> feliz.log
         esac
         pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
-        arch-chroot /mnt systemctl enable vboxservice
+        arch_chroot "systemctl enable vboxservice"
       fi
       install_extras                                           # Install DEs, WMs and DMs
       user_add
@@ -230,17 +215,16 @@ function the_end()  # Set passwords and finish Feliz
   
   set_root_password
   
-  if [ $Scope != "Basic" ]; then
-    set_user_password
-  fi
-  if [ -f output.file ]; then rm output.file; fi
-  cp feliz.log ltsgroup.txt /mnt/etc                           # Copy installation log for reference
-  finish                                                       # type_of_installation to shutdown or reboot
+  if [ $Scope != "Basic" ]; then set_user_password; fi
+
+  cp feliz.log /mnt/etc                                        # Copy installation log for reference
+    
+  finish                                                       # Shutdown or reboot
 }
 
 if [ -f dialogrc ]
 then
-mv dialogrc .dialogrc
+  mv dialogrc .dialogrc
 fi
 
 StartTime=$(date +%s)

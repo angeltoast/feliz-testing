@@ -592,7 +592,7 @@ function finish()
   Item1="$(echo $Result | cut -d' ' -f1)"
   Item2="$(echo $Result | cut -d' ' -f2)"
 
-  dialog --backtitle "$Backtitle" --title " Finish " --nocancel --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " Finish " --menu "$Message" \
       12 30 2 \
       1 "$Item1" \
       2 "$Item2" 2>output.file

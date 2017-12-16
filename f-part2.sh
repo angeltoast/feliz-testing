@@ -223,8 +223,7 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
   
   if [ ${FreeSpace} -gt 2 ]; then guided_EFI_Home; fi
-  
-  # action_EFI  # Perform formatting and partitioning #### THIS SHOULD NOT HAPPEN UNTIL INSTALLATION PHASE !!!!!!!!! ###
+
 }
 
 function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first step in the 
@@ -252,17 +251,15 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     Message="${Message}\n"
     message_subsequent "Do you wish to allocate a swapfile?"
     dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
-    if [ $? -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 0; fi
     set_swap_file # Note: Global variable SwapFile is set by set_swap_file
-                # and SwapFile is created during installation by mount_partitions
+                  # and SwapFile is created during installation by mount_partitions
   fi
   
   if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
 
   if [ ${FreeSpace} -gt 2 ]; then guided_MBR_home; fi
-  
-  # Perform formatting and partitioning
-  # action_MBR  ######## DO NOT CALL THIS UNTIL INSTALLATION PHASE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ##############
+
 }
 
 function guided_EFI_Boot() # Called by guided_EFI
@@ -657,15 +654,16 @@ function guided_MBR_swap() # Called by guided_MBR
       if [ $retval -eq 0 ]; then
         print_heading
         set_swap_file
+        if [ $? -ne 0 ]; then SwapSize=""; return 0; fi
       fi
-      return
+      return 0
     ;;
     *) # Check that entry includes 'G or %'
       CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
         message_first_line "You must include M, G or %"
         dialog --backtitle "$Backtitle" --msgbox "$Message"
-        SwapSizeSize=""
+        SwapSize=""
       else
         SwapSize=$RESPONSE
       fi
