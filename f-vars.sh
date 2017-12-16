@@ -54,7 +54,7 @@ set_language() {
       pt-PT "Português-PT" \
       pt-BR "Português-BR" \
       vi "Vietnamese" 2>output.file
-
+    if [ $? -ne 0 ]; then exit; fi
     InstalLanguage=$(cat output.file)
 
   case $InstalLanguage in
@@ -83,13 +83,13 @@ set_language() {
   esac
   
   # Get the required language files
-  # message_first_line "Loading translator"
+  message_first_line "Loading translator"
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   if [ $LanguageFile != "English.lan" ]; then   # Only if not English
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-    # Install the translator for situations where no translation is found on file
-    # wget -q git.io/trans 2>> feliz.log
-    # chmod +x ./trans
+    Install the translator for situations where no translation is found on file
+    wget -q git.io/trans 2>> feliz.log
+    chmod +x ./trans
   fi
   common_translations # Set common translations
 }
@@ -201,46 +201,46 @@ padd_length() {  # If $1 is shorter than MaxLen, padd with spaces
 
 common_translations() {  # Some common translations
   translate "Cancel"
-  _Cancel="$Result"
+  TCancel="$Result"
   translate "Loading"
-  _Loading="$Result"
+  TLoading="$Result"
   translate "Installing"
-  _Installing="$Result"
+  TInstalling="$Result"
   # listgen1/2 variables
   translate "Ok"
-  _Ok="$Result"
+  TOk="$Result"
   translate "Exit"
-  _Exit="$Result"
+  TExit="$Result"
   translate "Exit to finish"
-  _Quit="$Result"
+  TQuit="$Result"
   translate "Use arrow keys to move. Enter to select"
-  _Instructions="${Result}"
+  TInstructions="${Result}"
   translate "Yes"
-  _Yes="$Result"
+  TYes="$Result"
   translate "No"
-  _No="$Result"
+  TNo="$Result"
   translate "None"
-  _None="$Result"
+  TNone="$Result"
   translate "or"
-  _or="$Result"
+  Tor="$Result"
   # listgenx variables
   translate "Please enter the number of your selection"
-  _xNumber="$Result"
+  TxNumber="$Result"
   translate "or ' ' to exit"
-  _xExit="$Result"
+  TxExit="$Result"
   translate "'<' for previous page"
-  _xLeft="$Result"
+  TxLeft="$Result"
   translate "'>' for next page"
-  _xRight="$Result"
+  TxRight="$Result"
   # Partitioning
   translate "/boot partition"
-  _BootPartition="$Result"
+  TBootPartition="$Result"
   translate "/root partition"
-  _RootPartition="$Result"
+  TRootPartition="$Result"
   translate "/swap partition"
-  _SwapPartition="$Result"
+  TSwapPartition="$Result"
   translate "/home partition"
-  _HomePartition="$Result"
+  THomePartition="$Result"
 }
 
 function translate()  # Called by message_first_line & message_subsequent and by other functions as required

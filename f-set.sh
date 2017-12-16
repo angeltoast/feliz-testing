@@ -182,16 +182,16 @@ function set_timezone()
   
     declare -a ItemList=()                                    # Array will hold entire menu list
     Items=0
-    Counter=1
+    Counter=0
     while read -r Item                                        # Read items from the zones file
     do                                                        # for display in menu
+      Counter=$((Counter+1)) 
       translate "$Item"
       Item="$Result"
       Items=$((Items+1))
-      ItemList[${Items}]="${Counter}"                         # First column is the item number
-      Counter=$((Counter+1)) 
+      ItemList[${Items}]="${Item}"                            # First column is the item
       Items=$((Items+1))
-      ItemList[${Items}]="${Item}"                            # Second column is the item
+      ItemList[${Items}]="-"                                  # Second column is a placeholder
     done < zones.file
   
     dialog --backtitle "$Backtitle" --no-cancel --menu \
@@ -586,11 +586,11 @@ function type_of_installation() # User chooses between FelizOB, self-build or ba
   translate "Build your own system, by picking the"
   Message="${Message}\n\n1) ${Result}"
   translate "software you wish to install"
-  Message="${Message}\n${Result}\n\n               ... ${_or} ...\n"
+  Message="${Message}\n${Result}\n\n               ... ${Tor} ...\n"
   translate "You can choose the new FelizOB desktop, a"
   Message="${Message}\n2) ${Result}"
   translate "complete lightweight system built on Openbox"
-  Message="${Message}\n${Result}\n\n               ... ${_or} ...\n"
+  Message="${Message}\n${Result}\n\n               ... ${Tor} ...\n"
   translate "Just install a basic Arch Linux"
   Message="${Message}\n3) ${Result}\n"
   
@@ -997,10 +997,10 @@ function final_check()
     print_subsequent "3) $Result" "$Countrykbd"
     case ${IsInVbox} in
       "VirtualBox") translate "virtualbox guest modules"
-      print_subsequent "4)" "$Result: $_Yes"
+      print_subsequent "4)" "$Result: $TYes"
       ;;
       *) translate "virtualbox guest modules"
-      print_subsequent "4)" "$Result: $_No"
+      print_subsequent "4)" "$Result: $TNo"
     esac
     if [ -z "$DisplayManager" ]; then
       translate "No Display Manager selected"
@@ -1019,11 +1019,11 @@ function final_check()
     print_subsequent "7) $Result" "..."
     SaveStartPoint="$EMPTY" # Save cursor start point
     if [ $Scope = "Basic" ]; then
-      print_first_line "$_None" ""
+      print_first_line "$TNone" ""
     elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
       print_first_line "FelizOB" ""
     elif [ -z "$LuxuriesList" ]; then
-      print_first_line "$_None" ""
+      print_first_line "$TNone" ""
     else
       translate="N"
       print_first_line "${LuxuriesList}" ""

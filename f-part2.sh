@@ -200,7 +200,7 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   if [ $? -ne 0 ]; then return 1; fi   # Go right back to start
   
   message_first_line "We begin with the"
-  Message="$Message $_BootPartition"
+  Message="$Message $TBootPartition"
 
   guided_EFI_Boot                  # Create /boot partition
   recalculate_space "$BootSize"    # Recalculate remaining space
@@ -297,7 +297,7 @@ function guided_EFI_Root() # Celled by guided_EFI
   while [ ${RootSize} = "" ]
   do
     # Clear display, show /boot and available space
-    Message="$_BootPartition: ${BootSize}\n"
+    Message="$TBootPartition: ${BootSize}\n"
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
@@ -336,8 +336,8 @@ function guided_EFI_Swap() # Called by guided_EFI
   do
     Title="/swap"
     # Clear display, show /boot and available space
-    Message="$_BootPartition: ${BootSize}"
-    Message="${Message}\n$_RootPartition: ${RootType} : ${RootSize}\n"
+    Message="$TBootPartition: ${BootSize}"
+    Message="${Message}\n$TRootPartition: ${RootType} : ${RootSize}\n"
     message_first_line "You now have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
@@ -345,19 +345,19 @@ function guided_EFI_Swap() # Called by guided_EFI
 
     if [ ${FreeSpace} -gt 10 ]; then
       message_first_line "There is space for a"
-      Message="$Message $_SwapPartition"
+      Message="$Message $TSwapPartition"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ ${FreeSpace} -gt 5 ]; then
       message_first_line "There is space for a"
-      Message="$Message $_SwapPartition"
+      Message="$Message $TSwapPartition"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_first_line "There is just space for a"
-      Message="$Message $_SwapPartition"
+      Message="$Message $TSwapPartition"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
     fi
@@ -367,7 +367,7 @@ function guided_EFI_Swap() # Called by guided_EFI
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
     '' | 0) message_first_line "Do you wish to allocate a swapfile?"
-      Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
+      Buttons "Yes/No" "$TYes $TNo" "$TInstructions"
       echo
       if [ $Response -eq 1 ]; then
         set_swap_file
@@ -395,9 +395,9 @@ function guided_EFI_Home() # Called by guided_EFI
   do
     # Clear display, show /boot and available space
 
-    Message="${_BootPartition}: ${BootSize}"
-    Message="${Message}\n$_RootPartition: ${RootType} : ${RootSize}"
-    Message="${Message}\n$_SwapPartition: ${SwapSize}\n"
+    Message="${TBootPartition}: ${BootSize}"
+    Message="${Message}\n$TRootPartition: ${RootType} : ${RootSize}"
+    Message="${Message}\n$TSwapPartition: ${SwapSize}\n"
 
     Title="/home"
 
@@ -407,7 +407,7 @@ function guided_EFI_Home() # Called by guided_EFI
     Message="$Message $Result"
 
     message_subsequent "There is space for a"
-    Message="$Message $_HomePartition"
+    Message="$Message $THomePartition"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size
 
@@ -433,32 +433,9 @@ function guided_EFI_Home() # Called by guided_EFI
   done
 }
 
-function last_chance()  # Called by action_EFI & action_MBR
-{
-  message_first_line "That's all the preparation done"
-  message_subsequent "Feliz will now create a new partition table"
-  message_subsequent "and set up the partitions you have defined"
-  Message="$Message\n"
-  message_subsequent "This will erase any data on"
-  Message="$Message ${UseDisk}"
-  message_subsequent "Are you sure you wish to continue?"
-
-  dialog --backtitle "$Backtitle" --yesno "$Message" 30 75
-}
-
 function action_EFI() # Called during installation phase
-{ # EFI Final step. Uses the variables set above to create GPT partition table & all partitions
-  # Get user approval
-  Message="${_BootPartition}: ${BootSize}"
-  Message="$Message\n${_RootPartition}: ${RootType} : ${RootSize}"
-  Message="$Message\n$_SwapPartition :" "${SwapSize}"
-  Message="$Message\n$_HomePartition :" "${HomeType} : ${HomeSize}\n"
-  last_chance
-  if [ $retval -ne 0 ]
-  then
-    UseDisk=""
-    return 1                    # Go right back to start
-  fi
+{ # Uses the variables set above to create GPT partition table & all partitions
+
   # Format the drive for EFI
     tput setf 0                 # Change foreground colour to black temporarily to hide error message
     sgdisk --zap-all /dev/sda   # Remove all partitions
@@ -553,10 +530,10 @@ function action_EFI() # Called during installation phase
 
   translate "partitioning_options of"
   Title="${Result} ${GrubDevice}"
-  Message="${Message}\n${_BootPartition}: $(lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}')"
-  Message="${Message}\n${_RootPartition}: $(lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}')"
-  Message="${Message}\n${_SwapPartition}: $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')"
-  Message="${Message}\n${_HomePartition}: $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')"
+  Message="${Message}\n${TBootPartition}: $(lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}')"
+  Message="${Message}\n${TRootPartition}: $(lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}')"
+  Message="${Message}\n${TSwapPartition}: $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')"
+  Message="${Message}\n${THomePartition}: $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')"
 
   dialog --backtitle "$Backtitle" --title "$Title" --yesno "$Message" 20 70
   if [ $? -ne 0 ]; then return 1; fi
@@ -574,7 +551,7 @@ function guided_MBR_root() # Called by guided_MBR
     # Clear display, show /boot and available space
     Title="/root"
     message_first_line "We begin with the"
-    Message="$Message ${_RootPartition}\n"
+    Message="$Message ${TRootPartition}\n"
     message_subsequent "You have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
@@ -601,8 +578,8 @@ function guided_MBR_root() # Called by guided_MBR
       Partition="/root"
       print_heading
       translate "allocated to /root"
-      message_first_line "${RootSize}" "$Result"
-      select_filesystem
+      Message="${RootSize}" "$Result"
+      select_filesystem 30 60
       RootType=${PartitionType}
     fi
   done
@@ -617,7 +594,7 @@ function guided_MBR_swap() # Called by guided_MBR
   do
     # Clear display, show /root and available space
     Title="/swap"
-    Message="$_RootPartition: ${RootType} : ${RootSize}\n"
+    Message="$TRootPartition: ${RootType} : ${RootSize}\n"
 
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
@@ -626,20 +603,20 @@ function guided_MBR_swap() # Called by guided_MBR
 
     if [ ${FreeSpace} -gt 10 ]; then
       message_subsequent "There is space for a"
-      Message="$Message ${_SwapPartition}\n"
+      Message="$Message ${TSwapPartition}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ ${FreeSpace} -gt 5 ]; then
       message_subsequent "There is space for a"
-      Message="$Message ${_SwapPartition}\n"
+      Message="$Message ${TSwapPartition}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You can use all the remaining space on the device, if you wish"
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_subsequent "There is just space for a"
-      Message="$Message ${_SwapPartition}\n"
+      Message="$Message ${TSwapPartition}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You can use all the remaining space on the device, if you wish"
@@ -680,8 +657,8 @@ function guided_MBR_home() # Called by guided_MBR
   do
     # Clear display, show /root, /swap and available space
     Title="/home"
-    Message="$_RootPartition : ${RootType} : ${RootSize}"
-    message_subsequent "$_SwapPartition : ${SwapSize}\n"
+    Message="$TRootPartition : ${RootType} : ${RootSize}"
+    message_subsequent "$TSwapPartition : ${SwapSize}\n"
 
     translate "You now have"
     Message="${Message} ${FreeGigs}GiB"
@@ -689,7 +666,7 @@ function guided_MBR_home() # Called by guided_MBR
     Message="$Message ${Result}\n"
 
     message_subsequent "There is space for a"
-    Message="${Message} $_HomePartition"
+    Message="${Message} $THomePartition"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size
 
@@ -709,7 +686,7 @@ function guided_MBR_home() # Called by guided_MBR
         HomeSize=$RESPONSE
         Partition="/home"
         translate "of remaining space allocated to"
-        Message="${HomeSize}" "$Result $_HomePartition"
+        Message="${HomeSize}" "$Result $THomePartition"
         select_filesystem
         HomeType=${PartitionType}
       fi
@@ -718,27 +695,7 @@ function guided_MBR_home() # Called by guided_MBR
 }
 
 function action_MBR() # Called by guided_MBR
-{ # Final partitioning step - Uses the variables set above to create partition table & all partitions
-    # Get user approval
-    print_heading
-    if [ -n "${RootSize}" ]; then
-      message_first_line "$_RootPartition " ": ${RootType} : ${RootSize}"
-    fi
-    if [ -n "${SwapSize}" ]; then
-      message_first_line "$_SwapPartition " ": ${SwapSize}"
-    elif [ -n "${SwapFile}" ]; then
-      message_first_line "$_SwapFile " ": ${SwapFile}"
-    fi
-    if [ -n "${HomeSize}" ]; then
-      message_first_line "$_HomePartition :" "${HomeType} : ${HomeSize}"
-    fi
-    last_chance
-    case $retval in
-      0) parted_script "mklabel msdos"       # Create mbr partition table
-      ;;
-      *) UseDisk=""
-        check_parts                    # Go right back to start
-    esac
+{ # Uses the variables set above to create partition table & all partitions
 
   # Root partition
   # --------------

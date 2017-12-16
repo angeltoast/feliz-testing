@@ -70,7 +70,7 @@ function the_start() # All user interraction takes place in this function
         choose_display_manager                  # User selects from list of display managers
       fi
 
-      UserName                                  # Enter name of primary user
+      set_username                              # Enter name of primary user
     
       # Check if running in Virtualbox, and offer to include guest utilities
       if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
@@ -85,14 +85,17 @@ function the_start() # All user interraction takes place in this function
     do
       check_parts                             # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then continue; fi
-      allocate_partitions                     # Assign /root /swap & others
+      
+      if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
+        allocate_partitions                   # Assign /root /swap & others
+      fi
       if [ $? -eq 0 ]; then break; fi
     done
 
-    select_kernel                           # Select kernel and device for Grub
+    select_kernel                             # Select kernel and device for Grub
     if [ $? -ne 0 ]; then exit; fi
     
-    choose_mirrors                          # Added 2017-09-17
+    choose_mirrors                            # 
     if [ $? -ne 0 ]; then continue; fi
 
     if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
@@ -117,10 +120,13 @@ function preparation()  # Prepare the environment for the installation phase
   elif [ "$AutoPart" = "ON" ]; then                           # If Auto partitioning_options
     autopart                                                  # In f-part1.sh
   fi
-  
+
   mount_partitions                                            # In f-run.sh
+
   mirror_list                                                 # In f-run.sh
+
   install_kernel                                              # In f-run.sh
+
 }
 
 function the_middle() # The installation phase
@@ -158,7 +164,7 @@ function the_middle() # The installation phase
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
   # Grub
-    install_message "$_Installing " "Grub"
+    install_message "$TInstalling " "Grub"
     if [ ${GrubDevice} = "EFI" ]; then                        # Installing grub in UEFI environment
       pacstrap /mnt grub efibootmgr
       arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
@@ -183,7 +189,7 @@ function the_middle() # The installation phase
       add_codecs # Various bits
       if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
         translate="N"
-        install_message "$_Installing " "Virtualbox guest modules"
+        install_message "$TInstalling " "Virtualbox guest modules"
         translate="Y"
         case $Kernel in
         1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log  # LTS kernel
@@ -193,7 +199,7 @@ function the_middle() # The installation phase
           pacstrap /mnt virtualbox-guest-modules-arch 2>> feliz.log
         esac
         pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
-        arch-chroot /mnt systemctl enable vboxservice
+        arch_chroot "systemctl enable vboxservice"
       fi
       install_extras                                           # Install DEs, WMs and DMs
       user_add
@@ -209,17 +215,16 @@ function the_end()  # Set passwords and finish Feliz
   
   set_root_password
   
-  if [ $Scope != "Basic" ]; then
-    set_user_password
-  fi
-  if [ -f output.file ]; then rm output.file; fi
-  cp feliz.log ltsgroup.txt /mnt/etc                           # Copy installation log for reference
-  finish                                                       # type_of_installation to shutdown or reboot
+  if [ $Scope != "Basic" ]; then set_user_password; fi
+
+  cp feliz.log /mnt/etc                                        # Copy installation log for reference
+    
+  finish                                                       # Shutdown or reboot
 }
 
 if [ -f dialogrc ]
 then
-mv dialogrc .dialogrc
+  mv dialogrc .dialogrc
 fi
 
 StartTime=$(date +%s)

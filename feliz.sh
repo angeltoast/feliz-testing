@@ -164,7 +164,7 @@ function the_middle() # The installation phase
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
   # Grub
-    install_message "$_Installing " "Grub"
+    install_message "$TInstalling " "Grub"
     if [ ${GrubDevice} = "EFI" ]; then                        # Installing grub in UEFI environment
       pacstrap /mnt grub efibootmgr
       arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
@@ -189,7 +189,7 @@ function the_middle() # The installation phase
       add_codecs # Various bits
       if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
         translate="N"
-        install_message "$_Installing " "Virtualbox guest modules"
+        install_message "$TInstalling " "Virtualbox guest modules"
         translate="Y"
         case $Kernel in
         1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log  # LTS kernel

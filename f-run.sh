@@ -159,7 +159,7 @@ function install_kernel() # Selected kernel and some other core systems
     pacman -Sy --noconfirm archlinux-keyring
   fi
   translate "kernel and core systems"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   case $Kernel in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
     # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
@@ -168,28 +168,28 @@ function install_kernel() # Selected kernel and some other core systems
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
   translate "cli tools"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 }
 
 function add_codecs()
 {
-  install_message "$_Installing " "codecs"
+  install_message "$TInstalling " "codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
   translate "Wireless Tools"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
   # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
   translate "Graphics tools"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
   translate "opensource video drivers"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
   translate "fonts"
-  install_message "$_Installing " "$Result"
+  install_message "$TInstalling " "$Result"
   pacstrap /mnt ttf-liberation 2>> feliz.log
 
   # install_message "Installing  CUPS printer services"
@@ -234,7 +234,7 @@ function mirror_list()
         if [ -z "$MirrorURL" ]; then
           break
         else
-          echo "$_Loading " "$Country $MirrorURL"
+          echo "$TLoading " "$Country $MirrorURL"
         fi
       done
     done
@@ -249,7 +249,7 @@ function install_display_manager()
 { # Disable any existing display manager
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
-  install_message "$_Installing " "${DisplayManager}"
+  install_message "$TInstalling " "${DisplayManager}"
   case ${DisplayManager} in
   "lightdm") pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
@@ -263,7 +263,7 @@ function install_extras()
 { # Install desktops and other extras
   # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
-    install_message "$_Installing " "FelizOB"
+    install_message "$TInstalling " "FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
     pacstrap /mnt lxdm 2>> feliz.log
     arch_chroot "systemctl -f enable lxdm.service" >> feliz.log
@@ -286,65 +286,65 @@ function install_extras()
     for i in ${LuxuriesList}
     do
       case $i in
-      "Awesome") install_message "$_Installing " "Awesome"
+      "Awesome") install_message "$TInstalling " "Awesome"
           pacstrap /mnt awesome 2>> feliz.log
         ;;
-      "Budgie") install_message "$_Installing " "Budgie"
+      "Budgie") install_message "$TInstalling " "Budgie"
           pacstrap /mnt budgie-desktop 2>> feliz.log
         ;;
-      "Cinnamon") install_message "$_Installing Cinnamon"
+      "Cinnamon") install_message "$TInstalling Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log
         ;;
-      "Enlightenment") install_message "$_Installing " "Enlightenment"
+      "Enlightenment") install_message "$TInstalling " "Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
-      "Fluxbox") install_message "$_Installing " "Fluxbox"
+      "Fluxbox") install_message "$TInstalling " "Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
-      "Gnome") install_message "$_Installing " "Gnome"
+      "Gnome") install_message "$TInstalling " "Gnome"
           pacstrap /mnt gnome 2>> feliz.log
           pacstrap /mnt gnome-extra 2>> feliz.log
           systemctl enable gdm.service
         ;;
-      "i3") install_message "$_Installing " "i3 window manager"
+      "i3") install_message "$TInstalling " "i3 window manager"
           pacstrap /mnt i3 2>> feliz.log                              # i3 group includes i3-wm
          ;;
-      "Icewm") install_message "$_Installing " "Icewm"
+      "Icewm") install_message "$TInstalling " "Icewm"
           pacstrap /mnt icewm 2>> feliz.log
          ;;
-      "JWM") install_message "$_Installing " "JWM"
+      "JWM") install_message "$TInstalling " "JWM"
           pacstrap /mnt jwm 2>> feliz.log
          ;;
-      "KDE") install_message "$_Installing " "KDE Plasma"
+      "KDE") install_message "$TInstalling " "KDE Plasma"
           pacstrap /mnt plasma-meta 2>> feliz.log
           pacstrap /mnt kde-applications 2>> feliz.log
         ;;
-      "LXDE") install_message "$_Installing " "LXDE"
+      "LXDE") install_message "$TInstalling " "LXDE"
           pacstrap /mnt lxde leafpad 2>> feliz.log
           if [ -d /mnt/etc/lxdm ]; then
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
           fi
         ;;
-      "LXQt") install_message "$_Installing " "LXQt"
+      "LXQt") install_message "$TInstalling " "LXQt"
           pacstrap /mnt lxqt 2>> feliz.log
           pacstrap /mnt oxygen-icons connman lxappearance xscreensaver 2>> feliz.log
         ;;
-      "Mate") install_message "$_Installing " "Mate"
+      "Mate") install_message "$TInstalling " "Mate"
         pacstrap /mnt mate mate-extra 2>> feliz.log
         pacstrap /mnt mate-applet-dock mate-applet-streamer mate-menu 2>> feliz.log
         ;;
-      "Openbox") install_message "$_Installing " "Openbox"
+      "Openbox") install_message "$TInstalling " "Openbox"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
-      "Windowmaker") install_message "$_Installing " "Windowmaker"
+      "Windowmaker") install_message "$TInstalling " "Windowmaker"
         pacstrap /mnt windowmaker 2>> feliz.log
         pacstrap /mnt windowmaker-extra 2>> feliz.log
         ;;
-      "Xfce") install_message "$_Installing " "Xfce"
+      "Xfce") install_message "$TInstalling " "Xfce"
         pacstrap /mnt xfce4 2>> feliz.log
         pacstrap /mnt xfce4-goodies 2>> feliz.log
         ;;
-      "Xmonad") install_message "$_Installing " "Xmonad"
+      "Xmonad") install_message "$TInstalling " "Xmonad"
         pacstrap /mnt xmonad 2>> feliz.log
         pacstrap /mnt xmonad-contrib 2>> feliz.log
         ;;
@@ -360,13 +360,13 @@ function install_extras()
       case $i in
       "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
         ;;
-      "cairo-dock") install_message "$_Installing " "Cairo Dock"
+      "cairo-dock") install_message "$TInstalling " "Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
-      "conky") install_message "$_Installing " "Conky"
+      "conky") install_message "$TInstalling " "Conky"
         pacstrap /mnt conky 2>> feliz.log
         ;;
-      *) install_message "$_Installing " "$i"
+      *) install_message "$TInstalling " "$i"
         pacstrap /mnt "$i" 2>> feliz.log
       esac
     done
@@ -375,7 +375,7 @@ function install_extras()
 
 function install_yaourt()
 {
-  install_message "$_Installing " "Yaourt"
+  install_message "$TInstalling " "Yaourt"
   arch=$(uname -m)
   if [ ${arch} = "x86_64" ]; then                                     # Identify 64 bit architecture
     # For installed system
@@ -592,7 +592,7 @@ function finish()
   Item1="$(echo $Result | cut -d' ' -f1)"
   Item2="$(echo $Result | cut -d' ' -f2)"
 
-  dialog --backtitle "$Backtitle" --title " Finish " --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " Finish " --menu "$Backtitle" \
       12 30 2 \
       1 "$Item1" \
       2 "$Item2" 2>output.file

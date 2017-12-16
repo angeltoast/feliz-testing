@@ -83,7 +83,7 @@ function check_parts()   # Called by feliz.sh
       partitioning_options                        # partitioning_options options
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
-      if [ "$Result" = "$_Exit" ]; then   # Terminate
+      if [ "$Result" = "$TExit" ]; then   # Terminate
         dialog --backtitle "$Backtitle" --infobox "Exiting to allow you to partition the device" 6 30
         exit
       fi
@@ -371,7 +371,8 @@ function allocate_partitions()  # Called by feliz.sh after check_parts
 }
 
 function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)
-{ # User chooses filesystem from menu
+{ # Receives two arguments: $1 $2 are window size
+  # User chooses filesystem from menu
   translate "Please select the file system for"
   Title="$Result ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
