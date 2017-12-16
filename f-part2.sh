@@ -245,9 +245,9 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   fi
   
   if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
-  
   if [ ${FreeSpace} -gt 2 ]; then guided_EFI_Home; fi
-
+  AutoPart="GUIDED"
+  return 0
 }
 
 function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first step in the 
@@ -280,8 +280,10 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     if [ $? -ne 0 ]; then return 0; fi
     set_swap_file # Note: Global variable SwapFile is set by set_swap_file
   fi              # and SwapFile is created during installation by mount_partitions
-
+  if [ $? -ne 0 ]; then return 1; fi
   if [ ${FreeSpace} -gt 2 ]; then guided_MBR_home; fi
+  AutoPart="GUIDED"
+  return 0
 }
 
 function guided_EFI_Boot() # Called by guided_EFI

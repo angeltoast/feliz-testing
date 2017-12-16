@@ -108,7 +108,6 @@ function check_parts()   # Called by feliz.sh
       3 "$LongPart3" \
       4 "$LongPart4" 2>output.file
     retval=$?
-    if [ $retval -ne 0 ]; then abandon "$Title"; fi
     if [ $retval -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
 
@@ -116,6 +115,7 @@ function check_parts()   # Called by feliz.sh
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
   fi
+  return 0
 }
 
 function build_lists() # Called by check_parts to generate details of existing partitions
@@ -337,7 +337,6 @@ function autopart() # Called by choose_device
 
 function allocate_partitions()  # Called by feliz.sh after check_parts
 { # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
-  AutoPart="OFF"
   
   RootPartition=""
   while [ "$RootPartition" = "" ]

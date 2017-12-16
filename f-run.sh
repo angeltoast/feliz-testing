@@ -129,7 +129,6 @@ function action_MBR() # Called by guided_MBR
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
-  AutoPart="GUIDED"                     # Set flag for formatting and mounting
 }
 
 function action_EFI() # Called during installation phase
@@ -236,7 +235,6 @@ function action_EFI() # Called during installation phase
 
   dialog --backtitle "$Backtitle" --title "$Title" --yesno "$Message" 20 70
   if [ $? -ne 0 ]; then return 1; fi
-  AutoPart="GUIDED"                     # If accepted, set flag for formatting and mounting
 }
 
 function mount_partitions()
