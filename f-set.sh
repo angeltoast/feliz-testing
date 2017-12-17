@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 14th October 2017
+# Revision date: 17th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,19 +26,19 @@
 # --------------------------  ---------------------------
 # Function             Line   Function               Line
 # --------------------------  ---------------------------
-# menu_dialog            44   type_of_installation    485
-# localisation_settings  74   pick_category           524
-# desktop_settings       89   choose_extras           581
-# set_timezone          100   display_extras          640
-# set_subzone           152   choose_display_manager  698
-# america               196   select_grub_device      722
-# america_subgroups     247   enter_grub_path         750
-# setlocale             319   select_kernel           774
-# edit_locale           343   choose_mirrors          798
-# get_keymap            339   confirm_virtualbox      873
-# search_keyboards      401   
-# set_username          447   final_check             892
-# set_hostname          466   manual_settings        1022
+# menu_dialog            44   type_of_installation    515
+# localisation_settings  74   pick_category           554
+# desktop_settings       90   choose_extras           633
+# set_timezone          102   display_extras          692
+# set_subzone           154   choose_display_manager  752
+# america               199   select_grub_device      776
+# america_subgroups     250   enter_grub_path         804
+# setlocale             273   select_kernel           828
+# edit_locale           349   choose_mirrors          852
+# get_keymap            369   confirm_virtualbox      925
+# search_keyboards      431   
+# set_username          477   final_check             944
+# set_hostname          496   manual_settings        1074
 # -------------------------   ---------------------------
 
 function menu_dialog()
@@ -770,7 +770,6 @@ function choose_display_manager()
   retval=$?
   if [ $retval -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
-
 }
 
 function select_grub_device()
@@ -897,29 +896,56 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       dialog --backtitle "$Backtitle" --title " $Title " --no-tags --menu "$Message" \
         25 60 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
-      Result=$(cat output.file)                           # Return values to calling function
+      Result=$(cat output.file)                           # eg: United Kingdom
       rm list.file
-
-      if [ "$Result" = "" ]
-      then
-        Result="Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch"
-      fi
 
       Country="$Result"
       if [ "$Country" = "" ]; then
         translate "Please select one."
-        Title="$Result"
+        edit_mirrors
+        retval=$?
+        if [ $retval -eq 2 ]; then
+          break
+        else
+          Country=""
+        fi 
       else   
         # Add to array for use during installation
         Counter=0
         for Item in $(cat output.file)                            # Read items from the output.file
-        do                                                        # and copy each one to the variable
+        do                                                        # and copy each one to the array
           Counter=$((Counter+1))
           CountryLong[${Counter}]="$Item"                         # CountryLong is declared in f-vars.sh
         done
         if [ $Counter -lt 1 ]; then Country=""; fi
       fi
   done
+}
+
+function edit_mirrors()
+{  # Use Nano to edit mirrors.list
+
+  Message="\nFeliz needs at least one mirror from which to\ndownload the Arch Linux system and applications.\nIf you do not wish to use one from the Arch list,\n you can enter the address of a mirror manually, or\nyou can use one of the worldwide Arch Linux mirrors,\nalthough this may be slower than a local mirror"
+  
+  Title="Mirrors"
+  dialog --backtitle "$Backtitle" --title " $Title " --no-tags --no-cancel --menu "$Message" \
+      25 60 ${Items} \
+      "Manual" "I want to type in an address" \
+      "Worldwide" "Use a worldwide mirror" \
+      "Standard" "Return to the list" 2>output.file
+  retval=$?
+  Result=$(cat output.file)
+  case $Result in
+    "Manual") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
+      nano mirrors.list
+      return 2
+      ;;
+    "Worldwide") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
+      echo "Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch" >> mirrors.list
+      return 2
+      ;;
+    *) return 1
+  esac
 }
 
 function confirm_virtualbox()

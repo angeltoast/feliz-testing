@@ -53,17 +53,30 @@ function the_start() # All user interraction takes place in this function
     set_language                                # In f-set.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return; fi
     timedatectl set-ntp true
-    
-    test_uefi                                   # Check if on UEFI or BIOS system
-    
+
+    # Check if on UEFI or BIOS system
+    tput setf 0 # Change foreground colour to black temporarily to hide system messages
+    dmesg | grep -q "efi: EFI"          # Test for EFI (-q tells grep to be quiet)
+    if [ $? -eq 0 ]
+    then                                # check exit code; 0 = EFI, else BIOS
+      UEFI=1                            # Set variable UEFI ON and mount the device
+      mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
+    else
+      UEFI=0                            # Set variable UEFI OFF
+    fi
+    tput sgr0                           # Reset colour
+
     select_device                               # Detect all available devices & allow user to select
     if [ $? -ne 0 ]; then continue; fi
     get_device_size                             # First make sure that there is space for installation
-    if [ $? -ne 0 ]; then continue; fi              # If not, abort
+    if [ $? -ne 0 ]; then continue; fi          # If not, restart
+    
     localisation_settings                       # Locale, keyboard & hostname
     if [ $? -ne 0 ]; then continue; fi
+    
     desktop_settings                            # User chooses desktop environment and other extras
     if [ $? -ne 0 ]; then continue; fi
+    
     if [ $Scope != "Basic" ]; then              # If any extra apps have been added
       if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
       then                                      # Gnome and FelizOB install their own DM

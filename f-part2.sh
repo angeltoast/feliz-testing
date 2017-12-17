@@ -30,27 +30,12 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
-# test_uefi           41     guided_EFI           212    guided_MBR         253
-# allocate_uefi       55     guided_EFI_Boot      289    
-# enter_size          76     guided_EFI_Root      317    guided_MBR_root    460
-# select_device       83     guided_EFI_Swap      354    guided_MBR_swap    503
-# get_device_size    143     guided_EFI_Home      414    guided_MBR_home    567
-# recalculate_space  195
+# allocate_uefi       55     guided_EFI           212    guided_MBR         253
+# enter_size          76     guided_EFI_Boot      289    
+# select_device       83     guided_EFI_Root      317    guided_MBR_root    460
+# get_device_size    143     guided_EFI_Swap      354    guided_MBR_swap    503
+# recalculate_space  195     guided_EFI_Home      414    guided_MBR_home    567
 # -----------------------    ------------------------    -----------------------
-
-function test_uefi() # Called at launch of Feliz script, before all other actions
-{ 
-  tput setf 0 # Change foreground colour to black temporarily to hide system messages
-  dmesg | grep -q "efi: EFI"          # Test for EFI (-q tells grep to be quiet)
-  if [ $? -eq 0 ]
-  then                                # check exit code; 0 = EFI, else BIOS
-    UEFI=1                            # Set variable UEFI ON and mount the device
-    mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
-  else
-    UEFI=0                            # Set variable UEFI OFF
-  fi
- tput sgr0                            # Reset colour
-}
 
 function allocate_uefi() # Called at start of allocate_root, as first step of EFI partitioning
 { # before allocating root partition. Uses list of available partitions in
@@ -481,10 +466,16 @@ function guided_MBR_root() # Called by guided_MBR
     if [ $? -ne 0 ]; then return 1; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
-    CheckInput=${RESPONSE: -1}
-    if [ -z ${CheckInput} ]; then
+    CheckInput1=${RESPONSE: -1}
+    CheckInput3=${RESPONSE: -3}
+    if [ ${CheckInput3} = "GIB" ]; then
+      CheckInput1="G"
+    elif [ ${CheckInput3} = "MIB" ]; then
+      CheckInput1="M"
+    fi
+    if [ -z ${CheckInput1} ]; then
       RootSize=""
-    elif [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+    elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
       message_first_line "You must include M, G or %"
       dialog --backtitle "$Backtitle" --msgbox "$Message"
       RootSize=""

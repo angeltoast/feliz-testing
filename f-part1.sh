@@ -369,13 +369,13 @@ function allocate_partitions()  # Called by feliz.sh after check_parts
   fi
 }
 
-function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)
-{ # Receives two arguments: $1 $2 are window size
+function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint) & guided_
+{ # and guided_MBR and guided_EFI 
+  # Receives two arguments: $1 $2 are window size
   # User chooses filesystem from menu
   translate "Please select the file system for"
   Title="$Result ${Partition}"
-  Message="\n${Message}"
-  message_subsequent "It is not recommended to mix the btrfs file-system with others"
+  message_first_line "It is not recommended to mix the btrfs file-system with others"
   menu_dialogVariable="ext4 ext3 btrfs xfs"
   
   menu_dialog $1 $2
