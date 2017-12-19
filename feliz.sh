@@ -68,15 +68,20 @@ function the_start() # All user interraction takes place in this function
     while true
     do
       select_device                               # Detect all available devices & allow user to select
-      if [ $? -ne 0 ]; then continue; fi
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
+      
       get_device_size                             # First make sure that there is space for installation
-      if [ $? -ne 0 ]; then continue; fi          # If not, restart
+      retval=$?
+      if [ $retval -ne 0 ]; then break; fi        # If not, restart
       
       localisation_settings                       # Locale, keyboard & hostname
-      if [ $? -ne 0 ]; then continue; fi
+      retval=$?
+      if [ $retval -ne 0 ]; then break; fi
       
       desktop_settings                            # User chooses desktop environment and other extras
-      if [ $? -ne 0 ]; then continue; fi
+      retval=$?
+      if [ $retval -ne 0 ]; then continue; fi
       
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
