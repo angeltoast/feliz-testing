@@ -35,10 +35,10 @@
 # america_subgroups     250   enter_grub_path         804
 # setlocale             273   select_kernel           828
 # edit_locale           349   choose_mirrors          852
-# get_keymap            369   confirm_virtualbox      925
-# search_keyboards      431   
-# set_username          477   final_check             944
-# set_hostname          496   manual_settings        1074
+# get_keymap            369   edit_mirrors            923
+# search_keyboards      431   confirm_virtualbox      949
+# set_username          477   final_check             968
+# set_hostname          496   manual_settings        1098
 # -------------------------   ---------------------------
 
 function menu_dialog()
@@ -898,10 +898,8 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       retval=$?
       Result=$(cat output.file)                           # eg: United Kingdom
       rm list.file
-
       Country="$Result"
       if [ "$Country" = "" ]; then
-        translate "Please select one."
         edit_mirrors
         retval=$?
         if [ $retval -eq 2 ]; then
@@ -925,11 +923,11 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
 function edit_mirrors()
 {  # Use Nano to edit mirrors.list
 
-  Message="\nFeliz needs at least one mirror from which to\ndownload the Arch Linux system and applications.\nIf you do not wish to use one from the Arch list,\n you can enter the address of a mirror manually, or\nyou can use one of the worldwide Arch Linux mirrors,\nalthough this may be slower than a local mirror"
+  Message="\nFeliz needs at least one mirror from which to\ndownload the Arch Linux system and applications.\nIf you do not wish to use one from the Arch list,\n you can enter the address of a mirror manually, or\nyou can use one of the worldwide Arch Linux mirrors,\nalthough this may be slower than a local mirror.\n"
   
   Title="Mirrors"
   dialog --backtitle "$Backtitle" --title " $Title " --no-tags --no-cancel --menu "$Message" \
-      25 60 ${Items} \
+      18 65 ${Items} \
       "Manual" "I want to type in an address" \
       "Worldwide" "Use a worldwide mirror" \
       "Standard" "Return to the list" 2>output.file
@@ -937,7 +935,8 @@ function edit_mirrors()
   Result=$(cat output.file)
   case $Result in
     "Manual") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
-      nano mirrors.list
+    #  nano mirrors.list
+    dialog --textbox "# eg: Server = http://mirror.transip.net/archlinux/" mirrors.list 18 65
       return 2
       ;;
     "Worldwide") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list

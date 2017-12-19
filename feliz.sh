@@ -49,9 +49,9 @@ function main()
 function the_start() # All user interraction takes place in this function
 { # All functions called from this function must return a value of 1 or 0
   while true
-  do                                            # In f-set.sh
+  do
     set_language                                # In f-set.sh - Use appropriate language file
-    if [ $? -ne 0 ]; then return; fi
+    if [ $? -ne 0 ]; then return 1; fi          # If user cancels
     timedatectl set-ntp true
 
     # Check if on UEFI or BIOS system
@@ -65,61 +65,69 @@ function the_start() # All user interraction takes place in this function
       UEFI=0                            # Set variable UEFI OFF
     fi
     tput sgr0                           # Reset colour
-
-    select_device                               # Detect all available devices & allow user to select
-    if [ $? -ne 0 ]; then continue; fi
-    get_device_size                             # First make sure that there is space for installation
-    if [ $? -ne 0 ]; then continue; fi          # If not, restart
-    
-    localisation_settings                       # Locale, keyboard & hostname
-    if [ $? -ne 0 ]; then continue; fi
-    
-    desktop_settings                            # User chooses desktop environment and other extras
-    if [ $? -ne 0 ]; then continue; fi
-    
-    if [ $Scope != "Basic" ]; then              # If any extra apps have been added
-      if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
-      then                                      # Gnome and FelizOB install their own DM
-        choose_display_manager                  # User selects from list of display managers
-      fi
-
-      set_username                              # Enter name of primary user
-    
-      # Check if running in Virtualbox, and offer to include guest utilities
-      if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
-        confirm_virtualbox
-      else
-        IsInVbox=""
-      fi
-    fi
-    
-    # Partitioning - In f-part1.sh
     while true
     do
-      check_parts                             # Check partition table & offer partitioning options
+      select_device                               # Detect all available devices & allow user to select
+      if [ $? -ne 0 ]; then continue; fi
+      get_device_size                             # First make sure that there is space for installation
+      if [ $? -ne 0 ]; then continue; fi          # If not, restart
+      
+      localisation_settings                       # Locale, keyboard & hostname
       if [ $? -ne 0 ]; then continue; fi
       
-      if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
-        allocate_partitions                   # Assign /root /swap & others
+      desktop_settings                            # User chooses desktop environment and other extras
+      if [ $? -ne 0 ]; then continue; fi
+      
+      if [ $Scope != "Basic" ]; then              # If any extra apps have been added
+        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
+        then                                      # Gnome and FelizOB install their own DM
+          choose_display_manager                  # User selects from list of display managers
+        fi
+        if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+        set_username                              # Enter name of primary user
+        if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+        # Check if running in Virtualbox, and offer to include guest utilities
+        if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
+          confirm_virtualbox
+        else
+          IsInVbox=""
+        fi
       fi
-      if [ $? -eq 0 ]; then break; fi
+      if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+      # Partitioning - In f-part1.sh
+      while true
+      do
+        check_parts                               # Check partition table & offer partitioning options
+        if [ $? -ne 0 ]; then
+          retval=1
+          break
+        fi
+        
+        if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
+          allocate_partitions                   # Assign /root /swap & others
+        fi
+        if [ $? -eq 0 ]; then break; fi
+      done
+      if [ $retval -ne 0 ]; then continue; fi
+      select_kernel                             # Select kernel and device for Grub
+      if [ $? -ne 0 ]; then exit; fi
+      
+      choose_mirrors                            # 
+      if [ $? -ne 0 ]; then continue; fi
+  
+      if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
+        GrubDevice="EFI"                        # Set variable
+      else							                        # If BIOS 
+        select_grub_device                      # User chooses grub partition
+      fi
+      if [ $? -ne 0 ]; then continue; fi
+  
+      final_check                               # Allow user to change any variables
+      return $retval
     done
-
-    select_kernel                             # Select kernel and device for Grub
-    if [ $? -ne 0 ]; then exit; fi
-    
-    choose_mirrors                            # 
-    if [ $? -ne 0 ]; then continue; fi
-
-    if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
-      GrubDevice="EFI"                        # Set variable
-    else							                        # If BIOS 
-      select_grub_device                      # User chooses grub partition
+    if [ $? -eq 0 ]; then
+      return 0
     fi
-    if [ $? -ne 0 ]; then continue; fi
-
-    final_check                               # Allow user to change any variables
-    return 0
   done
 
 }
