@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 14th October 2017
+# Revision date: 18th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ source f-run.sh      # Functions called during installation
 function main()
 {
   the_start                           # All user interraction takes place in this function
-  if [ $? -ne 0 ]; then exit; fi    # If not completed without error, restart
+  if [ $? -ne 0 ]; then exit; fi      # If not completed without error, restart
   
   install_message "Preparations complete"
   install_message "Entering automatic installation phase"
@@ -80,17 +80,14 @@ function the_start() # All user interraction takes place in this function
       if [ $retval -ne 0 ]; then break; fi
       
       desktop_settings                            # User chooses desktop environment and other extras
-      retval=$?
-      if [ $retval -ne 0 ]; then continue; fi
-      
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
         then                                      # Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
         fi
-        if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+
         set_username                              # Enter name of primary user
-        if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+
         # Check if running in Virtualbox, and offer to include guest utilities
         if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
           confirm_virtualbox
@@ -98,7 +95,7 @@ function the_start() # All user interraction takes place in this function
           IsInVbox=""
         fi
       fi
-      if [ $retval -ne 0 ]; then continue; fi     # If user cancels
+
       # Partitioning - In f-part1.sh
       while true
       do
@@ -125,14 +122,15 @@ function the_start() # All user interraction takes place in this function
       else							                        # If BIOS 
         select_grub_device                      # User chooses grub partition
       fi
-      if [ $? -ne 0 ]; then continue; fi
+      retval=$?
+      if [ $retval -ne 0 ]; then continue; fi
   
       final_check                               # Allow user to change any variables
+      retval=$?
       return $retval
     done
-    if [ $? -eq 0 ]; then
-      return 0
-    fi
+    retval=$?
+    return $retval
   done
 
 }

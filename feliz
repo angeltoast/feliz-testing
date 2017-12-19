@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 14th October 2017
+# Revision date: 18th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ source f-run.sh      # Functions called during installation
 function main()
 {
   the_start                           # All user interraction takes place in this function
-  if [ $? -ne 0 ]; then continue; fi  # If not completed without error, restart
+  if [ $? -ne 0 ]; then exit; fi      # If not completed without error, restart
   
   install_message "Preparations complete"
   install_message "Entering automatic installation phase"
@@ -49,64 +49,88 @@ function main()
 function the_start() # All user interraction takes place in this function
 { # All functions called from this function must return a value of 1 or 0
   while true
-  do                                            # In f-set.sh
+  do
     set_language                                # In f-set.sh - Use appropriate language file
-    if [ $? -ne 0 ]; then continue; fi
+    if [ $? -ne 0 ]; then return 1; fi          # If user cancels
     timedatectl set-ntp true
-    
-    test_uefi                                   # Check if on UEFI or BIOS system
-    
-    select_device                               # Detect all available devices & allow user to select
-    if [ $? -ne 0 ]; then continue; fi
-    get_device_size                             # First make sure that there is space for installation
-    if [ $? -ne 0 ]; then exit; fi
-    localisation_settings                       # Locale, keyboard & hostname
-    if [ $? -ne 0 ]; then continue; fi
-    desktop_settings                            # User chooses desktop environment and other extras
 
-    if [ $Scope != "Basic" ]; then              # If any extra apps have been added
-      if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
-      then                                      # Gnome and FelizOB install their own DM
-        choose_display_manager                  # User selects from list of display managers
-      fi
-
-      set_username                              # Enter name of primary user
-    
-      # Check if running in Virtualbox, and offer to include guest utilities
-      if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
-        confirm_virtualbox
-      else
-        IsInVbox=""
-      fi
+    # Check if on UEFI or BIOS system
+    tput setf 0 # Change foreground colour to black temporarily to hide system messages
+    dmesg | grep -q "efi: EFI"          # Test for EFI (-q tells grep to be quiet)
+    if [ $? -eq 0 ]
+    then                                # check exit code; 0 = EFI, else BIOS
+      UEFI=1                            # Set variable UEFI ON and mount the device
+      mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
+    else
+      UEFI=0                            # Set variable UEFI OFF
     fi
-    
-    # Partitioning - In f-part1.sh
+    tput sgr0                           # Reset colour
     while true
     do
-      check_parts                             # Check partition table & offer partitioning options
-      if [ $? -ne 0 ]; then continue; fi
+      select_device                               # Detect all available devices & allow user to select
+      retval=$?
+      if [ $retval -ne 0 ]; then return 1; fi
       
-      if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
-        allocate_partitions                   # Assign /root /swap & others
+      get_device_size                             # First make sure that there is space for installation
+      retval=$?
+      if [ $retval -ne 0 ]; then break; fi        # If not, restart
+      
+      localisation_settings                       # Locale, keyboard & hostname
+      retval=$?
+      if [ $retval -ne 0 ]; then break; fi
+      
+      desktop_settings                            # User chooses desktop environment and other extras
+      if [ $Scope != "Basic" ]; then              # If any extra apps have been added
+        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
+        then                                      # Gnome and FelizOB install their own DM
+          choose_display_manager                  # User selects from list of display managers
+        fi
+
+        set_username                              # Enter name of primary user
+
+        # Check if running in Virtualbox, and offer to include guest utilities
+        if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
+          confirm_virtualbox
+        else
+          IsInVbox=""
+        fi
       fi
-      if [ $? -eq 0 ]; then break; fi
+
+      # Partitioning - In f-part1.sh
+      while true
+      do
+        check_parts                               # Check partition table & offer partitioning options
+        if [ $? -ne 0 ]; then
+          retval=1
+          break
+        fi
+        
+        if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
+          allocate_partitions                   # Assign /root /swap & others
+        fi
+        if [ $? -eq 0 ]; then break; fi
+      done
+      if [ $retval -ne 0 ]; then continue; fi
+      select_kernel                             # Select kernel and device for Grub
+      if [ $? -ne 0 ]; then exit; fi
+      
+      choose_mirrors                            # 
+      if [ $? -ne 0 ]; then continue; fi
+  
+      if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
+        GrubDevice="EFI"                        # Set variable
+      else							                        # If BIOS 
+        select_grub_device                      # User chooses grub partition
+      fi
+      retval=$?
+      if [ $retval -ne 0 ]; then continue; fi
+  
+      final_check                               # Allow user to change any variables
+      retval=$?
+      return $retval
     done
-
-    select_kernel                             # Select kernel and device for Grub
-    if [ $? -ne 0 ]; then exit; fi
-    
-    choose_mirrors                            # 
-    if [ $? -ne 0 ]; then continue; fi
-
-    if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
-      GrubDevice="EFI"                        # Set variable
-    else							                        # If BIOS 
-      select_grub_device                      # User chooses grub partition
-    fi
-    if [ $? -ne 0 ]; then continue; fi
-
-    final_check                               # Allow user to change any variables
-    return 0
+    retval=$?
+    return $retval
   done
 
 }
@@ -222,9 +246,9 @@ function the_end()  # Set passwords and finish Feliz
   finish                                                       # Shutdown or reboot
 }
 
-if [ -f dialogrc ]
+if [ -f dialogrc ] && [ ! -f .dialogrc ]
 then
-  mv dialogrc .dialogrc
+  cp dialogrc .dialogrc
 fi
 
 StartTime=$(date +%s)
