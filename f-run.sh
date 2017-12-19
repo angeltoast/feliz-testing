@@ -323,7 +323,8 @@ function install_kernel() # Selected kernel and some other core systems
   LANG=C
 
   # And this, to solve keys issue if an older Feliz or Arch iso is running after keyring changes
-  # Passes test if the date of the running iso is more recent than the date of the latest Arch trust update
+  # Passes test if the date of the running iso is more recent than the date of the latest Arch
+  # trust update. Next trust update due 2018:06:25
 
   # Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
   RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
@@ -464,8 +465,8 @@ function install_extras()
   fi
 
   # Display manager - runs only once
-  if [ -n "${DisplayManager}" ]; then                                 # Not triggered by FelizOB or Gnome
-    install_display_manager                                                        # Clear any pre-existing DM and install this one
+  if [ -n "${DisplayManager}" ]; then             # Not triggered by FelizOB or Gnome
+    install_display_manager                       # Clear any pre-existing DM and install this one
   fi
 
   # First parse through LuxuriesList checking for DEs and Window Managers (not used by FelizOB)
@@ -491,7 +492,7 @@ function install_extras()
       "Gnome") install_message "$TInstalling " "Gnome"
           pacstrap /mnt gnome 2>> feliz.log
           pacstrap /mnt gnome-extra 2>> feliz.log
-          systemctl enable gdm.service
+          arch_chroot "systemctl -f enable gdm.service" >> feliz.log
         ;;
       "i3") install_message "$TInstalling " "i3 window manager"
           pacstrap /mnt i3 2>> feliz.log                              # i3 group includes i3-wm
@@ -614,39 +615,39 @@ function user_add() # Adds user and copies FelizOB configurations
     cp -r themes /mnt/home/${user_name}/.themes 2>> feliz.log          # Copy egtk theme
 
     check_existing "/mnt/home/${user_name}/" ".conkyrc"
-    cp conkyrc /mnt/home/${user_name}/.conkyrc 2>> feliz.log           # Conky configuration file
+    cp conkyrc /mnt/home/${user_name}/.conkyrc 2>> feliz.log           # Conky config file
 
     check_existing "/mnt/home/${user_name}/" ".compton.conf"
-    cp compton.conf /mnt/home/${user_name}/.compton.conf 2>> feliz.log # Compton configuration file
+    cp compton.conf /mnt/home/${user_name}/.compton.conf 2>> feliz.log # Compton config file
 
     check_existing "/mnt/home/${user_name}/" ".face"
     cp face.png /mnt/home/${user_name}/.face 2>> feliz.log             # Image for greeter
 
     check_existing "/mnt/home/${user_name}/.config/openbox/" "autostart"
-    cp autostart /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log # Autostart configuration file
+    cp autostart /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log # Autostart config file
 
     check_existing "/mnt/home/${user_name}/.config/openbox/" "menu.xml"
-    cp menu.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log  # Openbox right-click menu configuration file
+    cp menu.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log  # Openbox menu config file
 
     check_existing "/mnt/home/${user_name}/.config/openbox/" "rc.xml"
-    cp rc.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log    # Openbox configuration file
+    cp rc.xml /mnt/home/${user_name}/.config/openbox/ 2>> feliz.log    # Openbox config file
 
     check_existing "/mnt/home/${user_name}/.config/lxpanel/default/panels/" "panel"
-    cp panel /mnt/home/${user_name}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel configuration file
+    cp panel /mnt/home/${user_name}/.config/lxpanel/default/panels/ 2>> feliz.log  # Panel config file
 
-    cp feliz.png /mnt/usr/share/icons/ 2>> feliz.log                  # Icon for panel menu
+    cp feliz.png /mnt/usr/share/icons/ 2>> feliz.log                   # Icon for panel menu
     cp wallpaper.jpg /mnt/home/${user_name}/Pictures/ 2>> feliz.log    # Wallpaper for user
 
     check_existing "/mnt/home/${user_name}/.config/libfm/" "libfm.conf"
-    cp libfm.conf /mnt/home/${user_name}/.config/libfm/ 2>> feliz.log  # Configurations for pcmanfm
+    cp libfm.conf /mnt/home/${user_name}/.config/libfm/ 2>> feliz.log  # Configs for pcmanfm
 
     check_existing "/mnt/home/${user_name}/.config/lxpanel/default/" "config"
-    cp config /mnt/home/${user_name}/.config/lxpanel/default/ 2>> feliz.log # Desktop configurations for pcmanfm
+    cp config /mnt/home/${user_name}/.config/lxpanel/default/ 2>> feliz.log # Desktop configs for pcmanfm
 
     check_existing "/mnt/home/${user_name}/.config/pcmanfm/default/" "desktop-items-0.conf"
     cp desktop-items /mnt/home/${user_name}/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
 
-    cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log                    # Wallpaper for desktop (set in desktop-items-0.conf)
+    cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${user_name}:users /home/${user_name}/"
 
