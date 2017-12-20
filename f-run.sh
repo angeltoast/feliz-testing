@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 16th December 2017
+# Revision date: 20th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -227,13 +227,13 @@ function action_EFI() # Called during installation phase
     fi
 
   translate "partitioning_options of"
-  Title="${Result} ${GrubDevice}"
+  title="${Result} ${GrubDevice}"
   Message="${Message}\n${TBootPartition}: $(lsblk -l | grep "${UseDisk}1" | awk '{print $4, $1}')"
   Message="${Message}\n${TRootPartition}: $(lsblk -l | grep "${UseDisk}2" | awk '{print $4, $1}')"
   Message="${Message}\n${TSwapPartition}: $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')"
   Message="${Message}\n${THomePartition}: $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')"
 
-  dialog --backtitle "$Backtitle" --title "$Title" --yesno "$Message" 20 70
+  dialog --backtitle "$Backtitle" --title "$title" --yesno "$Message" 20 70
   if [ $? -ne 0 ]; then return 1; fi
 }
 
@@ -329,20 +329,22 @@ function install_kernel() # Selected kernel and some other core systems
   # Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
   RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
 
-  TrustDate=201709                                                # Reset this to date of latest Arch Linux trust update
-                                                                  # Next trustdb check 2017-10-20
+  TrustDate=201710                                                # Reset this to date of latest Arch Linux trust update
+                                                                  # Next trustdb check 2018-10-20
   if [ $RunningDate -ge $TrustDate ]; then                        # If the running iso is more recent than
     echo "pacman-key trust check passed" >> feliz.log             # the last trust update, no action is taken
-  else                                                            # But if the iso is older than the last trust update
-    install_message "Updating keys"                                        # Then the keys are updated
+  else                                                            # But if the iso is older than the last trust
+    install_message "Updating keys"                               # update then the keys are updated
     pacman-db-upgrade
     pacman-key --init
     pacman-key --populate archlinux
     pacman-key --refresh-keys
     pacman -Sy --noconfirm archlinux-keyring
   fi
+  translate "Installing"
+  Message="$Result"
   translate "kernel and core systems"
-  install_message "$TInstalling " "$Result"
+  install_message "$Message $Result"
   case $Kernel in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
     # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
@@ -351,28 +353,37 @@ function install_kernel() # Selected kernel and some other core systems
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
   translate "cli tools"
-  install_message "$TInstalling " "$Result"
+  install_message "$Message $Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 }
 
 function add_codecs()
 {
-  install_message "$TInstalling " "codecs"
+  translate "Installing"
+  install_message "$Result codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
   translate "Wireless Tools"
-  install_message "$TInstalling " "$Result"
+  Message="$Result"
+  translate "Installing"
+  install_message "$Result $Message"
   pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
   pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
   # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
   translate "Graphics tools"
-  install_message "$TInstalling " "$Result"
+  Message="$Result"
+  translate "Installing"
+  install_message "$Result $Message"
   pacstrap /mnt xorg xorg-xinit xorg-twm 2>> feliz.log
   translate "opensource video drivers"
-  install_message "$TInstalling " "$Result"
+  Message="$Result"
+  translate "Installing"
+  install_message "$Result $Message"
   pacstrap /mnt xf86-video-vesa xf86-video-nouveau xf86-input-synaptics 2>> feliz.log
   translate "fonts"
-  install_message "$TInstalling " "$Result"
+  Message="$Result"
+  translate "Installing"
+  install_message "$Result $Message"
   pacstrap /mnt ttf-liberation 2>> feliz.log
 
   # install_message "Installing  CUPS printer services"
@@ -422,11 +433,13 @@ function mirror_list()
         if [ -z "$MirrorURL" ]; then
           break
         else
-          echo "$TLoading " "$Country $MirrorURL"
+          translate "Loading"
+          echo "$Result $Country $MirrorURL"
         fi
       done
     done
-    install_message "Ranking mirrors - please wait ..."
+    translate "Ranking mirrors - please wait"
+    install_message "$Result ..."
     Date=$(date)
     echo -e "# Ranked mirrors /etc/pacman.d/mirrorlist \n# $Date \n# Generated by Feliz and rankmirrors\n#" > /etc/pacman.d/mirrorlist
     rankmirrors -n 5 usemirrors.list | grep '^Server' >> /etc/pacman.d/mirrorlist
@@ -437,7 +450,8 @@ function install_display_manager()
 { # Disable any existing display manager
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
-  install_message "$TInstalling " "${DisplayManager}"
+  translate "Installing"
+  install_message "$Result " "${DisplayManager}"
   case ${DisplayManager} in
   "lightdm") pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
@@ -451,7 +465,8 @@ function install_extras()
 { # Install desktops and other extras
   # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
-    install_message "$TInstalling " "FelizOB"
+    translate "Installing"
+    install_message "$Result FelizOB"
     arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
     pacstrap /mnt lxdm 2>> feliz.log
     arch_chroot "systemctl -f enable lxdm.service" >> feliz.log
@@ -473,66 +488,67 @@ function install_extras()
   if [ -n "${LuxuriesList}" ]; then
     for i in ${LuxuriesList}
     do
+      translate "Installing"
       case $i in
-      "Awesome") install_message "$TInstalling " "Awesome"
+      "Awesome") install_message "$Result Awesome"
           pacstrap /mnt awesome 2>> feliz.log
         ;;
-      "Budgie") install_message "$TInstalling " "Budgie"
+      "Budgie") install_message "$Result Budgie"
           pacstrap /mnt budgie-desktop 2>> feliz.log
         ;;
-      "Cinnamon") install_message "$TInstalling Cinnamon"
+      "Cinnamon") install_message "$Result Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log
         ;;
-      "Enlightenment") install_message "$TInstalling " "Enlightenment"
+      "Enlightenment") install_message "$Result Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log
         ;;
-      "Fluxbox") install_message "$TInstalling " "Fluxbox"
+      "Fluxbox") install_message "$Result Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log
         ;;
-      "Gnome") install_message "$TInstalling " "Gnome"
+      "Gnome") install_message "$Result Gnome"
           pacstrap /mnt gnome 2>> feliz.log
           pacstrap /mnt gnome-extra 2>> feliz.log
           arch_chroot "systemctl -f enable gdm.service" >> feliz.log
         ;;
-      "i3") install_message "$TInstalling " "i3 window manager"
+      "i3") install_message "$Result i3 window manager"
           pacstrap /mnt i3 2>> feliz.log                              # i3 group includes i3-wm
          ;;
-      "Icewm") install_message "$TInstalling " "Icewm"
+      "Icewm") install_message "$Result Icewm"
           pacstrap /mnt icewm 2>> feliz.log
          ;;
-      "JWM") install_message "$TInstalling " "JWM"
+      "JWM") install_message "$Result JWM"
           pacstrap /mnt jwm 2>> feliz.log
          ;;
-      "KDE") install_message "$TInstalling " "KDE Plasma"
+      "KDE") install_message "$Result KDE Plasma"
           pacstrap /mnt plasma-meta 2>> feliz.log
           pacstrap /mnt kde-applications 2>> feliz.log
         ;;
-      "LXDE") install_message "$TInstalling " "LXDE"
+      "LXDE") install_message "$Result LXDE"
           pacstrap /mnt lxde leafpad 2>> feliz.log
           if [ -d /mnt/etc/lxdm ]; then
             echo "session=/usr/bin/startlxde" >> /mnt/etc/lxdm/lxdm.conf 2>> feliz.log
           fi
         ;;
-      "LXQt") install_message "$TInstalling " "LXQt"
+      "LXQt") install_message "$Result LXQt"
           pacstrap /mnt lxqt 2>> feliz.log
           pacstrap /mnt oxygen-icons connman lxappearance xscreensaver 2>> feliz.log
         ;;
-      "Mate") install_message "$TInstalling " "Mate"
+      "Mate") install_message "$Result Mate"
         pacstrap /mnt mate mate-extra 2>> feliz.log
         pacstrap /mnt mate-applet-dock mate-applet-streamer mate-menu 2>> feliz.log
         ;;
-      "Openbox") install_message "$TInstalling " "Openbox"
+      "Openbox") install_message "$Result Openbox"
         pacstrap /mnt openbox 2>> feliz.log
         ;;
-      "Windowmaker") install_message "$TInstalling " "Windowmaker"
+      "Windowmaker") install_message "$Result Windowmaker"
         pacstrap /mnt windowmaker 2>> feliz.log
         pacstrap /mnt windowmaker-extra 2>> feliz.log
         ;;
-      "Xfce") install_message "$TInstalling " "Xfce"
+      "Xfce") install_message "$Result Xfce"
         pacstrap /mnt xfce4 2>> feliz.log
         pacstrap /mnt xfce4-goodies 2>> feliz.log
         ;;
-      "Xmonad") install_message "$TInstalling " "Xmonad"
+      "Xmonad") install_message "$Result Xmonad"
         pacstrap /mnt xmonad 2>> feliz.log
         pacstrap /mnt xmonad-contrib 2>> feliz.log
         ;;
@@ -545,16 +561,17 @@ function install_extras()
     # Second parse through LuxuriesList for any extras (not triggered by FelizOB)
     for i in ${LuxuriesList}
     do
+        translate "Installing"
       case $i in
       "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
         ;;
-      "cairo-dock") install_message "$TInstalling " "Cairo Dock"
+      "cairo-dock") install_message "$Result Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log
         ;;
-      "conky") install_message "$TInstalling " "Conky"
+      "conky") install_message "$Result Conky"
         pacstrap /mnt conky 2>> feliz.log
         ;;
-      *) install_message "$TInstalling " "$i"
+      *) install_message "$Result $i"
         pacstrap /mnt "$i" 2>> feliz.log
       esac
     done
@@ -563,7 +580,8 @@ function install_extras()
 
 function install_yaourt()
 {
-  install_message "$TInstalling " "Yaourt"
+  translate "Installing"
+  install_message "$Result Yaourt"
   arch=$(uname -m)
   if [ ${arch} = "x86_64" ]; then                                     # Identify 64 bit architecture
     # For installed system
@@ -588,7 +606,8 @@ function user_add() # Adds user and copies FelizOB configurations
   CheckUsers=`cat /mnt/etc/passwd | grep ${user_name}`
   # If not already exist, create user
   if [ -z "${CheckUsers}" ]; then
-    install_message "Adding user and setting up groups"
+    translate "Adding user and setting up groups"
+    install_message "$Result"
     arch_chroot "useradd ${user_name} -m -g users -G wheel,storage,power,network,video,audio,lp -s /bin/bash"
     # Set up basic configuration files and permissions for user
     arch_chroot "cp /etc/skel/.bashrc /home/${user_name}"
@@ -671,7 +690,7 @@ function check_existing()
 function set_root_password()
 {
   translate "Success!"
-  Title="$Result"
+  title="$Result"
   translate "minutes"
   mins="$Result"
   translate "seconds"
@@ -689,7 +708,7 @@ function set_root_password()
     message_subsequent "Enter a password for"
     Message="${Message} root\n"
     
-    dialog --backtitle "$Backtitle" --title " $Title " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
     Pass1=$(cat output.file)
     rm output.file
     translate "Re-enter the password for"
@@ -699,7 +718,7 @@ function set_root_password()
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      Title="Error"
+      title="Error"
       message_first_line "Passwords cannot be blank"
       message_subsequent "Please try again"
       Message="${Message}\n"
@@ -714,7 +733,7 @@ function set_root_password()
      rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
-      Title="Error"
+      title="Error"
       message_first_line "Passwords don't match"
       message_subsequent "Please try again"
       Message="${Message}\n"
@@ -748,7 +767,7 @@ function set_user_password()
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
-      Title="Error"
+      title="Error"
       message_first_line "Passwords cannot be blank"
       message_subsequent "Please try again"
       Message="${Message}\n"
@@ -763,7 +782,7 @@ function set_user_password()
      rm /tmp/.passwd 2>> feliz.log
      Repeat="N"
     else
-      Title="Error"
+      title="Error"
       message_first_line "Passwords don't match"
       message_subsequent "Please try again"
       Message="${Message}\n"

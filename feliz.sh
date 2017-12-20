@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 18th December 2017
+# Revision date: 20th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -188,7 +188,8 @@ function the_middle() # The installation phase
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
   # Grub
-    install_message "$TInstalling " "Grub"
+    translate "Installing"
+    install_message "$Result " "Grub"
     if [ ${GrubDevice} = "EFI" ]; then                        # Installing grub in UEFI environment
       pacstrap /mnt grub efibootmgr
       arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
@@ -212,8 +213,8 @@ function the_middle() # The installation phase
     if [ $Scope != "Basic" ]; then
       add_codecs # Various bits
       if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
-        translate="N"
-        install_message "$TInstalling " "Virtualbox guest modules"
+        translate="Installing"
+        install_message "$Result " "Virtualbox Guest Modules"
         translate="Y"
         case $Kernel in
         1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log  # LTS kernel

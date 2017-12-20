@@ -59,7 +59,7 @@ function set_language
     if [ $retval -ne 0 ]; then exit; fi
     InstalLanguage=$(cat output.file)
 
-  case $InstalLanguage in
+  case "$InstalLanguage" in
     de) LanguageFile="German.lan"
     ;;
     el) setfont LatGrkCyr-8x16 -m 8859-2 
@@ -91,7 +91,7 @@ function set_language
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     common_translations                         # Set common translations
   
-    Install the translator for situations where no translation is found on file
+    # Install the translator for situations where no translation is found on file
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
   fi
@@ -114,7 +114,7 @@ function not_found                # Optional arguments $1 & $2 for box size
 
 function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
 {
-  dialog --backtitle "$Backtitle" --title " $Title " --clear \
+  dialog --backtitle "$Backtitle" --title " $title " --clear \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
@@ -133,97 +133,38 @@ function message_subsequent       # translates $1 and continues a Message with i
 }
 
 function print_first_line         # Called by FinalCheck to display all user-defined variables
-{                                 # Translates and prints argument(s) centred according to content and screen size
-  if [ $translate = "N" ]; then   # If translate variable set to 'N', don't translate any
-    Text="$1 $2 $3"
-  elif [ ! "$2" ]; then           # If $2 is missing or empty, translate $1
-    translate "$1"
-    Text="$Result"
-  else                            # If $2 contains text, don't translate any
-    Text="$1 $2 $3"
-  fi
+{                                 # Prints argument(s) centred according to content and screen size
+  text="$1 $2 $3"
   local width=$(tput cols)
   EMPTY=" "
   stpt=0
-  local lov=${#Text}
+  local lov=${#text}
   if [ ${lov} -lt ${width} ]; then
     stpt=$(( (width - lov) / 2 ))
     EMPTY="$(printf '%*s' $stpt)"
   fi
-  echo "$EMPTY $Text"
+  echo "$EMPTY $text"
 }
 
 function print_subsequent() # Called by FinalCheck to display all user-defined variables
-{ # Translates and prints argument(s) aligned to print_first_line according to content and screen size
-  if [ $translate = "N" ]; then     # If translate variable unset, don't translate any
-    Text="$1 $2 $3"
-  elif [ ! "$2" ]; then             # If $2 is missing or empty, translate $1
-    translate "$1"
-    Text="$Result"
-  else                              # If $2 contains text, don't translate $1 or $2
-    Text="$1 $2"
-  fi
-  echo "$EMPTY $Text"
-}
-
-function common_translations
-{  # Some common translations
-  translate "Cancel"
-  TCancel="$Result"
-  translate "Loading"
-  TLoading="$Result"
-  translate "Installing"
-  TInstalling="$Result"
-  # listgen1/2 variables
-  translate "Ok"
-  TOk="$Result"
-  translate "Exit"
-  TExit="$Result"
-  translate "Exit to finish"
-  TQuit="$Result"
-  translate "Use arrow keys to move. Enter to select"
-  TInstructions="${Result}"
-  translate "Yes"
-  TYes="$Result"
-  translate "No"
-  TNo="$Result"
-  translate "None"
-  TNone="$Result"
-  translate "or"
-  Tor="$Result"
-  # listgenx variables
-  translate "Please enter the number of your selection"
-  TxNumber="$Result"
-  translate "or ' ' to exit"
-  TxExit="$Result"
-  translate "'<' for previous page"
-  TxLeft="$Result"
-  translate "'>' for next page"
-  TxRight="$Result"
-  # Partitioning
-  translate "/boot partition"
-  TBootPartition="$Result"
-  translate "/root partition"
-  TRootPartition="$Result"
-  translate "/swap partition"
-  TSwapPartition="$Result"
-  translate "/home partition"
-  THomePartition="$Result"
+{ # Prints argument(s) aligned to print_first_line according to content and screen size
+  text="$1 $2 $3"
+  echo "$EMPTY $text"
 }
 
 function translate()  # Called by message_first_line & message_subsequent and by other functions as required
 {                     # $1 is text to be translated
-  Text="${1%% }"      # Remove any trailing spaces
+  text="${1%% }"      # Remove any trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then
-    Result="$Text"
+    Result="$text"
     return 0
   fi
-  # Get line number of "$Text" in English.lan
+  # Get line number of "$text" in English.lan
   #                      exact match only | restrict to first find | display only number
-  RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
+  RecordNumber=$(grep -n "^${text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
   "" | 0) # No match found in English.lan, so use Google translate
-     ./trans -b en:${InstalLanguage} "$Text" > output.file 2>/dev/null
+     ./trans -b en:${InstalLanguage} "$text" > output.file 2>/dev/null
      Result=$(cat output.file)
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file

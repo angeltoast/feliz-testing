@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 14th October 2017
+# Revision date: 20th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ function check_parts()   # Called by feliz.sh
   LongPart3="$Result"
   translate "Allow feliz to partition the whole device"
   LongPart4="$Result"
-  Title="Partitioning"
+  title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
   PARTITIONS=$(echo $ShowPartitions | wc -w)
@@ -71,19 +71,18 @@ function check_parts()   # Called by feliz.sh
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
  
-      dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" 24 70 4 \
+      dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
       retval=$?
-      if [ $retval -ne 0 ]; then abandon "$Title"; fi
+      if [ $retval -ne 0 ]; then abandon "$title"; fi
       if [ $retval -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
       Result=$((Result+1))                # Because this menu excludes option 1
       partitioning_options                        # partitioning_options options
       retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
-      if [ "$Result" = "$TExit" ]; then   # Terminate
+      if [ $retval -ne 0 ]; then 
         dialog --backtitle "$Backtitle" --infobox "Exiting to allow you to partition the device" 6 30
         exit
       fi
@@ -102,7 +101,7 @@ function check_parts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" 24 78 4 \
+    dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
@@ -217,7 +216,7 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
       while [ -z $UseDisk ]
       do
         translate "These are the available devices"
-        Title="$Result"
+        title="$Result"
         message_first_line "Which do you wish to use for this installation?"
         message_subsequent "   (Remember, this is auto-partition, and any data"
         translate "on the chosen device will be destroyed)"
@@ -231,12 +230,12 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     else
       UseDisk=$DiskDetails
     fi
-    Title="Warning"
+    title="Warning"
     translate "This will erase any data on"
     Message="${Result} /dev/${UseDisk}"
     message_subsequent "Are you sure you wish to continue?"
     Message="${Message}\n${Result}"
-    dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
     retval=$?
     case $retval in
     0) AutoPart="ON"
@@ -374,7 +373,7 @@ function select_filesystem()  # Called by allocate_root and more_partitions (via
   # Receives two arguments: $1 $2 are window size
   # User chooses filesystem from menu
   translate "Please select the file system for"
-  Title="$Result ${Partition}"
+  title="$Result ${Partition}"
   message_first_line "It is not recommended to mix the btrfs file-system with others"
   menu_dialogVariable="ext4 ext3 btrfs xfs"
   
@@ -501,7 +500,7 @@ function allocate_swap()
   SwapPartition=""
   
   translate "If you skip this step, no swap will be allocated"
-  Title="$Result"
+  title="$Result"
 
   SavePartitionList="$PartitionList"
   PartitionList="$PartitionList swapfile"
@@ -526,7 +525,7 @@ function allocate_swap()
       message_subsequent "system will no longer be able to access the partition"
       message_subsequent "Do you wish to reformat it?"
       MakeSwap="N"
-      dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 13 70 2>output.file
+      dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 13 70 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
       MakeSwap="Y"
@@ -555,9 +554,9 @@ function no_swap_partition()
 { # There are no unallocated partitions
   message_first_line "There are no partitions available for swap"
   message_subsequent "but you can allocate a swap file, if you wish"
-  Title="Create a swap file?"
+  title="Create a swap file?"
 
-  dialog --backtitle "$Backtitle" --title " $Title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
   retval=$?
   case $retval in
   0) set_swap_file
@@ -699,7 +698,7 @@ function display_partitions() # Called by more_partitions, allocate_swap & alloc
     fi
   done
 
-  dialog --backtitle "$Backtitle" --title " $Title " --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" \
       18 70 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
