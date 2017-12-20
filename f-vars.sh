@@ -64,7 +64,8 @@ function set_language
   case "$InstalLanguage" in
     de) LanguageFile="German.lan"
     ;;
-    el) setfont LatGrkCyr-8x16 -m 8859-2 
+    el) setfont LatGrkCyr-8x16 -m 8859-2
+      LanguageFile="Greek.lan"
     ;;
     es) LanguageFile="Spanish.lan"
     ;;
