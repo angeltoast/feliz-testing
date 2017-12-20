@@ -39,7 +39,9 @@ function set_language
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
   # First load English file
-  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
+  if [ ! -f English.lan ]; then
+    wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
+  fi
   
   dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
@@ -88,9 +90,9 @@ function set_language
   # Get the required language files
   message_first_line "Loading translator"       
   if [ $LanguageFile != "English.lan" ]; then   # If English is not the user language, get the translation file
-    wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-    common_translations                         # Set common translations
-  
+    if [ ! -f ${LanguageFile} ]; then
+      wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
+    fi
     # Install the translator for situations where no translation is found on file
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
