@@ -73,11 +73,11 @@ function the_start() # All user interraction takes place in this function
       
       get_device_size                             # First make sure that there is space for installation
       retval=$?
-      if [ $retval -ne 0 ]; then break; fi        # If not, restart
+      if [ $retval -ne 0 ]; then return 1; fi     # If not, restart
       
       localisation_settings                       # Locale, keyboard & hostname
       retval=$?
-      if [ $retval -ne 0 ]; then break; fi
+      if [ $retval -ne 0 ]; then return 1; fi
       
       desktop_settings                            # User chooses desktop environment and other extras
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added

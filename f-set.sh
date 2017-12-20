@@ -74,17 +74,16 @@ function menu_dialog()
 function localisation_settings()              # Locale, keyboard & hostname
 {
   localisation=1
-  until [ $localisation -eq 0 ]               # Each function must return 0 before next function can be called
+  until [ $localisation -eq 0 ]
   do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
     if [ $? -ne 0 ]; then return 1; fi
-    get_keymap                                 # Select keyboard layout eg: uk
+    get_keymap                                # Select keyboard layout eg: uk
     if [ $? -ne 0 ]; then return 1; fi
     set_hostname
     localisation=$?
-    if [ $? -ne 0 ]; then return 1; fi
   done
-  return $localisation 
+  return 0
 }
 
 function desktop_settings()
