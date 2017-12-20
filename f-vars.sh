@@ -93,9 +93,11 @@ function set_language
     if [ ! -f ${LanguageFile} ]; then
       wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     fi
-    # Install the translator for situations where no translation is found on file
-    wget -q git.io/trans 2>> feliz.log
-    chmod +x ./trans
+
+    if [ ! -f trans ]; then               # If Google translate hasn't already been installed, get it
+      wget -q git.io/trans 2>> feliz.log  # (for situations where no translation is found in language files)
+      chmod +x ./trans
+    fi
   fi
 }
 
