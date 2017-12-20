@@ -126,8 +126,9 @@ function set_timezone()
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
-    Result="${ItemList[${Response}]}"                       # Recover item from displayed list
-    NativeZONE="$Result"                                    # (in user's language) for display  
+    Item=$((Response*2))
+    NativeZONE="${ItemList[${Item}]}"                       # Recover item from displayed list
+                              # (in user's language) for display  
 read -p "$NativeZONE"
     # Now translate the result back to English
     if [ $LanguageFile = "English.lan" ]; then              # It's already in English
@@ -138,7 +139,7 @@ read -p "$NativeZONE"
     #  RecordNumber=$(grep -n "^${Result}$" "${LanguageFile}" | head -n 1 | cut -d':' -f1)
       # Find that line in English.lan
     #  ZONE="$(head -n ${RecordNumber} English.lan | tail -n 1)" # Read item from English language file
-      ZONE="$(head -n ${RecordNumber} zones.file | tail -n 1)"  # Recover English version of Item
+      ZONE="$(head -n ${Response} zones.file | tail -n 1)"  # Recover English version of Item
     fi
 read -p "$ZONE"    
     # We now have a zone! eg: Europe
