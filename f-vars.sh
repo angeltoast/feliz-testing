@@ -51,10 +51,10 @@ set_language() {
       it "Italiano" \
       nl "Nederlands" \
       pl "Polski" \
-      pt-PT "Português-PT" \
-      pt-BR "Português-BR" \
+      pt-BR "Português" \
       vi "Vietnamese" 2>output.file
-    if [ $? -ne 0 ]; then exit; fi
+      retval=$?
+    if [ $retval -ne 0 ]; then exit; fi
     InstalLanguage=$(cat output.file)
 
   case $InstalLanguage in
@@ -80,18 +80,25 @@ set_language() {
       setfont viscii10-8x16 -m 8859-2
     ;;
     *) LanguageFile="English.lan"
+      InstalLanguage="en"
   esac
   
   # Get the required language files
-  message_first_line "Loading translator"
+  message_first_line "Loading translator"       # First load English file
   wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
-  if [ $LanguageFile != "English.lan" ]; then   # Only if not English
+  
+  if [ $LanguageFile != "English.lan" ]; then   # Then, if English is not the user language
+                                                # Get the appropriate translation file
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
+
+    common_translations                         # Set common translations
+  
     Install the translator for situations where no translation is found on file
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
+  
   fi
-  common_translations # Set common translations
+
 }
 
 function not_found()
@@ -128,14 +135,13 @@ message_subsequent() { # translates $1 and continues a Message with it
 }
 
 function print_first_line() # Called by FinalCheck to display all user-defined variables
-{  # Receives up to 2 arguments. translates and prints text
-              # centred according to content and screen size
-  if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
+{  # Translates and prints argument(s) centred according to content and screen size
+  if [ $translate = "N" ]; then   # If translate variable set to 'N', don't translate any
+    Text="$1 $2 $3"
+  elif [ ! "$2" ]; then           # If $2 is missing or empty, translate $1
     translate "$1"
     Text="$Result"
-  elif [ $translate = "N" ]; then   # If translate variable unset, don't translate any
-    Text="$1 $2 $3"
-  else                              # If $2 contains text, don't translate any
+  else                            # If $2 contains text, don't translate any
     Text="$1 $2 $3"
   fi
   local width=$(tput cols)
@@ -150,13 +156,12 @@ function print_first_line() # Called by FinalCheck to display all user-defined v
 }
 
 function print_subsequent() # Called by FinalCheck to display all user-defined variables
-{ # Receives up to 2 arguments. translates and prints text
-              # aligned to print_first_line according to content and screen size
-  if [ ! "$2" ]; then  # If $2 is missing or empty, translate $1
+{ # Translates and prints argument(s) aligned to print_first_line according to content and screen size
+  if [ $translate = "N" ]; then     # If translate variable unset, don't translate any
+    Text="$1 $2 $3"
+  elif [ ! "$2" ]; then             # If $2 is missing or empty, translate $1
     translate "$1"
     Text="$Result"
-  elif [ $translate = "N" ]; then   # If translate variable unset, don't translate any
-    Text="$1 $2 $3"
   else                              # If $2 contains text, don't translate $1 or $2
     Text="$1 $2"
   fi
@@ -245,7 +250,7 @@ common_translations() {  # Some common translations
 
 function translate()  # Called by message_first_line & message_subsequent and by other functions as required
 {                     # $1 is text to be translated
-  Text="${1%% }"      # Ensure no trailing spaces
+  Text="${1%% }"      # Remove any trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then
     Result="$Text"
     return
@@ -254,10 +259,9 @@ function translate()  # Called by message_first_line & message_subsequent and by
   #                      exact match only | restrict to first find | display only number
   RecordNumber=$(grep -n "^${Text}$" English.lan | head -n 1 | cut -d':' -f1)
   case $RecordNumber in
-  "" | 0) # No match found in English.lan, so translate using Google translate to temporary file:
-    # ./trans -b en:${InstalLanguage} "$Text" > Result.file 2>/dev/null
-    # Result=$(cat Result.file)
-      Result="$Text"
+  "" | 0) # No match found in English.lan, so use Google translate
+     ./trans -b en:${InstalLanguage} "$Text" > output.file 2>/dev/null
+     Result=$(cat output.file)
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac
