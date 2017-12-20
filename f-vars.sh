@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 10th December 2017
+# Revision date: 20th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,21 +23,23 @@
 #                    Boston, MA 02110-1301 USA
 
 # In this module: Some global functions, and declaration of various arrays and variables
-# --------------------   ----------------------
-# Function        Line   Function          Line
-# --------------------   ----------------------
-# set_language        38   read_timed           161
-# not_found           97   compare_length       180
-# dialog_inputbox    107   padd_length          188
-# message_first_line 127   common_translations  197
-# message_subsequent 148   translate            246
-# print_first_line   127   Arrays & Variables   266
-# print_subsequent   127      ... and onwards
-# --------------------   ----------------------
+# ----------------------    ------------------------
+# Function          Line    Function            Line
+# ----------------------    ------------------------
+# set_language        38    print_subsequent     127
+# not_found           97    common_translations  197
+# dialog_inputbox    107    translate            246
+# message_first_line 127    
+# message_subsequent 148    Arrays & Variables   266
+# print_first_line   127       ... and onwards
+# ----------------------    ------------------------
 
-set_language() {
-  
+function set_language
+{
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
+  
+  # First load English file
+  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   
   dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
@@ -53,7 +55,7 @@ set_language() {
       pl "Polski" \
       pt-BR "Português" \
       vi "Vietnamese" 2>output.file
-      retval=$?
+    retval=$?
     if [ $retval -ne 0 ]; then exit; fi
     InstalLanguage=$(cat output.file)
 
@@ -84,25 +86,19 @@ set_language() {
   esac
   
   # Get the required language files
-  message_first_line "Loading translator"       # First load English file
-  wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
-  
-  if [ $LanguageFile != "English.lan" ]; then   # Then, if English is not the user language
-                                                # Get the appropriate translation file
+  message_first_line "Loading translator"       
+  if [ $LanguageFile != "English.lan" ]; then   # If English is not the user language, get the translation file
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
-
     common_translations                         # Set common translations
   
     Install the translator for situations where no translation is found on file
     wget -q git.io/trans 2>> feliz.log
     chmod +x ./trans
-  
   fi
-
 }
 
-function not_found()
-{ # Global function - optional arguments: $1 & $2 for box size
+function not_found                # Optional arguments $1 & $2 for box size
+{
   if [ $1 ] && [ -n $1 ]; then
     Height="$1"
   else
@@ -116,26 +112,28 @@ function not_found()
   dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message $3" $Height $Length
 }
 
-dialog_inputbox() {  # General-purpose input box
-              # $1 & $2 are box size
+function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
+{
   dialog --backtitle "$Backtitle" --title " $Title " --clear \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
 }
 
-message_first_line() {  # translates $1 and starts a Message with it
+function message_first_line       # translates $1 and starts a Message with it
+{
   translate "$1"
   Message="$Result"
 }
 
-message_subsequent() { # translates $1 and continues a Message with it
+function message_subsequent       # translates $1 and continues a Message with it
+{
   translate "$1"
   Message="${Message}\n${Result}"
 }
 
-function print_first_line() # Called by FinalCheck to display all user-defined variables
-{  # Translates and prints argument(s) centred according to content and screen size
+function print_first_line         # Called by FinalCheck to display all user-defined variables
+{                                 # Translates and prints argument(s) centred according to content and screen size
   if [ $translate = "N" ]; then   # If translate variable set to 'N', don't translate any
     Text="$1 $2 $3"
   elif [ ! "$2" ]; then           # If $2 is missing or empty, translate $1
@@ -168,43 +166,8 @@ function print_subsequent() # Called by FinalCheck to display all user-defined v
   echo "$EMPTY $Text"
 }
 
-read_timed() { # Timed display - $1 = text to display; $2 = duration
-  local T_COLS=$(tput cols)
-  local lov=${#1}
-  stpt=0
-  if [ $2 ]; then
-    tim=$2
-  else
-    tim=2
-  fi
-  if [ ${lov} -lt ${T_COLS} ]; then
-    stpt=$(( (T_COLS - lov) / 2 ))
-    EMPTY="$(printf '%*s' $stpt)"
-  else
-    EMPTY=""
-  fi
-  read -t ${tim} -p "$EMPTY $1"
-  cursor_row=$((cursor_row+1))
-}
-
-compare_length() {
-  # If length of translation is greater than previous, save it
-  Text="$1"
-    if [ ${#Text} -gt $MaxLen ]; then
-      MaxLen=${#Text}
-    fi
-}
-
-padd_length() {  # If $1 is shorter than MaxLen, padd with spaces
-  Text="$1"
-  until [ ${#Text} -eq $MaxLen ]
-  do
-    Text="$Text "
-  done
-  Result="$Text"
-}
-
-common_translations() {  # Some common translations
+function common_translations
+{  # Some common translations
   translate "Cancel"
   TCancel="$Result"
   translate "Loading"
@@ -253,7 +216,7 @@ function translate()  # Called by message_first_line & message_subsequent and by
   Text="${1%% }"      # Remove any trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then
     Result="$Text"
-    return
+    return 0
   fi
   # Get line number of "$Text" in English.lan
   #                      exact match only | restrict to first find | display only number
@@ -274,11 +237,11 @@ declare -a AddPartType    # Array of format type for the same partitions eg: ext
 declare -A PartitionArray # Associative array of partition details
 declare -a NewArray       # For copying any array
 declare -A Labelled       # Associative array of labelled partitions
-BootSize=""               # Boot variable for EasyEFI
-RootSize=""               # Root variable for EasyEFI
-SwapSize=""               # Swap variable for EasyEFI
-HomeSize=""               # Home variable for EasyEFI
-HomeType=""               # Home variable for EasyEFI
+BootSize=""               # Boot variable
+RootSize=""               # Root variable
+SwapSize=""               # Swap variable
+HomeSize=""               # Home variable
+HomeType=""               # Home variable
 SwapPartition=""          # eg: /dev/sda3
 FormatSwap="N"            # User selects whether to reuse swap
 MakeSwap="Y"
