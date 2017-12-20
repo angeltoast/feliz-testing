@@ -113,7 +113,7 @@ function set_timezone()
     while read -r Item                                        # Read items from the zones file
     do                                                        # for display in menu
       Counter=$((Counter+1)) 
-      translate "$Item"
+      translate "$Item"                                       # Translate each one for display
       Item="$Result"
       Items=$((Items+1))
       ItemList[${Items}]="${Counter}"                         # First column (tag) is the item number
@@ -122,24 +122,25 @@ function set_timezone()
     done < zones.file
   
     dialog --backtitle "$Backtitle" --no-tags --menu \
-        "\n      $Message\n" 20 50 $Counter "${ItemList[@]}" 2>output.file
+        "\n      $Message\n" 20 55 $Counter "${ItemList[@]}" 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
-    Result="$(head -n ${Response} zones.file | tail -n 1)"  # Read item from target language file
-    NativeZONE="$Result"                                    # Save ZONE in user's language, for display  
-  
+    Result="${ItemList[${Response}]}"                       # Recover item from displayed list
+    NativeZONE="$Result"                                    # (in user's language) for display  
+read -p "$NativeZONE"
     # Now translate the result back to English
     if [ $LanguageFile = "English.lan" ]; then              # It's already in English
       ZONE="$Result" 
     else
       # Get line number of "$Result" in $LanguageFile
       #                      exact match only | restrict to first find | display only number
-      RecordNumber=$(grep -n "^${Result}$" "${LanguageFile}" | head -n 1 | cut -d':' -f1)
+    #  RecordNumber=$(grep -n "^${Result}$" "${LanguageFile}" | head -n 1 | cut -d':' -f1)
       # Find that line in English.lan
-      ZONE="$(head -n ${RecordNumber} English.lan | tail -n 1)" # Read item from English language file
+    #  ZONE="$(head -n ${RecordNumber} English.lan | tail -n 1)" # Read item from English language file
+      ZONE="$(head -n ${RecordNumber} zones.file | tail -n 1)"  # Recover English version of Item
     fi
-    
+read -p "$ZONE"    
     # We now have a zone! eg: Europe
     set_subzone                             # Call subzone function
     if [ "$SUBZONE" != "" ]; then           # If non-empty, Check "${ZONE}/$SUBZONE" against 
