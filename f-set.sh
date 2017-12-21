@@ -177,15 +177,11 @@ function set_subzone() # Called from set_timezone
     menu_dialogVariable=$(timedatectl list-timezones | grep ${ZONE}/ | cut -d'/' -f2)
   
     translate "Now select your location in"
-    if [ $Ocean = 1 ]; then
-      title="$Result the $NativeZONE Ocean"
-    else
-      title="  $Result $NativeZONE"
-    fi
-    Cancel="Back"
-    Message=""
+    Message="$Result $NativeZONE"
+    Cancel="$Back"
+    title="Subzone"
     
-    menu_dialog  30 50 # Function (arguments are dialog size) displays a menu and return selection as $Result
+    menu_dialog  30 60 # Function (arguments are dialog size) displays a menu and return selection as $Result
     if [ $retval -eq 0 ]; then
       SUBZONE="$Result"
     else
@@ -228,10 +224,10 @@ function america() # Called from set_subzone
   
   if [ $retval -eq 1 ]; then              # "None of These" - check normal subzones
     translate "Now select your location in"
-    title="$Result $NativeZONE"
+    Message="$Result $NativeZONE"
     menu_dialogVariable=$(timedatectl list-timezones | grep ${ZONE}/ | grep -v 'Argentina\|Indiana\|Kentucky\|North_Dakota' | cut -d'/' -f2)  # Prepare variable
-    Cancel="Back"
-    Message=" "
+    Cancel="$Back"
+    title="Subzone"
     
     menu_dialog  25 50 # Display menu (arguments are dialog size) and return selection as $Result
     if [ $retval -eq 0 ]; then    
@@ -258,9 +254,9 @@ function america_subgroups()  # Called from america
       menu_dialogVariable=$(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $3}')
    esac
   translate "Please select a city from this list"
-  title="$Result"
-  Cancel="Back"
-  Message=" "
+  Message="$Result"
+  Cancel="$Back"
+  title="Subzone"
   
   menu_dialog  25 44 # New function (arguments are dialog size) to display a menu and return $Result
   if [ $retval -eq 0 ]; then
@@ -308,8 +304,8 @@ function setlocale()
       title="Locale"
       message_first_line "Choose the main locale for your system"
       message_subsequent "Choose one or Exit to retry"
-      menu_dialogVariable="$choosefrom Edit_locale.gen"                    # Add manual edit option to menu
-      Cancel="Exit"
+      menu_dialogVariable="$choosefrom Edit_locale.gen"             # Add manual edit option to menu
+      Cancel="$Exit"
   
       menu_dialog 17 50 # Arguments are dialog size. To display a menu and return $Result & $retval
       if [ $retval -ne 0 ]; then return 1; fi
@@ -927,15 +923,27 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
 function edit_mirrors()
 {  # Use Nano to edit mirrors.list
 
-  Message="\nFeliz needs at least one mirror from which to\ndownload the Arch Linux system and applications.\nIf you do not wish to use one from the Arch list,\n you can enter the address of a mirror manually, or\nyou can use one of the worldwide Arch Linux mirrors,\nalthough this may be slower than a local mirror.\n"
+  message_first_line "Feliz needs at least one mirror from which to"
+  message_subsequent "download the Arch Linux system and applications"
+  message_subsequent "If you do not wish to use one from the Arch list"
+  message_subsequent "you can enter the address of a mirror manually, or"
+  message_subsequent "you can use one of the worldwide Arch Linux mirrors"
+  message_subsequent "although this may be slower than a local mirror"
+  translate "Mirrors"
+  title="$Result"
+  translate "I want to type in an address"
+  Menu1="$Result"
+  translate "Use a worldwide mirror"
+  Menu2="$Result"
+  translate "Return to the list"
+  Menu3="$Result"
   
-  title="Mirrors"
   dialog --backtitle "$Backtitle" --title " $title " \
     --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --no-cancel --menu "$Message" \
       18 65 ${Items} \
-      "Manual" "I want to type in an address" \
-      "Worldwide" "Use a worldwide mirror" \
-      "Standard" "Return to the list" 2>output.file
+      "Manual" "$Menu1" \
+      "Worldwide" "$Menu2" \
+      "Standard" "$Menu3" 2>output.file
   retval=$?
   Result=$(cat output.file)
   case $Result in
@@ -1047,7 +1055,8 @@ function final_check()
       for Part in ${AddPartList}                    # Iterate through the list of extra partitions
       do                                            # Display each partition, mountpoint & format type
         if [ $Counter -ge 1 ]; then                 # Only display the first one
-          print_subsequent "Too many to display all"
+          translate "Too many to display all"
+          print_subsequent "$Result"
           break
         fi
         print_subsequent "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
@@ -1056,8 +1065,9 @@ function final_check()
     fi
     translate="Y"
     Response=20
-    print_first_line "Press Enter to install with these settings, or"
-    translate "Enter number for data to change: "
+    translate "Press Enter to install with these settings, or"
+    print_first_line "$Result"
+    translate "Enter number for data to change"
     # Prompt user for a number
     local T_COLS=$(tput cols)
     local lov=${#Result}
@@ -1070,7 +1080,7 @@ function final_check()
       stpt=$(( (T_COLS - 10) / 2 ))
     fi
     EMPTY="$(printf '%*s' $stpt)"
-    read -p "$EMPTY $Result" retval
+    read -p "$EMPTY $Result :" retval
 
     Change=$retval
     case $Change in

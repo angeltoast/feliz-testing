@@ -542,7 +542,7 @@ function allocate_swap()
     
     PartitionList="$SavePartitionList"                            # Restore PartitionList (without 'swapfile')
     
-    if [ $Result != "swapfile" ]; then
+    if [ $Result ] && [ $Result != "swapfile" ]; then
       PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
       

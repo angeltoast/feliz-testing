@@ -43,8 +43,8 @@ function set_language
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   fi
   
-  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " \
-    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu \
+  dialog --backtitle "$Backtitle" \
+    --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
            Please choose your language" 21 60 11 \
@@ -101,18 +101,20 @@ function set_language
     fi
   fi
 
-  translate "Yes"
-  Yes="$Result"
+  translate "Back"
+  Back="$Result"
+  translate "Cancel"
+  Cancel="$Result"
+  translate "Done"
+  Done="$Result"
+  translate "Exit"
+  Exit="$Result"
   translate "No"
   No="$Result"
   translate "Ok"
   Ok="$Result"
-  translate "Cancel"
-  Cancel="$Result"
-  translate "Exit"
-  Exit="$Result"
-  translate "Done"
-  Done="$Result"
+  translate "Yes"
+  Yes="$Result"
 }
 
 function not_found                # Optional arguments $1 & $2 for box size
