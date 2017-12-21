@@ -43,7 +43,8 @@ function set_language
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   fi
   
-  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
+  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " \
+    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu \
     "\n       You can use the UP/DOWN arrow keys, or\n \
     the first letter of your choice as a hot key.\n \
            Please choose your language" 21 60 11 \
@@ -89,19 +90,29 @@ function set_language
   esac
   
   # Get the required language files
-  message_first_line "Loading translator"       
   if [ $LanguageFile != "English.lan" ]; then   # If English is not the user language, get the translation file
     if [ ! -f ${LanguageFile} ]; then
       wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     fi
-echo "${LanguageFile}"
-ls *.lan
-read
+
     if [ ! -f trans ]; then               # If Google translate hasn't already been installed, get it
       wget -q git.io/trans 2>> feliz.log  # (for situations where no translation is found in language files)
       chmod +x ./trans
     fi
   fi
+
+  translate "Yes"
+  Yes="$Result"
+  translate "No"
+  No="$Result"
+  translate "Ok"
+  Ok="$Result"
+  translate "Cancel"
+  Cancel="$Result"
+  translate "Exit"
+  Exit="$Result"
+  translate "Done"
+  Done="$Result"
 }
 
 function not_found                # Optional arguments $1 & $2 for box size
@@ -116,12 +127,12 @@ function not_found                # Optional arguments $1 & $2 for box size
   else
     Length=25
   fi
-  dialog --backtitle "$Backtitle" --title " Not Found " --msgbox "\n$Message $3" $Height $Length
+  dialog --backtitle "$Backtitle" --title " Not Found " --ok-label "$Ok" --msgbox "\n$Message $3" $Height $Length
 }
 
 function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
 {
-  dialog --backtitle "$Backtitle" --title " $title " --clear \
+  dialog --backtitle "$Backtitle" --title " $title " ----ok-label "$Ok" \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
@@ -173,6 +184,7 @@ function translate()  # Called by message_first_line & message_subsequent and by
   "" | 0) # No match found in English.lan, so use Google translate
      ./trans -b en:${InstalLanguage} "$text" > output.file 2>/dev/null
      Result=$(cat output.file)
+read -p "Translated by Google"
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac

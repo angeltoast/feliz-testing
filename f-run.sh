@@ -233,7 +233,8 @@ function action_EFI() # Called during installation phase
   Message="${Message}\n${TSwapPartition}: $(lsblk -l | grep "${UseDisk}3" | awk '{print $4, $1}')"
   Message="${Message}\n${THomePartition}: $(lsblk -l | grep "${UseDisk}4" | awk '{print $4, $1}')"
 
-  dialog --backtitle "$Backtitle" --title "$title" --yesno "$Message" 20 70
+  dialog --backtitle "$Backtitle" --title "$title" --yes-label "$Yes" \
+    --no-label "$No" --yesno "$Message" 20 70
   if [ $? -ne 0 ]; then return 1; fi
 }
 
@@ -708,13 +709,14 @@ function set_root_password()
     message_subsequent "Enter a password for"
     Message="${Message} root\n"
     
-    dialog --backtitle "$Backtitle" --title " $title " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " --insecure --nocancel \
+      --ok-label "$Ok" --passwordbox "$Message" 15 50 2>output.file
     Pass1=$(cat output.file)
     rm output.file
     translate "Re-enter the password for"
     Message="${Message} root\n"
     
-    dialog --backtitle "$Backtitle" --insecure --title " Root " --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
+    dialog --backtitle "$Backtitle" --insecure --title " Root " --ok-label "$Ok" --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
     Pass2=$(cat output.file)
     rm output.file
     if [ -z ${Pass1} ] || [ -z ${Pass2} ]; then
@@ -755,14 +757,16 @@ function set_user_password()
     message_subsequent "see passwords as you enter them"
     Message="${Message}\n"
     
-    dialog --backtitle "$Backtitle" --title " $user_name " --insecure --nocancel --passwordbox "$Message" 15 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $user_name " --insecure \
+      --ok-label "$Ok" --nocancel --passwordbox "$Message" 15 50 2>output.file
 
     Pass1=$(cat output.file)
     rm output.file
     message_first_line "Re-enter the password for"
     Message="${Message} $user_name\n"
     
-    dialog --backtitle "$Backtitle" --title " $user_name " --insecure --nocancel --passwordbox "$Message" 10 50 2>output.file
+    dialog --backtitle "$Backtitle" --title " $user_name " --insecure \
+      --ok-label "$Ok" --nocancel --passwordbox "$Message" 10 50 2>output.file
     
     Pass2=$(cat output.file)
     rm output.file
@@ -799,8 +803,8 @@ function finish()
   Item1="$(echo $Result | cut -d' ' -f1)"
   Item2="$(echo $Result | cut -d' ' -f2)"
 
-  dialog --backtitle "$Backtitle" --title " Finish " --menu "$Backtitle" \
-      12 30 2 \
+  dialog --backtitle "$Backtitle" --title " Finish "  --ok-label "$Ok" \
+    --cancel-label "$Cancel" --menu "$Backtitle" 12 30 2 \
       1 "$Item1" \
       2 "$Item2" 2>output.file
   retval=$?

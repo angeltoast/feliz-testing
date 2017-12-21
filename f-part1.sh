@@ -71,7 +71,8 @@ function check_parts()   # Called by feliz.sh
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
  
-      dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" 24 70 4 \
+      dialog --backtitle "$Backtitle" --title " $title " \
+        --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
         1 "$LongPart2" \
         2 "$LongPart3" \
         3   "$LongPart4" 2>output.file
@@ -83,7 +84,8 @@ function check_parts()   # Called by feliz.sh
       partitioning_options                        # partitioning_options options
       retval=$?
       if [ $retval -ne 0 ]; then 
-        dialog --backtitle "$Backtitle" --infobox "Exiting to allow you to partition the device" 6 30
+        dialog --backtitle "$Backtitle" --ok-label "$Ok" \
+          --infobox "Exiting to allow you to partition the device" 6 30
         exit
       fi
       # Check that partitions have been created
@@ -101,7 +103,8 @@ function check_parts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" 24 78 4 \
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
@@ -235,7 +238,8 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     Message="${Result} /dev/${UseDisk}"
     message_subsequent "Are you sure you wish to continue?"
     Message="${Message}\n${Result}"
-    dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     retval=$?
     case $retval in
     0) AutoPart="ON"
@@ -398,8 +402,8 @@ function edit_label() # Called by allocate_root, allocate_swap & more_partitions
     translate "Enter a new label"
     Edit="$Result"
 
-    dialog --backtitle "$Backtitle" --title " $PassPart " --menu "$Message" \
-      24 50 3 \
+    dialog --backtitle "$Backtitle" --title " $PassPart " \
+      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 50 3 \
       1 "$Keep" \
       2 "$Delete" \
       3 "$Edit" 2>output.file
@@ -525,7 +529,8 @@ function allocate_swap()
       message_subsequent "system will no longer be able to access the partition"
       message_subsequent "Do you wish to reformat it?"
       MakeSwap="N"
-      dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 13 70 2>output.file
+      dialog --backtitle "$Backtitle" --title " $title " \
+        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
       MakeSwap="Y"
@@ -556,7 +561,8 @@ function no_swap_partition()
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
 
-  dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 10 55 2>output.file
   retval=$?
   case $retval in
   0) set_swap_file
@@ -664,7 +670,8 @@ function choose_mountpoint() # Called by more_partitions
       for MountPoint in ${AddPartMount}             # Go through AddPartMount checking each item against PartMount
       do
         if [ $MountPoint = $PartMount ]; then       # If the mountpoint has already been used
-          dialog --backtitle "$Backtitle" --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
+          dialog --backtitle "$Backtitle" --ok-label "$Ok" \
+            --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
           PartMount=""
           break
         fi
@@ -698,8 +705,8 @@ function display_partitions() # Called by more_partitions, allocate_swap & alloc
     fi
   done
 
-  dialog --backtitle "$Backtitle" --title " $title " --menu "$Message" \
-      18 70 ${Items} "${ItemList[@]}" 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
+    --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
 }

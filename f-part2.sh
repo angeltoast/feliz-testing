@@ -107,15 +107,16 @@ function select_device() # Called by feliz.sh
       done < list.file
       Items=$Counter
 
-      dialog --backtitle "$Backtitle" --title " $title " --no-tags --radiolist \
-        "${Message}" $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+      dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
+        --cancel-label "$Cancel"--no-tags --radiolist "${Message}" \
+          $1 $2 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
       Result=$(cat output.file)                           # Return values to calling function
       rm list.file
       
       if [ $retval -ne 0 ]
       then
-        dialog --title "$title" --yesno \
+        dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
         if [ $retval -eq 0 ]; then return 1; fi
       fi
@@ -157,7 +158,7 @@ function get_device_size() # Called by feliz.sh
     Message="$Message ${FreeSpace}MiB:"
     message_first_line "This is not enough for an installation"
     translate "Exit"
-    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
     exit
   elif [ ${FreeSpace} -lt 4096 ]
   then    # If less than 4GiB
@@ -166,14 +167,14 @@ function get_device_size() # Called by feliz.sh
     message_subsequent "This is just enough for a basic"
     message_subsequent "installation, but you should choose light applications only"
     message_subsequent "and you may run out of space during installation or at some later time"
-    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
   elif [ ${FreeSpace} -lt 8192 ]
   then    # If less than 8GiB
     message_first_line "Your device has"
     Messgae="$Message ${FreeSpace}MiB:"
     message_subsequent "This is enough for"
     message_subsequent "installation, but you should choose light applications only"
-    dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
+    dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
   fi
 }
 
@@ -205,7 +206,7 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   message_subsequent "and create a new partition table with your settings"
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
-  dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
+  dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi   # Go right back to start
   
   message_first_line "We begin with the"
@@ -224,7 +225,8 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
     message_subsequent "assign a swap-file. It is advised to allow some swap"
     message_subsequent "Do you wish to allocate a swapfile?"
 
-    dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " --yes-label "$Yes" \
+      --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     set_swap_file           # Note: Global variable SwapFile is set by set_swap_file
                           # (SwapFile will be created during installation by mount_partitions)
@@ -245,7 +247,7 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
 
-  dialog --backtitle "Feliz" --yesno "$Message" 15 70
+  dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi
 
   guided_MBR_root                                    # Create /root partition
@@ -262,7 +264,7 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     message_subsequent "assign a swap-file. It is advised to allow some swap"
     Message="${Message}\n"
     message_subsequent "Do you wish to allocate a swapfile?"
-    dialog --backtitle "$Backtitle" --yesno "$Message" 15 70
+    dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
     if [ $? -ne 0 ]; then return 0; fi
     set_swap_file # Note: Global variable SwapFile is set by set_swap_file
   fi              # and SwapFile is created during installation by mount_partitions
@@ -292,7 +294,7 @@ function guided_EFI_Boot() # Called by guided_EFI
     echo
     if [ ${CheckInput} != "M" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
       message_first_line "You must include M, G or %"
-      dialog --backtitle "$Backtitle" --infobox "$Message" 10 60
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
       BootSize=""
     else
       BootSize="${RESPONSE}"
@@ -379,7 +381,7 @@ function guided_EFI_Swap() # Called by guided_EFI
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
     '' | 0) message_first_line "Do you wish to allocate a swapfile?"
-      dialog --yesno "$Message"
+      dialog  --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message"
       if [ $retval -eq 0 ]; then
         set_swap_file
       fi
@@ -479,7 +481,7 @@ function guided_MBR_root() # Called by guided_MBR
       RootSize=""
     elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
       message_first_line "You must include M, G or %"
-      dialog --backtitle "$Backtitle" --msgbox "$Message"
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
       RootSize=""
     else
       RootSize=$RESPONSE
@@ -537,7 +539,7 @@ function guided_MBR_swap() # Called by guided_MBR
 
     case ${RESPONSE} in
     '') message_first_line "Do you wish to allocate a swapfile?"
-      dialog --backtitle "$Backtitle" --yesno "$Message" 10 50
+      dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 10 50
       if [ $retval -eq 0 ]; then
         print_heading
         set_swap_file
@@ -549,7 +551,7 @@ function guided_MBR_swap() # Called by guided_MBR
       CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
         message_first_line "You must include M, G or %"
-        dialog --backtitle "$Backtitle" --msgbox "$Message"
+        dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         SwapSize=""
       else
         SwapSize=$RESPONSE
@@ -591,7 +593,7 @@ function guided_MBR_home() # Called by guided_MBR
         CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
         message_first_line "You must include M, G or %"
-        dialog --backtitle "$Backtitle" --msgbox "$Message"
+        dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         HomeSize=""
       else
         HomeSize=$RESPONSE

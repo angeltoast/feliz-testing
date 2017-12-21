@@ -64,8 +64,8 @@ function menu_dialog()
   done
    
   # Display the list for user-selection
-  dialog --backtitle "$Backtitle" --title " $title " --no-tags --cancel-label "$cancel" --menu \
-      "$Message" \
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
@@ -121,15 +121,14 @@ function set_timezone()
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
   
-    dialog --backtitle "$Backtitle" --no-tags --menu \
+    dialog --backtitle "$Backtitle" --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu \
         "\n      $Message\n" 20 55 $Counter "${ItemList[@]}" 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
-    NativeZONE="${ItemList[${Item}]}"                       # Recover item from displayed list
-                              # (in user's language) for display  
-read -p "$NativeZONE"
+    NativeZONE="${ItemList[${Item}]}"                       # Recover item from list (in user's language)  
+
     # Now translate the result back to English
     if [ $LanguageFile = "English.lan" ]; then              # It's already in English
       ZONE="$Result" 
@@ -141,7 +140,7 @@ read -p "$NativeZONE"
     #  ZONE="$(head -n ${RecordNumber} English.lan | tail -n 1)" # Read item from English language file
       ZONE="$(head -n ${Response} zones.file | tail -n 1)"  # Recover English version of Item
     fi
-read -p "$ZONE"    
+
     # We now have a zone! eg: Europe
     set_subzone                             # Call subzone function
     if [ "$SUBZONE" != "" ]; then           # If non-empty, Check "${ZONE}/$SUBZONE" against 
@@ -186,7 +185,7 @@ function set_subzone() # Called from set_timezone
     Cancel="Back"
     Message=""
     
-    menu_dialog  20 40 # Function (arguments are dialog size) displays a menu and return selection as $Result
+    menu_dialog  30 50 # Function (arguments are dialog size) displays a menu and return selection as $Result
     if [ $retval -eq 0 ]; then
       SUBZONE="$Result"
     else
@@ -353,7 +352,8 @@ edit_locale() {  # Use Nano to edit locale.gen
     translate "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
     Message="$Result"
     title=""
-    dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 6 55 2>output.file
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
     retval=$?
     case $retval in
       0) nano /etc/locale.gen
@@ -390,14 +390,14 @@ function get_keymap() # Display list of locale-appropriate keyboards for user to
     0)  # If the search found no matches
       message_first_line "Sorry, no keyboards found based on your location"
       translate "Keyboard is"
-      dialog --backtitle "$Backtitle" --msgbox "$Message"
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
       search_keyboards
     ;;
     1)  # If the search found one match
       message_first_line "Only one keyboard found based on your location"
       message_subsequent "Do you wish to accept this? Select No to search for alternatives"
       
-      dialog --backtitle "$Backtitle" --yesno "\n$Message" 10 55 2>output.file
+      dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
       retval=$?
       Result="$(cat output.file)"
       case ${retval} in
@@ -439,7 +439,7 @@ function search_keyboards() # Called by get_keymap when all other options failed
     message_subsequent "for your country or language and a list will be displayed"
     message_subsequent "eg: 'dvorak' or 'us'"
     
-    dialog --backtitle "$Backtitle" --inputbox "$Message" 14 70 2>output.file
+    dialog --backtitle "$Backtitle" --ok-label "$Ok" --inputbox "$Message" 14 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
     if [ $retval -eq 1 ] || [ $Result = "" ]; then
@@ -483,7 +483,7 @@ function set_username()
   translate "User Name"
   title="${Result}"
   
-  dialog --backtitle "$Backtitle" --title " $title " --inputbox "$Message" 12 70 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" --inputbox "$Message" 12 70 2>output.file
   retval=$?
   Result="$(cat output.file)"
 
@@ -502,7 +502,7 @@ function set_hostname()
   translate "Enter a hostname for your computer"
   title="${Result}: "
 
-  dialog --backtitle "$Backtitle" --title " $title " --inputbox "$Message" 12 70 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" --inputbox "$Message" 12 70 2>output.file
   retval=$?
   Result="$(cat output.file)"
 
@@ -534,8 +534,9 @@ function type_of_installation() # User chooses between FelizOB, self-build or ba
   translate "Basic_Arch_Linux"
   BAL="$Result"
   
-  dialog --backtitle "$Backtitle" --title " type_of_installation " --menu "$Message" \
-      22 50 3 \
+  dialog --backtitle "$Backtitle" --title " type_of_installation " \
+    --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
+      24 70 3 \
       1 "$BMO" \
       2 "$FOB" \
       3  "$BAL" 2>output.file
@@ -592,7 +593,7 @@ function pick_category()  # menu_dialog of categories of selected items from the
     done
      
     # Display the list for user-selection
-    dialog --backtitle "$Backtitle" --title " $title " --no-tags --cancel-label "$Done" --menu \
+    dialog --backtitle "$Backtitle" --title " $title " --no-tags --ok-label "$Ok" --cancel-label "$Done" --menu \
         "$Message" \
         20 70 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
@@ -740,9 +741,8 @@ function display_extras() # Called by choose_extras
     # Display the contents of the temporary array in a Dialog menu
     Items=$(( Counter/3 ))
     
-    dialog --backtitle "$Backtitle" --title " $title " --no-cancel --checklist \
+    dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" --no-cancel --checklist \
       "$Message" 20 79 $Items "${TempArray[@]}" 2>output.file
-      
     retval=$?
     Result=$(cat output.file)
     # Add selected items to LuxuriesList
@@ -761,7 +761,8 @@ function choose_display_manager()
   message_subsequent "If you do not install a display manager, you will have"
   message_subsequent "to launch your desktop environment manually"
   
-  dialog --backtitle "$Backtitle" --title " $title " --no-tags --menu "\n$Message" 20 60 6 \
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n$Message" 20 60 6 \
     "gdm" "GDM" \
     "lightdm" "LightDM" \
     "lxdm" "LXDM" \
@@ -839,7 +840,8 @@ function select_kernel()
     translate "If in doubt, choose"
     Default="${Result} LTS"
   
-    dialog --backtitle "$Backtitle" --title "$title" --no-tags --menu "\n  $Default" 10 70 2 \
+    dialog --backtitle "$Backtitle" --title "$title" \
+      --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n  $Default" 10 70 2 \
       "1" "$LTS" \
       "2" "$Latest" 2>output.file
     if [ $? -ne 0 ]; then Result="1"; fi
@@ -861,7 +863,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       if [ $? -ne 0 ]; then
         message_first_line "Unable to fetch list of mirrors from Arch Linux"
         message_subsequent "Using the list supplied with the Arch iso"
-        dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 8 75
+        dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 8 75
         cp /etc/pacman.d/mirrorlist > archmirrors.list
       fi
       # Get line number of first country
@@ -880,7 +882,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       message_subsequent "You will be able to choose from a list of countries which"
       message_subsequent "have Arch Linux mirrors."
       
-      dialog --backtitle "$Backtitle" --msgbox "\n${Message}\n" 10 75
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 10 75
   
       message_first_line "Please choose a country"
 
@@ -894,7 +896,8 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
         ItemList[${Items}]="${Item}"                      # Second element is required
       done < list.file
 
-      dialog --backtitle "$Backtitle" --title " $title " --no-tags --menu "$Message" \
+      dialog --backtitle "$Backtitle" --title " $title " \
+        --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "$Message" \
         25 60 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
       Result=$(cat output.file)                           # eg: United Kingdom
@@ -927,7 +930,8 @@ function edit_mirrors()
   Message="\nFeliz needs at least one mirror from which to\ndownload the Arch Linux system and applications.\nIf you do not wish to use one from the Arch list,\n you can enter the address of a mirror manually, or\nyou can use one of the worldwide Arch Linux mirrors,\nalthough this may be slower than a local mirror.\n"
   
   title="Mirrors"
-  dialog --backtitle "$Backtitle" --title " $title " --no-tags --no-cancel --menu "$Message" \
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --no-cancel --menu "$Message" \
       18 65 ${Items} \
       "Manual" "I want to type in an address" \
       "Worldwide" "Use a worldwide mirror" \
@@ -937,7 +941,8 @@ function edit_mirrors()
   case $Result in
     "Manual") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
     #  nano mirrors.list
-    dialog --textbox "# eg: Server = http://mirror.transip.net/archlinux/" mirrors.list 18 65
+    dialog --exit-label "$Done" \
+      --textbox "# eg: Server = http://mirror.transip.net/archlinux/" mirrors.list 18 65
       return 2
       ;;
     "Worldwide") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
@@ -956,7 +961,8 @@ function confirm_virtualbox()
   translate "Install Virtualbox guest utilities?"
   title="$Result"
     
-  dialog --backtitle "$Backtitle" --title " $title " --yesno "\n$Message" 10 55 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
   retval=$?
 
   if [ $retval -eq 0 ]  # Yes
@@ -973,8 +979,9 @@ function final_check()
   do
     clear
     echo
-    print_first_line "These are the settings you have entered."
-    print_first_line "Please check them before Feliz begins the installation"
+    message_first_line "These are the settings you have entered."
+    message_subsequent "Please check them before Feliz begins the installation"
+    print_first_line "$Message"
     echo
     translate "Zone/subZone will be"
     print_subsequent "1) $Result" "$ZONE/$SUBZONE"
@@ -1105,12 +1112,11 @@ function manual_settings()
   do
     translate "Hostname"
     Hname="$Result"
-
     translate "User Name"
     Uname="$Result"
-    
-    dialog --backtitle "$Backtitle" --title " $Uname & $Hname " --cancel-label "Done" \
-	  --menu "\nChoose an item" 10 40 2 \
+    message_first_line "Choose an item"
+    dialog --backtitle "$Backtitle" --title " $Uname & $Hname "
+      --ok-label "$Ok" --cancel-label "Done" --menu "\n$Message" 10 40 2 \
       "$Uname"  "$user_name" \
       "$Hname" 	"$HostName"   2> output.file
     retvar=$?
