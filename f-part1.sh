@@ -533,6 +533,7 @@ function allocate_swap()
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
+      Result=$(cat output.file)
       MakeSwap="Y"
       Label="${Labelled[${Result}]}"
       if [ -n "${Label}" ]; then

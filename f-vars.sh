@@ -186,7 +186,7 @@ function translate()  # Called by message_first_line & message_subsequent and by
   "" | 0) # No match found in English.lan, so use Google translate
      ./trans -b en:${InstalLanguage} "$text" > output.file 2>/dev/null
      Result=$(cat output.file)
-read -p "Translated by Google"
+read -p "Translated by Google: $text"
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac

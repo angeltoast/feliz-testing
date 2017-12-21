@@ -36,8 +36,10 @@ function main()
   the_start                           # All user interraction takes place in this function
   if [ $? -ne 0 ]; then exit; fi      # If not completed without error, restart
   
-  install_message "Preparations complete"
-  install_message "Entering automatic installation phase"
+  translate "Preparations complete"
+  install_message "$Result"
+  translate "Entering automatic installation phase"
+  install_message "$Result"
 
   preparation                         # Prepare the environment for the installation phase
 
@@ -155,7 +157,8 @@ function preparation()  # Prepare the environment for the installation phase
 
 function the_middle() # The installation phase
 {
-    install_message "Preparing local services" ""
+    translate "Preparing local services"
+    install_message "$Result"
     echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
     sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
