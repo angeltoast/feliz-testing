@@ -251,9 +251,6 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
   if [ $? -ne 0 ]; then return 1; fi
 
   guided_MBR_root                                    # Create /root partition
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-  
   if [ $? -ne 0 ]; then return 1; fi
 
   recalculate_space "$RootSize"                      # Recalculate remaining space after adding /root
@@ -460,33 +457,23 @@ function guided_MBR_root() # Called by guided_MBR
     message_first_line "We begin with the"
     Message="$Message ${TRootPartition}\n"
     message_subsequent "You have"
-    Message="$Message ${FreeGigs}GiB"
+    Message="$Message ${FreeGigs}G"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     message_subsequent "although you may want to leave room for a /swap partition"
     message_subsequent "and perhaps also a /home partition"
-    message_subsequent "The /root partition should not be less than 8GiB"
-    message_subsequent "ideally more, up to 20GiB"
+    message_subsequent "The /root partition should not be less than 8G"
+    message_subsequent "ideally more, up to 20G"
     
     enter_size
-
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-
-    dialog_inputbox 30 75
     
-read -p "DEBUG: ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${BASH_LINENO[0]}"
-
+    dialog_inputbox 30 75
     if [ $? -ne 0 ]; then return 1; fi
+    
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput1=${RESPONSE: -1}
-    CheckInput3=${RESPONSE: -3}
-    if [ ${CheckInput3} = "GIB" ]; then
-      CheckInput1="G"
-    elif [ ${CheckInput3} = "MIB" ]; then
-      CheckInput1="M"
-    fi
     if [ -z ${CheckInput1} ]; then
       RootSize=""
     elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
