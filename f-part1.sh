@@ -545,9 +545,9 @@ function allocate_swap()
     
     if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
       translate "No provision has been made for swap"
-      dailog --msgbox "$Result" 6 30
+      dailog --ok-label "$Ok" --msgbox "$Result" 6 30
     elif [ $SwapFile ]; then
-      dailog --msgbox "Swap file = ${SwapFile}" 5 20
+      dailog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
     elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
       PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
