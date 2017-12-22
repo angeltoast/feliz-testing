@@ -127,19 +127,9 @@ function set_timezone()
     if [ $retval -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
-    NativeZONE="${ItemList[${Item}]}"                       # Recover item from list (in user's language)  
+    NativeZONE="${ItemList[${Item}]}"                        # Recover item from list (in user's language)  
 
-    # Now translate the result back to English
-    if [ $LanguageFile = "English.lan" ]; then              # It's already in English
-      ZONE="$Result" 
-    else
-      # Get line number of "$Result" in $LanguageFile
-      #                      exact match only | restrict to first find | display only number
-    #  RecordNumber=$(grep -n "^${Result}$" "${LanguageFile}" | head -n 1 | cut -d':' -f1)
-      # Find that line in English.lan
-    #  ZONE="$(head -n ${RecordNumber} English.lan | tail -n 1)" # Read item from English language file
-      ZONE="$(head -n ${Response} zones.file | tail -n 1)"  # Recover English version of Item
-    fi
+    ZONE="$(head -n ${Response} zones.file | tail -n 1)"     # Recover English version of Item
 
     # We now have a zone! eg: Europe
     set_subzone                             # Call subzone function
@@ -827,9 +817,9 @@ function select_kernel()
   Kernel="0"
   until [ "$Kernel" != "0" ]
   do
-    translate " Choose your kernel "
+    translate "Choose your kernel"
     title="$Result"
-    translate "The Long-Term-Support kernel offers stabilty"
+    translate "The Long-Term-Support kernel (LTS) offers stabilty"
     LTS="$Result"
     translate "The Latest kernel has all the new features"
     Latest="$Result"

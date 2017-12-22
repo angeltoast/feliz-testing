@@ -535,23 +535,21 @@ function allocate_swap()
       if [ $retval -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
       MakeSwap="Y"
-      Label="${Labelled[${Result}]}"
+      Label="${Labelled[${SwapPartition}]}"
       if [ -n "${Label}" ]; then
         edit_label "$PassPart"
       fi
     fi
     
-    PartitionList="$SavePartitionList"                            # Restore PartitionList (without 'swapfile')
+    PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
     
-    if [ $Result ] && [ $Result != "swapfile" ]; then
-      PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
-    fi
-      
-    if [ $SwapFile ]; then
-      dailog --msgbox "Swap file = ${SwapFile}" 5 20
-    elif [ $SwapPartition = "" ]; then
+    if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
       translate "No provision has been made for swap"
       dailog --msgbox "$Result" 6 30
+    elif [ $SwapFile ]; then
+      dailog --msgbox "Swap file = ${SwapFile}" 5 20
+    elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
+      PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
   esac
 }
