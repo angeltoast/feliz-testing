@@ -134,7 +134,7 @@ function not_found                # Optional arguments $1 & $2 for box size
 
 function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
 {
-  dialog --backtitle "$Backtitle" --title " $title " ----ok-label "$Ok" \
+  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
