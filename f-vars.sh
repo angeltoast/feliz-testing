@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 20th December 2017
+# Revision date: 29th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -215,7 +215,7 @@ RootPartition=""          # eg: /dev/sda2
 RootType=""               # eg: ext4
 Partition=""              # eg: sda1
 Ignorelist=""             # Used in review process
-AutoPart="OFF"            # Flag - changes to 1 if auto-partition is chosen
+AutoPart="NONE"           # Flag - MANUAL/AUTO/GUIDED/NONE
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
 

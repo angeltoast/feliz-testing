@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 28th December 2017
+# Revision date: 29th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,41 +32,58 @@ source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
 function main()
-{
-  the_start                           # All user interraction takes place in this function
-  if [ $? -ne 0 ]; then exit; fi      # If not completed without error, restart
+{ # All functions called from this function must return a value of 1 or 0
   
-  translate "Preparations complete"
-  install_message "$Result"
-  translate "Entering automatic installation phase"
-  install_message "$Result"
+  if [ -f dialogrc ] && [ ! -f .dialogrc ]        # Ensure that display of dialogs is controlled
+  then
+    cp dialogrc .dialogrc
+  fi
+  
+  StartTime=$(date +%s)                           # Installation time is dispalyed at end
+  echo "${StartTime}" >> feliz.log
+  
+  Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
-  preparation                         # Prepare the environment for the installation phase
-
-  the_middle                          # The installation phase
-
-  the_end                             # Set passwords and finish Feliz
+  while true
+  do
+    the_start                                     # All user interraction takes place in this function
+    if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
+    if [ "$AutoPart" = "NONE"  ]; then continue; fi  # Restart if no partitioning options    
+    translate "Preparations complete"             # Inform user
+    install_message "$Result"
+    translate "Entering automatic installation phase"
+    install_message "$Result"
+  
+    preparation                                   # Prepare the environment for the installation phase
+    if [ $? -ne 0 ]; then continue; fi            # Restart if error
+    
+    the_middle                                    # The installation phase
+    if [ $? -ne 0 ]; then continue; fi            # Restart if error
+  
+    the_end                                       # Set passwords and finish Feliz
+    if [ $? -ne 0 ]; then exit; fi                # Exit if user selected <Cancel>
+  done
 }
 
 function the_start() # All user interraction takes place in this function
 { # All functions called from this function must return a value of 1 or 0
   while true
   do
-    set_language                                # In f-set.sh - Use appropriate language file
-    if [ $? -ne 0 ]; then return 1; fi          # If user cancels
+    set_language                                  # In f-set.sh - Use appropriate language file
+    if [ $? -ne 0 ]; then return 1; fi            # If user cancels
     timedatectl set-ntp true
 
     # Check if on UEFI or BIOS system
     tput setf 0 # Change foreground colour to black temporarily to hide system messages
-    dmesg | grep -q "efi: EFI"          # Test for EFI (-q tells grep to be quiet)
+    dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
     if [ $? -eq 0 ]
-    then                                # check exit code; 0 = EFI, else BIOS
-      UEFI=1                            # Set variable UEFI ON and mount the device
+    then                                          # check exit code; 0 = EFI, else BIOS
+      UEFI=1                                      # Set variable UEFI ON and mount the device
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
     else
-      UEFI=0                            # Set variable UEFI OFF
+      UEFI=0                                      # Set variable UEFI OFF
     fi
-    tput sgr0                           # Reset colour
+    tput sgr0                                     # Reset colour
     while true
     do
       select_device                               # Detect all available devices & allow user to select
@@ -90,9 +107,8 @@ function the_start() # All user interraction takes place in this function
 
         set_username                              # Enter name of primary user
 
-        # Check if running in Virtualbox, and offer to include guest utilities
         if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
-          confirm_virtualbox
+          confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
         else
           IsInVbox=""
         fi
@@ -102,32 +118,32 @@ function the_start() # All user interraction takes place in this function
       while true
       do
         check_parts                               # Check partition table & offer partitioning options
-        if [ $? -ne 0 ]; then
-          retval=1
+        if [ $? -ne 0 ]; then                     # User cancelled partitioning options
+          retval=1                                # so return
           break
         fi
         
-        if [ "$AutoPart" = "OFF" ]; then        # Not Auto partitioned or guided
-          allocate_partitions                   # Assign /root /swap & others
+        if [ "$AutoPart" = "MANUAL" ]; then       # Not Auto partitioned or guided
+          allocate_partitions                     # Assign /root /swap & others
         fi
         if [ $? -eq 0 ]; then break; fi
       done
       if [ $retval -ne 0 ]; then continue; fi
-      select_kernel                             # Select kernel and device for Grub
+      select_kernel                               # Select kernel and device for Grub
       if [ $? -ne 0 ]; then exit; fi
       
-      choose_mirrors                            # 
+      choose_mirrors
       if [ $? -ne 0 ]; then continue; fi
   
-      if [ ${UEFI} -eq 1 ]; then                # If installing in EFI
-        GrubDevice="EFI"                        # Set variable
-      else							                        # If BIOS 
-        select_grub_device                      # User chooses grub partition
+      if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
+        GrubDevice="EFI"                          # Set variable
+      else							                          # If BIOS 
+        select_grub_device                        # User chooses grub partition
       fi
       retval=$?
       if [ $retval -ne 0 ]; then continue; fi
   
-      final_check                               # Allow user to change any variables
+      final_check                                 # Allow user to change any variables
       retval=$?
       return $retval
     done
@@ -143,8 +159,10 @@ function preparation()  # Prepare the environment for the installation phase
     action_EFI                                                # In f-part2.sh
   elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS and Guided partitioning_options
     action_MBR                                                # In f-part2.sh
-  elif [ "$AutoPart" = "ON" ]; then                           # If Auto partitioning_options
+  elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart                                                  # In f-part1.sh
+  elif [ "$AutoPart" = "NONE" ]; then                         # If Auto partitioning_options
+    return 1
   fi
 
   mount_partitions                                            # In f-run.sh
@@ -249,15 +267,5 @@ function the_end()  # Set passwords and finish Feliz
     
   finish                                                       # Shutdown or reboot
 }
-
-if [ -f dialogrc ] && [ ! -f .dialogrc ]
-then
-  cp dialogrc .dialogrc
-fi
-
-StartTime=$(date +%s)
-echo "${StartTime}" >> feliz.log
-
-Backtitle=$(head -n 1 README)
 
 main

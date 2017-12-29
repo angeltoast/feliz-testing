@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 20th December 2017
+# Revision date: 29th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -176,6 +176,7 @@ function partitioning_options()  # Called by check_parts after user selects an a
       clear
       partprobe 2>> feliz.log   # Inform kernel of changes to partitions
       tput sgr0                 # Reset colour
+      AutoPart=""
       return 0                  # finish partitioning
     ;;
     3) if [ ${UEFI} -eq 1 ]; then
@@ -197,7 +198,7 @@ function partitioning_options()  # Called by check_parts after user selects an a
       fi
     ;;
     4) choose_device
-      if [ $? -eq 2 ]; then return 2; fi
+      if [ $? -eq 1 ]; then return 1; fi
     ;;
     *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
   esac
@@ -205,8 +206,7 @@ function partitioning_options()  # Called by check_parts after user selects an a
 
 function choose_device()  # Called from partitioning_options or partitioning_optionsEFI
 { # Choose device for autopartition
-  AutoPart="OFF"
-  until [ ${AutoPart} != "OFF" ]
+  while [ ${AutoPart} = "NONE" ]                  # 'NONE' is not a tenable option
   do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
@@ -225,7 +225,7 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
         Message="${Message}\n      ${Result}\n"
         
         menu_dialog 15 60
-        if [ $retval -ne 0 ]; then return 2; fi
+        if [ $retval -ne 0 ]; then return 1; fi
         UseDisk="${Result}"
       done
     else
@@ -240,11 +240,11 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     retval=$?
     case $retval in
-    0) AutoPart="ON"
+    0) AutoPart="AUTO"
       return 0
     ;;
     *) UseDisk=""
-      AutoPart="OFF"
+      AutoPart="MANUAL"
       return 2
     esac
   done

@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 20th December 2017
+# Revision date: 29th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ function install_message() # For displaying status while running on auto
   echo
 }
 
-function action_MBR() # Called by guided_MBR
+function action_MBR() # Called by feliz.sh before other partitioning actions
 { # Uses the variables set above to create partition table & all partitions
 
   # Root partition
