@@ -240,7 +240,7 @@ function action_EFI() # Called during installation phase
 
 function mount_partitions()
 {
-  install_message "Preparing and mounting partitions" ""
+  install_message "Preparing and mounting partitions"
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
   

@@ -26,21 +26,19 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           41    edit_label          386
-# build_lists          117    allocate_root       425
-# partitioning_options 163    check_filesystem    483
-# choose_device        203    allocate_swap       495   
-# partition_maker      252    no_swap_partition   554
+# check_parts           40    edit_label          386
+# build_lists          123    allocate_root       425
+# partitioning_options 169    check_filesystem    483
+# choose_device        207    allocate_swap       495   
+# partition_maker      253    no_swap_partition   554
 # autopart             294    set_swap_file       571
 # allocate_partitions  337    more_partitions     592 
 # select_filesystem    373    choose_mountpoint   628 
 # display_partitions   683 
 # ------------------------    ------------------------
 
-function check_parts()   # Called by feliz.sh
-{ # Test for existing partitions
-
-  # partitioning_options menu options="leave cfdisk guided auto"
+function check_parts()  # Called by feliz.sh
+{                       # Test for existing partitions
   translate "Choose from existing partitions"
   LongPart1="$Result"
   translate "Open cfdisk so I can partition manually"
@@ -71,19 +69,15 @@ function check_parts()   # Called by feliz.sh
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
  
-      dialog --backtitle "$Backtitle" --title " $title " \
+      dialog --backtitle "$Backtitle" --title " $title " --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
-        1 "$LongPart2" \
-        2 "$LongPart3" \
-        3   "$LongPart4" 2>output.file
-      retval=$?
-      if [ $retval -ne 0 ]; then abandon "$title"; fi
-      if [ $retval -ne 0 ]; then return 1; fi
+        2 "$LongPart2" \
+        3 "$LongPart3" \
+        4 "$LongPart4" 2>output.file
+      if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
-      Result=$((Result+1))                # Because this menu excludes option 1
-      partitioning_options                        # partitioning_options options
-      retval=$?
-      if [ $retval -ne 0 ]; then 
+      partitioning_options                # Act on user selection
+      if [ $? -ne 0 ]; then 
         dialog --backtitle "$Backtitle" --ok-label "$Ok" \
           --infobox "Exiting to allow you to partition the device" 6 30
         exit
@@ -103,19 +97,17 @@ function check_parts()   # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$Backtitle" --title " $title " \
+    dialog --backtitle "$Backtitle" --title " $title " --no-tags \
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
       4 "$LongPart4" 2>output.file
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
 
-    partitioning_options                # Action user selection
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    partitioning_options                  # Act on user selection
+    if [ $? -ne 0 ]; then return 1; fi
   fi
   return 0
 }
@@ -166,47 +158,42 @@ function build_lists() # Called by check_parts to generate details of existing p
     done
 }
 
-function partitioning_options()  # Called by check_parts after user selects an action.
-{ # Directs response to selected option
+function partitioning_options()                 # Called by check_parts after user selects an action
+{                                               # Responds to selected option
   case $Result in
-    1) echo "Manual partition allocation" >> feliz.log  # Existing Partitions option
+    1) echo "Manual partition allocation" >> feliz.log  # Use existing Partitions
+      AutoPart="MANUAL"
     ;;
-    2) cfdisk 2>> feliz.log     # Open cfdisk for manual partitioning
-      tput setf 0               # Change foreground colour to black temporarily to hide error message
-      clear
-      partprobe 2>> feliz.log   # Inform kernel of changes to partitions
-      tput sgr0                 # Reset colour
-      AutoPart=""
-      return 0                  # finish partitioning
+    2) cfdisk 2>> feliz.log                     # Open cfdisk for manual partitioning
+      tput setf 0                               # Change foreground colour to black
+      clear                                     # temporarily to hide error message
+      partprobe 2>> feliz.log                   # Inform kernel of changes to partitions
+      tput sgr0                                 # Reset colour
+      AutoPart="MANUAL"
     ;;
-    3) if [ ${UEFI} -eq 1 ]; then
-        guided_EFI              # Guided manual partitioning functions
-        retval=$?
-        if [ $retval -ne 0 ]; then return 1; fi
-        tput setf 0             # Change foreground colour to black temporarily to hide error message
-        clear
-        partprobe 2>> feliz.log #Inform kernel of changes to partitions
-        tput sgr0               # Reset colour
-        ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
+    3) if [ ${UEFI} -eq 1 ]; then               # Guided manual partitioning functions
+        guided_EFI
+        if [ $? -ne 0 ]; then return 1; fi
       else
         guided_MBR
         if [ $? -ne 0 ]; then return 1; fi
-        tput setf 0             # Change foreground colour to black temporarily to hide error message
-        clear
-        partprobe 2>> feliz.log # Inform kernel of changes to partitions
-        tput sgr0               # Reset colour
       fi
+      AutoPart="GUIDED"
     ;;
-    4) choose_device
+    4) AutoPart="NONE"
+      choose_device
       if [ $? -eq 1 ]; then return 1; fi
+      AutoPart="AUTO"
     ;;
     *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
+      return 1
   esac
+  return 0
 }
 
 function choose_device()  # Called from partitioning_options or partitioning_optionsEFI
-{ # Choose device for autopartition
-  while [ ${AutoPart} = "NONE" ]                  # 'NONE' is not a tenable option
+{                         # Choose device for autopartition
+  while [ ${AutoPart} != "AUTO" ]
   do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
@@ -241,13 +228,13 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     retval=$?
     case $retval in
     0) AutoPart="AUTO"
-      return 0
     ;;
     *) UseDisk=""
       AutoPart="MANUAL"
-      return 2
+      return 1
     esac
   done
+  return 0
 }
 
 partition_maker() { # Called from autopart() for both EFI and BIOS systems
@@ -257,16 +244,15 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
                     # $3 if passed is size of home partition
                     # $4 if passed is size of swap partition
                     # Note that an appropriate partition table has already been created in autopart()
-                    #   If EFI the /boot partition has also been created at /dev/sda1 and set as bootable
-                    #   and the startpoint has been set to follow /boot
-                    
-  local StartPoint=$1                               # Local variable 
-
-  # Set the device to be used to 'set x boot on'    # $MountDevice is numerical - eg: 1 in sda1
-  MountDevice=1                                     # Start with first partition = [sda]1
-                                                    # Make /boot at startpoint
-  parted_script "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
+                    # If EFI the /boot partition has also been created at /dev/sda1 and set as bootable
+                    # and the startpoint has been set to follow /boot
+  local StartPoint=$1 
+                                                    # Set the device to be used to 'set x boot on'    
+  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
+                                                    # Start with first partition = [sda]1
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
+                                                          # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
   if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   fi
@@ -292,15 +278,14 @@ partition_maker() { # Called from autopart() for both EFI and BIOS systems
   fi
 }
 
-function autopart() # Called by choose_device
-{ # Consolidated automatic partitioning for BIOS or EFI environment
+function autopart() # Called by feliz.sh/preparation
+{                   # Consolidated automatic partitioning for BIOS or EFI environment
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
-
-  # Create a new partition table
+                                                    # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
@@ -309,11 +294,10 @@ function autopart() # Called by choose_device
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
-    parted_script "mklabel msdos"                          # Create new filesystem
-    StartPoint="1MiB"                               # For next partition
+    parted_script "mklabel msdos"                   # Create new filesystem
+    StartPoint="1MiB"                               # Set start point for next partition
   fi
-
-  # Decide partition sizes
+                                                    # Decide partition sizes
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
     HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
     partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"

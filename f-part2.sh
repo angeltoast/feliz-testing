@@ -28,7 +28,7 @@ DualBoot="N"      # For formatting EFI partition
 
 # In this module - functions for guided creation of a GPT or EFI partition table:
 # -----------------------    ------------------------    -----------------------
-# EFI Functions      Line    EFI Functions       Line    BIOS Functions     Line
+# General Functions  Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
 # allocate_uefi       55     guided_EFI           212    guided_MBR         253
 # enter_size          76     guided_EFI_Boot      289    
@@ -37,9 +37,9 @@ DualBoot="N"      # For formatting EFI partition
 # recalculate_space  195     guided_EFI_Home      414    guided_MBR_home    567
 # -----------------------    ------------------------    -----------------------
 
-function allocate_uefi() # Called at start of allocate_root, as first step of EFI partitioning
-{ # before allocating root partition. Uses list of available partitions in
-  # PartitionList created in f-part1.sh/BuildPartitionLists
+function allocate_uefi()  # Called at start of allocate_root, as first step of EFI partitioning
+{                         # before allocating root partition. Uses list of available partitions in
+                          # PartitionList created in f-part1.sh/BuildPartitionLists
 	Remaining=""
 	local Counter=0
   Partition=""
@@ -58,15 +58,16 @@ function allocate_uefi() # Called at start of allocate_root, as first step of EF
 
 }
 
-function enter_size()  # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
+function enter_size() # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
 {                     # guided_MBR_root, guided_MBR_swap, guided_MBR_home
   message_subsequent "Please enter the desired size"
   message_subsequent "or, to allocate all the remaining space, enter"
   Message="$Message 100%"
 }
 
-function select_device() # Called by feliz.sh
-{ # User chooses device to use for auto partition from all connected devices
+function select_device()  # Called by feliz.sh
+{                         # User chooses device to use for auto partition
+                          # from all connected devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=$(echo "$DiskDetails" | wc -w)
@@ -126,19 +127,17 @@ function select_device() # Called by feliz.sh
   GrubDevice="/dev/${UseDisk}"  # Full path of selected device
 }
 
-function get_device_size() # Called by feliz.sh
-{
-  # Establish size of device in MiB and inform user
+function get_device_size()  # Called by feliz.sh
+{                           # Establish size of device in MiB and inform user
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
-  
-  # Remove last character for calculations
+                                  # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
   Available=${DiskSize:0:Chars-1} # Separate the value from the unit
   
-  # Must be integer, so remove any decimal point and any character following
-  Available=${Available%.*}
-  
+                                  # Must be integer, so remove any decimal
+  Available=${Available%.*}       # point and any character following
+
   if [ $Unit = "G" ]
   then
     FreeSpace=$((Available*1024))
@@ -150,10 +149,9 @@ function get_device_size() # Called by feliz.sh
   else
     FreeSpace=$Available
   fi
-  
-  # Warn user if space is limited
-  if [ ${FreeSpace} -lt 2048 ]
-  then      # If less than 2GiB
+
+  if [ ${FreeSpace} -lt 2048 ]    # Warn user if space is limited
+  then                            # If less than 2GiB
     message_first_line "Your device has only"
     Message="$Message ${FreeSpace}MiB:"
     message_first_line "This is not enough for an installation"
@@ -161,7 +159,7 @@ function get_device_size() # Called by feliz.sh
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
     exit
   elif [ ${FreeSpace} -lt 4096 ]
-  then    # If less than 4GiB
+  then                            # If less than 4GiB
     message_first_line "Your device has only"
     Message="$Message ${FreeSpace}MiB:"
     message_subsequent "This is just enough for a basic"
@@ -169,7 +167,7 @@ function get_device_size() # Called by feliz.sh
     message_subsequent "and you may run out of space during installation or at some later time"
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
   elif [ ${FreeSpace} -lt 8192 ]
-  then    # If less than 8GiB
+  then                            # If less than 8GiB
     message_first_line "Your device has"
     Messgae="$Message ${FreeSpace}MiB:"
     message_subsequent "This is enough for"
@@ -178,8 +176,8 @@ function get_device_size() # Called by feliz.sh
   fi
 }
 
-function recalculate_space() # Called by guided_MBR & guided_EFI
-{  # Calculate remaining disk space
+function recalculate_space()  # Called by guided_MBR & guided_EFI
+{                             # Calculate remaining disk space
   local Passed=$1
   case ${Passed: -1} in
     "%") Calculator=$FreeSpace          # Allow for 100%
@@ -189,17 +187,17 @@ function recalculate_space() # Called by guided_MBR & guided_EFI
         Calculator=$((Passed*1024))
     ;;
     *) Chars=${#Passed}                 # Count characters in variable
-        Calculator=${Passed:0:Chars-1}  # Passed variable stripped of unit
+       Calculator=${Passed:0:Chars-1}   # Passed variable stripped of unit
   esac
-  # Recalculate available space
-  FreeSpace=$((FreeSpace-Calculator))
+
+  FreeSpace=$((FreeSpace-Calculator))   # Recalculate available space
 }
 
 function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first step
-{ #  in EFI guided partitioning option - Inform user of purpose, call each step
+{                      # in EFI guided partitioning option - Inform user of purpose, call each step
 
-  select_device                # Get details of device to use
-  get_device_size                 # Get available space in MiB
+  select_device        # Get details of device to use
+  get_device_size      # Get available space in MiB
 
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
@@ -215,11 +213,13 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
 
   guided_EFI_Boot                  # Create /boot partition
   recalculate_space "$BootSize"    # Recalculate remaining space
+  
   guided_EFI_Root                  # Create /root partition
   recalculate_space "$RootSize"    # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]
   then
     guided_EFI_Swap
+    if [ $SwapSize ] && [ $SwapSize != "" ]; then recalculate_space "$SwapSize"; fi  # Recalculate space after adding /swap
   else
     message_first_line "There is no space for a /swap partition, but you can"
     message_subsequent "assign a swap-file. It is advised to allow some swap"
@@ -229,17 +229,16 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
       --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     set_swap_file           # Note: Global variable SwapFile is set by set_swap_file
-                          # (SwapFile will be created during installation by mount_partitions)
+                            # (SwapFile will be created during installation by mount_partitions)
   fi
   
-  if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
   if [ ${FreeSpace} -gt 2 ]; then guided_EFI_Home; fi
   AutoPart="GUIDED"
   return 0
 }
 
-function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first step in the 
-{ # guided BIOS partitioning option - Inform user of purpose, call each step
+function guided_MBR() # Called by f-part1.sh/partitioning_options as the first step in the 
+{                     # guided BIOS partitioning option - Inform user of purpose, call each step
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
@@ -250,15 +249,15 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi
 
-  guided_MBR_root                                    # Create /root partition
-  if [ $? -ne 0 ]; then return 1; fi
+  guided_MBR_root                                     # Create /root partition
+  if [ $? -ne 0 ]; then return 1; fi                  # User cancelled guided root
 
-  recalculate_space "$RootSize"                      # Recalculate remaining space after adding /root
-
-  if [ ${FreeSpace} -gt 0 ]
-  then
+  recalculate_space "$RootSize"                       # Recalculate remaining space after adding /root
+  if [ ${FreeSpace} -gt 0 ]; then
     guided_MBR_swap
-    if [ $SwapSize ]; then recalculate_space "$SwapSize"; fi  # Recalculate remaining space after adding /swap
+    if [ $SwapSize ] && [ $SwapSize != "" ]; then
+      recalculate_space "$SwapSize"                   # Recalculate remaining space after adding /swap
+    fi
   else
     message_first_line "There is no space for a /swap partition, but you can"
     message_subsequent "assign a swap-file. It is advised to allow some swap"
@@ -266,18 +265,18 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     message_subsequent "Do you wish to allocate a swapfile?"
     dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
     if [ $? -eq 0 ]; then
-      set_swap_file # Note: Global variable SwapFile is set by set_swap_file
-    fi              # and SwapFile is created during installation by mount_partitions
+      set_swap_file                                   # Note: Global variable SwapFile is set by set_swap_file
+    fi                                                # and SwapFile is created during installation by mount_partitions
   fi
 
-  if [ ${FreeSpace} -gt 2 ]; then guided_MBR_home; fi
+  if [ ${FreeSpace} -gt 0 ]; then guided_MBR_home; fi
   
   AutoPart="GUIDED"
   return 0
 }
 
-function guided_EFI_Boot() # Called by guided_EFI
-{ # EFI - User sets variable: BootSize
+function guided_EFI_Boot()  # Called by guided_EFI
+{                           # EFI - User sets variable: BootSize
   BootSize=""
   while [ ${BootSize} = "" ]
   do
