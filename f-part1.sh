@@ -197,8 +197,7 @@ function partitioning_options()  # Called by check_parts after user selects an a
       fi
     ;;
     4) choose_device
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
+      if [ $? -eq 2 ]; then return 2; fi
     ;;
     *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
   esac
@@ -224,10 +223,9 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
         message_subsequent "   (Remember, this is auto-partition, and any data"
         translate "on the chosen device will be destroyed)"
         Message="${Message}\n      ${Result}\n"
-        echo
         
         menu_dialog 15 60
-        if [ $retval -ne 0 ]; then return 1; fi
+        if [ $retval -ne 0 ]; then return 2; fi
         UseDisk="${Result}"
       done
     else
@@ -245,11 +243,10 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     0) AutoPart="ON"
       return 0
     ;;
-    1) UseDisk=""
-    ;;
-    *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
+    *) UseDisk=""
+      AutoPart="OFF"
+      return 2
     esac
-    return 1
   done
 }
 
@@ -578,7 +575,8 @@ function set_swap_file()
   while [ ${SwapFile} = "" ]
   do
     message_first_line "Allocate the size of your swap file"
-    dialog_inputbox "M = Megabytes, G = Gigabytes [eg: 512M or 2G]: "
+    message_subsequent "M = Megabytes, G = Gigabytes [eg: 512M or 2G]"
+    dialog_inputbox 8 40
     if [ $retval -ne 0 ]; then SwapFile=""; return 0; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'

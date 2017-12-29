@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 20th December 2017
+# Revision date: 28th December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -258,6 +258,6 @@ fi
 StartTime=$(date +%s)
 echo "${StartTime}" >> feliz.log
 
-Backtitle="Feliz"
+Backtitle=$(head -n 1 README)
 
 main

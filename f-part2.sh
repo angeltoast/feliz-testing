@@ -265,11 +265,13 @@ function guided_MBR()  # Called by f-part1.sh/partitioning_options as the first 
     Message="${Message}\n"
     message_subsequent "Do you wish to allocate a swapfile?"
     dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
-    if [ $? -ne 0 ]; then return 0; fi
-    set_swap_file # Note: Global variable SwapFile is set by set_swap_file
-  fi              # and SwapFile is created during installation by mount_partitions
-  if [ $? -ne 0 ]; then return 1; fi
+    if [ $? -eq 0 ]; then
+      set_swap_file # Note: Global variable SwapFile is set by set_swap_file
+    fi              # and SwapFile is created during installation by mount_partitions
+  fi
+
   if [ ${FreeSpace} -gt 2 ]; then guided_MBR_home; fi
+  
   AutoPart="GUIDED"
   return 0
 }
@@ -455,7 +457,8 @@ function guided_MBR_root() # Called by guided_MBR
     # Clear display, show /boot and available space
     title="/root"
     message_first_line "We begin with the"
-    Message="$Message ${TRootPartition}\n"
+    translate "partition"
+    Message="$Message /root $Result \n"
     message_subsequent "You have"
     Message="$Message ${FreeGigs}G"
     translate "available on the chosen device"
@@ -535,12 +538,11 @@ function guided_MBR_swap() # Called by guided_MBR
     RESPONSE="${Result^^}"
 
     case ${RESPONSE} in
-    '') message_first_line "Do you wish to allocate a swapfile?"
+    ''|0) message_first_line "Do you wish to allocate a swapfile?"
       dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 10 50
       if [ $retval -eq 0 ]; then
-        print_heading
         set_swap_file
-        if [ $? -ne 0 ]; then SwapSize=""; return 0; fi
+        if [ $? -ne 0 ]; then SwapSize=""; fi
       fi
       return 0
     ;;

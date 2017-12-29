@@ -1,0 +1,33 @@
+Feliz Testing
+
+Feliz is an independent set of install scripts for Arch Linux
+
+-------------------------------------------------------------
+  This is the unstable repo for the Feliz scripts, located at:
+    https://github.com/angeltoast/feliz-testing
+
+  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  *  Do not use this set of scripts for anything other than   *
+  *   testing new code, it is guaranteed to be full of bugs   *
+  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+  
+  The 'testing' iso, which loads these scripts, is located at:
+    https://github.com/angeltoast/feliz-testing/releases
+      ... and ...
+    https://sourceforge.net/projects/feliz-testing/files/
+-------------------------------------------------------------
+
+-------------------------------------------------------------
+  The 'stable' (ie: general release) Feliz scripts are located at:
+    https://github.com/angeltoast/feliz2
+
+  The 'stable' iso, which loads the general release scripts is located at:
+    https://github.com/angeltoast/feliz2/releases
+      ... and ...
+    https://sourceforge.net/projects/feliz/files/
+-------------------------------------------------------------
+
+-------------------------------------------------------------
+  Both sets of scripts use the language files located at:
+    https://github.com/angeltoast/feliz-language-files
+-------------------------------------------------------------
