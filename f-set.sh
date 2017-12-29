@@ -977,9 +977,10 @@ function final_check()
   do
     clear
     echo
-    message_first_line "These are the settings you have entered."
-    message_subsequent "Please check them before Feliz begins the installation"
-    print_first_line "$Message"
+    translate "These are the settings you have entered."
+    print_first_line "$Result"
+    translate "Please check them before Feliz begins the installation"
+    print_first_line "$Result"
     echo
     translate "Zone/subZone will be"
     print_subsequent "1) $Result" "$ZONE/$SUBZONE"
@@ -1037,22 +1038,28 @@ function final_check()
     # 10) Partitions 
     translate "The following partitions have been selected"
     print_subsequent "10) $Result" "..."
-    translate="N"
-    print_first_line "${RootPartition} /root ${RootType}"
-    print_subsequent "${SwapPartition} /swap"
-    if [ -n "${AddPartList}" ]; then
-      local Counter=0
-      for Part in ${AddPartList}                    # Iterate through the list of extra partitions
-      do                                            # Display each partition, mountpoint & format type
-        if [ $Counter -ge 1 ]; then                 # Only display the first one
-          translate "Too many to display all"
-          print_subsequent "$Result"
-          break
-        fi
-        print_subsequent "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
-        Counter=$((Counter+1))
-      done
-    fi
+    case "$AutoPart" in
+    "AUTO") message_first_line "Feliz will"
+      translate "partition"
+      print_first_line "${Message} $Result $GrubDevice"
+    ;;
+    *) translate="N"
+      print_first_line "${RootPartition} /root ${RootType}"
+      print_subsequent "${SwapPartition} /swap"
+      if [ -n "${AddPartList}" ]; then
+        local Counter=0
+        for Part in ${AddPartList}                    # Iterate through the list of extra partitions
+        do                                            # Display each partition, mountpoint & format type
+          if [ $Counter -ge 1 ]; then                 # Only display the first one
+            translate "Too many to display all"
+            print_subsequent "$Result"
+            break
+          fi
+          print_subsequent "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
+          Counter=$((Counter+1))
+        done
+      fi
+    esac
     translate="Y"
     Response=20
     translate "Press Enter to install with these settings, or"
