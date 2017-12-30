@@ -323,7 +323,9 @@ function guided_EFI_Root() # Celled by guided_EFI
     message_subsequent "and perhaps also a /home partition"
     message_subsequent "The /root partition should not be less than 8GiB"
     message_subsequent "ideally more, up to 20GiB"
-    enter_size       # Adds extra lines to $Message about 100%
+    
+    enter_size               # Adds advice about 100%
+    
     dialog_inputbox 30 70
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
@@ -376,7 +378,8 @@ function guided_EFI_Swap() # Called by guided_EFI
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
     fi
-    enter_size
+    
+    enter_size        # Adds advice about 100%
 
     dialog_inputbox 30 70
     RESPONSE="${Result^^}"
@@ -423,11 +426,11 @@ function guided_EFI_Home() # Called by guided_EFI
     message_subsequent "There is space for a"
     Message="$Message /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
-    enter_size
+    
+    enter_size        # Adds advice about 100%
 
     dialog_inputbox 30 75
     RESPONSE="${Result^^}"
-    echo
     case ${RESPONSE} in
       "" | 0) HomeSize=""
       ;;
@@ -468,11 +471,12 @@ function guided_MBR_root() # Called by guided_MBR
     message_subsequent "The /root partition should not be less than 8G"
     message_subsequent "ideally more, up to 20G"
     
-    enter_size
+    enter_size        # Adds advice about 100%
     
     dialog_inputbox 30 75
-    if [ $? -ne 0 ]; then return 1; fi
-    
+
+read -p "$LINENO"
+  
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput1=${RESPONSE: -1}
@@ -492,9 +496,6 @@ function guided_MBR_root() # Called by guided_MBR
       RootType=${PartitionType}
     fi
   done
-
-read -p "$LINENO"
-  
   return 0
 }
 
@@ -535,7 +536,8 @@ function guided_MBR_swap() # Called by guided_MBR
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You can use all the remaining space on the device, if you wish"
     fi
-    enter_size
+    enter_size        # Adds advice about 100%
+    
     dialog_inputbox 30 75
     RESPONSE="${Result^^}"
 
@@ -581,12 +583,12 @@ function guided_MBR_home() # Called by guided_MBR
     message_subsequent "There is space for a"
     Message="${Message} /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
-    enter_size
+    
+    enter_size        # Adds advice about 100%
 
     dialog_inputbox 16 70
 
     RESPONSE="${Result^^}"
-    echo
     case ${RESPONSE} in
     "") return 0
     ;;
