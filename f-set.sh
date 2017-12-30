@@ -755,8 +755,7 @@ function choose_display_manager()
     "sddm" "SDDM" \
     "slim" "SLIM" \
     "xdm" "XDM" 2> output.file
-  retval=$?
-  if [ $retval -ne 0 ]; then return; fi
+  if [ $? -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
 }
 

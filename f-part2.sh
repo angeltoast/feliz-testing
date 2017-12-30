@@ -30,11 +30,11 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # General Functions  Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
-# allocate_uefi       55     guided_EFI           212    guided_MBR         253
-# enter_size          76     guided_EFI_Boot      289    
-# select_device       83     guided_EFI_Root      317    guided_MBR_root    460
-# get_device_size    143     guided_EFI_Swap      354    guided_MBR_swap    503
-# recalculate_space  195     guided_EFI_Home      414    guided_MBR_home    567
+# allocate_uefi       40     guided_EFI           196    guided_MBR         240
+# enter_size          61     guided_EFI_Boot      278    
+# select_device       68     guided_EFI_Root      306    guided_MBR_root    450
+# get_device_size    130     guided_EFI_Swap      344    guided_MBR_swap    498
+# recalculate_space  179     guided_EFI_Home      404    guided_MBR_home    562
 # -----------------------    ------------------------    -----------------------
 
 function allocate_uefi()  # Called at start of allocate_root, as first step of EFI partitioning
@@ -246,11 +246,17 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
 
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi
 
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
   guided_MBR_root                                     # Create /root partition
   if [ $? -ne 0 ]; then return 1; fi                  # User cancelled guided root
+
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
 
   recalculate_space "$RootSize"                       # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]; then
@@ -269,7 +275,11 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
     fi                                                # and SwapFile is created during installation by mount_partitions
   fi
 
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
   if [ ${FreeSpace} -gt 0 ]; then guided_MBR_home; fi
+
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
   
   AutoPart="GUIDED"
   return 0
@@ -539,9 +549,8 @@ function guided_MBR_swap() # Called by guided_MBR
     case ${RESPONSE} in
     ''|0) message_first_line "Do you wish to allocate a swapfile?"
       dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 10 50
-      if [ $retval -eq 0 ]; then
+      if [ $? -eq 0 ]; then
         set_swap_file
-        if [ $? -ne 0 ]; then SwapSize=""; fi
       fi
       return 0
     ;;
@@ -556,7 +565,10 @@ function guided_MBR_swap() # Called by guided_MBR
       fi
     esac
   done
-  # If no space remains, offer swapfile, else create swap partition
+
+read -p "Line $LINENO SwapSize is $SwapSize"
+
+  return 0
 }
 
 function guided_MBR_home() # Called by guided_MBR

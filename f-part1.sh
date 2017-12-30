@@ -441,11 +441,10 @@ function allocate_root() # Called by allocate_partitions
     message_subsequent "partition can have unexpected consequences"
   fi
   
-  # Now select a filesystem
-  select_filesystem  18 75      # This sets variable PartitionType
+  select_filesystem  18 75                                      # This sets variable PartitionType
   retval=$?
-  if [ $retval -ne 0 ]; then    # User has cancelled the operation
-    PartitionType=""            # PartitionType can be empty (will not be formatted)
+  if [ $retval -ne 0 ]; then                                    # User has cancelled the operation
+    PartitionType=""                                            # PartitionType can be empty (will not be formatted)
   else
     PartitionType="$Result"
   fi
@@ -456,11 +455,11 @@ function allocate_root() # Called by allocate_partitions
     edit_label $PassPart
   fi
 
-  if [ ${UEFI} -eq 0 ]; then                    # Installing in BIOS environment
-    parted_script "set ${MountDevice} boot on"         # Make /root bootable
+  if [ ${UEFI} -eq 0 ]; then                                    # Installing in BIOS environment
+    parted_script "set ${MountDevice} boot on"                  # Make /root bootable
   fi
 
-  PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
+  PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
 
 }
 
@@ -526,9 +525,9 @@ function allocate_swap()
     
     if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
       translate "No provision has been made for swap"
-      dailog --ok-label "$Ok" --msgbox "$Result" 6 30
+      dialog --ok-label "$Ok" --msgbox "$Result" 6 30
     elif [ $SwapFile ]; then
-      dailog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
+      dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
     elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
       PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
