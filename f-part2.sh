@@ -559,9 +559,6 @@ function guided_MBR_swap() # Called by guided_MBR
       fi
     esac
   done
-
-read -p "Line $LINENO SwapSize is $SwapSize"
-
   return 0
 }
 
@@ -570,7 +567,7 @@ function guided_MBR_home() # Called by guided_MBR
   FreeGigs=$((FreeSpace/1024))
   HomeSize=""
   translate "partition"
-  while [ $HomeSize = "" ]
+  while [ -z "$HomeSize" ]
   do
     # Clear display, show /root, /swap and available space
     title="/home"
@@ -587,16 +584,12 @@ function guided_MBR_home() # Called by guided_MBR
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size
 
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-
-    dialog_inputbox 12 70
-
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+    dialog_inputbox 16 70
 
     RESPONSE="${Result^^}"
     echo
     case ${RESPONSE} in
-    "") return
+    "") return 0
     ;;
     *) # Check that entry includes 'G or %'
         CheckInput=${RESPONSE: -1}
@@ -616,7 +609,5 @@ read -p "Line $LINENO FreeSpace is ${FreeSpace}"
       fi
     esac
   done
-
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-
+  return 0
 }
