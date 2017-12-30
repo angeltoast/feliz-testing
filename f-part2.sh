@@ -246,17 +246,11 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
 
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
   if [ $? -ne 0 ]; then return 1; fi
 
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-
   guided_MBR_root                                     # Create /root partition
   if [ $? -ne 0 ]; then return 1; fi                  # User cancelled guided root
-
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
 
   recalculate_space "$RootSize"                       # Recalculate remaining space after adding /root
   if [ ${FreeSpace} -gt 0 ]; then
@@ -576,7 +570,7 @@ function guided_MBR_home() # Called by guided_MBR
   FreeGigs=$((FreeSpace/1024))
   HomeSize=""
   translate "partition"
-  while [ HomeSize = "" ]
+  while [ $HomeSize = "" ]
   do
     # Clear display, show /root, /swap and available space
     title="/home"
@@ -593,7 +587,12 @@ function guided_MBR_home() # Called by guided_MBR
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size
 
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
     dialog_inputbox 12 70
+
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
     RESPONSE="${Result^^}"
     echo
     case ${RESPONSE} in
@@ -617,4 +616,7 @@ function guided_MBR_home() # Called by guided_MBR
       fi
     esac
   done
+
+read -p "Line $LINENO FreeSpace is ${FreeSpace}"
+
 }
