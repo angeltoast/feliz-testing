@@ -269,12 +269,8 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
     fi                                                # and SwapFile is created during installation by mount_partitions
   fi
 
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-
   if [ ${FreeSpace} -gt 0 ]; then guided_MBR_home; fi
 
-read -p "Line $LINENO FreeSpace is ${FreeSpace}"
-  
   AutoPart="GUIDED"
   return 0
 }
@@ -496,6 +492,9 @@ function guided_MBR_root() # Called by guided_MBR
       RootType=${PartitionType}
     fi
   done
+
+read -p "$LINENO"
+  
   return 0
 }
 
@@ -601,7 +600,7 @@ function guided_MBR_home() # Called by guided_MBR
         HomeSize=$RESPONSE
         Partition="/home"
         translate "of remaining space allocated to"
-        Message="${HomeSize}" "$Result"
+        Message="${HomeSize} $Result"
         translate "partition"
         Message="${Message} /home $Result"
         select_filesystem
