@@ -1055,7 +1055,7 @@ function final_check()
         elif [ -n ${SwapFile} ]; then
           print_subsequent "swapfile : ${SwapFile}"
         fi
-        if [ ${HomeSize} ] && [ ${HomeSize} -gt 0 ]; then
+        if [ -n ${HomeSize} ]; then
           print_subsequent "/home ${Result}: ${HomeSize}"
         fi
     ;;
