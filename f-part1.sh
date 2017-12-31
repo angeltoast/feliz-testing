@@ -222,7 +222,6 @@ function choose_device()  # Called from partitioning_options or partitioning_opt
     translate "This will erase any data on"
     Message="${Result} /dev/${UseDisk}"
     message_subsequent "Are you sure you wish to continue?"
-    Message="${Message}\n${Result}"
     dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     retval=$?

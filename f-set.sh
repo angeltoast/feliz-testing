@@ -995,7 +995,7 @@ function final_check()
       print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
     if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
-      print_first_line "5) FelizOB"
+      print_subsequent "5) FelizOB"
     elif [ -z "$DisplayManager" ]; then
       translate "No Display Manager selected"
       print_subsequent "5) $Result"
@@ -1045,12 +1045,15 @@ function final_check()
     translate "partition"
     case "$AutoPart" in
     "AUTO") message_first_line "Feliz will"
-      print_first_line "${Message} $Result $GrubDevice"
+      translate "partition"
+      print_subsequent "${Message} $Result $GrubDevice"
     ;;
-    "GUIDED") print_first_line "Feliz will $Result"
-              if [ ${UEFI} -eq 1 ]; then
-                print_subsequent "/boot : fat32 : ${BootSize}"
-              fi
+    "GUIDED") message_first_line "Feliz will"
+        translate "partition"
+        print_subsequent "Feliz will $Result ..."
+        if [ ${UEFI} -eq 1 ]; then
+          print_subsequent "/boot : fat32 : ${BootSize}"
+        fi
         print_subsequent "/root : ${RootType}: ${RootSize}"
         if [ ${SwapSize} ] && [ ${SwapSize} != "" ]; then
           print_subsequent "/swap : ${SwapSize}"
