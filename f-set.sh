@@ -995,8 +995,8 @@ function final_check()
       print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
     if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
-      print_first_line "FelizOB"
-    if [ -z "$DisplayManager" ]; then
+      print_first_line "5) FelizOB"
+    elif [ -z "$DisplayManager" ]; then
       translate "No Display Manager selected"
       print_subsequent "5) $Result"
     else
