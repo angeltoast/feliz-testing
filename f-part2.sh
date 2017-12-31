@@ -70,11 +70,9 @@ function select_device()  # Called by feliz.sh
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=$(echo "$DiskDetails" | wc -w)
-  if [ $Counter -gt 1 ]   # If there are multiple devices
-  then                    # ask user which to use
+  if [ $Counter -gt 1 ]; then   # If there are multiple devices ask user which to use
     UseDisk=""            # Reset for user choice
-    while [ "$UseDisk" = "" ]
-    do
+    while [ "$UseDisk" = "" ]; do
       message_first_line "There are"
       Message="$Message $Counter"
       translate "devices available"
@@ -82,8 +80,7 @@ function select_device()  # Called by feliz.sh
       message_subsequent "Which do you wish to use for this installation?"
 
       Counter=0
-      for i in $DiskDetails
-      do
+      for i in $DiskDetails; do
         Counter=$((Counter+1))
         message_first_line "" "$Counter) $i"
       done
@@ -95,11 +92,10 @@ function select_device()  # Called by feliz.sh
       local -a ItemList=()                                # Array will hold entire checklist
       local Items=0
       local Counter=0
-      while read -r Item                                  # Read items from the file
-      do                                                  # and copy each one to the variable
+      while read -r Item; do                              # Read items from the file
         Counter=$((Counter+1)) 
         Items=$((Items+1))
-        ItemList[${Items}]="${Item}"
+        ItemList[${Items}]="${Item}"                      # and copy each one to the variable
         Items=$((Items+1))
         ItemList[${Items}]="${Item}" 
         Items=$((Items+1))
@@ -114,8 +110,7 @@ function select_device()  # Called by feliz.sh
       Result=$(cat output.file)                           # Return values to calling function
       rm list.file
       
-      if [ $retval -ne 0 ]
-      then
+      if [ $retval -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
         if [ $retval -eq 0 ]; then return 1; fi
@@ -135,36 +130,31 @@ function get_device_size()  # Called by feliz.sh
   Available=${DiskSize:0:Chars-1} # Separate the value from the unit
                                   # Must be integer, so remove any decimal
   Available=${Available%.*}       # point and any character following
-  if [ $Unit = "G" ]
-  then
+  if [ $Unit = "G" ]; then
     FreeSpace=$((Available*1024))
     Unit="M"
-  elif [ $Unit = "T" ]
-  then
+  elif [ $Unit = "T" ]; then
     FreeSpace=$((Available*1024*1024))
     Unit="M"
   else
     FreeSpace=$Available
   fi
 
-  if [ ${FreeSpace} -lt 2048 ]    # Warn user if space is limited
-  then                            # If less than 2GiB
+  if [ ${FreeSpace} -lt 2048 ]; then    # Warn user if space is less than 2GiB
     message_first_line "Your device has only"
     Message="$Message ${FreeSpace}MiB:"
     message_first_line "This is not enough for an installation"
     translate "Exit"
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
-    exit
-  elif [ ${FreeSpace} -lt 4096 ]
-  then                            # If less than 4GiB
+    return 1
+  elif [ ${FreeSpace} -lt 4096 ]; then                            # If less than 4GiB
     message_first_line "Your device has only"
     Message="$Message ${FreeSpace}MiB:"
     message_subsequent "This is just enough for a basic"
     message_subsequent "installation, but you should choose light applications only"
     message_subsequent "and you may run out of space during installation or at some later time"
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
-  elif [ ${FreeSpace} -lt 8192 ]
-  then                            # If less than 8GiB
+  elif [ ${FreeSpace} -lt 8192 ]; then                            # If less than 8GiB
     message_first_line "Your device has"
     Messgae="$Message ${FreeSpace}MiB:"
     message_subsequent "This is enough for"
@@ -211,8 +201,7 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   
   guided_EFI_Root                  # Create /root partition
   recalculate_space "$RootSize"    # Recalculate remaining space
-  if [ ${FreeSpace} -gt 0 ]
-  then
+  if [ ${FreeSpace} -gt 0 ]; then
     guided_EFI_Swap
     if [ $SwapSize ] && [ $SwapSize != "" ]; then recalculate_space "$SwapSize"; fi  # Recalculate available space
   else
@@ -224,9 +213,8 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
       --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     set_swap_file           # Note: Global variable SwapFile is set by set_swap_file
-                            # (SwapFile will be created during installation by mount_partitions)
-  fi
-  
+  fi                     # (SwapFile will be created during installation by mount_partitions)
+
   if [ ${FreeSpace} -gt 2 ]; then guided_EFI_Home; fi
   AutoPart="GUIDED"
   return 0
@@ -273,8 +261,8 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
 function guided_EFI_Boot()  # Called by guided_EFI
 {                           # EFI - User sets variable: BootSize
   BootSize=""
-  while [ ${BootSize} = "" ]
-  do
+  while [ ${BootSize} = "" ]; do
+    title="/boot"
     FreeGigs=$((FreeSpace/1024))
     message_first_line "You have"
     Message="$Message ${FreeGigs}GiB"
@@ -302,16 +290,15 @@ function guided_EFI_Root() # Celled by guided_EFI
 { # EFI - User sets variables: RootSize, RootType
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
-  while [ ${RootSize} = "" ]
-  do
-    # Clear display, show /boot and available space
+  while [ ${RootSize} = "" ]; do
+    title="/root"
+    # Show /boot and available space
     translate "partition"
     Message="/boot $Result: ${BootSize}\n"
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
-    title="/root"
     message_subsequent "A partition is needed for /root"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     message_subsequent "although you may want to leave room for a /swap partition"
@@ -342,9 +329,8 @@ function guided_MBR_root() # Called by guided_MBR
 { # BIOS - Set variables: RootSize, RootType
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
-  while [ "$RootSize" = "" ]
-  do
-    # Clear display, show /boot and available space
+  while [ "$RootSize" = "" ]; do
+    # Show /boot and available space
     title="/root"
     message_first_line "We begin with the"
     translate "partition"
@@ -386,11 +372,10 @@ function guided_MBR_root() # Called by guided_MBR
 
 function guided_EFI_Swap() # Called by guided_EFI
 { # EFI - User sets variable: SwapSize
-  # Clear display, show /boot and /root
+  # Show /boot and /root
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
-  while [ ${RootSize} = "" ]
-  do
+  while [ ${RootSize} = "" ]; do
     title="/swap"
     # Clear display, show /boot and available space
     translate "partition"
@@ -400,26 +385,27 @@ function guided_EFI_Swap() # Called by guided_EFI
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
-    translate "partition"
     if [ ${FreeSpace} -gt 10 ]; then
       message_first_line "There is space for a"
+      translate "partition"
       Message="$Message /swap $Result"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ ${FreeSpace} -gt 5 ]; then
       message_first_line "There is space for a"
+      translate "partition"
       Message="$Message /swap $Result"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_first_line "There is just space for a"
+      translate "partition"
       Message="$Message /swap $Result"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
     fi
-    
     enter_size        # Adds advice about 100%
 
     dialog_inputbox 30 70
@@ -451,25 +437,24 @@ function guided_MBR_swap() # Called by guided_MBR
   FreeGigs=$((FreeSpace/1024))
   SwapSize=""
   translate "partition"
-  while [ "$SwapSize" = "" ]
-  do
+  while [ "$SwapSize" = "" ]; do
     # Clear display, show /root and available space
     title="/swap"
     Message="/root $Result: ${RootType} : ${RootSize}\n"
-
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
-    translate "partition"
     if [ ${FreeSpace} -gt 10 ]; then
       message_subsequent "There is space for a"
+      translate "partition"
       Message="$Message /swap ${Result}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ ${FreeSpace} -gt 5 ]; then
       message_subsequent "There is space for a"
+      translate "partition"
       Message="$Message /swap ${Result}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
@@ -477,6 +462,7 @@ function guided_MBR_swap() # Called by guided_MBR
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_subsequent "There is just space for a"
+      translate "partition"
       Message="$Message /swap ${Result}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
@@ -513,25 +499,20 @@ function guided_EFI_Home() # Called by guided_EFI
 { # EFI - Set variables: HomeSize, HomeType
   HomeSize=""
   FreeGigs=$((FreeSpace/1024))
-  translate "partition"
-  while [ ${HomeSize} = "" ]
-  do
-    # Clear display, show /boot and available space
+  while [ ${HomeSize} = "" ]; do
+    title="/home"
+    # Show /boot and available space
     Message="/boot $Result: ${BootSize}"
     Message="${Message}\n/root $Result: ${RootType} : ${RootSize}"
     Message="${Message}\n/swap $Result: ${SwapSize}\n"
-
-    title="/home"
-
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
-    Message="$Message $Result"
-
+    Message="$Message ${Result}\n"
     message_subsequent "There is space for a"
+    translate "partition"
     Message="$Message /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
-    
     enter_size        # Adds advice about 100%
 
     dialog_inputbox 30 75
@@ -559,23 +540,19 @@ function guided_MBR_home() # Called by guided_MBR
 { # BIOS - Set variables: HomeSize, HomeType
   FreeGigs=$((FreeSpace/1024))
   HomeSize=""
-  translate "partition"
-  while [ -z "$HomeSize" ]
-  do
-    # Clear display, show /root, /swap and available space
+  while [ -z "$HomeSize" ]; do
+    # Show /root, /swap and available space
     title="/home"
     Message="/root $Result: ${RootType}: ${RootSize}"
     message_subsequent "/swap ${Result}: ${SwapSize}\n"
-
     translate "You now have"
     Message="${Message} ${FreeGigs}GiB"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
-    translate "partition"
     message_subsequent "There is space for a"
+    translate "partition"
     Message="${Message} /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
-    
     enter_size        # Adds advice about 100%
 
     dialog_inputbox 16 70

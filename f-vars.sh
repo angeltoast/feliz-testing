@@ -182,11 +182,10 @@ function translate()  # Called by message_first_line & message_subsequent and by
   # Get line number of "$text" in English.lan
   #                      exact match only | restrict to first find | display only number
   RecordNumber=$(grep -n "^${text}$" English.lan | head -n 1 | cut -d':' -f1)
-  case $RecordNumber in
+  case ${RecordNumber} in
   "" | 0) # No match found in English.lan, so use Google translate
      ./trans -b en:${InstalLanguage} "$text" > output.file 2>/dev/null
      Result=$(cat output.file)
-read -p "Translated by Google: $text"
   ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac
