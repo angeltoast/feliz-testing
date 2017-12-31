@@ -358,13 +358,10 @@ function guided_MBR_root() # Called by guided_MBR
     message_subsequent "and perhaps also a /home partition"
     message_subsequent "The /root partition should not be less than 8G"
     message_subsequent "ideally more, up to 20G"
-    
     enter_size        # Adds advice about 100%
     
     dialog_inputbox 30 75
 
-read -p "$LINENO"
-  
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput1=${RESPONSE: -1}

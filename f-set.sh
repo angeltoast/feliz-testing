@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 29th December 2017
+# Revision date: 31st December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1034,13 +1034,30 @@ function final_check()
     # 9) Grub
     translate "Grub will be installed on"
     print_subsequent "9) $Result" "= '$GrubDevice'"
-    # 10) Partitions 
+    # 10) Cancel
+    translate "Cancel installation"
+    print_subsequent "10) $Result"
+    # 11) Partitions
     translate "The following partitions have been selected"
-    print_subsequent "10) $Result" "..."
+    print_subsequent "11) $Result" "..."
+    translate "partition"
     case "$AutoPart" in
     "AUTO") message_first_line "Feliz will"
-      translate "partition"
       print_first_line "${Message} $Result $GrubDevice"
+    ;;
+    "GUIDED") print_first_line "Feliz will $Result"
+              if [ ${UEFI} -eq 1 ]; then
+                print_subsequent "/boot : fat32 : ${BootSize}"
+              fi
+        print_subsequent "/root : ${RootType}: ${RootSize}"
+        if [ -n ${SwapSize} ]; then
+          print_subsequent "/swap : ${SwapSize}"
+        elif [ -n ${SwapFile} ]; then
+          print_subsequent "swapfile : ${SwapFile}"
+        fi
+        if [ ${HomeSize} ] && [ ${HomeSize} -gt 0 ]; then
+          print_subsequent "/home ${Result}: ${HomeSize}"
+        fi
     ;;
     *) translate="N"
       print_first_line "${RootPartition} /root ${RootType}"
@@ -1101,7 +1118,9 @@ function final_check()
           select_grub_device
         fi
       ;;
-      10) AddPartList=""   # Empty the lists of extra partitions
+      10) return 1
+      ;;
+      11) AddPartList=""   # Empty the lists of extra partitions
         AddPartMount=""
         AddPartType=""
         check_parts         # finish partitioning
@@ -1110,6 +1129,7 @@ function final_check()
       *) break
     esac
   done
+  return 0
 }
 
 function manual_settings()

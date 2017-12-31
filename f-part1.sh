@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 29th December 2017
+# Revision date: 31st December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -353,10 +353,9 @@ function allocate_partitions()  # Called by feliz.sh after check_parts
   fi
 }
 
-function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint) & guided_
-{ # and guided_MBR and guided_EFI 
-  # Receives two arguments: $1 $2 are window size
-  # User chooses filesystem from menu
+function select_filesystem()  # Called by allocate_root and more_partitions (via choose_mountpoint)
+{                             # and guided_MBR and guided_EFI 
+                              # Receives two arguments: $1 $2 are window size
   translate "Please select the file system for"
   title="$Result ${Partition}"
   message_first_line "It is not recommended to mix the btrfs file-system with others"

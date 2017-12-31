@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 29th December 2017
+# Revision date: 31st December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ function action_MBR() # Called by feliz.sh before other partitioning actions
     elif [ ${Unit} = "%" ]; then
       EndPoint="${Var}%"
     fi
-    parted_script "mkpart primary ext4 1MiB ${EndPoint}"
+    parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}"
     parted_script "set 1 boot on"
     RootPartition="${GrubDevice}1"      # "/dev/sda1"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)

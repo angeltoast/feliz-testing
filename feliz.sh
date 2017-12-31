@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 29th December 2017
+# Revision date: 31st December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -144,11 +144,9 @@ function the_start() # All user interraction takes place in this function
       if [ $retval -ne 0 ]; then continue; fi
   
       final_check                                 # Allow user to change any variables
-      retval=$?
-      return $retval
+      return $?
     done
-    retval=$?
-    return $retval
+    return $?
   done
 
 }
