@@ -1076,6 +1076,7 @@ function final_check()
         done
       fi
     esac
+    echo
     translate="Y"
     Response=20
     translate "Press Enter to install with these settings, or"
