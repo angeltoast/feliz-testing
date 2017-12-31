@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 29th December 2017
+# Revision date: 31st December 2017
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,11 +30,11 @@ DualBoot="N"      # For formatting EFI partition
 # -----------------------    ------------------------    -----------------------
 # General Functions  Line    EFI Functions       Line    BIOS Functions     Line
 # -----------------------    ------------------------    -----------------------
-# allocate_uefi       40     guided_EFI           196    guided_MBR         240
-# enter_size          61     guided_EFI_Boot      278    
-# select_device       68     guided_EFI_Root      306    guided_MBR_root    450
-# get_device_size    130     guided_EFI_Swap      344    guided_MBR_swap    498
-# recalculate_space  179     guided_EFI_Home      404    guided_MBR_home    562
+# allocate_uefi       40     guided_EFI           192    guided_MBR         235
+# enter_size          61     guided_EFI_Boot      273    
+# select_device       68     guided_EFI_Root      301    guided_MBR_root    341
+# get_device_size    130     guided_EFI_Swap      390    guided_MBR_swap    451
+# recalculate_space  176     guided_EFI_Home      515    guided_MBR_home    561
 # -----------------------    ------------------------    -----------------------
 
 function allocate_uefi()  # Called at start of allocate_root, as first step of EFI partitioning
@@ -55,7 +55,6 @@ function allocate_uefi()  # Called at start of allocate_root, as first step of E
   SetLabel "/dev/${Result}"
 	EFIPartition="/dev/${Result}"
   PartitionList=$(echo "$PartitionList" | sed "s/$Result //")  # Remove selected item
-
 }
 
 function enter_size() # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
@@ -134,10 +133,8 @@ function get_device_size()  # Called by feliz.sh
                                   # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
   Available=${DiskSize:0:Chars-1} # Separate the value from the unit
-  
                                   # Must be integer, so remove any decimal
   Available=${Available%.*}       # point and any character following
-
   if [ $Unit = "G" ]
   then
     FreeSpace=$((Available*1024))
@@ -189,15 +186,13 @@ function recalculate_space()  # Called by guided_MBR & guided_EFI
     *) Chars=${#Passed}                 # Count characters in variable
        Calculator=${Passed:0:Chars-1}   # Passed variable stripped of unit
   esac
-
   FreeSpace=$((FreeSpace-Calculator))   # Recalculate available space
 }
 
 function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first step
 {                      # in EFI guided partitioning option - Inform user of purpose, call each step
-
-  select_device        # Get details of device to use
-  get_device_size      # Get available space in MiB
+  select_device                   # Get details of device to use
+  get_device_size                 # Get available space in MiB
 
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
@@ -205,7 +200,7 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
-  if [ $? -ne 0 ]; then return 1; fi   # Go right back to start
+  if [ $? -ne 0 ]; then return 1; fi   # Inform calling function
   
   message_first_line "We begin with the"
   translate "partition"
@@ -215,11 +210,11 @@ function guided_EFI()  # Called by f-part1.sh/partitioning_options as the first 
   recalculate_space "$BootSize"    # Recalculate remaining space
   
   guided_EFI_Root                  # Create /root partition
-  recalculate_space "$RootSize"    # Recalculate remaining space after adding /root
+  recalculate_space "$RootSize"    # Recalculate remaining space
   if [ ${FreeSpace} -gt 0 ]
   then
     guided_EFI_Swap
-    if [ $SwapSize ] && [ $SwapSize != "" ]; then recalculate_space "$SwapSize"; fi  # Recalculate space after adding /swap
+    if [ $SwapSize ] && [ $SwapSize != "" ]; then recalculate_space "$SwapSize"; fi  # Recalculate available space
   else
     message_first_line "There is no space for a /swap partition, but you can"
     message_subsequent "assign a swap-file. It is advised to allow some swap"
@@ -247,16 +242,16 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
   message_subsequent "Are you sure you wish to continue?"
 
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
-  if [ $? -ne 0 ]; then return 1; fi
+  if [ $? -ne 0 ]; then return 1; fi                  # User cancelled guided partitioning
 
   guided_MBR_root                                     # Create /root partition
   if [ $? -ne 0 ]; then return 1; fi                  # User cancelled guided root
 
-  recalculate_space "$RootSize"                       # Recalculate remaining space after adding /root
+  recalculate_space "$RootSize"                       # Recalculate remaining space
   if [ ${FreeSpace} -gt 0 ]; then
     guided_MBR_swap
     if [ $SwapSize ] && [ $SwapSize != "" ]; then
-      recalculate_space "$SwapSize"                   # Recalculate remaining space after adding /swap
+      recalculate_space "$SwapSize"                   # Recalculate remaining space
     fi
   else
     message_first_line "There is no space for a /swap partition, but you can"
@@ -343,6 +338,55 @@ function guided_EFI_Root() # Celled by guided_EFI
   done
 }
 
+function guided_MBR_root() # Called by guided_MBR
+{ # BIOS - Set variables: RootSize, RootType
+  RootSize=""
+  FreeGigs=$((FreeSpace/1024))
+  while [ "$RootSize" = "" ]
+  do
+    # Clear display, show /boot and available space
+    title="/root"
+    message_first_line "We begin with the"
+    translate "partition"
+    Message="$Message /root $Result \n"
+    message_subsequent "You have"
+    Message="$Message ${FreeGigs}G"
+    translate "available on the chosen device"
+    Message="$Message ${Result}\n"
+    message_subsequent "You can use all the remaining space on the device, if you wish"
+    message_subsequent "although you may want to leave room for a /swap partition"
+    message_subsequent "and perhaps also a /home partition"
+    message_subsequent "The /root partition should not be less than 8G"
+    message_subsequent "ideally more, up to 20G"
+    
+    enter_size        # Adds advice about 100%
+    
+    dialog_inputbox 30 75
+
+read -p "$LINENO"
+  
+    RESPONSE="${Result^^}"
+    # Check that entry includes 'G or %'
+    CheckInput1=${RESPONSE: -1}
+    if [ -z ${CheckInput1} ]; then
+      RootSize=""
+    elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
+      message_first_line "You must include M, G or %"
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
+      RootSize=""
+    else
+      RootSize=$RESPONSE
+      Partition="/root"
+      print_heading
+      translate "allocated to /root"
+      Message="${RootSize}" "$Result"
+      select_filesystem 30 60
+      RootType=${PartitionType}
+    fi
+  done
+  return 0
+}
+
 function guided_EFI_Swap() # Called by guided_EFI
 { # EFI - User sets variable: SwapSize
   # Clear display, show /boot and /root
@@ -402,101 +446,6 @@ function guided_EFI_Swap() # Called by guided_EFI
     esac
   done
   # If no space remains, offer swapfile, else create swap partition
-}
-
-function guided_EFI_Home() # Called by guided_EFI
-{ # EFI - Set variables: HomeSize, HomeType
-  HomeSize=""
-  FreeGigs=$((FreeSpace/1024))
-  translate "partition"
-  while [ ${HomeSize} = "" ]
-  do
-    # Clear display, show /boot and available space
-    Message="/boot $Result: ${BootSize}"
-    Message="${Message}\n/root $Result: ${RootType} : ${RootSize}"
-    Message="${Message}\n/swap $Result: ${SwapSize}\n"
-
-    title="/home"
-
-    message_subsequent "You now have"
-    Message="$Message ${FreeGigs}GiB"
-    translate "available on the chosen device"
-    Message="$Message $Result"
-
-    message_subsequent "There is space for a"
-    Message="$Message /home $Result"
-    message_subsequent "You can use all the remaining space on the device, if you wish"
-    
-    enter_size        # Adds advice about 100%
-
-    dialog_inputbox 30 75
-    RESPONSE="${Result^^}"
-    case ${RESPONSE} in
-      "" | 0) HomeSize=""
-      ;;
-      *) # Check that entry includes 'G or %'
-        CheckInput=${RESPONSE: -1}
-        if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
-          message_first_line "You must include M, G or %"
-          HomeSize=""
-        else
-          HomeSize=$RESPONSE
-          Partition="/home"
-          print_heading
-          select_filesystem
-          HomeType=${PartitionType}
-        fi
-    esac
-  done
-}
-
-function guided_MBR_root() # Called by guided_MBR
-{ # BIOS - Set variables: RootSize, RootType
-  RootSize=""
-  FreeGigs=$((FreeSpace/1024))
-  while [ "$RootSize" = "" ]
-  do
-    # Clear display, show /boot and available space
-    title="/root"
-    message_first_line "We begin with the"
-    translate "partition"
-    Message="$Message /root $Result \n"
-    message_subsequent "You have"
-    Message="$Message ${FreeGigs}G"
-    translate "available on the chosen device"
-    Message="$Message ${Result}\n"
-    message_subsequent "You can use all the remaining space on the device, if you wish"
-    message_subsequent "although you may want to leave room for a /swap partition"
-    message_subsequent "and perhaps also a /home partition"
-    message_subsequent "The /root partition should not be less than 8G"
-    message_subsequent "ideally more, up to 20G"
-    
-    enter_size        # Adds advice about 100%
-    
-    dialog_inputbox 30 75
-
-read -p "$LINENO"
-  
-    RESPONSE="${Result^^}"
-    # Check that entry includes 'G or %'
-    CheckInput1=${RESPONSE: -1}
-    if [ -z ${CheckInput1} ]; then
-      RootSize=""
-    elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
-      message_first_line "You must include M, G or %"
-      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
-      RootSize=""
-    else
-      RootSize=$RESPONSE
-      Partition="/root"
-      print_heading
-      translate "allocated to /root"
-      Message="${RootSize}" "$Result"
-      select_filesystem 30 60
-      RootType=${PartitionType}
-    fi
-  done
-  return 0
 }
 
 function guided_MBR_swap() # Called by guided_MBR
@@ -561,6 +510,52 @@ function guided_MBR_swap() # Called by guided_MBR
     esac
   done
   return 0
+}
+
+function guided_EFI_Home() # Called by guided_EFI
+{ # EFI - Set variables: HomeSize, HomeType
+  HomeSize=""
+  FreeGigs=$((FreeSpace/1024))
+  translate "partition"
+  while [ ${HomeSize} = "" ]
+  do
+    # Clear display, show /boot and available space
+    Message="/boot $Result: ${BootSize}"
+    Message="${Message}\n/root $Result: ${RootType} : ${RootSize}"
+    Message="${Message}\n/swap $Result: ${SwapSize}\n"
+
+    title="/home"
+
+    message_subsequent "You now have"
+    Message="$Message ${FreeGigs}GiB"
+    translate "available on the chosen device"
+    Message="$Message $Result"
+
+    message_subsequent "There is space for a"
+    Message="$Message /home $Result"
+    message_subsequent "You can use all the remaining space on the device, if you wish"
+    
+    enter_size        # Adds advice about 100%
+
+    dialog_inputbox 30 75
+    RESPONSE="${Result^^}"
+    case ${RESPONSE} in
+      "" | 0) HomeSize=""
+      ;;
+      *) # Check that entry includes 'G or %'
+        CheckInput=${RESPONSE: -1}
+        if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+          message_first_line "You must include M, G or %"
+          HomeSize=""
+        else
+          HomeSize=$RESPONSE
+          Partition="/home"
+          print_heading
+          select_filesystem
+          HomeType=${PartitionType}
+        fi
+    esac
+  done
 }
 
 function guided_MBR_home() # Called by guided_MBR
