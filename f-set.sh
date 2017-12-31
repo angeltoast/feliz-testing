@@ -982,64 +982,66 @@ function final_check()
     print_first_line "$Result"
     echo
     translate "Zone/subZone will be"
-    print_subsequent "1) $Result" "$ZONE/$SUBZONE"
+    print_subsequent "1) $Result $ZONE/$SUBZONE"
     translate "Locale will be set to"
-    print_subsequent "2) $Result" "$CountryLocale"
+    print_subsequent "2) $Result $CountryLocale"
     translate "Keyboard is"
-    print_subsequent "3) $Result" "$Countrykbd"
+    print_subsequent "3) $Result $Countrykbd"
     case ${IsInVbox} in
       "VirtualBox") translate "Yes"
-      print_subsequent "4)" "Virtualbox Guest Modules: $Result"
+      print_subsequent "4) Virtualbox Guest Modules: $Result"
       ;;
       *) translate "No"
-      print_subsequent "4)" "Virtualbox Guest Modules: $Result"
+      print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
+    if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
+      print_first_line "FelizOB"
     if [ -z "$DisplayManager" ]; then
       translate "No Display Manager selected"
-      print_subsequent "5)" "$Result"
+      print_subsequent "5) $Result"
     else
       translate "Display Manager"
-      print_subsequent "5) $Result" " = $DisplayManager"
+      print_subsequent "5) $Result = $DisplayManager"
     fi
     translate "Root and user settings"
-    print_subsequent "6) $Result" "..."
+    print_subsequent "6) $Result ..."
     translate "Hostname"
-    print_subsequent "      $Result" "= '$HostName'"
+    print_subsequent "      $Result = '$HostName'"
     translate "User Name"
-    print_subsequent "      $Result" "= '$user_name'"
+    print_subsequent "      $Result = '$user_name'"
     translate "The following extras have been selected"
-    print_subsequent "7) $Result" "..."
+    print_subsequent "7) $Result ..."
     SaveStartPoint="$EMPTY" # Save cursor start point
     if [ $Scope = "Basic" ]; then
       translate "None"
-      print_first_line "$Result" ""
+      print_first_line "$Result"
     elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
-      print_first_line "FelizOB" ""
+      print_first_line "FelizOB"
     elif [ -z "$LuxuriesList" ]; then
       translate "None"
-      print_first_line "$Result" ""
+      print_first_line "$Result "
     else
       translate="N"
-      print_first_line "${LuxuriesList}" ""
+      print_first_line "${LuxuriesList}"
       translate="Y"
     fi
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
     translate "Kernel"
     if [ $Kernel -eq 1 ]; then
-      print_subsequent "8) $Result" "= 'LTS'"
+      print_subsequent "8) $Result = 'LTS'"
     else
-      print_subsequent "8) $Result" "= 'Latest'"
+      print_subsequent "8) $Result = 'Latest'"
     fi
     # 9) Grub
     translate "Grub will be installed on"
-    print_subsequent "9) $Result" "= '$GrubDevice'"
+    print_subsequent "9) $Result : '$GrubDevice'"
     # 10) Cancel
     translate "Cancel installation"
     print_subsequent "10) $Result"
     # 11) Partitions
     translate "The following partitions have been selected"
-    print_subsequent "11) $Result" "..."
+    print_subsequent "11) $Result ..."
     translate "partition"
     case "$AutoPart" in
     "AUTO") message_first_line "Feliz will"
@@ -1050,9 +1052,9 @@ function final_check()
                 print_subsequent "/boot : fat32 : ${BootSize}"
               fi
         print_subsequent "/root : ${RootType}: ${RootSize}"
-        if [ -n ${SwapSize} ]; then
+        if [ ${SwapSize} ] && [ ${SwapSize} != "" ]; then
           print_subsequent "/swap : ${SwapSize}"
-        elif [ -n ${SwapFile} ]; then
+        elif [ ${SwapFile} ] && [ ${SwapFile} != "" ]; then
           print_subsequent "swapfile : ${SwapFile}"
         fi
         if [ -n ${HomeSize} ]; then

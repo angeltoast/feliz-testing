@@ -553,15 +553,12 @@ function no_swap_partition()
 
 function set_swap_file()
 {
-
-read -p "In set_swap_file at line $LINENO"
-  
   SwapFile=""
   while [ -z ${SwapFile} ]
   do
     message_first_line "Allocate the size of your swap file"
     message_subsequent "M = Megabytes, G = Gigabytes [eg: 512M or 2G]"
-    dialog_inputbox 8 40
+    dialog_inputbox 12 60
     if [ $retval -ne 0 ]; then SwapFile=""; return 0; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
@@ -574,9 +571,6 @@ read -p "In set_swap_file at line $LINENO"
       break
     fi
   done
-
-read -p "In set_swap_file at line $LINENO"
-  
 }
 
 function more_partitions()
