@@ -225,8 +225,9 @@ function guided_MBR() # Called by f-part1.sh/partitioning_options as the first s
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
-  message_subsequent "This facility is restricted to creating /root, /swap and /home"
-  Message="${Message}\n"
+  message_subsequent "This facility is restricted to creating"
+  " "
+  Message="${Message} /root, /swap & /home\n"
   message_subsequent "Are you sure you wish to continue?"
 
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70

@@ -484,9 +484,9 @@ function set_username()
 
 function set_hostname()
 {
-  message_first_line "A hostname is needed. This will be a unique name to identify"
-  message_subsequent "your device on a network. If you do not enter one, the"
-  message_subsequent "default hostname of 'arch-linux' will be used"
+  message_first_line "A hostname is needed. This will be a unique name to"
+  message_subsequent "identify your device on a network. If you do not enter"
+  message_subsequent "one, the default hostname of 'arch-linux' will be used"
   translate "Enter a hostname for your computer"
   title="${Result}: "
 
@@ -743,11 +743,11 @@ function choose_display_manager()
   Counter=0
   translate "Display Manager"
   title="$Result"
-  message_first_line "A display manager provides a graphical login screen"
+  message_first_line "A display manager provides a graphical login screen."
   message_subsequent "If in doubt, choose"
   Message="$Message LightDM"
-  message_subsequent "If you do not install a display manager, you will have"
-  message_subsequent "to launch your desktop environment manually"
+  message_subsequent "If you do not install a display manager, you will"
+  message_subsequent "have to launch your desktop environment manually"
   
   dialog --backtitle "$Backtitle" --title " $title " \
     --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n$Message" 20 75 6 \
@@ -796,9 +796,10 @@ function enter_grub_path() # Manual input
     message_first_line "You have chosen to manually enter the path for Grub"
     message_subsequent "This should be in the form /dev/sdx or similar"
     message_subsequent "Only enter a device, do not include a partition number"
-    message_subsequent "If in doubt, consult https://wiki.archlinux.org/index.php/GRUB"
+    message_subsequent "If in doubt, consult"
+    message_subsequent "https://wiki.archlinux.org/index.php/GRUB"
     
-    dialog_inputbox 15 60    # text input dialog
+    dialog_inputbox 15 65    # text input dialog
     if [ $retval -eq 0 ]; then return; fi
     Entered=${Result,,}
     # test input

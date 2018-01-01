@@ -98,7 +98,7 @@ function check_parts()  # Called by feliz.sh
     done
 
     dialog --backtitle "$Backtitle" --title " $title " --no-tags \
-      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 78 4 \
+      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
       3 "$LongPart3" \
