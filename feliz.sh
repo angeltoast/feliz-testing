@@ -153,7 +153,7 @@ function preparation  # Prepare the environment for the installation phase
     action_MBR                                                # In f-part2.sh
   elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart                                                  # In f-part1.sh
-  elif [ "$AutoPart" = "NONE" ]; then                         # If Auto partitioning_options
+  elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
     return 1
   fi
 

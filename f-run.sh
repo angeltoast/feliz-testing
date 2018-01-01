@@ -245,10 +245,9 @@ function mount_partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
   
   # 1) Root partition
-  case $RootType in
-  "") echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
-  ;;
-  *) # Otherwise, check if replacing existing ext3/4 /root partition with btrfs
+  if [ $RootType = "" ] || [ $AutoPart = "CFDISK" ]; then
+    echo "Not formatting root partition" >> feliz.log                 # If /root filetype not set - do nothing
+  else # check if replacing existing ext3/4 /root partition with btrfs
     CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
     # Check if /root type or existing partition are btrfs ...
     if [ ${CurrentType} ] && [ $RootType = "btrfs" ] && [ ${CurrentType} != "btrfs" ]; then
@@ -265,7 +264,7 @@ function mount_partitions
       fi
       mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
     fi                                                                # eg: mkfs.ext4 -L Arch-Root /dev/sda1
-  esac
+  fi
   
   mount ${RootPartition} /mnt 2>> feliz.log                           # eg: mount /dev/sda1 /mnt
   
@@ -310,7 +309,9 @@ function mount_partitions
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                                           # Prepare label
       fi
-      mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log      # eg: mkfs.ext4 -L Arch-Home /dev/sda3
+      if [ $AutoPart = "CFDISK" ]; then
+        mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
+      fi
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log           # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))

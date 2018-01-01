@@ -156,28 +156,26 @@ function build_lists # Called by check_parts to generate details of existing par
 function partitioning_options                   # Called by check_parts after user selects an action
 {                                               # Responds to selected option
   case $Result in
-    1) echo "Manual partition allocation" >> feliz.log  # Use existing Partitions
-      AutoPart="MANUAL" ;;
-    2) cfdisk 2>> feliz.log                     # Open cfdisk for manual partitioning
-      tput setf 0                               # Change foreground colour to black
-      clear                                     # temporarily to hide error message
-      partprobe 2>> feliz.log                   # Inform kernel of changes to partitions
-      tput sgr0                                 # Reset colour
-      AutoPart="MANUAL" ;;
-    3) if [ ${UEFI} -eq 1 ]; then               # Guided manual partitioning functions
-        guided_EFI
-        if [ $? -ne 0 ]; then return 1; fi
-      else
-        guided_MBR
-        if [ $? -ne 0 ]; then return 1; fi
-      fi
-      AutoPart="GUIDED" ;;
-    4) AutoPart="NONE"
-      choose_device
-      if [ $? -eq 1 ]; then return 1; fi
-      AutoPart="AUTO" ;;
-    *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
-      return 1
+  1) echo "Manual partition allocation" >> feliz.log  # Use existing Partitions
+    AutoPart="MANUAL" ;;                        # Flag - MANUAL/AUTO/GUIDED/CFDISK/NONE
+  2) cfdisk 2>> feliz.log                       # Open cfdisk for manual partitioning
+    tput setf 0                                 # Change foreground colour to black
+    clear                                       # temporarily to hide error message
+    partprobe 2>> feliz.log                     # Inform kernel of changes to partitions
+    tput sgr0                                   # Reset colour
+    AutoPart="CFDISK" ;;
+  3) if [ ${UEFI} -eq 1 ]; then                 # Guided manual partitioning functions
+      guided_EFI
+      if [ $? -ne 0 ]; then return 1; fi
+    else
+      guided_MBR
+      if [ $? -ne 0 ]; then return 1; fi
+    fi
+    AutoPart="GUIDED" ;;
+  4) AutoPart="NONE"
+    choose_device
+    if [ $? -eq 1 ]; then return 1; fi
+    AutoPart="AUTO" ;;
   esac
   return 0
 }
@@ -401,46 +399,46 @@ function allocate_root # Called by allocate_partitions
   PartitionType=""
   message_first_line "Please select a partition to use for /root"
   display_partitions
-  retval=$?
-  if [ $retval -ne 0 ]; then
+  if [ $? -ne 0 ]; then             # User selected <Cancel>
     PartitionType=""
     return 1
   fi
   
-  PassPart=${Result:0:4}          # eg: sda4
-  MountDevice=${PassPart:3:2}     # Save the device number for 'set x boot on'
+  PassPart=${Result:0:4}            # eg: sda4
+  MountDevice=${PassPart:3:2}       # Save the device number for 'set x boot on'
   Partition="/dev/$Result"
   RootPartition="${Partition}"
 
-  # Before going to select_filesystem, check if there is an existing file system on the selected partition
-  check_filesystem  # This sets variable CurrentType and starts the Message
-  Message="\n${Message}"
-  if [ -n ${CurrentType} ]; then
-    message_subsequent "You can choose to leave it as it is, but should"
-    message_subsequent "understand that not reformatting the /root"
-    message_subsequent "partition can have unexpected consequences"
+  if [ $AutoPart = "MANUAL" ]; then # Not required for AUTO, CFDISK or GUIDED
+                                    # Check if there is an existing filesystem on the selected partition
+    check_filesystem                # This sets variable CurrentType and starts the Message
+    Message="\n${Message}"
+    if [ -n ${CurrentType} ]; then
+      message_subsequent "You can choose to leave it as it is, but should"
+      message_subsequent "understand that not reformatting the /root"
+      message_subsequent "partition can have unexpected consequences"
+    fi
+    
+    select_filesystem  18 75                               # This sets variable PartitionType
+    if [ $? -ne 0 ]; then                                  # User has cancelled the operation
+      PartitionType=""                                     # PartitionType can be empty (will not be formatted)
+    else
+      PartitionType="$Result"
+    fi
+    
+    RootType="${PartitionType}" 
+  
+    if [ ${UEFI} -eq 0 ]; then                                    # Installing in BIOS environment
+      parted_script "set ${MountDevice} boot on"                  # Make /root bootable
+    fi
   fi
   
-  select_filesystem  18 75                                      # This sets variable PartitionType
-  retval=$?
-  if [ $retval -ne 0 ]; then                                    # User has cancelled the operation
-    PartitionType=""                                            # PartitionType can be empty (will not be formatted)
-  else
-    PartitionType="$Result"
-  fi
-  
-  RootType="${PartitionType}" 
   Label="${Labelled[${PassPart}]}"
   if [ -n "${Label}" ]; then
     edit_label $PassPart
   fi
 
-  if [ ${UEFI} -eq 0 ]; then                                    # Installing in BIOS environment
-    parted_script "set ${MountDevice} boot on"                  # Make /root bootable
-  fi
-
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
-
 }
 
 function check_filesystem
