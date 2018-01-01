@@ -73,7 +73,7 @@ function the_start # All user interraction takes place in this function
     # Check if on UEFI or BIOS system
     tput setf 0 # Change foreground colour to black temporarily to hide system messages
     dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
-    if [ $? -eq 0 ]; then                                   # check exit code; 0 = EFI, else BIOS
+    if [ $? -eq 0 ]; then                         # check exit code; 0 = EFI, else BIOS
       UEFI=1                                      # Set variable UEFI ON and mount the device
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
     else
@@ -82,16 +82,13 @@ function the_start # All user interraction takes place in this function
     tput sgr0                                     # Reset colour
     while true; do
       select_device                               # Detect all available devices & allow user to select
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
+      if [ $? -ne 0 ]; then return 1; fi
       
       get_device_size                             # First make sure that there is space for installation
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi     # If not, restart
+      if [ $? -ne 0 ]; then return 1; fi          # If not, restart
       
       localisation_settings                       # Locale, keyboard & hostname
-      retval=$?
-      if [ $retval -ne 0 ]; then return 1; fi
+      if [ $? -ne 0 ]; then return 1; fi
       
       desktop_settings                            # User chooses desktop environment and other extras
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added

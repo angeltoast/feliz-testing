@@ -119,6 +119,7 @@ function select_device  # Called by feliz.sh
     done
   fi
   GrubDevice="/dev/${UseDisk}"  # Full path of selected device
+  return 0
 }
 
 function get_device_size  # Called by feliz.sh

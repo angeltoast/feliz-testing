@@ -181,7 +181,7 @@ function partitioning_options                   # Called by check_parts after us
 }
 
 function choose_device  # Called from partitioning_options or partitioning_optionsEFI
-{                         # Choose device for autopartition
+{                       # Choose device for autopartition
   while [ ${AutoPart} != "AUTO" ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
