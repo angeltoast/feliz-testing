@@ -175,7 +175,7 @@ function partitioning_options                   # Called by check_parts after us
   4) AutoPart="NONE"
     choose_device
     if [ $? -eq 1 ]; then return 1; fi
-    AutoPart="AUTO" ;;
+    AutoPart="AUTO"
   esac
   return 0
 }
@@ -221,7 +221,7 @@ function choose_device  # Called from partitioning_options or partitioning_optio
   return 0
 }
 
-partition_maker { # Called from autopart for both EFI and BIOS systems
+function partition_maker { # Called from autopart for both EFI and BIOS systems
                     # Receives up to 4 arguments
                     # $1 is the starting point of the first partition
                     # $2 is size of root partition
