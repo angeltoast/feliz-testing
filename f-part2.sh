@@ -377,7 +377,7 @@ function guided_EFI_Swap() # Called by guided_EFI
   FreeGigs=$((FreeSpace/1024))
   while [ ${RootSize} = "" ]; do
     title="/swap"
-    # Clear display, show /boot and available space
+    # Show /boot and available space
     translate "partition"
     Message="/boot $Result: ${BootSize}"
     Message="${Message}\n/root $Result: ${RootType} : ${RootSize}\n"
@@ -433,12 +433,12 @@ function guided_EFI_Swap() # Called by guided_EFI
 
 function guided_MBR_swap() # Called by guided_MBR
 { # BIOS - Set variable: SwapSize
-  # Clear display, show /boot and /root
+  # Show /boot and /root
   FreeGigs=$((FreeSpace/1024))
   SwapSize=""
   translate "partition"
   while [ "$SwapSize" = "" ]; do
-    # Clear display, show /root and available space
+    # Show /root and available space
     title="/swap"
     Message="/root $Result: ${RootType} : ${RootSize}\n"
     message_subsequent "You now have"

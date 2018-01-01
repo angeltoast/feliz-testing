@@ -282,9 +282,7 @@ function autopart() # Called by feliz.sh/preparation
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
-  tput setf 0                                       # Change foreground colour to black to hide error message
-  clear
-                                                    # Create a new partition table
+  # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
@@ -315,7 +313,6 @@ function autopart() # Called by feliz.sh/preparation
     SwapPartition=""                                # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
-  tput sgr0                                         # Reset colour
 }
 
 function allocate_partitions()  # Called by feliz.sh after check_parts

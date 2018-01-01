@@ -710,7 +710,7 @@ function set_root_password()
     Message="${Message} root\n"
     
     dialog --backtitle "$Backtitle" --title " $title " --insecure --nocancel \
-      --ok-label "$Ok" --passwordbox "$Message" 15 50 2>output.file
+      --ok-label "$Ok" --passwordbox "$Message" 16 55 2>output.file
     Pass1=$(cat output.file)
     rm output.file
     translate "Re-enter the password for"

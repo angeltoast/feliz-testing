@@ -257,7 +257,8 @@ function america_subgroups()  # Called from america
 }
 
 function setlocale()
-{ CountryLocale=""
+{
+  CountryLocale=""
   while [ -z "$CountryLocale" ]
   do
     set_timezone # First get a validated ZONE/SUBZONE
@@ -332,7 +333,8 @@ function setlocale()
   return 0
 }
 
-edit_locale() {  # Use Nano to edit locale.gen
+function edit_locale()
+{  # Use Nano to edit locale.gen
   while true
   do
     translate "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
@@ -464,8 +466,8 @@ function search_keyboards() # Called by get_keymap when all other options failed
 function set_username()
 { 
   message_first_line "Enter a name for the primary user of the new system"
-  message_subsequent "If you don't create a username here, a default user"
-  message_subsequent "called 'archie' will be set up"
+  message_subsequent "If you don't create a username here, a"
+  message_subsequent "default user called 'archie' will be set up"
   translate "User Name"
   title="${Result}"
   
@@ -488,7 +490,7 @@ function set_hostname()
   translate "Enter a hostname for your computer"
   title="${Result}: "
 
-  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" --inputbox "$Message" 12 70 2>output.file
+  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" --inputbox "$Message" 15 75 2>output.file
   retval=$?
   Result="$(cat output.file)"
 
@@ -748,7 +750,7 @@ function choose_display_manager()
   message_subsequent "to launch your desktop environment manually"
   
   dialog --backtitle "$Backtitle" --title " $title " \
-    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n$Message" 20 60 6 \
+    --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n$Message" 20 75 6 \
     "gdm" "GDM" \
     "lightdm" "LightDM" \
     "lxdm" "LXDM" \
@@ -844,6 +846,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
     # 1) Prepare files of official Arch Linux mirrors
 
       # Download latest list of Arch Mirrors to temporary file
+      title=" archmirrors.list "
       curl -s https://www.archlinux.org/mirrorlist/all/http/ > archmirrors.list
       if [ $? -ne 0 ]; then
         message_first_line "Unable to fetch list of mirrors from Arch Linux"
@@ -862,7 +865,6 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       grep "## " allmirrors.list | tr -d "##" | sed "s/^[ \t]*//" > list.file
       
     # 2) Display instructions and user selects from list of countries
-      title="Mirrors"
       message_first_line "Next we will select mirrors for downloading your system."
       message_subsequent "You will be able to choose from a list of countries which"
       message_subsequent "have Arch Linux mirrors."
@@ -959,7 +961,7 @@ function confirm_virtualbox()
   title="$Result"
     
   dialog --backtitle "$Backtitle" --title " $title " \
-    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
+    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70 2>output.file
   retval=$?
 
   if [ $retval -eq 0 ]  # Yes
@@ -995,7 +997,8 @@ function final_check()
       print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
     if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
-      print_subsequent "5) FelizOB"
+      translate "Display Manager"
+      print_subsequent "5) $Result = FelizOB"
     elif [ -z "$DisplayManager" ]; then
       translate "No Display Manager selected"
       print_subsequent "5) $Result"
@@ -1046,11 +1049,11 @@ function final_check()
     case "$AutoPart" in
     "AUTO") message_first_line "Feliz will"
       translate "partition"
-      print_subsequent "${Message} $Result $GrubDevice"
+      print_first_line "${Message} $Result $GrubDevice"
     ;;
     "GUIDED") message_first_line "Feliz will"
         translate "partition"
-        print_subsequent "Feliz will $Result ..."
+        print_first_line "Feliz will $Result ..."
         if [ ${UEFI} -eq 1 ]; then
           print_subsequent "/boot : fat32 : ${BootSize}"
         fi
