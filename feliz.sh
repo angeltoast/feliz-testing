@@ -139,7 +139,7 @@ function the_start # All user interraction takes place in this function
     done
     return $?
   done
-
+  return 0
 }
 
 function preparation  # Prepare the environment for the installation phase
@@ -157,6 +157,7 @@ function preparation  # Prepare the environment for the installation phase
   mount_partitions                                            # In f-run.sh
   mirror_list                                                 # In f-run.sh
   install_kernel                                              # In f-run.sh
+  return 0
 }
 
 function the_middle # The installation phase
@@ -225,8 +226,7 @@ function the_middle # The installation phase
         translate="Y"
         case $Kernel in
         1) pacstrap /mnt dkms linux-lts-headers 2>> feliz.log  # LTS kernel
-          pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log
-        ;;
+          pacstrap /mnt virtualbox-guest-dkms 2>> feliz.log ;;
         *) pacstrap /mnt dkms linux-headers 2>> feliz.log      # Latest kernel
           pacstrap /mnt virtualbox-guest-modules-arch 2>> feliz.log
         esac
@@ -236,6 +236,7 @@ function the_middle # The installation phase
       install_extras                                           # Install DEs, WMs and DMs
       user_add
     fi
+    return 0
 }
 
 function the_end  # Set passwords and finish Feliz
@@ -252,6 +253,7 @@ function the_end  # Set passwords and finish Feliz
   cp feliz.log /mnt/etc                                        # Copy installation log for reference
     
   finish                                                       # Shutdown or reboot
+  return 0
 }
 
 main

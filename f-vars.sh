@@ -62,28 +62,18 @@ function set_language
     InstalLanguage=$(cat output.file)
 
   case "$InstalLanguage" in
-    de) LanguageFile="German.lan"
-    ;;
+    de) LanguageFile="German.lan"  ;;
     el) setfont LatGrkCyr-8x16 -m 8859-2
-      LanguageFile="Greek.lan"
-    ;;
-    es) LanguageFile="Spanish.lan"
-    ;;
-    fr) LanguageFile="French.lan"
-    ;;
-    it) LanguageFile="Italian.lan"
-    ;;
-    nl) LanguageFile="Dutch.lan"
-    ;;
-    pl) LanguageFile="Polish.lan"
-    ;;
-    pt-PT) LanguageFile="Portuguese-PT.lan"
-    ;;
-    pt-BR) LanguageFile="Portuguese-BR.lan"
-    ;;
+      LanguageFile="Greek.lan"     ;;
+    es) LanguageFile="Spanish.lan" ;;
+    fr) LanguageFile="French.lan"  ;;
+    it) LanguageFile="Italian.lan" ;;
+    nl) LanguageFile="Dutch.lan"   ;;
+    pl) LanguageFile="Polish.lan"  ;;
+    pt-PT) LanguageFile="Portuguese-PT.lan" ;;
+    pt-BR) LanguageFile="Portuguese-BR.lan" ;;
     vi) LanguageFile="Vietnamese.lan"
-      setfont viscii10-8x16 -m 8859-2
-    ;;
+      setfont viscii10-8x16 -m 8859-2 ;;
     *) LanguageFile="English.lan"
       InstalLanguage="en"
   esac
@@ -131,6 +121,7 @@ function not_found                # Optional arguments $1 & $2 for box size
     Length=25
   fi
   dialog --backtitle "$Backtitle" --title " Not Found " --ok-label "$Ok" --msgbox "\n$Message $3" $Height $Length
+  return 0
 }
 
 function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
@@ -139,18 +130,21 @@ function dialog_inputbox          # General-purpose input box ... $1 & $2 are bo
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
+  return 0
 }
 
 function message_first_line       # translates $1 and starts a Message with it
 {
   translate "$1"
   Message="$Result"
+  return 0
 }
 
 function message_subsequent       # translates $1 and continues a Message with it
 {
   translate "$1"
   Message="${Message}\n${Result}"
+  return 0
 }
 
 function print_first_line         # Called by FinalCheck to display all user-defined variables
@@ -165,12 +159,14 @@ function print_first_line         # Called by FinalCheck to display all user-def
     EMPTY="$(printf '%*s' $stpt)"
   fi
   echo "$EMPTY $text"
+  return 0
 }
 
 function print_subsequent # Called by FinalCheck to display all user-defined variables
 { # Prints argument(s) aligned to print_first_line according to content and screen size
   text="$1 $2 $3"
   echo "$EMPTY $text"
+  return 0
 }
 
 function translate  # Called by message_first_line & message_subsequent and by other functions as required
@@ -186,10 +182,10 @@ function translate  # Called by message_first_line & message_subsequent and by o
   case ${RecordNumber} in
   "" | 0) # No match found in English.lan, so use Google translate
      ./trans -b en:${InstalLanguage} "$text" > output.file 2>/dev/null
-     Result=$(cat output.file)
-  ;;
+     Result=$(cat output.file) ;;
   *) Result="$(head -n ${RecordNumber} ${LanguageFile} | tail -n 1)" # Read item from target language file
   esac
+  return 0
 }
 
 # Partition variables and arrays

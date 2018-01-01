@@ -55,13 +55,15 @@ function allocate_uefi  # Called at start of allocate_root, as first step of EFI
   SetLabel "/dev/${Result}"
 	EFIPartition="/dev/${Result}"
   PartitionList=$(echo "$PartitionList" | sed "s/$Result //")  # Remove selected item
+  return 0
 }
 
 function enter_size # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
-{                     # guided_MBR_root, guided_MBR_swap, guided_MBR_home
+{                   # guided_MBR_root, guided_MBR_swap, guided_MBR_home
   message_subsequent "Please enter the desired size"
   message_subsequent "or, to allocate all the remaining space, enter"
   Message="$Message 100%"
+  return 0
 }
 
 function select_device  # Called by feliz.sh
@@ -162,22 +164,22 @@ function get_device_size  # Called by feliz.sh
     message_subsequent "installation, but you should choose light applications only"
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
   fi
+  return 0
 }
 
 function recalculate_space  # Called by guided_MBR & guided_EFI
 {                             # Calculate remaining disk space
   local Passed=$1
   case ${Passed: -1} in
-    "%") Calculator=$FreeSpace          # Allow for 100%
-    ;;
-    "G") Chars=${#Passed}               # Count characters in variable
+  "%") Calculator=$FreeSpace ;;       # Allow for 100%
+  "G") Chars=${#Passed}               # Count characters in variable
         Passed=${Passed:0:Chars-1}      # Passed variable stripped of unit
-        Calculator=$((Passed*1024))
-    ;;
+        Calculator=$((Passed*1024)) ;;
     *) Chars=${#Passed}                 # Count characters in variable
        Calculator=${Passed:0:Chars-1}   # Passed variable stripped of unit
   esac
   FreeSpace=$((FreeSpace-Calculator))   # Recalculate available space
+  return 0
 }
 
 function guided_EFI  # Called by f-part1.sh/partitioning_options as the first step
@@ -286,6 +288,7 @@ function guided_EFI_Boot  # Called by guided_EFI
       BootSize="${RESPONSE}"
     fi
   done
+  return 0
 }
 
 function guided_EFI_Root # Celled by guided_EFI
@@ -325,6 +328,7 @@ function guided_EFI_Root # Celled by guided_EFI
       RootType=${PartitionType}
     fi
   done
+  return 0
 }
 
 function guided_MBR_root # Called by guided_MBR
@@ -418,8 +422,7 @@ function guided_EFI_Swap # Called by guided_EFI
       if [ $retval -eq 0 ]; then
         set_swap_file
       fi
-      return 0
-    ;;
+      return 0 ;;
     *) # Check that entry includes 'G or %'
       CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
@@ -430,7 +433,7 @@ function guided_EFI_Swap # Called by guided_EFI
       fi
     esac
   done
-  # If no space remains, offer swapfile, else create swap partition
+  return 0
 }
 
 function guided_MBR_swap # Called by guided_MBR
@@ -481,8 +484,7 @@ function guided_MBR_swap # Called by guided_MBR
       if [ $? -eq 0 ]; then
         set_swap_file
       fi
-      return 0
-    ;;
+      return 0 ;;
     *) # Check that entry includes 'G or %'
       CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
@@ -520,9 +522,8 @@ function guided_EFI_Home # Called by guided_EFI
     dialog_inputbox 30 75
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
-      "" | 0) HomeSize=""
-      ;;
-      *) # Check that entry includes 'G or %'
+    "" | 0) HomeSize="" ;;
+    *) # Check that entry includes 'G or %'
         CheckInput=${RESPONSE: -1}
         if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
           message_first_line "You must include M, G or %"
@@ -536,6 +537,7 @@ function guided_EFI_Home # Called by guided_EFI
         fi
     esac
   done
+  return 0
 }
 
 function guided_MBR_home # Called by guided_MBR
@@ -561,8 +563,7 @@ function guided_MBR_home # Called by guided_MBR
 
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
-    "") return 0
-    ;;
+    "") return 0 ;;
     *) # Check that entry includes 'G or %'
         CheckInput=${RESPONSE: -1}
       if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then

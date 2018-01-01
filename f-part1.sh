@@ -151,6 +151,7 @@ function build_lists # Called by check_parts to generate details of existing par
       # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
       #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
     done
+  return 0
 }
 
 function partitioning_options                   # Called by check_parts after user selects an action
@@ -260,6 +261,7 @@ function partition_maker { # Called from autopart for both EFI and BIOS systems
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
+  return 0
 }
 
 function autopart # Called by feliz.sh/preparation
@@ -298,6 +300,7 @@ function autopart # Called by feliz.sh/preparation
     SwapPartition=""                                # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
+  return 0
 }
 
 function allocate_partitions  # Called by feliz.sh after check_parts
@@ -330,6 +333,7 @@ function allocate_partitions  # Called by feliz.sh after check_parts
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
   fi
+  return 0
 }
 
 function select_filesystem  # Called by allocate_root and more_partitions (via choose_mountpoint)
@@ -344,6 +348,7 @@ function select_filesystem  # Called by allocate_root and more_partitions (via c
   retval=$?
   if [ $retval -ne 0 ]; then return 1; fi
   PartitionType="$Result"
+  return 0
 }
 
 function edit_label # Called by allocate_root, allocate_swap & more_partitions
@@ -371,10 +376,8 @@ function edit_label # Called by allocate_root, allocate_swap & more_partitions
     Result="$(cat output.file)"  
     # Save to the -A array
     case $Result in
-      1) Labelled[$PassPart]=$Label
-      ;;
-      2) Labelled[$PassPart]=""
-      ;;
+      1) Labelled[$PassPart]=$Label ;;
+      2) Labelled[$PassPart]="" ;;
       3) Message="Enter a new label"                  # English.lan #87
         dialog_inputbox 10 40
         retval=$?
@@ -383,6 +386,7 @@ function edit_label # Called by allocate_root, allocate_swap & more_partitions
         Labelled[$PassPart]=$Result
     esac
   fi
+  return 0
 }
 
 function allocate_root # Called by allocate_partitions
@@ -439,6 +443,7 @@ function allocate_root # Called by allocate_partitions
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
+  return 0
 }
 
 function check_filesystem
@@ -451,6 +456,7 @@ function check_filesystem
     Message="$Message $Result $CurrentType"
     message_subsequent "Reformatting it will remove all data currently on it"
   fi
+  return 0
 }
 
 function allocate_swap
@@ -475,8 +481,7 @@ function allocate_swap
   case "$Result" in
   "swapfile") set_swap_file
             SwapPartition=""
-            return 0
-  ;;
+            return 0 ;;
   *) SwapPartition="/dev/$Result"
     IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
@@ -510,6 +515,7 @@ function allocate_swap
       PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
   esac
+  return 0
 }
 
 function no_swap_partition
@@ -523,11 +529,11 @@ function no_swap_partition
   retval=$?
   case $retval in
   0) set_swap_file
-    SwapPartition=""
-   ;;
+    SwapPartition="" ;;
   *) SwapPartition=""
     SwapFile=""
   esac
+  return 0
 }
 
 function set_swap_file
@@ -549,6 +555,7 @@ function set_swap_file
       break
     fi
   done
+  return 0
 }
 
 function more_partitions
@@ -584,6 +591,7 @@ function more_partitions
     AddPartMount=""
     AddPartType=""
   fi
+  return 0
 }
 
 function choose_mountpoint # Called by more_partitions
@@ -612,8 +620,7 @@ function choose_mountpoint # Called by more_partitions
     CheckInput=${Response:0:1}                      # First character of ${Response}
     case ${CheckInput} in                           # Check that entry includes '/'
       '') message_first_line "You must enter a valid mountpoint"
-          PartMount=""
-          ;;
+          PartMount="" ;;
       *) if [ ${CheckInput} != "/" ]; then
             PartMount="/${Response}"
         else
@@ -662,4 +669,5 @@ function display_partitions # Called by more_partitions, allocate_swap & allocat
     --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
+  return 0
 }

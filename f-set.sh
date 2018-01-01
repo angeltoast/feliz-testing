@@ -68,6 +68,7 @@ function menu_dialog
       $1 $2 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
+  return 0
 }
 
 function localisation_settings              # Locale, keyboard & hostname
@@ -135,6 +136,7 @@ function set_timezone
       if [ $? -eq 0 ]; then return 0; fi    # If "${ZONE}/$SUBZONE" found, return to caller
     fi
   done
+  return 0
 }
 
 function set_subzone # Called from set_timezone
@@ -146,14 +148,8 @@ function set_subzone # Called from set_timezone
   
     case $ZONE in
     "Arctic") SUBZONE="Longyearbyen"
-      return
-    ;;
-    "Atlantic") Ocean=1
-    ;;
-    "Indian") Ocean=1
-    ;;
-    "Pacific") Ocean=1
-    ;;
+      return ;;
+    "Atlantic"|"Indian"|"Pacific") Ocean=1 ;;
     "america") america
       return
     esac
@@ -175,6 +171,7 @@ function set_subzone # Called from set_timezone
     fi
     return 0
   done
+  return 0
 }
 
 function america # Called from set_subzone
@@ -225,6 +222,7 @@ function america # Called from set_subzone
     ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
     america_subgroups                     # City function for subgroups
   fi
+  return 0
 }
 
 function america_subgroups  # Called from america
@@ -232,8 +230,7 @@ function america_subgroups  # Called from america
   # This function receives either 1-part or 2-part ZONE from america
   case $SubGroup in
   "") # No subgroup selected. Here we are working on the second field - cities without a subgroup
-      menu_dialogVariable=$(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
-  ;;
+      menu_dialogVariable=$(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}') ;;
   *) # Here we are working on the third field - cities within the chosen subgroup
       menu_dialogVariable=$(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $3}')
    esac
@@ -248,6 +245,7 @@ function america_subgroups  # Called from america
   else
     SUBZONE=""
   fi
+  return 0
 }
 
 function setlocale
@@ -303,10 +301,8 @@ function setlocale
           grep -v '#' /etc/locale.gen | grep ' ' | cut -d' ' -f1 > list.file 
           HowMany=$(wc -l list.file | cut -d' ' -f1)                # Count them
           case ${HowMany} in
-          0) continue                                               # No uncommented lines found, so restart
-          ;;
-          1) Result="$(cat list.file)"                              # One uncommented line found, so set it as locale
-          ;;
+          0) continue ;;                                            # No uncommented lines found, so restart
+          1) Result="$(cat list.file)" ;;                           # One uncommented line found, so set it as locale
           *) translate "Choose the main locale for your system"     # If many uncommented lines found
             Message="$Result"
             # Prepare list for display
@@ -336,22 +332,20 @@ function edit_locale
     retval=$?
     case $retval in
       0) nano /etc/locale.gen
-        return 0
-        ;;
-      1) return 1
-        ;;
+        return 0 ;;
+      1) return 1 ;;
       *) not_found 10 50 "Error reported at function $FUNCNAME line $LINENO in $SOURCE0 called from $SOURCE1"
         return 2
     esac
   done
+  return 0
 }
 
 function get_keymap # Display list of locale-appropriate keyboards for user to choose
 { 
   country="${CountryLocale,,}"                                          # From SetLocale - eg: en_gb.utf-8
   case ${country:3:2} in                                                # eg: gb
-  "gb") Term="uk"
-  ;;
+  "gb") Term="uk" ;;
   *) Term="${country:3:2}"
   esac
   
@@ -369,8 +363,7 @@ function get_keymap # Display list of locale-appropriate keyboards for user to c
       message_first_line "Sorry, no keyboards found based on your location"
       translate "Keyboard is"
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
-      search_keyboards
-    ;;
+      search_keyboards ;;
     1)  # If the search found one match
       message_first_line "Only one keyboard found based on your location"
       message_subsequent "Do you wish to accept this? Select No to search for alternatives"
@@ -385,8 +378,7 @@ function get_keymap # Display list of locale-appropriate keyboards for user to c
         ;;
         *) return 1
       esac
-      loadkeys ${Countrykbd} 2>> feliz.log
-    ;;
+      loadkeys ${Countrykbd} 2>> feliz.log ;;
     *) # If the search found multiple matches
       title="Keyboards"
       message_first_line "Select your keyboard, or Exit to try again"
@@ -395,10 +387,8 @@ function get_keymap # Display list of locale-appropriate keyboards for user to c
       translate "None_of_these"
       menu_dialog 15 40 "$Result"
       case ${retval} in
-        0) Countrykbd="${Result}"
-        ;;
-        1) search_keyboards                   # User can enter search criteria to find a keyboard layout
-        ;;
+        0) Countrykbd="${Result}" ;;
+        1) search_keyboards ;;                # User can enter search criteria to find a keyboard layout
         *) return 1
       esac
       loadkeys ${Countrykbd} 2>> feliz.log
@@ -450,6 +440,7 @@ function search_keyboards # Called by get_keymap when all other options failed
       not_found 8 40 "${Result}\n '$term'"
     fi
   done
+  return 0
 }
 
 function set_username
@@ -469,6 +460,7 @@ function set_username
   else
     user_name=${Result,,}
   fi
+  return 0
 }
 
 function set_hostname
@@ -488,6 +480,7 @@ function set_hostname
   else
     HostName=${Result,,}
   fi
+  return 0
 }
 
 function type_of_installation # User chooses between FelizOB, self-build or basic
@@ -521,13 +514,12 @@ function type_of_installation # User chooses between FelizOB, self-build or basi
   Result=$(cat output.file)
 
   case $Result in
-    1) pick_category
-    ;;
+    1) pick_category ;;
     2) DesktopEnvironment="FelizOB"
-      Scope="Full"
-    ;;
+      Scope="Full" ;;
     *) Scope="Basic"
   esac
+  return 0
 }
 
 function pick_category  # menu_dialog of categories of selected items from the Arch repos
@@ -602,7 +594,7 @@ function pick_category  # menu_dialog of categories of selected items from the A
       fi
     fi
   done
-
+  return 0
 }
 
 function choose_extras # Called by pick_category after a category has been chosen.
@@ -618,50 +610,42 @@ function choose_extras # Called by pick_category after a category has been chose
    1) # Create a copy of the list of items in the category
       Copycat="${Accessories}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongAccs"
-    ;;
+      display_extras "LongAccs" ;;
    2) # Create a copy of the list of items in the category
       Copycat="${Desktops}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongDesk"
-    ;;
+      display_extras "LongDesk" ;;
    3) # Create a copy of the list of items in the category
       Copycat="${Graphical}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongGraph"
-    ;;
+      display_extras "LongGraph" ;;
    4) # Create a copy of the list of items in the category
       Copycat="${Internet}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongNet"
-     ;;
+      display_extras "LongNet" ;;
    5) # Create a copy of the list of items in the category
       Copycat="${Multimedia}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongMulti"
-    ;;
+      display_extras "LongMulti" ;;
    6) # Create a copy of the list of items in the category
       Copycat="${Office}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongOffice"
-    ;;
+      display_extras "LongOffice" ;;
    7) # Create a copy of the list of items in the category
       Copycat="${Programming}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongProg"
-    ;;
+      display_extras "LongProg" ;;
    8) # Create a copy of the list of items in the category
       Copycat="${WindowManagers}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongWMs"
-    ;;
+      display_extras "LongWMs" ;;
    9) # Create a copy of the list of items in the category
       Copycat="${Taskbars}"
       # Pass the name of the relevant array to the translate_category function
-      display_extras "LongBars"
-    ;;
-    *) return
+      display_extras "LongBars" ;;
+    *) return 0
   esac
+  return 0
 }
 
 function display_extras # Called by choose_extras
@@ -717,6 +701,7 @@ function display_extras # Called by choose_extras
     # Add selected items to LuxuriesList
     LuxuriesList="$LuxuriesList $Result"
     LuxuriesList=$( echo $LuxuriesList | sed "s/^ *//")        # Remove any leading spaces caused by deletions
+  return 0
 }
 
 function choose_display_manager
@@ -740,6 +725,7 @@ function choose_display_manager
     "xdm" "XDM" 2> output.file
   if [ $? -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
+  return 0
 }
 
 function select_grub_device
@@ -767,6 +753,7 @@ function select_grub_device
       GrubDevice="$Result"
     fi
   done
+  return 0
 }
 
 function enter_grub_path # Manual input
@@ -791,6 +778,7 @@ function enter_grub_path # Manual input
       GrubDevice="${Entered}"
     fi
   done
+  return 0
 }
 
 function select_kernel
@@ -887,6 +875,7 @@ function choose_mirrors # User selects one or more countries with Arch Linux mir
         if [ $Counter -lt 1 ]; then Country=""; fi
       fi
   done
+  return 0
 }
 
 function edit_mirrors
@@ -916,18 +905,17 @@ function edit_mirrors
   retval=$?
   Result=$(cat output.file)
   case $Result in
-    "Manual") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
+  "Manual") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
     #  nano mirrors.list
     dialog --exit-label "$Done" \
       --textbox "# eg: Server = http://mirror.transip.net/archlinux/" mirrors.list 18 65
-      return 2
-      ;;
-    "Worldwide") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
+      return 2 ;;
+  "Worldwide") echo "# eg: Server = http://mirror.transip.net/archlinux/" > mirrors.list
       echo "Server = http://mirrors.evowise.com/archlinux/$repo/os/$arch" >> mirrors.list
-      return 2
-      ;;
-    *) return 1
+      return 2 ;;
+  *) return 1
   esac
+  return 0
 }
 
 function confirm_virtualbox
@@ -948,6 +936,7 @@ function confirm_virtualbox
   else                  # No
     IsInVbox=""
   fi
+  return 0
 }
 
 function final_check
@@ -967,10 +956,9 @@ function final_check
     translate "Keyboard is"
     print_subsequent "3) $Result $Countrykbd"
     case ${IsInVbox} in
-      "VirtualBox") translate "Yes"
-      print_subsequent "4) Virtualbox Guest Modules: $Result"
-      ;;
-      *) translate "No"
+    "VirtualBox") translate "Yes"
+      print_subsequent "4) Virtualbox Guest Modules: $Result" ;;
+    *) translate "No"
       print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
     if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
@@ -1026,8 +1014,7 @@ function final_check
     case "$AutoPart" in
     "AUTO") message_first_line "Feliz will"
       translate "partition"
-      print_first_line "${Message} $Result $GrubDevice"
-    ;;
+      print_first_line "${Message} $Result $GrubDevice" ;;
     "GUIDED") message_first_line "Feliz will"
         translate "partition"
         print_first_line "Feliz will $Result ..."
@@ -1042,8 +1029,7 @@ function final_check
         fi
         if [ -n ${HomeSize} ]; then
           print_subsequent "/home ${Result}: ${HomeSize}"
-        fi
-    ;;
+        fi ;;
     *) translate="N"
       print_first_line "${RootPartition} /root ${RootType}"
       print_subsequent "${SwapPartition} /swap"
@@ -1082,35 +1068,24 @@ function final_check
 
     Change=$retval
     case $Change in
-      1) set_timezone
-      ;;
-      2) setlocale
-      ;;
-      3) get_keymap
-      ;;
-      4) confirm_virtualbox
-      ;;
+      1) set_timezone ;;
+      2) setlocale ;;
+      3) get_keymap ;;
+      4) confirm_virtualbox ;;
       5) DisplayManager=""
-        choose_display_manager
-      ;;
-      6) manual_settings
-      ;;
-      7) pick_category
-      ;;
-      8) select_kernel
-      ;;
+         choose_display_manager ;;
+      6) manual_settings ;;
+      7) pick_category ;;
+      8) select_kernel ;;
       9) if [ $GrubDevice != "EFI" ]; then  # Can't be changed if EFI
           select_grub_device
-        fi
-      ;;
-      10) return 1
-      ;;
+         fi ;;
+      10) return 1 ;;
       11) AddPartList=""   # Empty the lists of extra partitions
         AddPartMount=""
         AddPartType=""
         check_parts         # finish partitioning
-        allocate_partitions
-      ;;
+        allocate_partitions ;;
       *) break
     esac
   done
@@ -1144,8 +1119,7 @@ function manual_settings
           fi
           user_name=${Result,,}
           user_name=${user_name// }             # Ensure no spaces
-          user_name=${user_name%% }
-        ;;
+          user_name=${user_name%% } ;;
       "$Hname") translate "Enter new hostname (currently"
           Message="$Result ${HostName})"
           title="$Uname"
@@ -1156,9 +1130,9 @@ function manual_settings
           fi
           HostName=${Result,,}
           HostName=${HostName// }             # Ensure no spaces
-          HostName=${HostName%% }
-        ;;
+          HostName=${HostName%% } ;;
       *) return 0
     esac
   done
+  return 0
 }
