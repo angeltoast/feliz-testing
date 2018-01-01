@@ -58,8 +58,7 @@ function set_language
       pl "Polski" \
       pt-BR "Português" \
       vi "Vietnamese" 2>output.file
-    retval=$?
-    if [ $retval -ne 0 ]; then exit; fi
+    if [ $? -ne 0 ]; then return 1; fi
     InstalLanguage=$(cat output.file)
 
   case "$InstalLanguage" in
@@ -90,7 +89,7 @@ function set_language
   esac
   
   # Get the required language files
-  if [ $LanguageFile != "English.lan" ]; then   # If English is not the user language, get the translation file
+  if [ $LanguageFile != "English.lan" ]; then  # If English is not the user language, get the translation file
     if [ ! -f ${LanguageFile} ]; then
       wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/${LanguageFile} 2>> feliz.log
     fi
@@ -115,6 +114,8 @@ function set_language
   Ok="$Result"
   translate "Yes"
   Yes="$Result"
+
+  return 0
 }
 
 function not_found                # Optional arguments $1 & $2 for box size

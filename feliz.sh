@@ -66,7 +66,7 @@ function main
 function the_start # All user interraction takes place in this function
 { # All functions called from this function must return a value of 1 or 0
   while true; do
-    set_language                                  # In f-set.sh - Use appropriate language file
+    set_language                                  # In f-vars.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels
     timedatectl set-ntp true
 
