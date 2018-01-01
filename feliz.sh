@@ -31,11 +31,10 @@ source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
-function main()
+function main
 { # All functions called from this function must return a value of 1 or 0
   
-  if [ -f dialogrc ] && [ ! -f .dialogrc ]        # Ensure that display of dialogs is controlled
-  then
+  if [ -f dialogrc ] && [ ! -f .dialogrc ]; then        # Ensure that display of dialogs is controlled
     cp dialogrc .dialogrc
   fi
   
@@ -44,8 +43,7 @@ function main()
   
   Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
-  while true
-  do
+  while true; do
     the_start                                     # All user interraction takes place in this function
     if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
     if [ "$AutoPart" = "NONE"  ]; then continue; fi  # Restart if no partitioning options    
@@ -65,10 +63,9 @@ function main()
   done
 }
 
-function the_start() # All user interraction takes place in this function
+function the_start # All user interraction takes place in this function
 { # All functions called from this function must return a value of 1 or 0
-  while true
-  do
+  while true; do
     set_language                                  # In f-set.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels
     timedatectl set-ntp true
@@ -76,16 +73,14 @@ function the_start() # All user interraction takes place in this function
     # Check if on UEFI or BIOS system
     tput setf 0 # Change foreground colour to black temporarily to hide system messages
     dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
-    if [ $? -eq 0 ]
-    then                                          # check exit code; 0 = EFI, else BIOS
+    if [ $? -eq 0 ]; then                                   # check exit code; 0 = EFI, else BIOS
       UEFI=1                                      # Set variable UEFI ON and mount the device
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
     else
       UEFI=0                                      # Set variable UEFI OFF
     fi
     tput sgr0                                     # Reset colour
-    while true
-    do
+    while true; do
       select_device                               # Detect all available devices & allow user to select
       retval=$?
       if [ $retval -ne 0 ]; then return 1; fi
@@ -115,8 +110,7 @@ function the_start() # All user interraction takes place in this function
       fi
 
       # Partitioning - In f-part1.sh
-      while true
-      do
+      while true; do
         check_parts                               # Check partition table & offer partitioning options
         if [ $? -ne 0 ]; then                     # User cancelled partitioning options
           retval=1                                # so return
@@ -151,7 +145,7 @@ function the_start() # All user interraction takes place in this function
 
 }
 
-function preparation()  # Prepare the environment for the installation phase
+function preparation  # Prepare the environment for the installation phase
 {
   if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI and Guided partitioning_options
     action_EFI                                                # In f-part2.sh
@@ -164,14 +158,11 @@ function preparation()  # Prepare the environment for the installation phase
   fi
 
   mount_partitions                                            # In f-run.sh
-
   mirror_list                                                 # In f-run.sh
-
   install_kernel                                              # In f-run.sh
-
 }
 
-function the_middle() # The installation phase
+function the_middle # The installation phase
 {
     translate "Preparing local services"
     install_message "$Result"
@@ -250,7 +241,7 @@ function the_middle() # The installation phase
     fi
 }
 
-function the_end()  # Set passwords and finish Feliz
+function the_end  # Set passwords and finish Feliz
 {
   EndTime=$(date +%s)
   Difference=$(( EndTime-StartTime ))

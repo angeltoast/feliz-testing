@@ -166,13 +166,13 @@ function print_first_line         # Called by FinalCheck to display all user-def
   echo "$EMPTY $text"
 }
 
-function print_subsequent() # Called by FinalCheck to display all user-defined variables
+function print_subsequent # Called by FinalCheck to display all user-defined variables
 { # Prints argument(s) aligned to print_first_line according to content and screen size
   text="$1 $2 $3"
   echo "$EMPTY $text"
 }
 
-function translate()  # Called by message_first_line & message_subsequent and by other functions as required
+function translate  # Called by message_first_line & message_subsequent and by other functions as required
 {                     # $1 is text to be translated
   text="${1%% }"      # Remove any trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then

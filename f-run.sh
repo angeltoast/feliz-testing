@@ -37,17 +37,17 @@
 #                              finish                  773
 # -------------------------    ---------------------------
 
-function arch_chroot() # From Lution AIS - calls arch-chroot with options
+function arch_chroot # From Lution AIS - calls arch-chroot with options
 {
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
 }
 
-function parted_script() # Calls GNU parted tool with options
+function parted_script # Calls GNU parted tool with options
 {
   parted --script /dev/${UseDisk} "$1" 2>> feliz.log
 }
 
-function install_message() # For displaying status while running on auto
+function install_message # For displaying status while running on auto
 {
   echo
   tput bold
@@ -56,7 +56,7 @@ function install_message() # For displaying status while running on auto
   echo
 }
 
-function action_MBR() # Called by feliz.sh before other partitioning actions
+function action_MBR # Called by feliz.sh before other partitioning actions
 { # Uses the variables set above to create partition table & all partitions
 
   # Root partition
@@ -131,7 +131,7 @@ function action_MBR() # Called by feliz.sh before other partitioning actions
     fi
 }
 
-function action_EFI() # Called during installation phase
+function action_EFI # Called during installation phase
 { # Uses the variables set above to create GPT partition table & all partitions
 
   # Format the drive for EFI
@@ -238,7 +238,7 @@ function action_EFI() # Called during installation phase
   if [ $? -ne 0 ]; then return 1; fi
 }
 
-function mount_partitions()
+function mount_partitions
 {
   install_message "Preparing and mounting partitions"
   # First unmount any mounted partitions
@@ -293,8 +293,7 @@ function mount_partitions()
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
   local Counter=0
-  for id in ${AddPartList}                                            # $id will be in the form /dev/sda2
-  do
+  for id in ${AddPartList}; do                                        # $id will be in the form /dev/sda2
     umount ${id} /mnt${AddPartMount[$Counter]} >> feliz.log
     mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log              # eg: mkdir -p /mnt/home
     # Check if replacing existing ext3/4 partition with btrfs (as with /root)
@@ -318,7 +317,7 @@ function mount_partitions()
   done
 }
 
-function install_kernel() # Selected kernel and some other core systems
+function install_kernel # Selected kernel and some other core systems
 {
   # Set the locale for all processes run from the current shell 
   LANG=C
@@ -359,7 +358,7 @@ function install_kernel() # Selected kernel and some other core systems
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 }
 
-function add_codecs()
+function add_codecs
 {
   translate "Installing"
   install_message "$Result codecs"
@@ -392,7 +391,7 @@ function add_codecs()
   # arch_chroot "systemctl enable org.cups.cupsd.service"
 }
 
-function mirror_list()
+function mirror_list
 { # Use rankmirrors (script in /usr/bin/ from Arch) to generate fast mirror list
   # In f-set.sh/choose_mirrors the user has selected one or more countries with Arch Linux mirrors
   # These have been stored in the array CountryLong[@] declared in f-vars.sh
@@ -421,13 +420,12 @@ function mirror_list()
     chmod +r /etc/pacman.d/mirrorlist 2>> feliz.log
   else # Get addresses of mirrors in the country selected by the user
     if [ -f usemirrors.list ]; then rm usemirrors.list; fi
-    for Country in "${CountryLong[@]}"    # Prepare file of mirrors to be used
-    do  # Get the line number of $Country in $CountryLong in allmirrors.list
+    for Country in "${CountryLong[@]}"; do    # Prepare file of mirrors to be used
+        # Get the line number of $Country in $CountryLong in allmirrors.list
         #                      exact match only | restrict to first find | display only number
       CountryLine=$(grep -n "${Country}" allmirrors.list | head -n 1 | cut -d':' -f1)
       # Read each line from that line onwards until an empty line is encountered (end of country)
-      while true
-      do
+      while true; do
         CountryLine=$((CountryLine+1))                                                    # Next line
         MirrorURL="$(head -n ${CountryLine} allmirrors.list | tail -n 1 | cut -d'#' -f2)" # Read next item in source file
         echo "$MirrorURL" >> usemirrors.list                                              # Save it to usemirrors.list file
@@ -447,7 +445,7 @@ function mirror_list()
   fi
 }
 
-function install_display_manager()
+function install_display_manager
 { # Disable any existing display manager
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
@@ -462,7 +460,7 @@ function install_display_manager()
   esac
 }
 
-function install_extras()
+function install_extras
 { # Install desktops and other extras
   # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
@@ -477,7 +475,7 @@ function install_extras()
     pacstrap /mnt lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log           # more LXDE tools
     pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log            # Add some extras
     cp lxdm.conf /mnt/etc/lxdm/                                                       # Copy the LXDM config file
-    install_yaourt                                                                     # And install Yaourt
+    install_yaourt                                                                    # And install Yaourt
   fi
 
   # Display manager - runs only once
@@ -487,8 +485,7 @@ function install_extras()
 
   # First parse through LuxuriesList checking for DEs and Window Managers (not used by FelizOB)
   if [ -n "${LuxuriesList}" ]; then
-    for i in ${LuxuriesList}
-    do
+    for i in ${LuxuriesList}; do
       translate "Installing"
       case $i in
       "Awesome") install_message "$Result Awesome"
@@ -560,8 +557,7 @@ function install_extras()
     install_yaourt
 
     # Second parse through LuxuriesList for any extras (not triggered by FelizOB)
-    for i in ${LuxuriesList}
-    do
+    for i in ${LuxuriesList}; do
         translate "Installing"
       case $i in
       "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") continue # Ignore DEs & WMs on this pass
@@ -579,7 +575,7 @@ function install_extras()
   fi
 }
 
-function install_yaourt()
+function install_yaourt
 {
   translate "Installing"
   install_message "$Result Yaourt"
@@ -602,7 +598,7 @@ function install_yaourt()
   pacstrap /mnt yaourt 2>> feliz.log
 }
 
-function user_add() # Adds user and copies FelizOB configurations
+function user_add # Adds user and copies FelizOB configurations
 {
   CheckUsers=`cat /mnt/etc/passwd | grep ${user_name}`
   # If not already exist, create user
@@ -617,8 +613,7 @@ function user_add() # Adds user and copies FelizOB configurations
   fi
   # Create main user folders
   translate "Desktop Documents Downloads Music Pictures Public Templates Videos"
-  for i in ${Result}
-  do
+  for i in ${Result}; do
     arch_chroot "mkdir /home/${user_name}/${i}"
     arch_chroot "chown -R ${user_name}: /home/${user_name}/${i}"
   done
@@ -681,14 +676,14 @@ function user_add() # Adds user and copies FelizOB configurations
   esac
 }
 
-function check_existing()
+function check_existing
 {                                                     # Test if $1 (path) + $2 (file) already exists
   if [ -f "$1$2" ]; then                                              # If path+file already exists
       mv "$1$2" "$1saved$2"                                           # Rename it
   fi
 }
 
-function set_root_password()
+function set_root_password
 {
   translate "Success!"
   title="$Result"
@@ -704,8 +699,7 @@ function set_root_password()
   message_subsequent "see passwords as you enter them"
   Message="${Message}\n"
   Repeat="Y"
-  while [ $Repeat = "Y" ]
-  do
+  while [ $Repeat = "Y" ]; do
     message_subsequent "Enter a password for"
     Message="${Message} root\n"
     
@@ -746,13 +740,12 @@ function set_root_password()
   done
 }
 
-function set_user_password()
+function set_user_password
 {
   message_first_line "Enter a password for"
   Message="${Message} ${user_name}\n"
   Repeat="Y"
-  while [ $Repeat = "Y" ]
-  do
+  while [ $Repeat = "Y" ]; do
     message_subsequent "Note that you will not be able to"
     message_subsequent "see passwords as you enter them"
     Message="${Message}\n"
@@ -797,7 +790,7 @@ function set_user_password()
   done
 }
 
-function finish()
+function finish
 {
   translate "Shutdown Reboot"
   Item1="$(echo $Result | cut -d' ' -f1)"

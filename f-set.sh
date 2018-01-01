@@ -41,7 +41,7 @@
 # set_hostname          496   manual_settings        1098
 # -------------------------   ---------------------------
 
-function menu_dialog()
+function menu_dialog
 { # Display a simple menu from $menu_dialogVariable and return selection as $Result
   # $1 and $2 are dialog box size;
   # $3 is optional: can be the text for --cancel-label
@@ -53,11 +53,10 @@ function menu_dialog()
   fi
   
   # Prepare array for display
-  declare -a ItemList=()                                    # Array will hold entire list
+  declare -a ItemList=                                      # Array will hold entire list
   Items=0
-  for Item in $menu_dialogVariable                          # Read items from the variable
-  do                                                        # and copy each one to the array
-    Items=$((Items+1))
+  for Item in $menu_dialogVariable; do                      # Read items from the variable
+    Items=$((Items+1))                                      # and copy each one to the array
     ItemList[${Items}]="${Item}"                            # First element is tag
     Items=$((Items+1))
     ItemList[${Items}]="${Item}"                            # Second element is required
@@ -71,11 +70,10 @@ function menu_dialog()
   Result=$(cat output.file)
 }
 
-function localisation_settings()              # Locale, keyboard & hostname
+function localisation_settings              # Locale, keyboard & hostname
 {
   localisation=1
-  until [ $localisation -eq 0 ]
-  do
+  until [ $localisation -eq 0 ]; do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
     if [ $? -ne 0 ]; then return 1; fi
     get_keymap                                # Select keyboard layout eg: uk
@@ -86,7 +84,7 @@ function localisation_settings()              # Locale, keyboard & hostname
   return 0
 }
 
-function desktop_settings()
+function desktop_settings
 {
   environment=1
   until [ $environment -eq 0 ]                # Each function must return 0 before next function can be called
@@ -98,21 +96,19 @@ function desktop_settings()
   return $environment 
 }
 
-function set_timezone()
+function set_timezone
 {
   SUBZONE=""
-  while true
-  do
+  while true; do
     message_first_line "To set the system clock, please first"
     message_subsequent "choose the World Zone of your location"
     timedatectl list-timezones | cut -d'/' -f1 | uniq > zones.file # Ten world zones
   
-    declare -a ItemList=()                                    # Array will hold entire menu list
+    declare -a ItemList=                                      # Array will hold entire menu list
     Items=0
     Counter=0
-    while read -r Item                                        # Read items from the zones file
-    do                                                        # for display in menu
-      Counter=$((Counter+1)) 
+    while read -r Item; do                                    # Read items from the zones file
+      Counter=$((Counter+1))                                  # for display in menu
       translate "$Item"                                       # Translate each one for display
       Item="$Result"
       Items=$((Items+1))
@@ -141,10 +137,9 @@ function set_timezone()
   done
 }
 
-function set_subzone() # Called from set_timezone
+function set_subzone # Called from set_timezone
 {  # Use ZONE set in set_timezone to prepare list of available subzones
-  while true
-  do
+  while true; do
     SubZones=$(timedatectl list-timezones | grep ${ZONE}/ | sed 's/^.*\///')
     Ocean=0
     SUBZONE=""
@@ -182,15 +177,14 @@ function set_subzone() # Called from set_timezone
   done
 }
 
-function america() # Called from set_subzone
+function america # Called from set_subzone
 { # Necessary because some zones in the americas have a middle zone (eg: america/Argentina/Buenes_Aries)
   
   SUBZONE=""      # Make sure this variable is empty
   SubList=""      # Start an empty list
   Previous=""     # Prepare to save previous record
   local toggle="First"
-  for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}')
-  do
+  for i in $(timedatectl list-timezones | grep "$ZONE/" | awk 'BEGIN { FS = "/"; OFS = "/" } {print $2}'); do
     if [ $Previous ] && [ $i = $Previous ] && [ $toggle = "First" ]; then # First reccurance
       SubList="$SubList $i"
       Toggle="Second"
@@ -229,12 +223,12 @@ function america() # Called from set_subzone
   else                                    # This is for 2-part zones
     SubGroup=$Result                      # Save subgroup for next function
     ZONE="${ZONE}/$SubGroup"              # Add subgroup to ZONE
-    america_subgroups                              # City function for subgroups
+    america_subgroups                     # City function for subgroups
   fi
 }
 
-function america_subgroups()  # Called from america
-{ # Specifically for america, which has subgroups
+function america_subgroups  # Called from america
+{                           # Specifically for America, which has subgroups
   # This function receives either 1-part or 2-part ZONE from america
   case $SubGroup in
   "") # No subgroup selected. Here we are working on the second field - cities without a subgroup
@@ -256,11 +250,10 @@ function america_subgroups()  # Called from america
   fi
 }
 
-function setlocale()
+function setlocale
 {
   CountryLocale=""
-  while [ -z "$CountryLocale" ]
-  do
+  while [ -z "$CountryLocale" ]; do
     set_timezone # First get a validated ZONE/SUBZONE
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
@@ -284,8 +277,7 @@ function setlocale()
     Rows=$(tput lines)                      # to ensure menu doesn't over-run
     Rows=$((Rows-4))                        # Available (printable) rows
     choosefrom="" 
-    for l in ${LocaleList[@]}               # Convert to space-separated list
-    do
+    for l in ${LocaleList[@]}; do           # Convert to space-separated list
       choosefrom="$choosefrom $l"           # Add each item to file for handling
     done
     if [ -z "${choosefrom}" ]; then         # If none found, start again
@@ -333,10 +325,9 @@ function setlocale()
   return 0
 }
 
-function edit_locale()
+function edit_locale
 {  # Use Nano to edit locale.gen
-  while true
-  do
+  while true; do
     translate "Start Nano so you can manually uncomment locales?" # New text for line 201 English.lan
     Message="$Result"
     title=""
@@ -355,7 +346,7 @@ function edit_locale()
   done
 }
 
-function get_keymap() # Display list of locale-appropriate keyboards for user to choose
+function get_keymap # Display list of locale-appropriate keyboards for user to choose
 { 
   country="${CountryLocale,,}"                                          # From SetLocale - eg: en_gb.utf-8
   case ${country:3:2} in                                                # eg: gb
@@ -372,8 +363,7 @@ function get_keymap() # Display list of locale-appropriate keyboards for user to
 
   title="$(echo $Result | cut -d' ' -f1)"
   Countrykbd=""
-  while [ -z "$Countrykbd" ]
-  do
+  while [ -z "$Countrykbd" ]; do
     case $Found in
     0)  # If the search found no matches
       message_first_line "Sorry, no keyboards found based on your location"
@@ -417,11 +407,10 @@ function get_keymap() # Display list of locale-appropriate keyboards for user to
   return 0
 }
 
-function search_keyboards() # Called by get_keymap when all other options failed 
+function search_keyboards # Called by get_keymap when all other options failed 
 { # User can enter search criteria to find a keyboard layout 
   Countrykbd=""
-  while [ -z "$Countrykbd" ]
-  do
+  while [ -z "$Countrykbd" ]; do
     message_first_line "If you know the code for your keyboard layout, please enter"
     message_subsequent "it now. If not, try entering a two-letter abbreviation"
     message_subsequent "for your country or language and a list will be displayed"
@@ -463,7 +452,7 @@ function search_keyboards() # Called by get_keymap when all other options failed
   done
 }
 
-function set_username()
+function set_username
 { 
   message_first_line "Enter a name for the primary user of the new system"
   message_subsequent "If you don't create a username here, a"
@@ -482,7 +471,7 @@ function set_username()
   fi
 }
 
-function set_hostname()
+function set_hostname
 {
   message_first_line "A hostname is needed. This will be a unique name to"
   message_subsequent "identify your device on a network. If you do not enter"
@@ -501,7 +490,7 @@ function set_hostname()
   fi
 }
 
-function type_of_installation() # User chooses between FelizOB, self-build or basic
+function type_of_installation # User chooses between FelizOB, self-build or basic
 { 
   message_first_line "Feliz now offers you a choice. You can ..."
   translate "Build your own system, by picking the"
@@ -541,22 +530,20 @@ function type_of_installation() # User chooses between FelizOB, self-build or ba
   esac
 }
 
-function pick_category()  # menu_dialog of categories of selected items from the Arch repos
+function pick_category  # menu_dialog of categories of selected items from the Arch repos
 { translate "Added so far"
   AddedSoFar="$Result"
   translate "Done"
   Done="$Result"
   # translate the categories
   TransCatList=""
-  for category in $CategoriesList
-  do
+  for category in $CategoriesList; do
     translate "$category"
     TransCatList="$TransCatList $Result"
   done
   # Display categories, adding more items until user exits by <Done>
   LuxuriesList=""
-  while true
-  do
+  while true; do
     # Prepare information messages
     if [ -z "$LuxuriesList" ]; then
       message_first_line "Now you have the option to add extras, such as a web browser"
@@ -568,11 +555,10 @@ function pick_category()  # menu_dialog of categories of selected items from the
     menu_dialogVariable="${TransCatList}"
 
     # Prepare array for display
-    declare -a ItemList=()                                    # Array will hold entire list
+    declare -a ItemList=                                      # Array will hold entire list
     Items=0
     Counter=1
-    for Item in $menu_dialogVariable                                 # Read items from the variable
-    do 
+    for Item in $menu_dialogVariable; do                      # Read items from the variable
       Items=$((Items+1))
       ItemList[${Items}]="${Counter}"                         # and copy each one to the array
       Counter=$((Counter+1))
@@ -606,8 +592,7 @@ function pick_category()  # menu_dialog of categories of selected items from the
     fi
   done
 
-  for i in $LuxuriesList                              # Run through list
-  do
+  for i in $LuxuriesList; do                          # Run through list
     Check="$(echo $Desktops | grep $i)"               # Test if a DE
     if [ -n "$Check" ]; then                          # This is just to set a primary DE variable
       DesktopEnvironment="$i"                         # Add as DE
@@ -620,7 +605,7 @@ function pick_category()  # menu_dialog of categories of selected items from the
 
 }
 
-function choose_extras() # Called by pick_category after a category has been chosen.
+function choose_extras # Called by pick_category after a category has been chosen.
 { # Prepares to call 'display_extras' function with copy data
   translate "Added so far"
   Message="$Result: ${LuxuriesList}\n"
@@ -679,7 +664,7 @@ function choose_extras() # Called by pick_category after a category has been cho
   esac
 }
 
-function display_extras() # Called by choose_extras
+function display_extras # Called by choose_extras
 { # translates descriptions of items in the selected category
   # Then displays them for user to select multiple items
   # Note1: The name of the array to be processed has been passed as $1
@@ -690,20 +675,18 @@ function display_extras() # Called by choose_extras
     local name=$1[@]
     local CopyArray=("${!name}")    # eg: LongAccs or LongDesk, etc
   # Prepare temporary array for translated item descriptions
-    declare -a TempArray=()
+    declare -a TempArray=
   # translate all elements
     type_of_installationCounter=0
-    for Option in "${CopyArray[@]}"
-    do
+    for Option in "${CopyArray[@]}"; do
       (( type_of_installationCounter+=1 ))
       translate "$Option"
-      CopyArray[${type_of_installationCounter}]="$Result"    # Replace element with translation
+      CopyArray[${type_of_installationCounter}]="$Result" # Replace element with translation
     done
     # Then build the temporary array for the checklist dialog
     local Counter=0
     local CopyCounter=0
-    for i in ${Copycat}
-    do
+    for i in ${Copycat}; do
       (( Counter+=1 ))
       TempArray[${Counter}]="$i"
       (( Counter+=1 ))
@@ -711,17 +694,15 @@ function display_extras() # Called by choose_extras
       TempArray[${Counter}]="${CopyArray[${CopyCounter}]}"
       (( Counter+=1 ))
       TempArray[${Counter}]="OFF"
-      for a in ${LuxuriesList}                  # Check against LuxuriesList - if on list, mark ON
-      do
-        if [ "$a" = "$i" ]; then
+      for a in ${LuxuriesList}; do                        # Check against LuxuriesList
+        if [ "$a" = "$i" ]; then                          # If on list, mark ON
           TempArray[${Counter}]="ON"
         fi
       done
     done
     # Remove all items in this group from LuxuriesList (selected items will be added back)
     if [ -n "$LuxuriesList" ]; then
-      for i in ${Copycat}
-      do
+      for i in ${Copycat}; do
       #  LuxuriesList=$(echo "$LuxuriesList" | sed "s/$i//")
         LuxuriesList="${LuxuriesList//${i} }"
       done
@@ -738,7 +719,7 @@ function display_extras() # Called by choose_extras
     LuxuriesList=$( echo $LuxuriesList | sed "s/^ *//")        # Remove any leading spaces caused by deletions
 }
 
-function choose_display_manager()
+function choose_display_manager
 { # Choose a display manager
   Counter=0
   translate "Display Manager"
@@ -761,11 +742,10 @@ function choose_display_manager()
   DisplayManager="$(cat output.file)"
 }
 
-function select_grub_device()
+function select_grub_device
 { # Set path for grub to be installed
   GrubDevice=""
-  while [ -z $GrubDevice ]
-  do
+  while [ -z $GrubDevice ]; do
     DevicesList="$(lsblk -d | awk '{print "/dev/" $1}' | grep 'sd\|hd\|vd')"  # Preceed field 1 with '/dev/'
     # Add an option to enter grub device manually
     translate "Enter_Manually"
@@ -789,10 +769,9 @@ function select_grub_device()
   done
 }
 
-function enter_grub_path() # Manual input
+function enter_grub_path # Manual input
 { GrubDevice=""
-  while [ -z "$GrubDevice" ]
-  do
+  while [ -z "$GrubDevice" ]; do
     message_first_line "You have chosen to manually enter the path for Grub"
     message_subsequent "This should be in the form /dev/sdx or similar"
     message_subsequent "Only enter a device, do not include a partition number"
@@ -805,7 +784,7 @@ function enter_grub_path() # Manual input
     # test input
     CheckGrubEntry="${Entered:0:5}"
     if [ -z $Entered ]; then
-      return
+      return 1
     elif [ $CheckGrubEntry != "/dev/" ]; then
       not_found "$Entered is not in the correct format"
     else
@@ -814,7 +793,7 @@ function enter_grub_path() # Manual input
   done
 }
 
-function select_kernel()
+function select_kernel
 {
   Kernel="0"
   until [ "$Kernel" != "0" ]
@@ -839,11 +818,10 @@ function select_kernel()
   return 0
 }
 
-function choose_mirrors() # User selects one or more countries with Arch Linux mirrors
+function choose_mirrors # User selects one or more countries with Arch Linux mirrors
 {
   Country=""
-  while [ -z "$Country" ]
-  do
+  while [ -z "$Country" ]; do
     # 1) Prepare files of official Arch Linux mirrors
 
       # Download latest list of Arch Mirrors to temporary file
@@ -874,10 +852,10 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
   
       message_first_line "Please choose a country"
 
-      declare -a ItemList=()                              # Array will hold entire list
+      declare -a ItemList=                                # Array will hold entire list
       Items=0
-      while read -r Item                                  # Read items from the file
-      do                                                  # and copy each one to the array
+      while read -r Item; do                              # Read items from the file
+                                                          # and copy each one to the array
         Items=$((Items+1))
         ItemList[${Items}]="${Item}"                      # First element is tag
         Items=$((Items+1))
@@ -888,7 +866,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
         --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "$Message" \
         25 60 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
-      Result=$(cat output.file)                           # eg: United Kingdom
+      Result=$(cat output.file)                                   # eg: United Kingdom
       rm list.file
       Country="$Result"
       if [ "$Country" = "" ]; then
@@ -902,9 +880,8 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
       else   
         # Add to array for use during installation
         Counter=0
-        for Item in $(cat output.file)                            # Read items from the output.file
-        do                                                        # and copy each one to the array
-          Counter=$((Counter+1))
+        for Item in $(cat output.file); do                        # Read items from the output.file
+          Counter=$((Counter+1))                                  # and copy each one to the array
           CountryLong[${Counter}]="$Item"                         # CountryLong is declared in f-vars.sh
         done
         if [ $Counter -lt 1 ]; then Country=""; fi
@@ -912,7 +889,7 @@ function choose_mirrors() # User selects one or more countries with Arch Linux m
   done
 }
 
-function edit_mirrors()
+function edit_mirrors
 {  # Use Nano to edit mirrors.list
 
   message_first_line "Feliz needs at least one mirror from which to"
@@ -953,7 +930,7 @@ function edit_mirrors()
   esac
 }
 
-function confirm_virtualbox()
+function confirm_virtualbox
 { 
   message_first_line  "It appears that feliz is running in Virtualbox"
   message_subsequent  "If it is, feliz can install Virtualbox guest"
@@ -973,10 +950,9 @@ function confirm_virtualbox()
   fi
 }
 
-function final_check()
+function final_check
 { # Display all user settings before starting installation
-  while true
-  do
+  while true; do
     clear
     echo
     translate "These are the settings you have entered."
@@ -1073,13 +1049,12 @@ function final_check()
       print_subsequent "${SwapPartition} /swap"
       if [ -n "${AddPartList}" ]; then
         local Counter=0
-        for Part in ${AddPartList}                    # Iterate through the list of extra partitions
-        do                                            # Display each partition, mountpoint & format type
+        for Part in ${AddPartList}; do                # Iterate through the list of extra partitions
           if [ $Counter -ge 1 ]; then                 # Only display the first one
             translate "Too many to display all"
             print_subsequent "$Result"
             break
-          fi
+          fi                                          # Display each partition, mountpoint & format type
           print_subsequent "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
           Counter=$((Counter+1))
         done
@@ -1142,10 +1117,9 @@ function final_check()
   return 0
 }
 
-function manual_settings()
+function manual_settings
 {
-  while true
-  do
+  while true; do
     translate "Hostname"
     Hname="$Result"
     translate "User Name"
