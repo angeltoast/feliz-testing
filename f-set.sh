@@ -74,19 +74,19 @@ function menu_dialog
 function localisation_settings              # Locale, keyboard & hostname
 {
   localisation=1
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   until [ $localisation -eq 0 ]; do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
     if [ $? -ne 0 ]; then return 1; fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     get_keymap                                # Select keyboard layout eg: uk
     if [ $? -ne 0 ]; then return 1; fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     set_hostname
     localisation=$?
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   done
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   return 0
 }
 
@@ -253,13 +253,13 @@ function america_subgroups  # Called from america
   return 0
 }
 
-function setlocale
-{
+function setlocale {
   CountryLocale=""
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   while [ -z "$CountryLocale" ]; do
     set_timezone # First get a validated ZONE/SUBZONE
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     ZoneID="${ZONE}/${SUBZONE}"   # Use a copy (eg: Europe/London) to find in cities.list
                                   # (field 2 in cities.list is the country code (eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
@@ -267,7 +267,7 @@ function setlocale
     SEARCHTERM=${SEARCHTERM%% }             # Ensure no trailing spaces
     # Find all matching entries in locale.gen - This will be a table of valid locales in the form: en_GB.UTF-8
     EXTSEARCHTERM="${SEARCHTERM}.UTF-8"
-    
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     if [ $(grep "^NAME" /etc/*-release | cut -d'"' -f2 | cut -d' ' -f1) = "Debian" ]; then
       # In case testing in Debian
       LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f2 | grep -v '^UTF')
@@ -275,7 +275,7 @@ function setlocale
       # Normal Arch setting
       LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f1)
     fi
-    
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     HowMany=$(echo $LocaleList | wc -w)     # Count them
     Rows=$(tput lines)                      # to ensure menu doesn't over-run
     Rows=$((Rows-4))                        # Available (printable) rows
@@ -292,7 +292,7 @@ function setlocale
       message_subsequent "Choose one or Exit to retry"
       menu_dialogVariable="$choosefrom Edit_locale.gen"             # Add manual edit option to menu
       Cancel="$Exit"
-  
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       menu_dialog 17 50 # Arguments are dialog size. To display a menu and return $Result & $retval
       if [ $retval -ne 0 ]; then return 1; fi
       Response="$retval"
@@ -312,7 +312,7 @@ function setlocale
             Message="$Result"
             # Prepare list for display
             menu_dialogVariable="$(cat list.file)"
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
             menu_dialog 20 60                                       # Display in menu
           esac
         else                                                        # Nano was not used
