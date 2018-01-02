@@ -105,12 +105,12 @@ function desktop_settings
 function set_timezone
 {
   SUBZONE=""
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   while true; do
     message_first_line "To set the system clock, please first"
     message_subsequent "choose the World Zone of your location"
     timedatectl list-timezones | cut -d'/' -f1 | uniq > zones.file # Ten world zones
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     declare -a ItemList=                                      # Array will hold entire menu list
     Items=0
     Counter=0
@@ -123,14 +123,16 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
       Items=$((Items+1))
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-    dialog --backtitle "$Backtitle" --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu \
-        "\n      $Message\n" 20 55 $Counter "${ItemList[@]}" 2>output.file
+
+    dialog --backtitle "$Backtitle" --no-tags \
+        --ok-label "$Ok" --cancel-label "$Cancel" \
+        --menu "\n      $Message\n" \
+        20 55 $Counter ${ItemList[@]} 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
     NativeZONE="${ItemList[${Item}]}"                        # Recover item from list (in user's language)  
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     ZONE="$(head -n ${Response} zones.file | tail -n 1)"     # Recover English version of Item
 
     # We now have a zone! eg: Europe
