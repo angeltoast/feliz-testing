@@ -34,8 +34,8 @@
 # print_first_line   127       ... and onwards
 # ----------------------    ------------------------
 
-function set_language
-{
+function set_language {
+  
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   
   # First load English file
@@ -108,8 +108,7 @@ function set_language
   return 0
 }
 
-function not_found                # Optional arguments $1 & $2 for box size
-{
+function not_found {                # Optional arguments $1 & $2 for box size
   if [ $1 ] && [ -n $1 ]; then
     Height="$1"
   else
@@ -124,8 +123,7 @@ function not_found                # Optional arguments $1 & $2 for box size
   return 0
 }
 
-function dialog_inputbox          # General-purpose input box ... $1 & $2 are box size
-{
+function dialog_inputbox {          # General-purpose input box ... $1 & $2 are box size
   dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
@@ -133,22 +131,20 @@ function dialog_inputbox          # General-purpose input box ... $1 & $2 are bo
   return 0
 }
 
-function message_first_line       # translates $1 and starts a Message with it
-{
+function message_first_line {       # translates $1 and starts a Message with it
   translate "$1"
   Message="$Result"
   return 0
 }
 
-function message_subsequent       # translates $1 and continues a Message with it
-{
+function message_subsequent {       # translates $1 and continues a Message with it
   translate "$1"
   Message="${Message}\n${Result}"
   return 0
 }
 
-function print_first_line         # Called by FinalCheck to display all user-defined variables
-{                                 # Prints argument(s) centred according to content and screen size
+function print_first_line {         # Called by FinalCheck to display all user-defined variables
+                                    # Prints argument(s) centred according to content and screen size
   text="$1 $2 $3"
   local width=$(tput cols)
   EMPTY=" "
@@ -162,15 +158,15 @@ function print_first_line         # Called by FinalCheck to display all user-def
   return 0
 }
 
-function print_subsequent # Called by FinalCheck to display all user-defined variables
-{ # Prints argument(s) aligned to print_first_line according to content and screen size
+function print_subsequent { # Called by FinalCheck to display all user-defined variables
+                            # Prints argument(s) aligned to print_first_line according to content and screen size
   text="$1 $2 $3"
   echo "$EMPTY $text"
   return 0
 }
 
-function translate  # Called by message_first_line & message_subsequent and by other functions as required
-{                     # $1 is text to be translated
+function translate {  # Called by message_first_line & message_subsequent and by other functions as required
+                      # $1 is text to be translated
   text="${1%% }"      # Remove any trailing spaces
   if [ $LanguageFile = "English.lan" ] || [ $translate = "N" ]; then
     Result="$text"

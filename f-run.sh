@@ -37,20 +37,17 @@
 #                              finish                  773
 # -------------------------    ---------------------------
 
-function arch_chroot # From Lution AIS - calls arch-chroot with options
-{
+function arch_chroot { # From Lution AIS - calls arch-chroot with options
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
   return 0
 }
 
-function parted_script # Calls GNU parted tool with options
-{
+function parted_script { # Calls GNU parted tool with options
   parted --script /dev/${UseDisk} "$1" 2>> feliz.log
   return 0
 }
 
-function install_message # For displaying status while running on auto
-{
+function install_message { # For displaying status while running on auto
   echo
   tput bold
   print_first_line "$1" "$2" "$3"
@@ -59,9 +56,8 @@ function install_message # For displaying status while running on auto
   return 0
 }
 
-function action_MBR # Called by feliz.sh before other partitioning actions
-{ # Uses the variables set above to create partition table & all partitions
-
+function action_MBR { # Called by feliz.sh before other partitioning actions
+                      # Uses the variables set above to create partition table & all partitions
   # Root partition
   # --------------
     # Calculate end-point
@@ -135,15 +131,15 @@ function action_MBR # Called by feliz.sh before other partitioning actions
   return 0
 }
 
-function action_EFI # Called during installation phase
-{ # Uses the variables set above to create GPT partition table & all partitions
-
+function action_EFI { # Called during installation phase
+                      # Uses the variables set above to create GPT partition table & all partitions
   # Format the drive for EFI
     tput setf 0                 # Change foreground colour to black temporarily to hide error message
     sgdisk --zap-all /dev/sda   # Remove all partitions
     wipefs -a /dev/sda          # Remove filesystem
     tput sgr0                   # Reset colour
     parted_script "mklabel gpt"        # Create EFI partition table
+    
   # Boot partition
   # --------------
     # Calculate end-point
@@ -232,8 +228,8 @@ function action_EFI # Called during installation phase
   return 0
 }
 
-function mount_partitions
-{
+function mount_partitions {
+  
   install_message "Preparing and mounting partitions"
   # First unmount any mounted partitions
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
@@ -313,12 +309,11 @@ function mount_partitions
   return 0
 }
 
-function install_kernel # Selected kernel and some other core systems
-{
-  # Set the locale for all processes run from the current shell 
-  LANG=C
+function install_kernel { # Selected kernel and some other core systems
 
-  # And this, to solve keys issue if an older Feliz or Arch iso is running after keyring changes
+  LANG=C  # Set the locale for all processes run from the current shell 
+
+  # Solve keys issue if an older Feliz or Arch iso is running after keyring changes
   # Passes test if the date of the running iso is more recent than the date of the latest Arch
   # trust update. Next trust update due 2018:06:25
 
@@ -354,8 +349,8 @@ function install_kernel # Selected kernel and some other core systems
   return 0
 }
 
-function add_codecs
-{
+function add_codecs {
+  
   translate "Installing"
   install_message "$Result codecs"
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
@@ -388,11 +383,10 @@ function add_codecs
   return 0
 }
 
-function mirror_list
-{ # Use rankmirrors (script in /usr/bin/ from Arch) to generate fast mirror list
-  # In f-set.sh/choose_mirrors the user has selected one or more countries with Arch Linux mirrors
-  # These have been stored in the array CountryLong[@] declared in f-vars.sh
-  # Now the mirrors associated with each of those countries must be extracted from the array
+function mirror_list {  # Use rankmirrors (script in /usr/bin/ from Arch) to generate fast mirror list
+                        # User has selected one or more countries with Arch Linux mirrors
+                        # These have been stored in the array CountryLong
+                        # Now the mirrors associated with each of those countries must be extracted from the array
   install_message "Generating mirrorlist"
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
 
@@ -443,8 +437,8 @@ function mirror_list
   return 0
 }
 
-function install_display_manager
-{ # Disable any existing display manager
+function install_display_manager { # Disable any existing display manager
+  
   arch_chroot "systemctl disable display-manager.service" >> feliz.log
   # Then install selected display manager
   translate "Installing"
@@ -458,9 +452,8 @@ function install_display_manager
   return 0
 }
 
-function install_extras
-{ # Install desktops and other extras
-  # FelizOB (note that $LuxuriesList and $DisplayManager are empty, so their routines will not be called)
+function install_extras { # Install desktops and other extras for FelizOB (note that $LuxuriesList 
+                          # and $DisplayManager are empty, so their routines will not be called)
   if [ $DesktopEnvironment = "FelizOB" ]; then
     translate "Installing"
     install_message "$Result FelizOB"
@@ -554,8 +547,8 @@ function install_extras
   return 0
 }
 
-function install_yaourt
-{
+function install_yaourt {
+  
   translate "Installing"
   install_message "$Result Yaourt"
   arch=$(uname -m)
@@ -578,8 +571,8 @@ function install_yaourt
   return 0
 }
 
-function user_add # Adds user and copies FelizOB configurations
-{
+function user_add { # Adds user and copies FelizOB configurations
+
   CheckUsers=`cat /mnt/etc/passwd | grep ${user_name}`
   # If not already exist, create user
   if [ -z "${CheckUsers}" ]; then
@@ -656,16 +649,15 @@ function user_add # Adds user and copies FelizOB configurations
   return 0
 }
 
-function check_existing
-{                                                     # Test if $1 (path) + $2 (file) already exists
-  if [ -f "$1$2" ]; then                              # If path+file already exists
-      mv "$1$2" "$1saved$2"                           # Rename it
+function check_existing {     # Test if $1 (path) + $2 (file) already exists
+  if [ -f "$1$2" ]; then      # If path+file already exists
+      mv "$1$2" "$1saved$2"   # Rename it
   fi
   return 0
 }
 
-function set_root_password
-{
+function set_root_password {
+  
   translate "Success!"
   title="$Result"
   translate "minutes"
@@ -722,8 +714,8 @@ function set_root_password
   return 0
 }
 
-function set_user_password
-{
+function set_user_password {
+  
   message_first_line "Enter a password for"
   Message="${Message} ${user_name}\n"
   Repeat="Y"
@@ -773,8 +765,8 @@ function set_user_password
   return 0
 }
 
-function finish
-{
+function finish {
+  
   translate "Shutdown Reboot"
   Item1="$(echo $Result | cut -d' ' -f1)"
   Item2="$(echo $Result | cut -d' ' -f2)"

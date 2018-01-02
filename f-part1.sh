@@ -37,8 +37,8 @@
 # display_partitions   683 
 # ------------------------    ------------------------
 
-function check_parts  # Called by feliz.sh
-{                       # Test for existing partitions
+function check_parts { # Called by feliz.sh
+                       # Test for existing partitions
   translate "Choose from existing partitions"
   LongPart1="$Result"
   translate "Open cfdisk so I can partition manually"
@@ -110,11 +110,11 @@ function check_parts  # Called by feliz.sh
   return 0
 }
 
-function build_lists # Called by check_parts to generate details of existing partitions
-{ # 1) Produces a list of partition IDs, from which items are removed as allocated to root, etc.
-  #    This is the 'master' list, and the two associative arrays are keyed to this.
-  # 2) Saves any existing labels on any partitions into an associative array, Labelled[]
-  # 3) Assembles information about all partitions in another associative array, PartitionArray
+function build_lists { # Called by check_parts to generate details of existing partitions
+  # 1) Produces a list of partition IDs, from which items are removed as allocated to root, etc.
+  #    This is the 'master' list, and the two associative arrays are keyed to this list.
+  # 2) Saves any existing labels on any partitions into an associative array - Labelled
+  # 3) Assembles information about all partitions in another associative array - PartitionArray
 
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
@@ -154,10 +154,10 @@ function build_lists # Called by check_parts to generate details of existing par
   return 0
 }
 
-function partitioning_options                   # Called by check_parts after user selects an action
-{                                               # Responds to selected option
+function partitioning_options {                 # Called by check_parts after user selects an action
+
   case $Result in
-  1) echo "Manual partition allocation" >> feliz.log  # Use existing Partitions
+  1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
     AutoPart="MANUAL" ;;                        # Flag - MANUAL/AUTO/GUIDED/CFDISK/NONE
   2) cfdisk 2>> feliz.log                       # Open cfdisk for manual partitioning
     tput setf 0                                 # Change foreground colour to black
@@ -181,8 +181,8 @@ function partitioning_options                   # Called by check_parts after us
   return 0
 }
 
-function choose_device  # Called from partitioning_options or partitioning_optionsEFI
-{                       # Choose device for autopartition
+function choose_device { # Called from partitioning_options or partitioning_optionsEFI
+                         # Select device for autopartition
   while [ ${AutoPart} != "AUTO" ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
@@ -222,15 +222,15 @@ function choose_device  # Called from partitioning_options or partitioning_optio
   return 0
 }
 
-function partition_maker { # Called from autopart for both EFI and BIOS systems
-                    # Receives up to 4 arguments
-                    # $1 is the starting point of the first partition
-                    # $2 is size of root partition
-                    # $3 if passed is size of home partition
-                    # $4 if passed is size of swap partition
-                    # Note that an appropriate partition table has already been created in autopart
-                    # If EFI the /boot partition has also been created at /dev/sda1 and set as bootable
-                    # and the startpoint has been set to follow /boot
+function partition_maker {  # Called from autopart for autopartitioning both EFI and BIOS systems
+                            # Receives up to 4 arguments
+                            # $1 is the starting point of the first partition
+                            # $2 is size of root partition
+                            # $3 if passed is size of home partition
+                            # $4 if passed is size of swap partition
+                            # Appropriate partition table has already been created in autopart
+                            # If EFI the /boot partition has also been created at /dev/sda1 and
+                            # set as bootable, and the startpoint has been set to follow /boot
   local StartPoint=$1 
                                                     # Set the device to be used to 'set x boot on'    
   MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
@@ -264,8 +264,8 @@ function partition_maker { # Called from autopart for both EFI and BIOS systems
   return 0
 }
 
-function autopart # Called by feliz.sh/preparation
-{                   # Consolidated automatic partitioning for BIOS or EFI environment
+function autopart { # Called by feliz.sh/preparation if AutoPartition flag is AUTO
+                    # Consolidated automatic partitioning for BIOS or EFI environment
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
@@ -303,9 +303,8 @@ function autopart # Called by feliz.sh/preparation
   return 0
 }
 
-function allocate_partitions  # Called by feliz.sh after check_parts
-{ # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
-  
+function allocate_partitions { # Called by feliz.sh after check_parts
+                                # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
   RootPartition=""
   while [ "$RootPartition" = "" ]; do
     allocate_root                       # User must select root partition
@@ -336,9 +335,9 @@ function allocate_partitions  # Called by feliz.sh after check_parts
   return 0
 }
 
-function select_filesystem  # Called by allocate_root and more_partitions (via choose_mountpoint)
-{                             # and guided_MBR and guided_EFI 
-                              # Receives two arguments: $1 $2 are window size
+function select_filesystem { # Called by allocate_root and more_partitions (via choose_mountpoint)
+                             # and guided_MBR and guided_EFI 
+                             # Receives two arguments (window size)
   translate "Please select the file system for"
   title="$Result ${Partition}"
   message_first_line "It is not recommended to mix the btrfs file-system with others"
@@ -351,8 +350,8 @@ function select_filesystem  # Called by allocate_root and more_partitions (via c
   return 0
 }
 
-function edit_label # Called by allocate_root, allocate_swap & more_partitions
-{ # If a partition has a label, allow user to change or keep it
+function edit_label { # Called by allocate_root, allocate_swap & more_partitions
+                      # If a partition has a label, allow user to change or keep it
   Label="${Labelled[$1]}"
   
   if [ -n "${Label}" ]; then
@@ -389,10 +388,9 @@ function edit_label # Called by allocate_root, allocate_swap & more_partitions
   return 0
 }
 
-function allocate_root # Called by allocate_partitions
-{ # Display partitions for user-selection of one as /root
-  #  (uses list of all available partitions in PartitionList)
-
+function allocate_root {  # Called by allocate_partitions
+                          # Display partitions for user-selection of one as /root
+                          #  (uses list of all available partitions in PartitionList)
   if [ ${UEFI} -eq 1 ]; then        # Installing in UEFI environment
     allocate_uefi                   # First allocate the /boot partition (sets boot on for EFI)
     retval=$?
@@ -446,8 +444,8 @@ function allocate_root # Called by allocate_partitions
   return 0
 }
 
-function check_filesystem
-{ # Finds if there is an existing file system on the selected partition
+function check_filesystem { # Finds if there is an existing file system on the selected partition
+  
   CurrentType=$(sudo blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
@@ -459,8 +457,8 @@ function check_filesystem
   return 0
 }
 
-function allocate_swap
-{
+function allocate_swap {
+  
   message_first_line "Select a partition for swap from the ones that"
   message_subsequent "remain, or you can allocate a swap file"
   message_subsequent "Warning: Btrfs does not support swap files"
@@ -518,8 +516,8 @@ function allocate_swap
   return 0
 }
 
-function no_swap_partition
-{ # There are no unallocated partitions
+function no_swap_partition { # There are no unallocated partitions
+  
   message_first_line "There are no partitions available for swap"
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
@@ -536,8 +534,8 @@ function no_swap_partition
   return 0
 }
 
-function set_swap_file
-{
+function set_swap_file {
+  
   SwapFile=""
   while [ -z ${SwapFile} ]; do
     message_first_line "Allocate the size of your swap file"
@@ -558,8 +556,8 @@ function set_swap_file
   return 0
 }
 
-function more_partitions
-{ # If partitions remain unallocated, user may select for /home, etc
+function more_partitions { # If partitions remain unallocated, user may select for /home, etc
+  
   local Elements=$(echo "$PartitionList" | wc -w)
 
   while [ $Elements -gt 0 ]; do
@@ -594,11 +592,10 @@ function more_partitions
   return 0
 }
 
-function choose_mountpoint # Called by more_partitions
-{ # Allows user to choose filesystem and mountpoint
-  # Returns 0 if completed, 1 if interrupted
-
-  check_filesystem                                    # Before going to select_filesystem, check the partition
+function choose_mountpoint {  # Called by more_partitions
+                              # Allows user to choose filesystem and mountpoint
+                              # Returns 0 if completed, 1 if interrupted
+  check_filesystem            # Check the partition for existing filesystem
   if [ ${CurrentType} ]; then
     message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
     message_subsequent "reformatting an existing partition can have unexpected consequences"
@@ -647,12 +644,11 @@ function choose_mountpoint # Called by more_partitions
   return 0
 }
 
-function display_partitions # Called by more_partitions, allocate_swap & allocate_root
-{ # Uses $PartitionList & ${PartitionArray[@]} to generate a menu of available partitions
-  # Sets $retval (0/1) and $Result (Item text)
-  # Calling function must validate output
-
-  declare -a ItemList=                                    # Array will hold entire list
+function display_partitions { # Called by more_partitions, allocate_swap & allocate_root
+                              # Uses $PartitionList & PartitionArray to generate menu of available partitions
+                              # Sets $retval (0/1) and $Result (Item text)
+                              # Calling function must validate output
+  declare -a ItemList=()                                    # Array will hold entire list
   Items=0
   for Item in $PartitionList; do 
     Items=$((Items+1))
@@ -666,7 +662,7 @@ function display_partitions # Called by more_partitions, allocate_swap & allocat
   done
 
   dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
-    --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} ${ItemList[@]} 2>output.file
+    --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
   return 0

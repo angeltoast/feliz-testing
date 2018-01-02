@@ -31,8 +31,7 @@ source f-part1.sh    # Functions concerned with allocating partitions
 source f-part2.sh    # Guided partitioning for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
-function main
-{ # All functions called from this function must return a value of 1 or 0
+function main {
   
   if [ -f dialogrc ] && [ ! -f .dialogrc ]; then        # Ensure that display of dialogs is controlled
     cp dialogrc .dialogrc
@@ -67,13 +66,13 @@ function main
   done
 }
 
-function the_start # All user interraction takes place in this function
-{ # All functions called from this function must return a value of 1 or 0
+function the_start { # All user interraction takes place in this function
+  
   while true; do
     set_language                                  # In f-vars.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels
     timedatectl set-ntp true
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     # Check if on UEFI or BIOS system
     tput setf 0 # Change foreground colour to black temporarily to hide system messages
     dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
@@ -87,29 +86,29 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     while true; do
       select_device                               # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 1; fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       get_device_size                             # First make sure that there is space for installation
       if [ $? -ne 0 ]; then return 1; fi          # If not, restart
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       localisation_settings                       # Locale, keyboard & hostname
       if [ $? -ne 0 ]; then return 1; fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       desktop_settings                            # User chooses desktop environment and other extras
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
         then                                      # Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
         fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
         set_username                              # Enter name of primary user
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
         if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
           confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
         else
           IsInVbox=""
         fi
       fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       # Partitioning - In f-part1.sh
       while true; do
         check_parts                               # Check partition table & offer partitioning options
@@ -145,8 +144,8 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
   return 0
 }
 
-function preparation  # Prepare the environment for the installation phase
-{
+function preparation { # Prepare the environment for the installation phase
+  
   if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI and Guided partitioning_options
     action_EFI                                                # In f-part2.sh
   elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS and Guided partitioning_options
@@ -163,13 +162,14 @@ function preparation  # Prepare the environment for the installation phase
   return 0
 }
 
-function the_middle # The installation phase
-{
+function the_middle { # The installation phase
+  
     translate "Preparing local services"
     install_message "$Result"
     echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
     sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
+    
   # Set up locale, etc. The local copy of locale.gen may have been manually edited in f-set.sh, so ...
     GrepTest=$(grep "^${CountryLocale}" /etc/locale.gen)                # Check main locale not already set
     if [ -z $GrepTest ]; then                                           # If not, add it at bottom
@@ -185,10 +185,12 @@ function the_middle # The installation phase
     export "LANG=${CountryLocale}" 2>> feliz.log                        # eg: LANG=en_US.UTF-8
     arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
     arch_chroot "hwclock --systohc --utc"
+    
   # Networking
     arch_chroot "systemctl enable dhcpcd.service"
     pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
     arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
+    
   # Generate fstab and set up swapfile
     genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
     if [ ${SwapFile} ]; then
@@ -198,6 +200,7 @@ function the_middle # The installation phase
       swapon /mnt/swapfile 2>> feliz.log
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
+    
   # Grub
     translate "Installing"
     install_message "$Result " "Grub"
@@ -217,9 +220,11 @@ function the_middle # The installation phase
     else                                                      # No grub device selected
       echo "Not installing Grub" >> feliz.log
     fi
+    
   # Set keyboard to selected language at next startup
     echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
     echo -e "Section \"InputClass\"\nIdentifier \"system-keyboard\"\nMatchIsKeyboard \"on\"\nOption \"XkbLayout\" \"${Countrykbd}\"\nEndSection" > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf 2>> feliz.log
+    
   # Extra processes for desktop installation
     if [ $Scope != "Basic" ]; then
       add_codecs # Various bits
@@ -239,12 +244,12 @@ function the_middle # The installation phase
       install_extras                                           # Install DEs, WMs and DMs
       user_add
     fi
-    return 0
+  return 0
 }
 
-function the_end  # Set passwords and finish Feliz
-{
-  EndTime=$(date +%s)
+function the_end { # Set passwords and finish Feliz
+
+  EndTime=$(date +%s) # The end of life as we know it
   Difference=$(( EndTime-StartTime ))
   DIFFMIN=$(( Difference / 60 ))
   DIFFSEC=$(( Difference % 60 ))

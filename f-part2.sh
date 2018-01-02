@@ -37,8 +37,8 @@ DualBoot="N"      # For formatting EFI partition
 # recalculate_space  176     guided_EFI_Home      515    guided_MBR_home    561
 # -----------------------    ------------------------    -----------------------
 
-function allocate_uefi  # Called at start of allocate_root, as first step of EFI partitioning
-{                         # before allocating root partition. Uses list of available partitions in
+function allocate_uefi {  # Called at start of allocate_root, as first step of EFI partitioning
+                          # before allocating root partition. Uses list of available partitions in
                           # PartitionList created in f-part1.sh/BuildPartitionLists
 	Remaining=""
 	local Counter=0
@@ -58,16 +58,16 @@ function allocate_uefi  # Called at start of allocate_root, as first step of EFI
   return 0
 }
 
-function enter_size # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
-{                   # guided_MBR_root, guided_MBR_swap, guided_MBR_home
+function enter_size { # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
+                      # guided_MBR_root, guided_MBR_swap, guided_MBR_home
   message_subsequent "Please enter the desired size"
   message_subsequent "or, to allocate all the remaining space, enter"
   Message="$Message 100%"
   return 0
 }
 
-function select_device  # Called by feliz.sh
-{                         # User chooses device to use for auto partition
+function select_device {  # Called by feliz.sh
+                          # User chooses device to use for auto partition
                           # from all connected devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
@@ -124,8 +124,8 @@ function select_device  # Called by feliz.sh
   return 0
 }
 
-function get_device_size  # Called by feliz.sh
-{                           # Establish size of device in MiB and inform user
+function get_device_size {  # Called by feliz.sh
+                            # Establish size of device in MiB and inform user
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
                                   # Remove last character for calculations
@@ -167,8 +167,8 @@ function get_device_size  # Called by feliz.sh
   return 0
 }
 
-function recalculate_space  # Called by guided_MBR & guided_EFI
-{                             # Calculate remaining disk space
+function recalculate_space {  # Called by guided_MBR & guided_EFI
+                              # Calculate remaining disk space
   local Passed=$1
   case ${Passed: -1} in
   "%") Calculator=$FreeSpace ;;       # Allow for 100%
@@ -182,8 +182,8 @@ function recalculate_space  # Called by guided_MBR & guided_EFI
   return 0
 }
 
-function guided_EFI  # Called by f-part1.sh/partitioning_options as the first step
-{                      # in EFI guided partitioning option - Inform user of purpose, call each step
+function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first step
+                       # in EFI guided partitioning option - Inform user of purpose, call each step
   select_device                   # Get details of device to use
   get_device_size                 # Get available space in MiB
 
@@ -223,8 +223,8 @@ function guided_EFI  # Called by f-part1.sh/partitioning_options as the first st
   return 0
 }
 
-function guided_MBR # Called by f-part1.sh/partitioning_options as the first step in the 
-{                     # guided BIOS partitioning option - Inform user of purpose, call each step
+function guided_MBR { # Called by f-part1.sh/partitioning_options as the first step in the 
+                      # guided BIOS partitioning option - Inform user of purpose, call each step
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
@@ -262,8 +262,8 @@ function guided_MBR # Called by f-part1.sh/partitioning_options as the first ste
   return 0
 }
 
-function guided_EFI_Boot  # Called by guided_EFI
-{                           # EFI - User sets variable: BootSize
+function guided_EFI_Boot {  # Called by guided_EFI
+                            # EFI - User sets variable: BootSize
   BootSize=""
   while [ ${BootSize} = "" ]; do
     title="/boot"
@@ -291,8 +291,8 @@ function guided_EFI_Boot  # Called by guided_EFI
   return 0
 }
 
-function guided_EFI_Root # Celled by guided_EFI
-{ # EFI - User sets variables: RootSize, RootType
+function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSize, RootType
+  
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ ${RootSize} = "" ]; do
@@ -331,8 +331,8 @@ function guided_EFI_Root # Celled by guided_EFI
   return 0
 }
 
-function guided_MBR_root # Called by guided_MBR
-{ # BIOS - Set variables: RootSize, RootType
+function guided_MBR_root { # Called by guided_MBR - Set variables: RootSize, RootType
+  
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ "$RootSize" = "" ]; do
@@ -376,9 +376,8 @@ function guided_MBR_root # Called by guided_MBR
   return 0
 }
 
-function guided_EFI_Swap # Called by guided_EFI
-{ # EFI - User sets variable: SwapSize
-  # Show /boot and /root
+function guided_EFI_Swap {  # Called by guided_EFI
+                            # User sets variable: SwapSize
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ ${RootSize} = "" ]; do
@@ -436,9 +435,8 @@ function guided_EFI_Swap # Called by guided_EFI
   return 0
 }
 
-function guided_MBR_swap # Called by guided_MBR
-{ # BIOS - Set variable: SwapSize
-  # Show /boot and /root
+function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
+
   FreeGigs=$((FreeSpace/1024))
   SwapSize=""
   translate "partition"
@@ -499,8 +497,8 @@ function guided_MBR_swap # Called by guided_MBR
   return 0
 }
 
-function guided_EFI_Home # Called by guided_EFI
-{ # EFI - Set variables: HomeSize, HomeType
+function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, HomeType
+  
   HomeSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ ${HomeSize} = "" ]; do
@@ -540,8 +538,8 @@ function guided_EFI_Home # Called by guided_EFI
   return 0
 }
 
-function guided_MBR_home # Called by guided_MBR
-{ # BIOS - Set variables: HomeSize, HomeType
+function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, HomeType
+  
   FreeGigs=$((FreeSpace/1024))
   HomeSize=""
   while [ -z "$HomeSize" ]; do
