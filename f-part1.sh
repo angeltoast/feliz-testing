@@ -666,7 +666,7 @@ function display_partitions # Called by more_partitions, allocate_swap & allocat
   done
 
   dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
-    --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
+    --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} ${ItemList[@]} 2>output.file
   retval=$?
   Result=$(cat output.file)
   return 0

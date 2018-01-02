@@ -107,7 +107,7 @@ function select_device  # Called by feliz.sh
 
       dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
         --cancel-label "$Cancel"--no-tags --radiolist "${Message}" \
-          $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+          $1 $2 ${Items} ${ItemList[@]} 2>output.file
       retval=$?
       Result=$(cat output.file)                           # Return values to calling function
       rm list.file

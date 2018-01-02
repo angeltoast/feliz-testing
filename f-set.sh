@@ -65,7 +65,7 @@ function menu_dialog
   # Display the list for user-selection
   dialog --backtitle "$Backtitle" --title " $title " \
     --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
-      $1 $2 ${Items} "${ItemList[@]}" 2>output.file
+      $1 $2 ${Items} ${ItemList[@]} 2>output.file
   retval=$?
   Result=$(cat output.file)
   return 0
@@ -257,11 +257,11 @@ function america_subgroups  # Called from america
 
 function setlocale {
   CountryLocale=""
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   while [ -z "$CountryLocale" ]; do
     set_timezone # First get a validated ZONE/SUBZONE
     if [ $? -ne 0 ]; then return 1; fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     ZoneID="${ZONE}/${SUBZONE}"   # Use a copy (eg: Europe/London) to find in cities.list
                                   # (field 2 in cities.list is the country code (eg: GB)
     SEARCHTERM=$(grep "$ZoneID" cities.list | cut -d':' -f2)
@@ -568,7 +568,7 @@ function pick_category  # menu_dialog of categories of selected items from the A
     # Display the list for user-selection
     dialog --backtitle "$Backtitle" --title " $title " --no-tags --ok-label "$Ok" --cancel-label "$Done" --menu \
         "$Message" \
-        20 70 ${Items} "${ItemList[@]}" 2>output.file
+        20 70 ${Items} ${ItemList[@]} 2>output.file
     retval=$?
     Result=$(cat output.file)
     
@@ -859,7 +859,7 @@ function choose_mirrors # User selects one or more countries with Arch Linux mir
 
       dialog --backtitle "$Backtitle" --title " $title " \
         --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "$Message" \
-        25 60 ${Items} "${ItemList[@]}" 2>output.file
+        25 60 ${Items} ${ItemList[@]} 2>output.file
       retval=$?
       Result=$(cat output.file)                                   # eg: United Kingdom
       rm list.file
