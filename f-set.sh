@@ -74,14 +74,19 @@ function menu_dialog
 function localisation_settings              # Locale, keyboard & hostname
 {
   localisation=1
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   until [ $localisation -eq 0 ]; do
     setlocale                                 # CountryLocale eg: en_GB.UTF-8
     if [ $? -ne 0 ]; then return 1; fi
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     get_keymap                                # Select keyboard layout eg: uk
     if [ $? -ne 0 ]; then return 1; fi
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     set_hostname
     localisation=$?
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   done
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   return 0
 }
 
