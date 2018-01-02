@@ -112,12 +112,9 @@ function the_start { # All user interraction takes place in this function
       # Partitioning - In f-part1.sh
       while true; do
         check_parts                               # Check partition table & offer partitioning options
-        if [ $? -ne 0 ]; then                     # User cancelled partitioning options
-          retval=1                                # so return
-          break
-        fi
+        if [ $? -ne 0 ]; then return 1; fi        # User cancelled partitioning options
 
-        if [ "$AutoPart" = "MANUAL" ]; then       # Not Auto partitioned or guided
+        if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
           allocate_partitions                     # Assign /root /swap & others
         fi
         if [ $? -eq 0 ]; then break; fi
