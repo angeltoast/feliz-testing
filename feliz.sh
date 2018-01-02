@@ -46,7 +46,7 @@ function main
   while true; do
     the_start                                     # All user interraction takes place in this function
     if [ $? -ne 0 ]; then
-      read -p "in ${SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+      read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       # exit
     fi                # Quit if error or user selects <Cancel>
       
@@ -73,7 +73,7 @@ function the_start # All user interraction takes place in this function
     set_language                                  # In f-vars.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels
     timedatectl set-ntp true
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     # Check if on UEFI or BIOS system
     tput setf 0 # Change foreground colour to black temporarily to hide system messages
     dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
@@ -87,29 +87,29 @@ function the_start # All user interraction takes place in this function
     while true; do
       select_device                               # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 1; fi
-      
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       get_device_size                             # First make sure that there is space for installation
       if [ $? -ne 0 ]; then return 1; fi          # If not, restart
-      
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       localisation_settings                       # Locale, keyboard & hostname
       if [ $? -ne 0 ]; then return 1; fi
-      
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       desktop_settings                            # User chooses desktop environment and other extras
       if [ $Scope != "Basic" ]; then              # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
         then                                      # Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
         fi
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
         set_username                              # Enter name of primary user
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
         if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
           confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
         else
           IsInVbox=""
         fi
       fi
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       # Partitioning - In f-part1.sh
       while true; do
         check_parts                               # Check partition table & offer partitioning options
@@ -117,7 +117,7 @@ function the_start # All user interraction takes place in this function
           retval=1                                # so return
           break
         fi
-        
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
         if [ "$AutoPart" = "MANUAL" ]; then       # Not Auto partitioned or guided
           allocate_partitions                     # Assign /root /swap & others
         fi
@@ -126,18 +126,17 @@ function the_start # All user interraction takes place in this function
       if [ $retval -ne 0 ]; then continue; fi
       select_kernel                               # Select kernel and device for Grub
       if [ $? -ne 0 ]; then exit; fi
-      
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       choose_mirrors
       if [ $? -ne 0 ]; then continue; fi
-  
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
         GrubDevice="EFI"                          # Set variable
       else							                          # If BIOS 
         select_grub_device                        # User chooses grub partition
       fi
-      retval=$?
-      if [ $retval -ne 0 ]; then continue; fi
-  
+      if [ $? -ne 0 ]; then continue; fi
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       final_check                                 # Allow user to change any variables
       return $?
     done
