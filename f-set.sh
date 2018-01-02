@@ -105,11 +105,12 @@ function desktop_settings
 function set_timezone
 {
   SUBZONE=""
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   while true; do
     message_first_line "To set the system clock, please first"
     message_subsequent "choose the World Zone of your location"
     timedatectl list-timezones | cut -d'/' -f1 | uniq > zones.file # Ten world zones
-  
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     declare -a ItemList=                                      # Array will hold entire menu list
     Items=0
     Counter=0
@@ -122,15 +123,14 @@ function set_timezone
       Items=$((Items+1))
       ItemList[${Items}]="${Item}"                            # Second column is the item
     done < zones.file
-  
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     dialog --backtitle "$Backtitle" --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu \
         "\n      $Message\n" 20 55 $Counter "${ItemList[@]}" 2>output.file
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
     NativeZONE="${ItemList[${Item}]}"                        # Recover item from list (in user's language)  
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     ZONE="$(head -n ${Response} zones.file | tail -n 1)"     # Recover English version of Item
 
     # We now have a zone! eg: Europe
@@ -267,7 +267,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     SEARCHTERM=${SEARCHTERM%% }             # Ensure no trailing spaces
     # Find all matching entries in locale.gen - This will be a table of valid locales in the form: en_GB.UTF-8
     EXTSEARCHTERM="${SEARCHTERM}.UTF-8"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     if [ $(grep "^NAME" /etc/*-release | cut -d'"' -f2 | cut -d' ' -f1) = "Debian" ]; then
       # In case testing in Debian
       LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f2 | grep -v '^UTF')
@@ -275,7 +275,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
       # Normal Arch setting
       LocaleList=$(grep "${EXTSEARCHTERM}" /etc/locale.gen | cut -d'#' -f2 | cut -d' ' -f1)
     fi
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     HowMany=$(echo $LocaleList | wc -w)     # Count them
     Rows=$(tput lines)                      # to ensure menu doesn't over-run
     Rows=$((Rows-4))                        # Available (printable) rows
@@ -292,7 +292,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
       message_subsequent "Choose one or Exit to retry"
       menu_dialogVariable="$choosefrom Edit_locale.gen"             # Add manual edit option to menu
       Cancel="$Exit"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       menu_dialog 17 50 # Arguments are dialog size. To display a menu and return $Result & $retval
       if [ $retval -ne 0 ]; then return 1; fi
       Response="$retval"
@@ -312,7 +312,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
             Message="$Result"
             # Prepare list for display
             menu_dialogVariable="$(cat list.file)"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
             menu_dialog 20 60                                       # Display in menu
           esac
         else                                                        # Nano was not used
