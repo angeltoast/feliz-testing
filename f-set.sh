@@ -65,7 +65,7 @@ function menu_dialog
   # Display the list for user-selection
   dialog --backtitle "$Backtitle" --title " $title " \
     --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
-      $1 $2 ${Items} ${ItemList[@]} 2>output.file
+      $1 $2 ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
   return 0
@@ -127,7 +127,7 @@ function set_timezone
     dialog --backtitle "$Backtitle" --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" \
         --menu "\n      $Message\n" \
-        20 55 $Counter ${ItemList[@]} 2>output.file
+        20 55 $Counter "${ItemList[@]}" 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
@@ -568,7 +568,7 @@ function pick_category  # menu_dialog of categories of selected items from the A
     # Display the list for user-selection
     dialog --backtitle "$Backtitle" --title " $title " --no-tags --ok-label "$Ok" --cancel-label "$Done" --menu \
         "$Message" \
-        20 70 ${Items} ${ItemList[@]} 2>output.file
+        20 70 ${Items} "${ItemList[@]}" 2>output.file
     retval=$?
     Result=$(cat output.file)
     
@@ -859,7 +859,7 @@ function choose_mirrors # User selects one or more countries with Arch Linux mir
 
       dialog --backtitle "$Backtitle" --title " $title " \
         --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "$Message" \
-        25 60 ${Items} ${ItemList[@]} 2>output.file
+        25 60 ${Items} "${ItemList[@]}" 2>output.file
       retval=$?
       Result=$(cat output.file)                                   # eg: United Kingdom
       rm list.file
