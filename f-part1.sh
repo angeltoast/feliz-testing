@@ -67,7 +67,7 @@ function check_parts { # Called by feliz.sh
       Message="${Message}\n"
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
- 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
       dialog --backtitle "$Backtitle" --title " $title " --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
         2 "$LongPart2" \
@@ -90,11 +90,12 @@ function check_parts { # Called by feliz.sh
     build_lists                          # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
-    
+echo "$PartitionList"
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     for part in ${PartitionList}; do
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     dialog --backtitle "$Backtitle" --title " $title " --no-tags \
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
       1 "$LongPart1" \
@@ -103,7 +104,7 @@ function check_parts { # Called by feliz.sh
       4 "$LongPart4" 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
     partitioning_options                  # Act on user selection
     if [ $? -ne 0 ]; then return 1; fi
   fi
