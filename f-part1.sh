@@ -472,11 +472,11 @@ function allocate_swap {
   
   display_partitions
   if [ $? -ne 0 ]; then return 1; fi
-  case "$Result" in
-  "swapfile") set_swap_file
-            SwapPartition=""
-            return 0 ;;
-  *) SwapPartition="/dev/$Result"
+  if [ "$Result" = "swapfile" ]; then
+    set_swap_file
+    SwapPartition=""
+  else
+    SwapPartition="/dev/$Result"
     IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       translate "is already formatted as a swap partition"
@@ -488,29 +488,27 @@ function allocate_swap {
       MakeSwap="N"
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
-      retval=$?
-read -p "$retval"
-      if [ $retval -ne 0 ]; then return 1; fi
+      if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
-read -p "$retval $Result"
       MakeSwap="Y"
       Label="${Labelled[${SwapPartition}]}"
       if [ -n "${Label}" ]; then
         edit_label "$PassPart"
       fi
     fi
+  fi
+  
+  PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
+
+  if [ -z $SwapPartition ]; then
+    translate "No provision has been made for swap"
+    dialog --ok-label "$Ok" --msgbox "$Result" 6 30
+  elif [ -n $SwapFile ]; then
+    dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
+  elif [ -n $SwapPartition ]; then
+    PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
+  fi
     
-    PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
-    
-    if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
-      translate "No provision has been made for swap"
-      dialog --ok-label "$Ok" --msgbox "$Result" 6 30
-    elif [ $SwapFile ]; then
-      dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
-    elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
-      PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
-    fi
-  esac
 read -p "$SwapPartition"
   return 0
 }
