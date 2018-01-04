@@ -500,13 +500,13 @@ function allocate_swap {
   
   PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
 
-  if [ -z $SwapPartition ]; then
+  if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
     translate "No provision has been made for swap"
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
-  elif [ -n $SwapFile ]; then
-    dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
-  elif [ -n $SwapPartition ]; then
+  elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
     PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
+  elif [ $SwapFile ] && [ "$SwapFile" != "" ]; then
+    dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
     
 read -p "$SwapPartition"

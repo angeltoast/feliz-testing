@@ -80,62 +80,60 @@ function the_start { # All user interraction takes place in this function
       UEFI=0                                      # Set variable UEFI OFF
     fi
     tput sgr0                                     # Reset colour
+
+    select_device                               # Detect all available devices & allow user to select
+    if [ $? -ne 0 ]; then return 1; fi
+
+    get_device_size                             # First make sure that there is space for installation
+    if [ $? -ne 0 ]; then return 1; fi          # If not, restart
+
+    localisation_settings                       # Locale, keyboard & hostname
+    if [ $? -ne 0 ]; then continue 1; fi
+
+    desktop_settings                            # User chooses desktop environment and other extras
+    if [ $Scope != "Basic" ]; then              # If any extra apps have been added
+      if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
+      then                                      # Gnome and FelizOB install their own DM
+        choose_display_manager                  # User selects from list of display managers
+      fi
+
+      set_username                              # Enter name of primary user
+
+      if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
+        confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
+      else
+        IsInVbox=""
+      fi
+    fi
+
+    # Partitioning - In f-part1.sh
     while true; do
-      select_device                               # Detect all available devices & allow user to select
-      if [ $? -ne 0 ]; then return 1; fi
+      check_parts                               # Check partition table & offer partitioning options
+      if [ $? -ne 0 ]; then return 1; fi        # User cancelled partitioning options
 
-      get_device_size                             # First make sure that there is space for installation
-      if [ $? -ne 0 ]; then return 1; fi          # If not, restart
-
-      localisation_settings                       # Locale, keyboard & hostname
-      if [ $? -ne 0 ]; then return 1; fi
-
-      desktop_settings                            # User chooses desktop environment and other extras
-      if [ $Scope != "Basic" ]; then              # If any extra apps have been added
-        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
-        then                                      # Gnome and FelizOB install their own DM
-          choose_display_manager                  # User selects from list of display managers
-        fi
-
-        set_username                              # Enter name of primary user
-
-        if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
-          confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
-        else
-          IsInVbox=""
-        fi
+      if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
+        allocate_partitions                     # Assign /root /swap & others
       fi
-
-      # Partitioning - In f-part1.sh
-      while true; do
-        check_parts                               # Check partition table & offer partitioning options
-        if [ $? -ne 0 ]; then return 1; fi        # User cancelled partitioning options
-
-        if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
-          allocate_partitions                     # Assign /root /swap & others
-        fi
-        if [ $? -eq 0 ]; then break; fi
-      done
-      if [ $retval -ne 0 ]; then continue; fi
-      select_kernel                               # Select kernel and device for Grub
-      if [ $? -ne 0 ]; then exit; fi
-
-      choose_mirrors
-      if [ $? -ne 0 ]; then continue; fi
-
-      if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
-        GrubDevice="EFI"                          # Set variable
-      else							                          # If BIOS 
-        select_grub_device                        # User chooses grub partition
-      fi
-      if [ $? -ne 0 ]; then continue; fi
-
-      final_check                                 # Allow user to change any variables
-      return $?
+      if [ $? -eq 0 ]; then break; fi
     done
-    return $?
+    if [ $retval -ne 0 ]; then continue; fi
+    select_kernel                               # Select kernel and device for Grub
+    if [ $? -ne 0 ]; then exit; fi
+
+    choose_mirrors
+    if [ $? -ne 0 ]; then continue; fi
+
+    if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
+      GrubDevice="EFI"                          # Set variable
+    else							                          # If BIOS 
+      select_grub_device                        # User chooses grub partition
+    fi
+    if [ $? -ne 0 ]; then continue; fi
+
+    final_check                                 # Allow user to change any variables
+    if [ $? -ne 0 ]; then continue; fi
+    return 0
   done
-  return 0
 }
 
 function preparation { # Prepare the environment for the installation phase
