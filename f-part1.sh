@@ -461,17 +461,19 @@ function allocate_swap {
   message_subsequent "Warning: Btrfs does not support swap files"
   
   SwapPartition=""
-  
+  SwapFile=""
+    
   translate "If you skip this step, no swap will be allocated"
   title="$Result"
 
   SavePartitionList="$PartitionList"
   PartitionList="$PartitionList swapfile"
-  
-  SwapFile=""
-  
+
   display_partitions
   if [ $? -ne 0 ]; then return 1; fi
+    
+read -p "$LINENO"
+
   if [ "$Result" = "swapfile" ]; then
     set_swap_file
     SwapPartition=""
@@ -488,13 +490,18 @@ function allocate_swap {
       MakeSwap="N"
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
+    
+read -p "$LINENO"
+
       if [ $? -ne 0 ]; then return 1; fi
-      Result=$(cat output.file)
-      MakeSwap="Y"
-      Label="${Labelled[${SwapPartition}]}"
-      if [ -n "${Label}" ]; then
-        edit_label "$PassPart"
-      fi
+    fi
+    
+read -p "$LINENO"
+
+    MakeSwap="Y"
+    Label="${Labelled[${SwapPartition}]}"
+    if [ -n "${Label}" ]; then
+      edit_label "$PassPart"
     fi
   fi
   
@@ -508,8 +515,7 @@ function allocate_swap {
   elif [ $SwapFile ] && [ "$SwapFile" != "" ]; then
     dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
-    
-read -p "$SwapPartition"
+
   return 0
 }
 
