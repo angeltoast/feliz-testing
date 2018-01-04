@@ -484,7 +484,7 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
       "Cinnamon") install_message "$Result Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log ;;
       "Deepin") install_message "$Result Deepin"
-          pacstrap /mnt deepin 2>> feliz.log ;;
+          pacstrap /mnt deepin 2>> feliz.log
           pacstrap /mnt deepin-extra 2>> feliz.log ;;
       "Enlightenment") install_message "$Result Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log ;;
