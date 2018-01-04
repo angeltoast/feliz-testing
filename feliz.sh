@@ -44,10 +44,7 @@ function main {
 
   while true; do
     the_start                                     # All user interraction takes place in this function
-    if [ $? -ne 0 ]; then
-      read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-      # exit
-    fi                # Quit if error or user selects <Cancel>
+    if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
       
     if [ "$AutoPart" = "NONE"  ]; then continue; fi  # Restart if no partitioning options    
     translate "Preparations complete"             # Inform user

@@ -62,18 +62,20 @@ function set_language {
     InstalLanguage=$(cat output.file)
 
   case "$InstalLanguage" in
-    de) LanguageFile="German.lan"  ;;
-    el) setfont LatGrkCyr-8x16 -m 8859-2
-      LanguageFile="Greek.lan"     ;;
+    de) LanguageFile="German.lan"
+        setfont eurlatgr ;;
+    el) LanguageFile="Greek.lan" 
+        setfont LatGrkCyr-8x16 -m 8859-2 ;;
     es) LanguageFile="Spanish.lan" ;;
-    fr) LanguageFile="French.lan"  ;;
+    fr) LanguageFile="French.lan"
+        setfont eurlatgr ;;
     it) LanguageFile="Italian.lan" ;;
     nl) LanguageFile="Dutch.lan"   ;;
     pl) LanguageFile="Polish.lan"  ;;
     pt-PT) LanguageFile="Portuguese-PT.lan" ;;
     pt-BR) LanguageFile="Portuguese-BR.lan" ;;
     vi) LanguageFile="Vietnamese.lan"
-      setfont viscii10-8x16 -m 8859-2 ;;
+        setfont viscii10-8x16 -m 8859-2 ;;
     *) LanguageFile="English.lan"
       InstalLanguage="en"
   esac

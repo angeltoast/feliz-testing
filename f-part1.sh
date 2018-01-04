@@ -26,15 +26,15 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           40    edit_label          386
-# build_lists          123    allocate_root       425
-# partitioning_options 169    check_filesystem    483
-# choose_device        207    allocate_swap       495   
-# partition_maker      253    no_swap_partition   554
-# autopart             294    set_swap_file       571
-# allocate_partitions  337    more_partitions     592 
-# select_filesystem    373    choose_mountpoint   628 
-# display_partitions   683 
+# check_parts           40    edit_label          349
+# build_lists          113    allocate_root       387
+# partitioning_options 157    check_filesystem    443
+# choose_device        184    allocate_swap       456   
+# partition_maker      225    no_swap_partition   515
+# autopart             267    set_swap_file       533
+# allocate_partitions  306    more_partitions     555 
+# select_filesystem    334    choose_mountpoint   591 
+#                             display_partitions  643 
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
@@ -118,13 +118,13 @@ function build_lists { # Called by check_parts to generate details of existing p
 
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-    PartitionList=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+    PartitionList=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
     
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
-    ListLabelledIDs=$(sudo blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+    ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs; do      
-      Labelled[$item]=$(sudo blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
 
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
@@ -132,7 +132,7 @@ function build_lists { # Called by check_parts to generate details of existing p
       # Get size and mountpoint of that partition
       SizeMount=$(lsblk -l | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
-      Type=$(sudo blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
+      Type=$(blkid /dev/$part | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
     done
     # Add label and bootable flag to PartitionArray
@@ -308,18 +308,15 @@ function allocate_partitions { # Called by feliz.sh after check_parts
   RootPartition=""
   while [ "$RootPartition" = "" ]; do
     allocate_root                       # User must select root partition
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
   done
                                         # All others are optional
   if [ -n "${PartitionList}" ]; then    # If there are unallocated partitions
     allocate_swap                       # Display display them for user to choose swap
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
   else                                  # If there is no partition for swap
     no_swap_partition                      # Inform user and allow swapfile
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
   fi
   
   for i in ${PartitionList}; do         # Check contents of PartitionList
@@ -329,8 +326,7 @@ function allocate_partitions { # Called by feliz.sh after check_parts
   Result="$(cat output.file)"           # Check for output
   if [ "${Result}" = "" ]; then         # If any remaining partitions
     more_partitions                     # Allow user to allocate
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
   fi
   return 0
 }
@@ -446,7 +442,7 @@ function allocate_root {  # Called by allocate_partitions
 
 function check_filesystem { # Finds if there is an existing file system on the selected partition
   
-  CurrentType=$(sudo blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+  CurrentType=$(blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
     message_first_line "The selected partition"
@@ -481,7 +477,7 @@ function allocate_swap {
             SwapPartition=""
             return 0 ;;
   *) SwapPartition="/dev/$Result"
-    IsSwap=$(sudo blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
+    IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       translate "is already formatted as a swap partition"
       Message="$SwapPartition $Result"
