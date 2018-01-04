@@ -117,11 +117,9 @@ function build_lists { # Called by check_parts to generate details of existing p
   # 3) Assembles information about all partitions in another associative array - PartitionArray
 
   # 1) Make a simple list variable of all partitions up to sd*99
-                                         # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-  #  PartitionList=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+                         # | starts /dev/  | select 1st field | ignore /dev/
   PartitionList=$(fdisk -l | grep '^/dev/' | cut -d' ' -f1 | cut -d'/' -f3) # eg: sdb1
-echo "$PartitionList"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
     ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
@@ -473,8 +471,7 @@ function allocate_swap {
   SwapFile=""
   
   display_partitions
-  retval=$?
-  if [ $retval -ne 0 ]; then return 1; fi
+  if [ $? -ne 0 ]; then return 1; fi
   case "$Result" in
   "swapfile") set_swap_file
             SwapPartition=""
@@ -492,8 +489,10 @@ function allocate_swap {
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
       retval=$?
+read -p "$retval"
       if [ $retval -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
+read -p "$retval $Result"
       MakeSwap="Y"
       Label="${Labelled[${SwapPartition}]}"
       if [ -n "${Label}" ]; then
@@ -512,6 +511,7 @@ function allocate_swap {
       PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
     fi
   esac
+read -p "$SwapPartition"
   return 0
 }
 
@@ -645,7 +645,7 @@ function choose_mountpoint {  # Called by more_partitions
 
 function display_partitions { # Called by more_partitions, allocate_swap & allocate_root
                               # Uses $PartitionList & PartitionArray to generate menu of available partitions
-                              # Sets $retval (0/1) and $Result (Item text)
+                              # Sets $retval (0/1) and $Result (Item text from output.file - eg: sda1)
                               # Calling function must validate output
   declare -a ItemList=()                                    # Array will hold entire list
   Items=0
