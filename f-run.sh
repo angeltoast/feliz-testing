@@ -235,7 +235,7 @@ function mount_partitions {
   umount ${RootPartition} /mnt 2>> feliz.log                          # eg: umount /dev/sda1
   
   # 1) Root partition
-  if [ $RootType = "" ] || [ $AutoPart = "CFDISK" ]; then
+  if [ $RootType = "" ]; then
     echo "Not formatting root partition" >> feliz.log                 # If /root filetype not set - do nothing
   else # check if replacing existing ext3/4 /root partition with btrfs
     CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -299,9 +299,7 @@ function mount_partitions {
       if [ -n "${Label}" ]; then
         Label="-L ${Label}"                                           # Prepare label
       fi
-      if [ $AutoPart = "CFDISK" ]; then
-        mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
-      fi
+      mkfs.${AddPartType[$Counter]} ${Label} ${id} &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
     fi
     mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log           # eg: mount /dev/sda3 /mnt/home
     Counter=$((Counter+1))
@@ -485,6 +483,9 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
           pacstrap /mnt budgie-desktop 2>> feliz.log ;;
       "Cinnamon") install_message "$Result Cinnamon"
           pacstrap /mnt cinnamon 2>> feliz.log ;;
+      "Deepin") install_message "$Result Deepin"
+          pacstrap /mnt deepin 2>> feliz.log ;;
+          pacstrap /mnt deepin-extra 2>> feliz.log ;;
       "Enlightenment") install_message "$Result Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log ;;
       "Fluxbox") install_message "$Result Fluxbox"
@@ -534,7 +535,7 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
     for i in ${LuxuriesList}; do
         translate "Installing"
       case $i in
-      "Awesome" | "Budgie" | "Cinnamon" | "Enlightenment" | "Fluxbox" | "Gnome" | "i3" | "Icewm" | "JWM" | "KDE" | "LXDE" | "LXQt" | "Mate" | "Openbox" | "Windowmaker" | "Xfce" | "Xmonad") continue ;; # Ignore DEs & WMs on this pass
+      "Awesome"|"Budgie"|"Cinnamon"|"Deepin"|"Enlightenment"|"Fluxbox"|"Gnome"|"i3"|"Icewm"|"JWM"|"KDE"|"LXDE"|"LXQt"|"Mate"|"Openbox"|"Windowmaker"|"Xfce"|"Xmonad") continue ;; # Ignore DEs & WMs on this pass
       "cairo-dock") install_message "$Result Cairo Dock"
         pacstrap /mnt cairo-dock cairo-dock-plug-ins 2>> feliz.log ;;
       "conky") install_message "$Result Conky"

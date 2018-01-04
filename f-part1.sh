@@ -118,7 +118,8 @@ function build_lists { # Called by check_parts to generate details of existing p
 
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-    PartitionList=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+  #  PartitionList=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+  PartitionList=$(fdisk -l | grep '^/dev/' | cut -d' ' -f1 | cut -d'/' -f3) # eg: sdb1
 echo "$PartitionList"
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
@@ -127,7 +128,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     for item in $ListLabelledIDs; do      
       Labelled[$item]=$(blkid /dev/sd* | grep "/dev/$item" | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
     for part in ${PartitionList}; do
       # Get size and mountpoint of that partition
@@ -159,13 +160,13 @@ function partitioning_options {                 # Called by check_parts after us
 
   case $Result in
   1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
-    AutoPart="MANUAL" ;;                        # Flag - MANUAL/AUTO/GUIDED/CFDISK/NONE
+    AutoPart="MANUAL" ;;                        # Flag - MANUAL/AUTO/GUIDED/NONE
   2) cfdisk 2>> feliz.log                       # Open cfdisk for manual partitioning
     tput setf 0                                 # Change foreground colour to black
     clear                                       # temporarily to hide error message
     partprobe 2>> feliz.log                     # Inform kernel of changes to partitions
     tput sgr0                                   # Reset colour
-    AutoPart="CFDISK" ;;
+    AutoPart="MANUAL" ;;
   3) if [ ${UEFI} -eq 1 ]; then                 # Guided manual partitioning functions
       guided_EFI
       if [ $? -ne 0 ]; then return 1; fi
@@ -187,7 +188,8 @@ function choose_device { # Called from partitioning_options or partitioning_opti
   while [ ${AutoPart} != "AUTO" ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
-    local Counter=$(echo "$DiskDetails" | wc -w)
+    local Counter
+    Counter=$(echo "$DiskDetails" | wc -w)
     menu_dialogVariable="$DiskDetails"
     UseDisk=""
     if [ $Counter -gt 1 ]; then
@@ -408,7 +410,7 @@ function allocate_root {  # Called by allocate_partitions
   Partition="/dev/$Result"
   RootPartition="${Partition}"
 
-  if [ $AutoPart = "MANUAL" ]; then # Not required for AUTO, CFDISK or GUIDED
+  if [ $AutoPart = "MANUAL" ]; then # Not required for AUTO or GUIDED
                                     # Check if there is an existing filesystem on the selected partition
     check_filesystem                # This sets variable CurrentType and starts the Message
     Message="\n${Message}"

@@ -555,7 +555,7 @@ function pick_category { # menu_dialog of categories of selected items from the 
     menu_dialogVariable="${TransCatList}"
 
     # Prepare array for display
-    declare -a ItemList=()                                      # Array will hold entire list
+    declare -a ItemList=()                                    # Array will hold entire list
     Items=0
     Counter=1
     for Item in $menu_dialogVariable; do                      # Read items from the variable
@@ -583,7 +583,7 @@ function pick_category { # menu_dialog of categories of selected items from the 
       break
     else
       Category=$Result
-      choose_extras                        # Function to add items to LuxuriesList
+      choose_extras                                   # Function to add items to LuxuriesList
       if [ -n "$LuxuriesList" ]; then
         translate "Added so far"
         Message="$Result: ${LuxuriesList}\n"
