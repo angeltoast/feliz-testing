@@ -67,7 +67,7 @@ function check_parts { # Called by feliz.sh
       Message="${Message}\n"
       message_subsequent "If you choose to do nothing now, the script will"
       message_subsequent "terminate to allow you to partition in some other way"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
       dialog --backtitle "$Backtitle" --title " $title " --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
         2 "$LongPart2" \
@@ -90,12 +90,11 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     build_lists                          # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
-echo "$PartitionList"
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     for part in ${PartitionList}; do
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     dialog --backtitle "$Backtitle" --title " $title " --no-tags \
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
       1 "$LongPart1" \
@@ -104,7 +103,7 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
       4 "$LongPart4" 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+
     partitioning_options                  # Act on user selection
     if [ $? -ne 0 ]; then return 1; fi
   fi
@@ -120,14 +119,15 @@ function build_lists { # Called by check_parts to generate details of existing p
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
     PartitionList=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
-    
+echo "$PartitionList"
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
     ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs; do      
       Labelled[$item]=$(blkid /dev/sd* | grep "/dev/$item" | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
-
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
     for part in ${PartitionList}; do
       # Get size and mountpoint of that partition
