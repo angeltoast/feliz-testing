@@ -119,13 +119,13 @@ function build_lists { # Called by check_parts to generate details of existing p
 
   # 1) Make a simple list variable of all partitions up to sd*99
                                          # | includes keyword " TYPE=" | select 1st field | ignore /dev/
-    PartitionList=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
+    PartitionList=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep ' TYPE=' | cut -d':' -f1 | cut -d'/' -f3) # eg: sdb1
     
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
-    ListLabelledIDs=$(blkid /dev/sd* | grep /dev/sd.[0-9] | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+    ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
     # If at least one labelled partition found, add a matching record to associative array Labelled[]
     for item in $ListLabelledIDs; do      
-      Labelled[$item]=$(blkid /dev/sd* | grep /dev/$item | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+      Labelled[$item]=$(blkid /dev/sd* | grep "/dev/$item" | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
     done
 
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
