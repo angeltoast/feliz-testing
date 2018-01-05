@@ -200,7 +200,7 @@ HomeSize=""               # Home variable
 HomeType=""               # Home variable
 SwapPartition=""          # eg: /dev/sda3
 FormatSwap="N"            # User selects whether to reuse swap
-MakeSwap="Y"
+MakeSwap="Y"              # 
 SwapFile=""               # eg: 2G
 IsSwap=""                 # Result of lsblk test
 UEFI=0                    # 0 = BIOS; 1 = EFI

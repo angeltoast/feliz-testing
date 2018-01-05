@@ -462,7 +462,7 @@ function allocate_swap {
   
   SwapPartition=""
   SwapFile=""
-    
+
   translate "If you skip this step, no swap will be allocated"
   title="$Result"
 
@@ -470,19 +470,21 @@ function allocate_swap {
   PartitionList="$PartitionList swapfile"
 
   display_partitions
-  if [ $? -ne 0 ]; then return 1; fi
-    
-read -p "$LINENO"
+  if [ $? -ne 0 ]; then
+    FormatSwap="N"
+    return 1
+  fi
 
-  if [ "$Result" = "swapfile" ]; then
+  FormatSwap="Y"
+  Swap="$Result"
+  if [ "$Swap" = "swapfile" ]; then
     set_swap_file
-    SwapPartition=""
   else
-    SwapPartition="/dev/$Result"
+    SwapPartition="/dev/$Swap"
     IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
       translate "is already formatted as a swap partition"
-      Message="$SwapPartition $Result"
+      Message="$SwapPartition $SwapPartition"
       message_subsequent "Reformatting it will change the UUID, and if this swap"
       message_subsequent "partition is used by another operating system, that"
       message_subsequent "system will no longer be able to access the partition"
@@ -490,29 +492,36 @@ read -p "$LINENO"
       MakeSwap="N"
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
-    
-read -p "$LINENO"
-
-      if [ $? -ne 0 ]; then return 1; fi
+      case $? in
+      0) FormatSwap="Y" ;;
+      *FormatSwap="Y") FormatSwap="N"
+      esac
     fi
-    
-read -p "$LINENO"
 
     MakeSwap="Y"
     Label="${Labelled[${SwapPartition}]}"
-    if [ -n "${Label}" ]; then
+    if [ "${Label}" ] && [ "${Label}" != "" ]; then
       edit_label "$PassPart"
     fi
   fi
-  
+
   PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
 
   if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
     translate "No provision has been made for swap"
+
+read -p "$LINENO $SwapPartition"
+    
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
   elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
+
+read -p "$LINENO $SwapPartition"
+    
     PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
   elif [ $SwapFile ] && [ "$SwapFile" != "" ]; then
+
+read -p "$LINENO $SwapPartition"
+    
     dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
 
