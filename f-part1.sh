@@ -618,48 +618,41 @@ function choose_mountpoint {  # Called by more_partitions
     message_subsequent "reformatting an existing partition can have unexpected consequences"
   fi
 
-read -p "f-part1.sh line $LINENO retval $retval Result $Result"
-  
-  select_filesystem
-  retval=$?                                         # May return 1 if cancelled by user; no filesystem selected
-  if [ $retval -ne 0 ]; then return 1; fi           # $retval greater than 0 means user cancelled or escaped, so abort
+  select_filesystem           # Calls menu_dialog to display list of filesystems. Sets $retval & $PartitionType
+                              # Returns 0 if completed, 1 if interrupted (no filesystem selected)
+  if [ $? -ne 0 ]; then return 1; fi                # Inform calling function
 
   PartMount=""
-  while [ ${PartMount} = "" ]; do
+  while [ -z ${PartMount} ]; do
     message_first_line "Enter a mountpoint for"
     Message="$Message ${Partition}\n(eg: /home) ... "
     
-    dialog_inputbox                                        # Get a mountpoint
-    retval=$?                                       # May return 1 if cancelled by user; no mountpoint selected
-    if [ $retval -ne 0 ]; then return 1; fi         # $retval greater than 0 means user cancelled or escaped, so abort
-    
-    CheckInput=${Response:0:1}                      # First character of ${Response}
-    case ${CheckInput} in                           # Check that entry includes '/'
-      '') message_first_line "You must enter a valid mountpoint"
-          PartMount="" ;;
-      *) if [ ${CheckInput} != "/" ]; then
-            PartMount="/${Response}"
-        else
-            PartMount="${Response}"
-        fi
-    esac
+    dialog_inputbox           # User manually enters a mountpoint; Sets $retval & $Result
+                              # Returns 0 if completed, 1 if cancelled by user
+    if [ $retval -ne 0 ]; then return 1; fi         # No mountpoint selected, so inform calling function
+    Response="echo $Result | sed 's/ //'"           # Remove any spaces
+    CheckInput=${Response:0:1}                      # First character of user input
+    if [ ${CheckInput} = "/" ]; then                # Ensure that entry includes '/'
+      PartMount="${Response}"
+    else
+      PartMount="/${Response}"
+    fi
 
     if [ ${#AddPartMount[@]} -gt 0 ]; then          # If there are existing (extra) mountpoints
       for MountPoint in ${AddPartMount}; do         # Go through AddPartMount
         if [ $MountPoint = $PartMount ]; then       # If the mountpoint has already been used
           dialog --backtitle "$Backtitle" --ok-label "$Ok" \
             --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
-          PartMount=""
+          PartMount=""                              # Ensure that outer loop will continue
           break
         fi
       done
     fi
-  done
-  # Add the selected partition to the arrays for extra partitions
+  done  # If a partiton has been accepted, add it to the arrays for extra partitions
   ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
   AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
   AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
-  AddPartMount[$ExtraPartitions]="${PartMount}"
+  AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
   return 0
 }
 
@@ -667,11 +660,11 @@ function display_partitions { # Called by more_partitions, allocate_swap & alloc
                               # Uses $PartitionList & PartitionArray to generate menu of available partitions
                               # Sets $retval (0/1) and $Result (Item text from output.file - eg: sda1)
                               # Calling function must validate output
-  declare -a ItemList=()                                    # Array will hold entire list
+  declare -a ItemList=()                           # Array will hold entire list
   Items=0
   for Item in $PartitionList; do 
     Items=$((Items+1))
-    ItemList[${Items}]="${Item}"                            # and copy each one to the array
+    ItemList[${Items}]="${Item}"                   # Copy each one to the array
     Items=$((Items+1))
     if [ "$Item" = "swapfile" ]; then
       ItemList[${Items}]="Use a swap file"
