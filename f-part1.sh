@@ -564,8 +564,10 @@ function set_swap_file {
   return 0
 }
 
-function more_partitions { # If partitions remain unallocated, user may select for /home, etc
-  
+function more_partitions {  # Called by allocate_partitions if partitions remain
+                            # unallocated. User may select for /home, etc
+  translate "Partitions"
+  title="$Result"
   local Elements=$(echo "$PartitionList" | wc -w)
 
   while [ $Elements -gt 0 ]; do
