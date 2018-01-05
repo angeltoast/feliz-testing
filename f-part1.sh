@@ -322,9 +322,6 @@ function allocate_partitions { # Called by feliz.sh after check_parts
     if [ $? -ne 0 ]; then return 1; fi
   fi
 
-echo "$PartitionList"
-read -p "allocate_partitions line $LINENO SwapPartition $SwapPartition"
-    
   for i in ${PartitionList}; do         # Check contents of PartitionList
     echo $i > output.file               # If anything found, echo to file
     break                               # Break on first find
@@ -576,16 +573,12 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
 
     display_partitions  # Sets $retval & $Result, and returns 0 if completed
 
-read -p "$retval $Result"
-
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
     PassPart=${Result:0:4}                  # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
     choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
                         # Validates response, warns if already used, then adds the partition to the arrays for extra
     retval=$?           # partitions. Returns 0 if completed, 1 if interrupted
-    
-read -p "$retval $Result"
 
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no details added, so abort
     
@@ -623,11 +616,11 @@ function choose_mountpoint {  # Called by more_partitions
   if [ $? -ne 0 ]; then return 1; fi                # Inform calling function
 
   PartMount=""
-  while [ -z ${PartMount} ]; do
+  while [ -z "$PartMount"" ]; do
     message_first_line "Enter a mountpoint for"
     Message="$Message ${Partition}\n(eg: /home) ... "
     
-    dialog_inputbox           # User manually enters a mountpoint; Sets $retval & $Result
+    dialog_inputbox 10 50     # User manually enters a mountpoint; Sets $retval & $Result
                               # Returns 0 if completed, 1 if cancelled by user
     if [ $retval -ne 0 ]; then return 1; fi         # No mountpoint selected, so inform calling function
     Response="echo $Result | sed 's/ //'"           # Remove any spaces

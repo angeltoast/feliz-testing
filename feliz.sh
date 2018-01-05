@@ -90,6 +90,9 @@ function the_start { # All user interraction takes place in this function
     localisation_settings                       # Locale, keyboard & hostname
     if [ $? -ne 0 ]; then continue 1; fi
 
+    choose_mirrors
+    if [ $? -ne 0 ]; then continue; fi
+
     desktop_settings                            # User chooses desktop environment and other extras
     if [ $Scope != "Basic" ]; then              # If any extra apps have been added
       if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
@@ -120,9 +123,6 @@ function the_start { # All user interraction takes place in this function
     select_kernel                               # Select kernel and device for Grub
     if [ $? -ne 0 ]; then exit; fi
 
-    choose_mirrors
-    if [ $? -ne 0 ]; then continue; fi
-
     if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
       GrubDevice="EFI"                          # Set variable
     else							                          # If BIOS 
@@ -145,6 +145,8 @@ function preparation { # Prepare the environment for the installation phase
   elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart                                                  # In f-part1.sh
   elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
+    Message="No partitions"
+    not_found 6 20
     return 1
   fi
 

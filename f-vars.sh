@@ -27,10 +27,10 @@
 # Function          Line    Function            Line
 # ----------------------    ------------------------
 # set_language        38    print_subsequent     127
-# not_found           97    common_translations  197
-# dialog_inputbox    107    translate            246
-# message_first_line 127    
-# message_subsequent 148    Arrays & Variables   266
+# not_found          113    common_translations  197
+# dialog_inputbox    128    translate            246
+# message_first_line 138    
+# message_subsequent 159    Arrays & Variables   266
 # print_first_line   127       ... and onwards
 # ----------------------    ------------------------
 

@@ -1052,12 +1052,13 @@ function final_check { # Display all user settings before starting installation
       fi
     esac
     echo
+    # Prompt user for a number
     translate="Y"
     Response=20
     translate "Press Enter to install with these settings, or"
     print_first_line "$Result"
     translate "Enter number for data to change"
-    # Prompt user for a number
+
     local T_COLS=$(tput cols)
     local lov=${#Result}
     stpt=0
