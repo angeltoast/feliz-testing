@@ -224,11 +224,12 @@ function choose_device { # Called from partitioning_options or partitioning_opti
 }
 
 function partition_maker {  # Called from autopart for autopartitioning both EFI and BIOS systems
+                            # Uses GNU Parted to create partitions as defined
                             # Receives up to 4 arguments
-                            # $1 is the starting point of the first partition
-                            # $2 is size of root partition
-                            # $3 if passed is size of home partition
-                            # $4 if passed is size of swap partition
+                            #   $1 is the starting point of the first partition
+                            #   $2 is size of root partition
+                            #   $3 if passed is size of home partition
+                            #   $4 if passed is size of swap partition
                             # Appropriate partition table has already been created in autopart
                             # If EFI the /boot partition has also been created at /dev/sda1 and
                             # set as bootable, and the startpoint has been set to follow /boot
@@ -265,7 +266,8 @@ function partition_maker {  # Called from autopart for autopartitioning both EFI
   return 0
 }
 
-function autopart { # Called by feliz.sh/preparation if AutoPartition flag is AUTO
+function autopart { # Called by feliz.sh/preparation during installation phase
+                    # if AutoPartition flag is AUTO.
                     # Consolidated automatic partitioning for BIOS or EFI environment
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
@@ -328,7 +330,7 @@ read -p "allocate_partitions line $LINENO SwapPartition $SwapPartition"
     break                               # Break on first find
   done
   Result="$(cat output.file)"           # Check for output
-  if [ "${Result}" != "" ]; then         # If any remaining partitions
+  if [ "${Result}" != "" ]; then        # If any remaining partitions
     more_partitions                     # Allow user to allocate
     if [ $? -ne 0 ]; then return 1; fi
   fi
@@ -473,10 +475,10 @@ function allocate_swap { # Called by allocate_partitions
   SavePartitionList="$PartitionList"
   PartitionList="$PartitionList swapfile"
 
-  display_partitions
-  if [ $? -ne 0 ]; then
+  display_partitions  # Sets $retval & $Result, and returns 0 if it completes
+  if [ $retval -ne 0 ]; then
     FormatSwap="N"
-    return 1
+    return 1          # Returns 1 to caller if no partition selected
   fi
 
   FormatSwap="Y"
@@ -513,19 +515,10 @@ function allocate_swap { # Called by allocate_partitions
 
   if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
     translate "No provision has been made for swap"
-
-read -p "$LINENO $SwapPartition"
-    
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
   elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
-
-read -p "$LINENO $SwapPartition"
-    
     PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
   elif [ $SwapFile ] && [ "$SwapFile" != "" ]; then
-
-read -p "$LINENO $SwapPartition"
-    
     dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
 
@@ -579,17 +572,17 @@ function more_partitions { # If partitions remain unallocated, user may select f
     message_first_line "The following partitions are available"
     message_subsequent "If you wish to use one, select it from the list"
 
-    display_partitions
+    display_partitions  # Sets $retval & $Result, and returns 0 if completed
 
 read -p "$retval $Result"
 
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
-    PassPart=${Result:0:4}                  # $retval 0 means user selected a partition; isolate first 4 characters
+    PassPart=${Result:0:4}                  # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
-    choose_mountpoint                       # Complete details
-
-    retval=$?                               # May return 1 if cancelled by user
-
+    choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
+                        # Validates response, warns if already used, then adds the partition to the arrays for extra
+    retval=$?           # partitions. Returns 0 if completed, 1 if interrupted
+    
 read -p "$retval $Result"
 
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no details added, so abort
