@@ -305,7 +305,7 @@ function autopart { # Called by feliz.sh/preparation if AutoPartition flag is AU
 }
 
 function allocate_partitions { # Called by feliz.sh after check_parts
-                                # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
+                               # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
   RootPartition=""
   while [ "$RootPartition" = "" ]; do
     allocate_root                       # User must select root partition
@@ -319,13 +319,16 @@ function allocate_partitions { # Called by feliz.sh after check_parts
     no_swap_partition                      # Inform user and allow swapfile
     if [ $? -ne 0 ]; then return 1; fi
   fi
-  
+
+echo "$PartitionList"
+read -p "allocate_partitions line $LINENO SwapPartition $SwapPartition"
+    
   for i in ${PartitionList}; do         # Check contents of PartitionList
     echo $i > output.file               # If anything found, echo to file
     break                               # Break on first find
   done
   Result="$(cat output.file)"           # Check for output
-  if [ "${Result}" = "" ]; then         # If any remaining partitions
+  if [ "${Result}" != "" ]; then         # If any remaining partitions
     more_partitions                     # Allow user to allocate
     if [ $? -ne 0 ]; then return 1; fi
   fi
@@ -441,7 +444,8 @@ function allocate_root {  # Called by allocate_partitions
   return 0
 }
 
-function check_filesystem { # Finds if there is an existing file system on the selected partition
+function check_filesystem { # Called by
+  # Finds if there is an existing file system on the selected partition
   
   CurrentType=$(blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
@@ -454,7 +458,7 @@ function check_filesystem { # Finds if there is an existing file system on the s
   return 0
 }
 
-function allocate_swap {
+function allocate_swap { # Called by allocate_partitions
   
   message_first_line "Select a partition for swap from the ones that"
   message_subsequent "remain, or you can allocate a swap file"
@@ -528,16 +532,15 @@ read -p "$LINENO $SwapPartition"
   return 0
 }
 
-function no_swap_partition { # There are no unallocated partitions
-  
+function no_swap_partition {  # Called by allocate_partitions when
+                              # there are no unallocated partitions
   message_first_line "There are no partitions available for swap"
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
 
   dialog --backtitle "$Backtitle" --title " $title " \
     --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 10 55 2>output.file
-  retval=$?
-  case $retval in
+  case $? in
   0) set_swap_file
     SwapPartition="" ;;
   *) SwapPartition=""
@@ -576,12 +579,19 @@ function more_partitions { # If partitions remain unallocated, user may select f
     message_first_line "The following partitions are available"
     message_subsequent "If you wish to use one, select it from the list"
 
-    display_partitions 
+    display_partitions
+
+read -p "$retval $Result"
+
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
     PassPart=${Result:0:4}                  # $retval 0 means user selected a partition; isolate first 4 characters
     Partition="/dev/$PassPart"
-    choose_mountpoint                           # Complete details
+    choose_mountpoint                       # Complete details
+
     retval=$?                               # May return 1 if cancelled by user
+
+read -p "$retval $Result"
+
     if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no details added, so abort
     
     Label="${Labelled[${PassPart}]}"
@@ -612,6 +622,8 @@ function choose_mountpoint {  # Called by more_partitions
     message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
     message_subsequent "reformatting an existing partition can have unexpected consequences"
   fi
+
+read -p "f-part1.sh line $LINENO retval $retval Result $Result"
   
   select_filesystem
   retval=$?                                         # May return 1 if cancelled by user; no filesystem selected
