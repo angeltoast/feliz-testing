@@ -65,8 +65,6 @@ function main {
 
 function the_start { # All user interraction takes place in this function
 
-read -p "WTF?"
-  
   while true; do
     set_language                                  # In f-vars.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels

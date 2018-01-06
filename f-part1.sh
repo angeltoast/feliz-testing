@@ -354,33 +354,29 @@ function edit_label { # Called by allocate_root, allocate_swap & more_partitions
   Label="${Labelled[$1]}"
   
   if [ -n "${Label}" ]; then
-    # Inform the user and accept input
     translate "The partition you have chosen is labelled"
-    Message="$Result '${Label}'"
+    local Message="$Result '${Label}'"
     translate "Keep that label"
-    Keep="$Result"
+    local Keep="$Result"
     translate "Delete the label"
-    Delete="$Result"
+    local Delete="$Result"
     translate "Enter a new label"
-    Edit="$Result"
+    local Edit="$Result"
 
     dialog --backtitle "$Backtitle" --title " $PassPart " \
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 50 3 \
       1 "$Keep" \
       2 "$Delete" \
       3 "$Edit" 2>output.file
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $? -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"  
     # Save to the -A array
     case $Result in
       1) Labelled[$PassPart]=$Label ;;
       2) Labelled[$PassPart]="" ;;
-      3) Message="Enter a new label"                  # English.lan #87
+      3) Message="Enter a new label"
         dialog_inputbox 10 40
-        retval=$?
-        if [ $retval -ne 0 ]; then return 1; fi
-        if [ -z $Result ]; then return 1; fi
+        if [ $retval -ne 0 ] || [ -z "$Result" ]; then return 1; fi
         Labelled[$PassPart]=$Result
     esac
   fi
@@ -400,7 +396,7 @@ function allocate_root {  # Called by allocate_partitions
   PartitionType=""
   message_first_line "Please select a partition to use for /root"
   display_partitions
-  if [ $? -ne 0 ]; then             # User selected <Cancel>
+  if [ $retval -ne 0 ]; then        # User selected <Cancel>
     PartitionType=""
     return 1
   fi

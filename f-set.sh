@@ -944,7 +944,7 @@ function confirm_virtualbox {
   return 0
 }
 
-function final_check { # Display all user settings before starting installation
+function final_check() { # Display all user settings before starting installation
   
   while true; do
     clear
@@ -966,7 +966,7 @@ function final_check { # Display all user settings before starting installation
     *) translate "No"
       print_subsequent "4) Virtualbox Guest Modules: $Result"
     esac
-    if [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
+    if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" = "FelizOB" ]; then
       translate "Display Manager"
       print_subsequent "5) $Result = FelizOB"
     elif [ -z "$DisplayManager" ]; then
@@ -979,16 +979,16 @@ function final_check { # Display all user settings before starting installation
     translate "Root and user settings"
     print_subsequent "6) $Result ..."
     translate "Hostname"
-    print_subsequent "      $Result = '$HostName'"
+    print_subsequent "      $Result = $HostName"
     translate "User Name"
-    print_subsequent "      $Result = '$user_name'"
+    print_subsequent "      $Result = $user_name"
     translate "The following extras have been selected"
     print_subsequent "7) $Result ..."
     SaveStartPoint="$EMPTY" # Save cursor start point
-    if [ $Scope = "Basic" ]; then
+    if [ "$Scope" = "Basic" ]; then
       translate "None"
       print_first_line "$Result"
-    elif [ $DesktopEnvironment ] && [ $DesktopEnvironment = "FelizOB" ]; then
+    elif [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" = "FelizOB" ]; then
       print_first_line "FelizOB"
     elif [ -z "$LuxuriesList" ]; then
       translate "None"
@@ -1027,12 +1027,12 @@ function final_check { # Display all user settings before starting installation
           print_subsequent "/boot : fat32 : ${BootSize}"
         fi
         print_subsequent "/root : ${RootType}: ${RootSize}"
-        if [ ${SwapSize} ] && [ ${SwapSize} != "" ]; then
+        if [ ${SwapSize} ] && [ "${SwapSize}" != "" ]; then
           print_subsequent "/swap : ${SwapSize}"
         elif [ ${SwapFile} ] && [ ${SwapFile} != "" ]; then
           print_subsequent "swapfile : ${SwapFile}"
         fi
-        if [ -n ${HomeSize} ]; then
+        if [ -n "${HomeSize}" ]; then
           print_subsequent "/home ${Result}: ${HomeSize}"
         fi ;;
     *) translate="N"
@@ -1099,6 +1099,8 @@ function final_check { # Display all user settings before starting installation
 }
 
 function manual_settings {
+
+read -p "Here?"
   
   while true; do
     translate "Hostname"
