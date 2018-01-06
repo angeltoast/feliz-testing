@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 31st December 2017
+# Revision date: 6th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 # mount_partitions      273    set_root_password       673
 # install_kernel        346    set_user_password       728
 # add_codecs            384    finish                  774
+#                              partition_maker         793
 # -------------------------    ---------------------------
 
 function arch_chroot { # From Lution AIS - calls arch-chroot with options
@@ -787,5 +788,48 @@ function finish {
   2) reboot ;;
   *) exit
   esac
+  return 0
+}
+
+function partition_maker {  # Called from autopart for autopartitioning both EFI and BIOS systems
+                            # Uses GNU Parted to create partitions as defined
+                            # Receives up to 4 arguments
+                            #   $1 is the starting point of the first partition
+                            #   $2 is size of root partition
+                            #   $3 if passed is size of home partition
+                            #   $4 if passed is size of swap partition
+                            # Appropriate partition table has already been created in autopart
+                            # If EFI the /boot partition has also been created at /dev/sda1 and
+                            # set as bootable, and the startpoint has been set to follow /boot
+  local StartPoint=$1 
+                                                    # Set the device to be used to 'set x boot on'    
+  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
+                                                    # Start with first partition = [sda]1
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
+                                                          # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
+  if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
+    MountDevice=2                                   # Next partition after /boot = [sda]2
+  fi
+  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
+  RootType="ext4"
+  StartPoint=$2                                     # Increment startpoint for /home or /swap
+  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
+
+  if [ $3 ]; then
+    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
+    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
+    AddPartMount[0]="/home"                         # Mountpoint     | array of
+    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
+    Home="Y"
+    StartPoint=$3                                   # Reset startpoint for /swap
+    MountDevice=$((MountDevice+1))                  # Advance partition numbering
+  fi
+
+  if [ $4 ]; then
+    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+    SwapPartition="${GrubDevice}${MountDevice}"
+    MakeSwap="Y"
+  fi
   return 0
 }

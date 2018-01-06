@@ -26,14 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           40    allocate_root       387
-# build_lists          113    check_filesystem    443
-# partitioning_options 157    allocate_swap       456
+# check_parts           40    allocate_root       345
+# build_lists          113    check_filesystem    401
+# partitioning_options 157    allocate_swap       415
 # choose_device        184    no_swap_partition   515   
-# partition_maker      225    set_swap_file       533
-# allocate_partitions  306    more_partitions     555 
-# select_filesystem    334    choose_mountpoint   591 
-# edit_label           349    display_partitions  643 
+#                             set_swap_file       533
+# allocate_partitions  268    more_partitions     555 
+# select_filesystem    296    choose_mountpoint   591 
+# edit_label           311    display_partitions  643 
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
@@ -219,49 +219,6 @@ function choose_device { # Called from partitioning_options or partitioning_opti
       return 1
     esac
   done
-  return 0
-}
-
-function partition_maker {  # Called from autopart for autopartitioning both EFI and BIOS systems
-                            # Uses GNU Parted to create partitions as defined
-                            # Receives up to 4 arguments
-                            #   $1 is the starting point of the first partition
-                            #   $2 is size of root partition
-                            #   $3 if passed is size of home partition
-                            #   $4 if passed is size of swap partition
-                            # Appropriate partition table has already been created in autopart
-                            # If EFI the /boot partition has also been created at /dev/sda1 and
-                            # set as bootable, and the startpoint has been set to follow /boot
-  local StartPoint=$1 
-                                                    # Set the device to be used to 'set x boot on'    
-  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
-                                                    # Start with first partition = [sda]1
-  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
-                                                          # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
-  if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
-    MountDevice=2                                   # Next partition after /boot = [sda]2
-  fi
-  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
-  RootType="ext4"
-  StartPoint=$2                                     # Increment startpoint for /home or /swap
-  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
-
-  if [ $3 ]; then
-    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
-    AddPartMount[0]="/home"                         # Mountpoint     | array of
-    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
-    Home="Y"
-    StartPoint=$3                                   # Reset startpoint for /swap
-    MountDevice=$((MountDevice+1))                  # Advance partition numbering
-  fi
-
-  if [ $4 ]; then
-    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
-    SwapPartition="${GrubDevice}${MountDevice}"
-    MakeSwap="Y"
-  fi
   return 0
 }
 
@@ -460,15 +417,14 @@ function allocate_swap { # Called by allocate_partitions
     translate "No provision has been made for swap"
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
   elif [ -n "$SwapPartition" ] && [ "$SwapPartition" != "swapfile" ]; then
-    PartitionList=$(echo "$PartitionList" | sed "s/$Result//")              # Remove the used partition from the list
-  elif [ -n "$SwapFile" ] && [ "$SwapFile" != "" ]; then
+    PartitionList=$(echo "$PartitionList" | sed "s/$Swap//")              # Remove the used partition from the list
+  elif [ -n "$SwapFile" ]; then
     dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
   return 0
 }
 
-function no_swap_partition {  # Called by allocate_partitions when
-                              # there are no unallocated partitions
+function no_swap_partition {  # Called by allocate_partitions when there are no unallocated partitions
   message_first_line "There are no partitions available for swap"
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
@@ -484,7 +440,6 @@ function no_swap_partition {  # Called by allocate_partitions when
 }
 
 function set_swap_file {
-  
   SwapFile=""
   while [ -z ${SwapFile} ]; do
     message_first_line "Allocate the size of your swap file"
