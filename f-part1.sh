@@ -26,15 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           40    edit_label          349
-# build_lists          113    allocate_root       387
-# partitioning_options 157    check_filesystem    443
-# choose_device        184    allocate_swap       456   
-# partition_maker      225    no_swap_partition   515
-# autopart             267    set_swap_file       533
+# check_parts           40    allocate_root       387
+# build_lists          113    check_filesystem    443
+# partitioning_options 157    allocate_swap       456
+# choose_device        184    no_swap_partition   515   
+# partition_maker      225    set_swap_file       533
 # allocate_partitions  306    more_partitions     555 
 # select_filesystem    334    choose_mountpoint   591 
-#                             display_partitions  643 
+# edit_label           349    display_partitions  643 
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
@@ -263,46 +262,6 @@ function partition_maker {  # Called from autopart for autopartitioning both EFI
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
-  return 0
-}
-
-function autopart { # Called by feliz.sh/preparation during installation phase
-                    # if AutoPartition flag is AUTO.
-                    # Consolidated automatic partitioning for BIOS or EFI environment
-  GrubDevice="/dev/${UseDisk}"
-  Home="N"                                          # No /home partition at this point
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
-  # Create a new partition table
-  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
-    wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
-    parted_script "mklabel gpt"                            # Create new filesystem
-    parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
-    StartPoint="513MiB"                             # For next partition
-  else                                              # Installing in BIOS environment
-    dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
-    parted_script "mklabel msdos"                   # Create new filesystem
-    StartPoint="1MiB"                               # Set start point for next partition
-  fi
-                                                    # Decide partition sizes
-  if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
-    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
-  elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-3))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
-    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
-  elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
-    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
-  elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-1))                        # /root 9 to 17GiB, /swap 1GiB
-    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
-  else                                              # ------ Swap file and /root partition only -----
-    partition_maker "${StartPoint}" "100%" "" ""
-    SwapFile="2G"                                   # Swap file
-    SwapPartition=""                                # Clear swap partition variable
-  fi
-  partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   return 0
 }
 

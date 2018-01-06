@@ -944,7 +944,7 @@ function confirm_virtualbox {
   return 0
 }
 
-function final_check() { # Display all user settings before starting installation
+function final_check { # Display all user settings before starting installation
   
   while true; do
     clear
@@ -1100,8 +1100,6 @@ function final_check() { # Display all user settings before starting installatio
 
 function manual_settings {
 
-read -p "Here?"
-  
   while true; do
     translate "Hostname"
     Hname="$Result"

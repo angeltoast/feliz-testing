@@ -137,19 +137,17 @@ function the_start { # All user interraction takes place in this function
 }
 
 function preparation { # Prepare the environment for the installation phase
-  
-  if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI and Guided partitioning_options
-    action_EFI                                                # In f-part2.sh
-  elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS and Guided partitioning_options
-    action_MBR                                                # In f-part2.sh
+  if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI with Guided partitioning_options
+    action_EFI
+  elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning_options
+    action_MBR
   elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
-    autopart                                                  # In f-part1.sh
+    autopart 
   elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
     Message="No partitions"
     not_found 6 20
     return 1
   fi
-
   mount_partitions                                            # In f-run.sh
   mirror_list                                                 # In f-run.sh
   install_kernel                                              # In f-run.sh
@@ -157,13 +155,11 @@ function preparation { # Prepare the environment for the installation phase
 }
 
 function the_middle { # The installation phase
-  
     translate "Preparing local services"
     install_message "$Result"
     echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
     sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
-    
   # Set up locale, etc. The local copy of locale.gen may have been manually edited in f-set.sh, so ...
     GrepTest=$(grep "^${CountryLocale}" /etc/locale.gen)                # Check main locale not already set
     if [ -z $GrepTest ]; then                                           # If not, add it at bottom
@@ -179,12 +175,10 @@ function the_middle { # The installation phase
     export "LANG=${CountryLocale}" 2>> feliz.log                        # eg: LANG=en_US.UTF-8
     arch_chroot "ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime"
     arch_chroot "hwclock --systohc --utc"
-    
   # Networking
     arch_chroot "systemctl enable dhcpcd.service"
     pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
     arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
-    
   # Generate fstab and set up swapfile
     genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
     if [ ${SwapFile} ]; then
@@ -194,7 +188,6 @@ function the_middle { # The installation phase
       swapon /mnt/swapfile 2>> feliz.log
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
-    
   # Grub
     translate "Installing"
     install_message "$Result " "Grub"
@@ -214,14 +207,12 @@ function the_middle { # The installation phase
     else                                                      # No grub device selected
       echo "Not installing Grub" >> feliz.log
     fi
-    
   # Set keyboard to selected language at next startup
     echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
     echo -e "Section \"InputClass\"\nIdentifier \"system-keyboard\"\nMatchIsKeyboard \"on\"\nOption \"XkbLayout\" \"${Countrykbd}\"\nEndSection" > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf 2>> feliz.log
-    
   # Extra processes for desktop installation
     if [ $Scope != "Basic" ]; then
-      add_codecs # Various bits
+      add_codecs                                               # Various bits
       if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
         translate="Installing"
         install_message "$Result " "Virtualbox Guest Modules"
@@ -242,18 +233,13 @@ function the_middle { # The installation phase
 }
 
 function the_end { # Set passwords and finish Feliz
-
-  EndTime=$(date +%s) # The end of life as we know it
+  EndTime=$(date +%s)                                         # The end of life as we know it
   Difference=$(( EndTime-StartTime ))
   DIFFMIN=$(( Difference / 60 ))
   DIFFSEC=$(( Difference % 60 ))
-  
   set_root_password
-  
   if [ $Scope != "Basic" ]; then set_user_password; fi
-
   cp feliz.log /mnt/etc                                        # Copy installation log for reference
-    
   finish                                                       # Shutdown or reboot
   return 0
 }
