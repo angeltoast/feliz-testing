@@ -40,12 +40,10 @@ function check_parts { # Called by feliz.sh
                        # Test for existing partitions
   translate "Choose from existing partitions"
   LongPart1="$Result"
-  translate "Open cfdisk so I can partition manually"
-  LongPart2="$Result"
   translate "Guided manual partitioning tool"
-  LongPart3="$Result"
+  LongPart2="$Result"
   translate "Allow feliz to partition the whole device"
-  LongPart4="$Result"
+  LongPart3="$Result"
   title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
@@ -70,8 +68,7 @@ function check_parts { # Called by feliz.sh
       dialog --backtitle "$Backtitle" --title " $title " --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
         2 "$LongPart2" \
-        3 "$LongPart3" \
-        4 "$LongPart4" 2>output.file
+        3 "$LongPart3" 2>output.file
       if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
       partitioning_options                # Act on user selection
@@ -98,8 +95,7 @@ function check_parts { # Called by feliz.sh
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
       1 "$LongPart1" \
       2 "$LongPart2" \
-      3 "$LongPart3" \
-      4 "$LongPart4" 2>output.file
+      3 "$LongPart3" 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Result=$(cat output.file)
 
@@ -153,18 +149,11 @@ function build_lists { # Called by check_parts to generate details of existing p
   return 0
 }
 
-function partitioning_options {                 # Called by check_parts after user selects an action
-
+function partitioning_options { # Called without arguments by check_parts after user selects an action
   case $Result in
   1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
-    AutoPart="MANUAL" ;;                        # Flag - MANUAL/AUTO/GUIDED/NONE
-  2) cfdisk 2>> feliz.log                       # Open cfdisk for manual partitioning
-    tput setf 0                                 # Change foreground colour to black
-    clear                                       # temporarily to hide error message
-    partprobe 2>> feliz.log                     # Inform kernel of changes to partitions
-    tput sgr0                                   # Reset colour
-    AutoPart="MANUAL" ;;
-  3) if [ ${UEFI} -eq 1 ]; then                 # Guided manual partitioning functions
+    AutoPart="MANUAL" ;;                              # Flag - MANUAL/AUTO/GUIDED/NONE
+  2) if [ ${UEFI} -eq 1 ]; then                       # Guided manual partitioning functions
       guided_EFI
       if [ $? -ne 0 ]; then return 1; fi
     else
@@ -172,7 +161,7 @@ function partitioning_options {                 # Called by check_parts after us
       if [ $? -ne 0 ]; then return 1; fi
     fi
     AutoPart="GUIDED" ;;
-  4) AutoPart="NONE"
+  3) AutoPart="NONE"
     choose_device
     if [ $? -eq 1 ]; then return 1; fi
     AutoPart="AUTO"
