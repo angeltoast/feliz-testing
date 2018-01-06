@@ -453,40 +453,42 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
                             # unallocated. User may select for /home, etc
   translate "Partitions"
   title="$Result"
-  local Elements=$(echo "$PartitionList" | wc -w)
+  declare -i Elements
+  Elements=$(echo "$PartitionList" | wc -w)
 
-  while [ $Elements -gt 0 ]; do
+  while [ "$Elements" -gt 0 ]; do
     message_first_line "The following partitions are available"
     message_subsequent "If you wish to use one, select it from the list"
 
     display_partitions  # Sets $retval & $Result, and returns 0 if completed
 
-    if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
-    PassPart=${Result:0:4}                  # Isolate first 4 characters of partition
+    if [ "$retval" -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
+    PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
     choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
                         # Validates response, warns if already used, then adds the partition to the arrays for extra
     retval=$?           # partitions. Returns 0 if completed, 1 if interrupted
 
-    if [ $retval -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no details added, so abort
+    if [ $retval -ne 0 ]; then return 1; fi # Inform calling function that user cancelled; no details added
     
     Label="${Labelled[${PassPart}]}"
-    if [ -n "${Label}" ]; then
+    if [ -n "$Label" ]; then
       edit_label $PassPart
-      
     fi
 
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
     Elements=$(echo "$PartitionList" | wc -w)
-
   done
+  
   # Ensure that if AddPartList (the defining array) is empty, all others are too
-  if [ -z ${#AddPartList[@]} ]
-  then
+  if [ -z ${#AddPartList[@]} ]; then
     AddPartList=""
     AddPartMount=""
     AddPartType=""
   fi
+
+read -p "echo ${AddPartList[@]}"
+  
   return 0
 }
 

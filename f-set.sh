@@ -1070,9 +1070,7 @@ function final_check { # Display all user settings before starting installation
       stpt=$(( (T_COLS - 10) / 2 ))
     fi
     EMPTY="$(printf '%*s' $stpt)"
-    read -p "$EMPTY $Result :" retval
-
-    Change=$retval
+    read -p "$EMPTY $Result :" Change
     case $Change in
       1) set_timezone ;;
       2) setlocale ;;
@@ -1087,10 +1085,10 @@ function final_check { # Display all user settings before starting installation
           select_grub_device
          fi ;;
       10) return 1 ;;
-      11) AddPartList=""   # Empty the lists of extra partitions
+      11) AddPartList=""                    # Empty the lists of extra partitions
         AddPartMount=""
         AddPartType=""
-        check_parts         # finish partitioning
+        check_parts                         # Update lists
         allocate_partitions ;;
       *) break
     esac
