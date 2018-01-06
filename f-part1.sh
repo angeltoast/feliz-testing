@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 31st December 2017
+# Revision date: 6th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -413,26 +413,20 @@ function check_filesystem { # Called by
 }
 
 function allocate_swap { # Called by allocate_partitions
-  
   message_first_line "Select a partition for swap from the ones that"
   message_subsequent "remain, or you can allocate a swap file"
   message_subsequent "Warning: Btrfs does not support swap files"
-  
   SwapPartition=""
   SwapFile=""
-
   translate "If you skip this step, no swap will be allocated"
   title="$Result"
-
   SavePartitionList="$PartitionList"
   PartitionList="$PartitionList swapfile"
-
   display_partitions  # Sets $retval & $Result, and returns 0 if it completes
   if [ $retval -ne 0 ]; then
     FormatSwap="N"
     return 1          # Returns 1 to caller if no partition selected
   fi
-
   FormatSwap="Y"
   Swap="$Result"
   if [ "$Swap" = "swapfile" ]; then
@@ -455,25 +449,21 @@ function allocate_swap { # Called by allocate_partitions
       *FormatSwap="Y") FormatSwap="N"
       esac
     fi
-
     MakeSwap="Y"
     Label="${Labelled[${SwapPartition}]}"
     if [ "${Label}" ] && [ "${Label}" != "" ]; then
       edit_label "$PassPart"
     fi
   fi
-
-  PartitionList="$SavePartitionList"                            # Restore PartitionList without 'swapfile'
-
-  if [ $SwapPartition ] && [ $SwapPartition = "" ]; then
+  PartitionList="$SavePartitionList"                                        # Restore PartitionList without 'swapfile'
+  if [ -z "$SwapPartition" ]; then
     translate "No provision has been made for swap"
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
-  elif [ $SwapPartition ] && [ $SwapPartition != "swapfile" ]; then
-    PartitionList=$(echo "$PartitionList" | sed "s/$Result//")  # Remove the used partition from the list
-  elif [ $SwapFile ] && [ "$SwapFile" != "" ]; then
+  elif [ -n "$SwapPartition" ] && [ "$SwapPartition" != "swapfile" ]; then
+    PartitionList=$(echo "$PartitionList" | sed "s/$Result//")              # Remove the used partition from the list
+  elif [ -n "$SwapFile" ] && [ "$SwapFile" != "" ]; then
     dialog --ok-label "$Ok" --msgbox "Swap file = ${SwapFile}" 5 20
   fi
-
   return 0
 }
 
@@ -482,7 +472,6 @@ function no_swap_partition {  # Called by allocate_partitions when
   message_first_line "There are no partitions available for swap"
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
-
   dialog --backtitle "$Backtitle" --title " $title " \
     --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 10 55 2>output.file
   case $? in
