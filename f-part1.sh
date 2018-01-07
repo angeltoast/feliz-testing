@@ -469,7 +469,7 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
 
     display_partitions                        # Sets $retval & $Result, and returns 0 if completed
 
-read -p "$LINENO"
+read -p "$LINENO $retval"
   
     if [ "$retval" -ne 0 ]; then return 1; fi # User cancelled or escaped; no partition selected. Inform caller
     PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
@@ -477,6 +477,9 @@ read -p "$LINENO"
     choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
                         # Validates response, warns if already used, then adds the partition to
     retval=$?           # the arrays for extra partitions. Returns 0 if completed, 1 if interrupted
+
+read -p "$LINENO"
+  
     if [ $retval -ne 0 ]; then return 1; fi # Inform calling function that user cancelled; no details added
     
     Label="${Labelled[${PassPart}]}"
@@ -484,8 +487,6 @@ read -p "$LINENO"
       edit_label $PassPart
     fi
 
-read -p "$LINENO"
-  
     # If this point has been reached, then all data for a partiton has been accepted
     # So add it to the arrays for extra partitions
     ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
