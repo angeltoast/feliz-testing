@@ -559,6 +559,8 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
 
     dialog_inputbox 16 70
 
+read -p "$LINENO $Result"
+  
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
     "") return 0 ;;
@@ -569,6 +571,9 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
         dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         HomeSize=""
       else
+
+read -p "$LINENO $RESPONSE"
+  
         HomeSize=$RESPONSE
         Partition="/home"
         translate "of remaining space allocated to"
@@ -576,6 +581,9 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
         translate "partition"
         Message="${Message} /home $Result"
         select_filesystem
+
+read -p "$LINENO $Result"
+  
         HomeType=${PartitionType}
       fi
     esac
