@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 6th January 2018
+# Revision date: 7th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,10 +25,10 @@
 # Main module
 
 # Include source files
-source f-vars.sh     # Most variables and arrays are declared here
+source f-vars.sh     # Global variables and arrays are declared here
 source f-set.sh      # Functions to set variables used during installation
 source f-part1.sh    # Functions concerned with allocating partitions
-source f-part2.sh    # Guided partitioning for BIOS & EFI systems
+source f-part2.sh    # Guided partitioning setup for BIOS & EFI systems
 source f-run.sh      # Functions called during installation
 
 function main {
@@ -63,8 +63,8 @@ function main {
   done
 }
 
-function the_start { # All user interraction takes place in this function
-
+function the_start {  # All user interraction takes place in this function
+                      # Sets variables relating to locality and desktop
   while true; do
     set_language                                  # In f-vars.sh - Use appropriate language file
     if [ $? -ne 0 ]; then return 1; fi            # If user cancels

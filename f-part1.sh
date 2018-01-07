@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 6th January 2018
+# Revision date: 7th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
-                       # Test for existing partitions
+                       # Tests for existing partitions, informs user, calls build_lists to prepare arrays
+                       # Displays menu of options, then calls partitioning_options to act on user selection
   translate "Choose from existing partitions"
   LongPart1="$Result"
   translate "Guided manual partitioning tool"
@@ -153,24 +154,26 @@ function partitioning_options { # Called without arguments by check_parts after 
   case $Result in
   1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
     AutoPart="MANUAL" ;;                              # Flag - MANUAL/AUTO/GUIDED/NONE
-  2) if [ ${UEFI} -eq 1 ]; then                       # Guided manual partitioning functions
-      guided_EFI
-      if [ $? -ne 0 ]; then return 1; fi
-    else
-      guided_MBR
+  2) if [ ${UEFI} -eq 1 ]; then
+      guided_EFI                                      # Calls guided manual partitioning functions              
+      if [ $? -ne 0 ]; then return 1; fi              # then sets GUIDED flag to trigger action_EFI ...
+    else                                              # 
+      guided_MBR                                      # ... or action_MBR, in installation phase
       if [ $? -ne 0 ]; then return 1; fi
     fi
     AutoPart="GUIDED" ;;
-  3) AutoPart="NONE"
+  3) AutoPart="NONE"                                  # Checks if multiple devices, and allows selection
     choose_device
     if [ $? -eq 1 ]; then return 1; fi
-    AutoPart="AUTO"
+    AutoPart="AUTO"                                   # AUTO flag triggers autopart in installation phase
   esac
   return 0
 }
 
 function choose_device { # Called from partitioning_options or partitioning_optionsEFI
                          # Select device for autopartition
+                         # Sets AutoPart and UseDisk; returns 0 if completed, 1 if interrupted
+    *) UseDisk
   while [ ${AutoPart} != "AUTO" ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use
@@ -382,6 +385,7 @@ function allocate_swap { # Called by allocate_partitions
     SwapPartition="/dev/$Swap"
     IsSwap=$(blkid $SwapPartition | grep 'swap' | cut -d':' -f1)
     if [ -n "$IsSwap" ]; then
+      title="Swap"
       translate "is already formatted as a swap partition"
       Message="$SwapPartition $SwapPartition"
       message_subsequent "Reformatting it will change the UUID, and if this swap"

@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 6th January 2018
+# Revision date: 7th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
       # Calculate end-point
       Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
       Chars=${#SwapSize}                # Count characters in swap variable
-      Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
+      Var=${SwapSize:0:Chars-1}         # Integer part of swap variable
       if [ "$Unit" = "G" ]; then
         Var=$((Var*1024))               # Convert to MiB
         EndPart=$((NextStart+Var))      # Add to previous end
@@ -119,7 +119,8 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
       elif [ "$Unit" = "M" ]; then
         EndPart=$((NextStart+Var))      # Add to previous end
         EndPoint="${EndPart}MiB"        # Append unit
-      elif [ "$Unit" = "%" ]; then        EndPoint="${Var}%"
+      elif [ "$Unit" = "%" ]; then
+        EndPoint="${Var}%"
       fi
       # Make the partition
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
