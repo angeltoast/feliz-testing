@@ -130,11 +130,14 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
+
+read -p "Check for error messages"
+    
   return 0
 }
 
-function action_EFI { # Called during installation phase
-                      # Uses the variables set by user to create GPT partition table & all partitions
+function action_EFI { # Called without arguments by feliz.sh before other partitioning actions
+                      # Uses the variables set by user to create partition table & all partitions
   local Unit
   local EndPoint
   declare -i Chars
