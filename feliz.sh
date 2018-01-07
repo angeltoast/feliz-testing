@@ -43,6 +43,9 @@ function main {
   Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
   while true; do
+
+read -p "WTF"
+
     the_start                                     # All user interraction takes place in this function
     if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
       
