@@ -251,6 +251,9 @@ function select_filesystem { # Called by allocate_root and more_partitions (via 
   
   menu_dialog $1 $2
   retval=$?
+
+read -p "$LINENO"
+  
   if [ $retval -ne 0 ]; then return 1; fi
   PartitionType="$Result"
 
@@ -465,6 +468,9 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     message_subsequent "If you wish to use one, select it from the list"
 
     display_partitions                        # Sets $retval & $Result, and returns 0 if completed
+
+read -p "$LINENO"
+  
     if [ "$retval" -ne 0 ]; then return 1; fi # User cancelled or escaped; no partition selected. Inform caller
     PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
@@ -478,6 +484,8 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
       edit_label $PassPart
     fi
 
+read -p "$LINENO"
+  
     # If this point has been reached, then all data for a partiton has been accepted
     # So add it to the arrays for extra partitions
     ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
@@ -490,6 +498,8 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
   done
 
+read -p "$LINENO"
+  
   # Ensure that if AddPartList (the defining array) is empty, all others are too
   if [ ${#AddPartList[@]} -eq 0 ]; then
     AddPartMount=()

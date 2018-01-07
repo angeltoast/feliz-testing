@@ -130,9 +130,6 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
-
-read -p "Check for error messages"
-    
   return 0
 }
 
@@ -334,7 +331,7 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         mkfs.btrfs -f ${id} 2>> feliz.log                             # eg: mkfs.btrfs -f /dev/sda2
       elif [ "${AddPartType[$Counter]}" = "xfs" ]; then
         mkfs.xfs -f ${id} 2>> feliz.log                               # eg: mkfs.xfs -f /dev/sda2
-      elif [ "${AddPartType[$Counter]}" != "" ]; then                 # If no type, do not format
+      elif [ "${AddPartType[$Counter]}" != "" ]; then                 # Only format if type has been set
         Partition=${id: -4}                                           # Last 4 characters of ${id}
         Label="${Labelled[${Partition}]}"
         if [ -n "${Label}" ]; then
@@ -345,6 +342,9 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
       mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
+
+read -p "Check for error messages"
+    
   return 0
 }
 
