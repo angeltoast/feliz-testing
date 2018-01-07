@@ -813,8 +813,8 @@ function select_kernel {
   return 0
 }
 
-function choose_mirrors { # User selects one or more countries with Arch Linux mirrors
-
+function choose_mirrors { # Called without arguments by feliz.sh/the_start
+                          # User selects a country with Arch Linux mirrors
   Country=""
   while [ -z "$Country" ]; do
   
@@ -885,8 +885,9 @@ function choose_mirrors { # User selects one or more countries with Arch Linux m
   return 0
 }
 
-function edit_mirrors {  # Use Nano to edit mirrors.list
-
+function edit_mirrors { # Called without arguments by choose_mirrors
+                        # Use Nano to edit mirrors.list
+                        # Returns 0 if completed, 1 if interrupted, 2 if worldwide mirror selected
   message_first_line "Feliz needs at least one mirror from which to"
   message_subsequent "download the Arch Linux system and applications"
   message_subsequent "If you do not wish to use one from the Arch list"
@@ -924,7 +925,7 @@ function edit_mirrors {  # Use Nano to edit mirrors.list
   return 0
 }
 
-function confirm_virtualbox { 
+function confirm_virtualbox { # Called without arguments by feliz.sh/the_start
   message_first_line  "It appears that feliz is running in Virtualbox"
   message_subsequent  "If it is, feliz can install Virtualbox guest"
   message_subsequent  "utilities and make appropriate settings for you"
@@ -942,8 +943,9 @@ function confirm_virtualbox {
   return 0
 }
 
-function final_check { # Display all user settings before starting installation
-  
+function final_check {  # Called without arguments by feliz.sh/the_start
+                        # Display all user settings before starting installation
+                        # Returns 0 if completed or 1 if cancelled
   while true; do
     clear
     echo
@@ -1049,6 +1051,7 @@ function final_check { # Display all user settings before starting installation
         done
       fi
     esac
+    
     echo
     # Prompt user for a number
     translate="Y"
@@ -1094,8 +1097,9 @@ function final_check { # Display all user settings before starting installation
   return 0
 }
 
-function manual_settings {
-
+function manual_settings {  # Called without arguments by final_check if
+                            # User elected to change hostname or username
+                            # Sets $user_name and/or $HostName
   while true; do
     translate "Hostname"
     Hname="$Result"

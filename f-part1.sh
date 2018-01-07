@@ -252,8 +252,6 @@ function select_filesystem { # Called by allocate_root and more_partitions (via 
   if [ $retval -ne 0 ]; then return 1; fi
   PartitionType="$Result"
 
-read -p "$LINENO $PartitionType"
-  
   return 0
 }
 
@@ -481,17 +479,12 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     # So add it to the arrays for extra partitions
     ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
 
-read -p "Line $LINENO : Items in AddPartList $ExtraPartitions : Remaining Partitions $PartitionList : Partition $Partition : Filetype $PartitionType : Mountpoint $PartMount"
-  
     AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
     AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
     AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
   
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
     Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
-
-read -p "Line $LINENO : Remaining Partitions $PartitionList : ${AddPartList[@]} ${AddPartMount[@]} ${AddPartType[@]}"
-  
   done
 
   # Ensure that if AddPartList (the defining array) is empty, all others are too
@@ -507,13 +500,8 @@ function choose_mountpoint {  # Called by more_partitions. Uses $Partition set b
                               # Allows user to choose filesystem and mountpoint
                               # Returns 0 if completed, 1 if interrupted
   declare -i formatPartition=0                    # Set to reformat
-  
-read -p "$LINENO $Partition"
 
   check_filesystem                                # Check the partition for existing filesystem
-  
-read -p "$LINENO $CurrentType"
-
   if [ -n "$CurrentType" ]; then
     PartitionType="$CurrentType"                  # Save current type in case retained
     message_subsequent "You can choose to leave it as it is, by selecting Exit, but not"
@@ -524,8 +512,6 @@ read -p "$LINENO $CurrentType"
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 15 70
     formatPartition=$?                            # 0 = Yes 1 = No
   fi
-  
-read -p "$LINENO $formatPartition"
 
   if [ $formatPartition -eq 0 ]; then             # Reformat
     select_filesystem 12 50                       # Calls menu_dialog to display list of filesystems
