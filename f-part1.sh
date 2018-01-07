@@ -498,7 +498,7 @@ read -p "$LINENO"
     Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
   done
 
-read -p "$LINENO"
+read -p "$LINENO ${Partition} ${PartitionType} ${PartMount}"
   
   # Ensure that if AddPartList (the defining array) is empty, all others are too
   if [ ${#AddPartList[@]} -eq 0 ]; then

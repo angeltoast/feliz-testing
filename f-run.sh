@@ -343,7 +343,7 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
       Counter=$((Counter+1))
     done
 
-read -p "Check for error messages"
+read -p "mount ${id} /mnt${AddPartMount[$Counter]}"
     
   return 0
 }
