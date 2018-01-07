@@ -57,10 +57,10 @@ function install_message { # For displaying status while running on auto
 function action_MBR { # Called without arguments by feliz.sh before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
   local Unit
+  local EndPoint
   declare -i Chars
   declare -i Var
   declare -i EndPart
-  declare -i EndPoint
   declare -i NextStart
   # Root partition
   # --------------
@@ -136,10 +136,10 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
 function action_EFI { # Called during installation phase
                       # Uses the variables set by user to create GPT partition table & all partitions
   local Unit
+  local EndPoint
   declare -i Chars
   declare -i Var
   declare -i EndPart
-  declare -i EndPoint
   declare -i NextStart
   # Format the drive for EFI
     tput setf 0                         # Change foreground colour to black temporarily to hide error message
