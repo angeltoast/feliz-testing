@@ -173,7 +173,6 @@ function partitioning_options { # Called without arguments by check_parts after 
 function choose_device { # Called from partitioning_options or partitioning_optionsEFI
                          # Select device for autopartition
                          # Sets AutoPart and UseDisk; returns 0 if completed, 1 if interrupted
-    *) UseDisk
   while [ ${AutoPart} != "AUTO" ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
     # Count lines. If more than one disk, ask user which to use

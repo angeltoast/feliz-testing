@@ -44,8 +44,6 @@ function main {
 
   while true; do
 
-read -p "WTF"
-
     the_start                                     # All user interraction takes place in this function
     if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
       
