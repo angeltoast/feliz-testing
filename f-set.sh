@@ -932,13 +932,11 @@ function confirm_virtualbox {
   title="$Result"
     
   dialog --backtitle "$Backtitle" --title " $title " \
-    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70 2>output.file
-  retval=$?
+    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70
 
-  if [ $retval -eq 0 ]  # Yes
-  then
+  if [ $? -eq 0 ]; then  # Yes
     IsInVbox="VirtualBox"
-  else                  # No
+  else                   # No
     IsInVbox=""
   fi
   return 0

@@ -463,27 +463,18 @@ read -p "Line $LINENO : Remaining Partitions $PartitionList"
     message_first_line "The following partitions are available"
     message_subsequent "If you wish to use one, select it from the list"
 
-    display_partitions  # Sets $retval & $Result, and returns 0 if completed
-
-read -p "$LINENO $(cat output.file)"
-  
-    if [ "$retval" -ne 0 ]; then return 1; fi # $retval greater than 0 means user cancelled or escaped; no partition selected
+    display_partitions                        # Sets $retval & $Result, and returns 0 if completed
+    if [ "$retval" -ne 0 ]; then return 1; fi # User cancelled or escaped; no partition selected. Inform caller
     PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
     choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
-                        # Validates response, warns if already used, then adds the partition to the arrays for extra
-    retval=$?           # partitions. Returns 0 if completed, 1 if interrupted
-
-read -p "$LINENO $(cat output.file)"
-  
+                        # Validates response, warns if already used, then adds the partition to
+    retval=$?           # the arrays for extra partitions. Returns 0 if completed, 1 if interrupted
     if [ $retval -ne 0 ]; then return 1; fi # Inform calling function that user cancelled; no details added
     
     Label="${Labelled[${PassPart}]}"
     if [ -n "$Label" ]; then
       edit_label $PassPart
-
-read -p "$LINENO $(cat output.file)"
-  
     fi
 
     # If this point has been reached, then all data for a partiton has been accepted
@@ -494,8 +485,9 @@ read -p "$LINENO $(cat output.file)"
     AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
   
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
-    Elements=$(echo "$PartitionList" | wc -w)
+    Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
 
+cat output.file
 read -p "Line $LINENO : Remaining Partitions $PartitionList : ${AddPartList[@]} ${AddPartMount[@]} ${AddPartType[@]}"
   
   done
@@ -512,23 +504,34 @@ read -p "Line $LINENO : Remaining Partitions $PartitionList : ${AddPartList[@]} 
 function choose_mountpoint {  # Called by more_partitions
                               # Allows user to choose filesystem and mountpoint
                               # Returns 0 if completed, 1 if interrupted
-  check_filesystem            # Check the partition for existing filesystem
-  if [ -n "$CurrentType" ]; then
-    message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
-    message_subsequent "reformatting an existing partition can have unexpected consequences"
-  fi
-
-  select_filesystem           # Calls menu_dialog to display list of filesystems. Sets $retval & $PartitionType
-                              # Returns 0 if completed, 1 if interrupted (no filesystem selected)
-  if [ $? -ne 0 ]; then return 1; fi                # Inform calling function
-
+  declare -i formatPartition=0                      # Reformat
   PartMount=""
   while [ -z "$PartMount" ]; do
+    
+    check_filesystem                                # Check the partition for existing filesystem
+    if [ -n "$CurrentType" ]; then
+      PartitionType="$CurrentType"                  # Save current type in case retained
+      message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
+      message_subsequent "reformatting an existing partition can have unexpected consequences"
+      Message="$Message \n"
+      message_subsequent "Do you wish to reformat it?"
+      dialog --backtitle "$Backtitle" --title " $title " \
+        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70
+      formatPartition=$?                            # 0 = Yes 1 = No
+    fi
+
+    if [ $formatPartition -eq 0 ]; then             # Reformat
+      select_filesystem                             # Calls menu_dialog to display list of filesystems
+                                                    # Sets $retval & $PartitionType
+                                                    # Returns 0 if completed, 1 if interrupted
+      if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
+    fi
+  
     message_first_line "Enter a mountpoint for"
     Message="$Message ${Partition}\n(eg: /home) ... "
     
-    dialog_inputbox 10 50     # User manually enters a mountpoint; Sets $retval & $Result
-                              # Returns 0 if completed, 1 if cancelled by user
+    dialog_inputbox 10 50                           # User manually enters a mountpoint; Sets $retval & $Result
+                                                    # Returns 0 if completed, 1 if cancelled by user
     if [ $retval -ne 0 ]; then return 1; fi         # No mountpoint selected, so inform calling function
     Response=$(echo "$Result" | sed 's/ //')        # Remove any spaces
     CheckInput=${Response:0:1}                      # First character of user input
