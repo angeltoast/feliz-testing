@@ -26,14 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           40    allocate_root       345
-# build_lists          113    check_filesystem    401
-# partitioning_options 157    allocate_swap       415
-# choose_device        184    no_swap_partition   515   
-#                             set_swap_file       533
-# allocate_partitions  268    more_partitions     555 
-# select_filesystem    296    choose_mountpoint   591 
-# edit_label           311    display_partitions  643 
+# check_parts           40    allocate_root       291
+# build_lists          108    check_filesystem    347
+# partitioning_options 152    allocate_swap       361
+# choose_device        172    no_swap_partition   416   
+#                             set_swap_file       431
+# allocate_partitions  214    more_partitions     452 
+# select_filesystem    242    choose_mountpoint   503 
+# edit_label           257    display_partitions  559 
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
@@ -251,6 +251,9 @@ function select_filesystem { # Called by allocate_root and more_partitions (via 
   retval=$?
   if [ $retval -ne 0 ]; then return 1; fi
   PartitionType="$Result"
+
+read -p "$LINENO $PartitionType"
+  
   return 0
 }
 
@@ -344,10 +347,10 @@ function allocate_root {  # Called by allocate_partitions
   return 0
 }
 
-function check_filesystem { # Called by
-  # Finds if there is an existing file system on the selected partition
-  
-  CurrentType=$(blkid $Partition | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+function check_filesystem { # Called by choose_mountpoint & allocate_root
+                            # Finds if there is an existing file system on the selected partition
+                            # Sets $CurrentType and prepares $Message
+  CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n ${CurrentType} ]; then
     message_first_line "The selected partition"
@@ -451,9 +454,6 @@ function set_swap_file {
 
 function more_partitions {  # Called by allocate_partitions if partitions remain
                             # unallocated. User may select for /home, etc
-
-read -p "Line $LINENO : Remaining Partitions $PartitionList"
-  
   translate "Partitions"
   title="$Result"
   declare -i Elements
@@ -503,57 +503,61 @@ read -p "Line $LINENO : Remaining Partitions $PartitionList : ${AddPartList[@]} 
   return 0
 }
 
-function choose_mountpoint {  # Called by more_partitions
+function choose_mountpoint {  # Called by more_partitions. Uses $Partition set by caller
                               # Allows user to choose filesystem and mountpoint
                               # Returns 0 if completed, 1 if interrupted
-  declare -i formatPartition=0                      # Reformat
-  PartMount=""
-  while [ -z "$PartMount" ]; do
-    
-    check_filesystem                                # Check the partition for existing filesystem
-    if [ -n "$CurrentType" ]; then
-      PartitionType="$CurrentType"                  # Save current type in case retained
-      message_first_line "You can choose to leave it as it is, by selecting Exit, but not"
-      message_subsequent "reformatting an existing partition can have unexpected consequences"
-      Message="$Message \n"
-      message_subsequent "Do you wish to reformat it?"
-      dialog --backtitle "$Backtitle" --title " $title " \
-        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70
-      formatPartition=$?                            # 0 = Yes 1 = No
-    fi
-
-    if [ $formatPartition -eq 0 ]; then             # Reformat
-      select_filesystem                             # Calls menu_dialog to display list of filesystems
-                                                    # Sets $retval & $PartitionType
-                                                    # Returns 0 if completed, 1 if interrupted
-      if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
-    fi
+  declare -i formatPartition=0                    # Set to reformat
   
-    message_first_line "Enter a mountpoint for"
-    Message="$Message ${Partition}\n(eg: /home) ... "
-    
-    dialog_inputbox 10 50                           # User manually enters a mountpoint; Sets $retval & $Result
-                                                    # Returns 0 if completed, 1 if cancelled by user
-    if [ $retval -ne 0 ]; then return 1; fi         # No mountpoint selected, so inform calling function
-    Response=$(echo "$Result" | sed 's/ //')        # Remove any spaces
-    CheckInput=${Response:0:1}                      # First character of user input
-    if [ ${CheckInput} = "/" ]; then                # Ensure that entry includes '/'
-      PartMount="${Response}"
-    else
-      PartMount="/${Response}"
-    fi
+read -p "$LINENO $Partition"
 
-    if [ ${#AddPartMount[@]} -gt 0 ]; then          # If there are existing (extra) mountpoints
-      for MountPoint in ${AddPartMount}; do         # Go through AddPartMount
-        if [ $MountPoint = $PartMount ]; then       # If the mountpoint has already been used
-          dialog --backtitle "$Backtitle" --ok-label "$Ok" \
-            --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
-          PartMount=""                              # Ensure that outer loop will continue
-          break
-        fi
-      done
-    fi
-  done  
+  check_filesystem                                # Check the partition for existing filesystem
+  
+read -p "$LINENO $CurrentType"
+
+  if [ -n "$CurrentType" ]; then
+    PartitionType="$CurrentType"                  # Save current type in case retained
+    message_subsequent "You can choose to leave it as it is, by selecting Exit, but not"
+    message_subsequent "reformatting an existing partition can have unexpected consequences"
+    Message="$Message \n"
+    message_subsequent "Do you wish to reformat it?"
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 15 70
+    formatPartition=$?                            # 0 = Yes 1 = No
+  fi
+  
+read -p "$LINENO $formatPartition"
+
+  if [ $formatPartition -eq 0 ]; then             # Reformat
+    select_filesystem 12 50                       # Calls menu_dialog to display list of filesystems
+                                                  # Sets $retval & $PartitionType
+                                                  # Returns 0 if completed, 1 if interrupted
+    if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
+  fi
+
+  message_first_line "Enter a mountpoint for"
+  Message="$Message ${Partition}\n(eg: /home) ... "
+  
+  dialog_inputbox 10 50                           # User manually enters a mountpoint; Sets $retval & $Result
+                                                  # Returns 0 if completed, 1 if cancelled by user
+  if [ $retval -ne 0 ]; then return 1; fi         # No mountpoint selected, so inform calling function
+  Response=$(echo "$Result" | sed 's/ //')        # Remove any spaces
+  CheckInput=${Response:0:1}                      # First character of user input
+  if [ ${CheckInput} = "/" ]; then                # Ensure that entry includes '/'
+    PartMount="${Response}"
+  else
+    PartMount="/${Response}"
+  fi
+
+  if [ ${#AddPartMount[@]} -gt 0 ]; then          # If there are existing (extra) mountpoints
+    for MountPoint in ${AddPartMount}; do         # Go through AddPartMount
+      if [ $MountPoint = $PartMount ]; then       # If the mountpoint has already been used
+        dialog --backtitle "$Backtitle" --ok-label "$Ok" \
+          --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
+        PartMount=""                              # Ensure that outer loop will continue
+        break
+      fi
+    done
+  fi
   return 0
 }
 
@@ -561,22 +565,26 @@ function display_partitions { # Called by more_partitions, allocate_swap & alloc
                               # Uses $PartitionList & PartitionArray to generate menu of available partitions
                               # Sets $retval (0/1) and $Result (Item text from output.file - eg: sda1)
                               # Calling function must validate output
-  declare -a ItemList=()                           # Array will hold entire list
+  declare -a ItemList=()                                    # Array will hold entire list for menu display
   Items=0
   for Item in $PartitionList; do 
     Items=$((Items+1))
-    ItemList[${Items}]="${Item}"                   # Copy each one to the array
+    ItemList[${Items}]="${Item}"                            # eg: sda1
     Items=$((Items+1))
     if [ "$Item" = "swapfile" ]; then
       ItemList[${Items}]="Use a swap file"
     else
-      ItemList[${Items}]="${PartitionArray[${Item}]}"       # Second element is required
+      ItemList[${Items}]="${PartitionArray[${Item}]}"       # Matching $Item in associative array of partition details
     fi
   done
-
-  dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
+  
+  if [ "$Items" -gt 0 ]; then                               # Display for selection
+    dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
     --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
-  retval=$?
-  Result=$(cat output.file)
-  return 0
+    retval=$?
+    Result=$(cat output.file)
+    return 0
+  else
+    return 1                                                # There are no items to display
+  fi
 }
