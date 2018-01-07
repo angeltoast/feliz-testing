@@ -480,6 +480,9 @@ read -p "Line $LINENO : Remaining Partitions $PartitionList"
     # If this point has been reached, then all data for a partiton has been accepted
     # So add it to the arrays for extra partitions
     ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
+
+read -p "Line $LINENO : Items in AddPartList $ExtraPartitions : Remaining Partitions $PartitionList : Partition $Partition : Filetype $PartitionType : Mountpoint $PartMount"
+  
     AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
     AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
     AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
@@ -487,7 +490,6 @@ read -p "Line $LINENO : Remaining Partitions $PartitionList"
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
     Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
 
-cat output.file
 read -p "Line $LINENO : Remaining Partitions $PartitionList : ${AddPartList[@]} ${AddPartMount[@]} ${AddPartType[@]}"
   
   done
