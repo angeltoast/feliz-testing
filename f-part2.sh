@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 31st December 2017
+# Revision date: 8th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 # Variables for UEFI Architecture
 UEFI=0            # 1 = UEFI; 0 = BIOS
-EFIPartition=""   # "/dev/sda1"
+EFIPartition=""   # eg: /dev/sda1
 UEFI_MOUNT=""    	# UEFI mountpoint
 DualBoot="N"      # For formatting EFI partition
 
@@ -558,9 +558,6 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
     enter_size        # Adds advice about 100%
 
     dialog_inputbox 16 70
-
-read -p "$LINENO $Result"
-  
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
     "") return 0 ;;
@@ -571,19 +568,13 @@ read -p "$LINENO $Result"
         dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         HomeSize=""
       else
-
-read -p "$LINENO $RESPONSE"
-  
         HomeSize=$RESPONSE
         Partition="/home"
         translate "of remaining space allocated to"
         Message="${HomeSize} $Result"
         translate "partition"
         Message="${Message} /home $Result"
-        select_filesystem
-
-read -p "$LINENO $Result"
-  
+        select_filesystem 12 60
         HomeType=${PartitionType}
       fi
     esac
