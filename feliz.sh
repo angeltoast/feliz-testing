@@ -33,7 +33,7 @@ source f-run.sh      # Functions called during installation
 
 function main {
   
-  if [ -f dialogrc ] && [ ! -f .dialogrc ]; then        # Ensure that display of dialogs is controlled
+  if [ -f dialogrc ] && [ ! -f .dialogrc ]; then  # Ensure that display of dialogs is controlled
     cp dialogrc .dialogrc
   fi
   
@@ -43,15 +43,15 @@ function main {
   Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
   # Check if on UEFI or BIOS system
-  tput setf 0 # Change foreground colour to black temporarily to hide system messages
-  dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
-  if [ $? -eq 0 ]; then                         # check exit code; 0 = EFI, else BIOS
-    UEFI=1                                      # Set variable UEFI ON and mount the device
+  tput setf 0                                     # Change foreground colour to black temporarily to hide system messages
+  dmesg | grep -q "efi: EFI"                      # Test for EFI (-q tells grep to be quiet)
+  if [ $? -eq 0 ]; then                           # check exit code; 0 = EFI, else BIOS
+    UEFI=1                                        # Set variable UEFI ON and mount the device
     mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
   else
-    UEFI=0                                      # Set variable UEFI OFF
+    UEFI=0                                        # Set variable UEFI OFF
   fi
-  tput sgr0                                     # Reset colour
+  tput sgr0                                       # Reset colour
 
   timedatectl set-ntp true
     
@@ -88,49 +88,48 @@ function the_start {  # All user interraction takes place in this function
       if [ $? -ne 0 ]; then
         return 2                                  # On <Cancel> return high-level backout to main
       else
-        $((level+1))                              # Step completed, advance to next step
+        level=$((level+1))                        # Step completed, advance to next step
       fi ;;
     2) select_device                              # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return high-level backout to main
       get_device_size                             # First make sure that there is space for installation
       case $? in
-       0) $((level+1)) ;;                         # Device selected, advance to next step
+       0) level=$((level+1)) ;;                   # Device selected, advance to next step
        *) continue ;;                             # No device, rerun this step
       esac ;;
     3) localisation_settings                      # Locale, keyboard & hostname
       case $? in
-       0) $((level+1)) ;;                         # Step completed, advance to next step
+       0) level=$((level+1)) ;;                   # Step completed, advance to next step
        1) continue ;;                             # Low-level backout, rerun this step
-       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+       *) level=$((level-1)) ;;                   # High-level backout, rerun previous step
       esac ;;
     4) choose_mirrors
       case $? in
-       0) $((level+1)) ;;                         # Step completed, advance to next step
+       0) level=$((level+1)) ;;                   # Step completed, advance to next step
        1) continue ;;                             # Low-level backout, rerun this step
-       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+       *) level=$((level-1)) ;;                   # High-level backout, rerun previous step
       esac ;;
     5) desktop_settings                           # User chooses desktop environment and other extras
       case $? in
-       0) $((level+1)) ;;                         # Step completed, advance to next step
+       0) level=$((level+1)) ;;                   # Step completed, advance to next step
        1) continue ;;                             # Low-level backout, rerun this step
-       *) $((level-1)) ;;                         # High-level backout, rerun previous step
-      esac ;;
-      if [ $Scope != "Basic" ]; then              # If any extra apps have been added
-        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
-        then                                      # Gnome and FelizOB install their own DM
+       *) level=$((level-1)) ;;                   # High-level backout, rerun previous step
+      esac
+      if [ "$Scope" != "Basic" ]; then            # If any extra apps have been added
+        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]; then                                          # Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
         fi
         set_username                              # Enter name of primary user
-        if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
+        if [ $(ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null) ]; then
           confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
         else
           IsInVbox=""
         fi
       fi
       case $? in
-       0) $((level+1)) ;;                         # Step completed, advance to next step
+       0) level=$((level+1)) ;;                   # Step completed, advance to next step
        1) continue ;;                             # Low-level backout, rerun this step
-       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+       *) level=$((level-1)) ;;                   # High-level backout, rerun previous step
       esac ;;
     6) check_parts                                # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then level=1; fi           # User cancelled partitioning options, low-level backout
@@ -138,17 +137,17 @@ function the_start {  # All user interraction takes place in this function
         allocate_partitions                       # Assign /root /swap & others
         if [ $? -eq 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi
-      $((level+1)) ;;                             # Step completed, advance to next step
+      level=$((level+1)) ;;                       # Step completed, advance to next step
     7) select_kernel                              # Select kernel and device for Grub
       if [ $? -ne 0 ]; then level=1; fi           # No kernel selected, high level backout
-      $((level+1)) ;;                             # Step completed, advance to next step
+      level=$((level+1)) ;;                       # Step completed, advance to next step
     8) if [ ${UEFI} -eq 1 ]; then                 # If installing in EFI
         GrubDevice="EFI"                          # Set variable
       else							                          # If BIOS 
         select_grub_device                        # User chooses grub partition
       fi
       if [ $? -ne 0 ]; then level=6; fi           # No grub location selected, restart partitioning
-      $((level+1)) ;;                             # Step completed, advance to next step
+      level=$((level+1)) ;;                       # Step completed, advance to next step
     8) final_check                                # Allow user to change any variables
       return $? ;;                                # Exit from final_check may be 0 or 1
     *) level=1                                    # In case other level, restart
