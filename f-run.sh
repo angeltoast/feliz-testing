@@ -504,7 +504,8 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
       "Deepin") install_message "$Result Deepin"
           pacstrap /mnt deepin 2>> feliz.log
           pacstrap /mnt deepin-extra 2>> feliz.log ;;
-          arch_chroot "sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/' /etc/lightdm/lightdm.conf"
+          sourceFile="/mnt/etc/lightdm/lightdm.conf"
+          sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/' "$sourceFile"
           arch_chroot "systemctl disable display-manager.service" >> feliz.log
           arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
       "Enlightenment") install_message "$Result Enlightenment"
