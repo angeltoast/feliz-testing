@@ -86,34 +86,34 @@ function the_start {  # All user interraction takes place in this function
     case "$step" in
     1) set_language                               # In f-vars.sh - Use appropriate language file
       if [ $? -ne 0 ]; then
-        return 2                                  # On <Cancel> return high-level backout to main
+        return 2                                  # On <Cancel> return backout code to main
       else
-        level=2                                   # Step completed, advance to next step
+        step=2                                    # Step completed, advance to next step
       fi ;;
     2) select_device                              # Detect all available devices & allow user to select
-      if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return high-level backout to main
+      if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return backout code to main
       get_device_size                             # First make sure that there is space for installation
       case $? in
-       0) level=3 ;;                   # Device selected, advance to next step
+       0) step=3 ;;                               # Device selected, advance to next step
        *) continue ;;                             # No device, rerun this step
       esac ;;
     3) localisation_settings                      # Locale, keyboard & hostname
       case $? in
-       0) level=4 ;;                   # Step completed, advance to next step
-       1) continue ;;                             # Low-level backout, rerun this step
-       *) level=2 ;;                   # High-level backout, rerun previous step
+       0) step=4 ;;                               # Step completed, advance to next step
+       1) continue ;;                             # Backout, rerun this step
+       *) step=2 ;;                               # Backout, rerun previous step
       esac ;;
     4) choose_mirrors
       case $? in
-       0) level=5 ;;                   # Step completed, advance to next step
-       1) continue ;;                             # Low-level backout, rerun this step
-       *) level=3 ;;                   # High-level backout, rerun previous step
+       0) step=5 ;;                               # Step completed, advance to next step
+       1) continue ;;                             # Backout, rerun this step
+       *) step=3 ;;                               # Backout, rerun previous step
       esac ;;
     5) desktop_settings                           # User chooses desktop environment and other extras
       case $? in
-       0) level=6 ;;                   # Step completed, advance to next step
-       1) continue ;;                             # Low-level backout, rerun this step
-       *) level=4 ;;                   # High-level backout, rerun previous step
+       0) step=6 ;;                               # Step completed, advance to next step
+       1) continue ;;                             # Backout, rerun this step
+       *) step=4 ;;                               # Backout, rerun previous step
       esac
       if [ "$Scope" != "Basic" ]; then            # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]; then                                          # Gnome and FelizOB install their own DM
@@ -127,30 +127,30 @@ function the_start {  # All user interraction takes place in this function
         fi
       fi
       case $? in
-       0) level=6 ;;                   # Step completed, advance to next step
-       1) continue ;;                             # Low-level backout, rerun this step
-       *) level=4 ;;                   # High-level backout, rerun previous step
+       0) step=6 ;;                               # Step completed, advance to next step
+       1) continue ;;                             # Backout, rerun this step
+       *) step=4 ;;                               # Backout, rerun previous step
       esac ;;
     6) check_parts                                # Check partition table & offer partitioning options
-      if [ $? -ne 0 ]; then level=1; fi           # User cancelled partitioning options, low-level backout
+      if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
         allocate_partitions                       # Assign /root /swap & others
         if [ $? -eq 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi
-      level=7 ;;                       # Step completed, advance to next step
+      step=7 ;;                                   # Step completed, advance to next step
     7) select_kernel                              # Select kernel and device for Grub
-      if [ $? -ne 0 ]; then level=1; fi           # No kernel selected, high level backout
-      level=8 ;;                       # Step completed, advance to next step
+      if [ $? -ne 0 ]; then step=1; fi            # No kernel selected, backout
+      step=8 ;;                                   # Step completed, advance to next step
     8) if [ ${UEFI} -eq 1 ]; then                 # If installing in EFI
         GrubDevice="EFI"                          # Set variable
       else							                          # If BIOS 
         select_grub_device                        # User chooses grub partition
       fi
-      if [ $? -ne 0 ]; then level=6; fi           # No grub location selected, restart partitioning
-      level=9 ;;                       # Step completed, advance to next step
-    8) final_check                                # Allow user to change any variables
+      if [ $? -ne 0 ]; then step=6; fi            # No grub location selected, restart partitioning
+      step=9 ;;                                   # Step completed, advance to next step
+    9) final_check                                # Allow user to change any variables
       return $? ;;                                # Exit from final_check may be 0 or 1
-    *) level=1                                    # In case other level, restart
+    *) step=1                                     # In case other level, restart
     esac
   done
 }
