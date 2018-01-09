@@ -26,19 +26,18 @@
 # --------------------------  ---------------------------
 # Function             Line   Function               Line
 # --------------------------  ---------------------------
-# menu_dialog            44   type_of_installation    515
-# localisation_settings  74   pick_category           554
-# desktop_settings       90   choose_extras           633
-# set_timezone          102   display_extras          692
-# set_subzone           154   choose_display_manager  752
-# america               199   select_grub_device      776
-# america_subgroups     250   enter_grub_path         804
-# setlocale             273   select_kernel           828
-# edit_locale           349   choose_mirrors          852
-# get_keymap            369   edit_mirrors            923
-# search_keyboards      431   confirm_virtualbox      949
-# set_username          477   final_check             968
-# set_hostname          496   manual_settings        1098
+# menu_dialog            44   pick_category           554
+# set_timezone          102   choose_extras           633
+# set_subzone           154   display_extras          692
+# america               199   choose_display_manager  752
+# america_subgroups     250   select_grub_device      776
+# setlocale             273   enter_grub_path         804
+# edit_locale           349   select_kernel           828
+# get_keymap            369   choose_mirrors          852
+# search_keyboards      431   edit_mirrors            923
+# set_username          477   confirm_virtualbox      949
+# set_hostname          496   final_check             968
+# type_of_installation  515   manual_settings        1098
 # -------------------------   ---------------------------
 
 function menu_dialog {  # Display a simple menu from $menu_dialogVariable and return selection as $Result
@@ -69,43 +68,9 @@ function menu_dialog {  # Display a simple menu from $menu_dialogVariable and re
   return 0
 }
 
-function localisation_settings {              # Locale, keyboard & hostname
-
-  localisation=1
-
-  until [ $localisation -eq 0 ]; do
-    setlocale                                 # CountryLocale eg: en_GB.UTF-8
-    if [ $? -ne 0 ]; then return 1; fi
-
-    get_keymap                                # Select keyboard layout eg: uk
-    if [ $? -ne 0 ]; then return 1; fi
-
-    set_hostname
-    localisation=$?
-
-  done
-
-  return 0
-}
-
-function desktop_settings {
-  
-  environment=1
-  until [ $environment -eq 0 ]                # Each function must return 0 before next function can be called
-  do
-    DesktopEnvironment=""
-    type_of_installation                      # Basic or Full - use chooses Build, FeliOB or Basic
-    environment=$?
-  done
-  return $environment 
-}
-
 function set_timezone {
-  
   SUBZONE=""
-
   while true; do
-  
     message_first_line "To set the system clock, please first"
     message_subsequent "choose the World Zone of your location"
     timedatectl list-timezones | cut -d'/' -f1 | uniq > zones.file # Ten world zones
@@ -517,11 +482,12 @@ function type_of_installation { # User chooses between FelizOB, self-build or ba
       1 "$BMO" \
       2 "$FOB" \
       3  "$BAL" 2>output.file
-  retval=$?
+  if [ $? -ne 0 ]; then return 1; fi
   Result=$(cat output.file)
 
   case $Result in
     1) pick_category ;;
+      if [ $? -ne 0 ]; then return 1; fi
     2) DesktopEnvironment="FelizOB"
       Scope="Full" ;;
     *) Scope="Basic"

@@ -90,14 +90,20 @@ function the_start {  # All user interraction takes place in this function
       else
         step=2                                    # Step completed, advance to next step
       fi ;;
-    2) select_device                              # Detect all available devices & allow user to select
+    2) # Devices (if only one device detected, no user interaction
+      select_device                               # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return backout code to main
       get_device_size                             # First make sure that there is space for installation
       case $? in
        0) step=3 ;;                               # Device selected, advance to next step
        *) continue ;;                             # No device, rerun this step
       esac ;;
-    3) localisation_settings                      # Locale, keyboard & hostname
+    3) # localisation_settings                    Locale, keyboard & hostname
+      setlocale                                   # CountryLocale eg: en_GB.UTF-8
+      if [ $? -ne 0 ]; then step=2; fi
+      get_keymap                                  # Select keyboard layout eg: uk
+      if [ $? -ne 0 ]; then continue; fi
+      set_hostname
       case $? in
        0) step=4 ;;                               # Step completed, advance to next step
        1) continue ;;                             # Backout, rerun this step
@@ -109,28 +115,25 @@ function the_start {  # All user interraction takes place in this function
        1) continue ;;                             # Backout, rerun this step
        *) step=3 ;;                               # Backout, rerun previous step
       esac ;;
-    5) desktop_settings                           # User chooses desktop environment and other extras
-      case $? in
-       0) step=6 ;;                               # Step completed, advance to next step
-       1) continue ;;                             # Backout, rerun this step
-       *) step=4 ;;                               # Backout, rerun previous step
-      esac
+    5) # desktop_settings
+      DesktopEnvironment=""
+      type_of_installation                        # Basic or Full - use chooses Build, FeliOB or Basic
+      if [ $? -ne 0 ]; then
+        step=1
+        continue                                  # No option selected, restart
+      fi
       if [ "$Scope" != "Basic" ]; then            # If any extra apps have been added
         if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]; then                                          # Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
-        fi
-        set_username                              # Enter name of primary user
+        fi                                        # Installation can continue without a display manager
+        set_username                              # Enter name of primary user; default = "archie"
         if [ $(ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null) ]; then
-          confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
-        else
+          confirm_virtualbox                      # If running in Virtualbox, offer to include
+        else                                      # guest utilities. Can be rejected
           IsInVbox=""
         fi
       fi
-      case $? in
-       0) step=6 ;;                               # Step completed, advance to next step
-       1) continue ;;                             # Backout, rerun this step
-       *) step=4 ;;                               # Backout, rerun previous step
-      esac ;;
+      step=6 ;;                                   # Step completed, advance to next step
     6) check_parts                                # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
