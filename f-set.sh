@@ -486,8 +486,8 @@ function type_of_installation { # User chooses between FelizOB, self-build or ba
   Result=$(cat output.file)
 
   case $Result in
-    1) pick_category ;;
-      if [ $? -ne 0 ]; then return 1; fi
+    1) pick_category
+      if [ $? -ne 0 ]; then return 1; fi ;;
     2) DesktopEnvironment="FelizOB"
       Scope="Full" ;;
     *) Scope="Basic"
