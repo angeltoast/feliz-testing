@@ -100,7 +100,7 @@ function the_start {  # All user interraction takes place in this function
       esac ;;
     3) # localisation_settings                    Locale, keyboard & hostname
       setlocale                                   # CountryLocale eg: en_GB.UTF-8
-      if [ $? -ne 0 ]; then step=2; fi
+      if [ $? -ne 0 ]; then step=1; continue; fi
       get_keymap                                  # Select keyboard layout eg: uk
       if [ $? -ne 0 ]; then continue; fi
       set_hostname

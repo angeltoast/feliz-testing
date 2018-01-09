@@ -217,15 +217,14 @@ function allocate_partitions { # Called by feliz.sh after check_parts
     allocate_root                       # User must select root partition
     if [ $? -ne 0 ]; then return 1; fi
   done
+  if [ "${PartitionList}" = "" ]; then return 0; fi
                                         # All others are optional
   if [ -n "${PartitionList}" ]; then    # If there are unallocated partitions
     allocate_swap                       # Display display them for user to choose swap
-    if [ $? -ne 0 ]; then return 1; fi
   else                                  # If there is no partition for swap
-    no_swap_partition                      # Inform user and allow swapfile
-    if [ $? -ne 0 ]; then return 1; fi
+    no_swap_partition                   # Inform user and allow swapfile
   fi
-
+  if [ "${PartitionList}" = "" ]; then return 0; fi
   for i in ${PartitionList}; do         # Check contents of PartitionList
     echo $i > output.file               # If anything found, echo to file
     break                               # Break on first find
@@ -233,7 +232,6 @@ function allocate_partitions { # Called by feliz.sh after check_parts
   Result="$(cat output.file)"           # Check for output
   if [ "${Result}" != "" ]; then        # If any remaining partitions
     more_partitions                     # Allow user to allocate
-    if [ $? -ne 0 ]; then return 1; fi
   fi
   return 0
 }

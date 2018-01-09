@@ -220,9 +220,7 @@ function america_subgroups { # Called from america
 }
 
 function setlocale {
-  
   CountryLocale=""
-
   while [ -z "$CountryLocale" ]; do
     set_timezone # First get a validated ZONE/SUBZONE
     if [ $? -ne 0 ]; then return 1; fi
