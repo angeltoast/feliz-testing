@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 8th January 2018
+# Revision date: 9th January 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,10 +42,25 @@ function main {
   
   Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
-  while true; do
+  # Check if on UEFI or BIOS system
+  tput setf 0 # Change foreground colour to black temporarily to hide system messages
+  dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
+  if [ $? -eq 0 ]; then                         # check exit code; 0 = EFI, else BIOS
+    UEFI=1                                      # Set variable UEFI ON and mount the device
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
+  else
+    UEFI=0                                      # Set variable UEFI OFF
+  fi
+  tput sgr0                                     # Reset colour
 
+  timedatectl set-ntp true
+    
+  while true; do
     the_start                                     # All user interraction takes place in this function
-    if [ $? -ne 0 ]; then exit; fi                # Quit if error or user selects <Cancel>
+    case $? in                                    # the_start allows progressive 'backing out'
+    1) continue ;;                                # Restart on low-level backout
+    2) exit ;;                                    # Quit on high-level backout
+    esac
       
     if [ "$AutoPart" = "NONE"  ]; then continue; fi  # Restart if no partitioning options    
     translate "Preparations complete"             # Inform user
@@ -66,74 +81,78 @@ function main {
 
 function the_start {  # All user interraction takes place in this function
                       # Sets variables relating to locality and desktop
-  while true; do
-    set_language                                  # In f-vars.sh - Use appropriate language file
-    if [ $? -ne 0 ]; then return 1; fi            # If user cancels
-    timedatectl set-ntp true
-
-    # Check if on UEFI or BIOS system
-    tput setf 0 # Change foreground colour to black temporarily to hide system messages
-    dmesg | grep -q "efi: EFI"                    # Test for EFI (-q tells grep to be quiet)
-    if [ $? -eq 0 ]; then                         # check exit code; 0 = EFI, else BIOS
-      UEFI=1                                      # Set variable UEFI ON and mount the device
-      mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
-    else
-      UEFI=0                                      # Set variable UEFI OFF
-    fi
-    tput sgr0                                     # Reset colour
-
-    select_device                               # Detect all available devices & allow user to select
-    if [ $? -ne 0 ]; then return 1; fi
-
-    get_device_size                             # First make sure that there is space for installation
-    if [ $? -ne 0 ]; then return 1; fi          # If not, restart
-
-    localisation_settings                       # Locale, keyboard & hostname
-    if [ $? -ne 0 ]; then continue 1; fi
-
-    choose_mirrors
-    if [ $? -ne 0 ]; then continue; fi
-
-    desktop_settings                            # User chooses desktop environment and other extras
-    if [ $Scope != "Basic" ]; then              # If any extra apps have been added
-      if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
-      then                                      # Gnome and FelizOB install their own DM
-        choose_display_manager                  # User selects from list of display managers
-      fi
-
-      set_username                              # Enter name of primary user
-
-      if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
-        confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
+  declare -i step=1
+  while [ "$step" -gt 0 ]; do
+    case "$step" in
+    1) set_language                               # In f-vars.sh - Use appropriate language file
+      if [ $? -ne 0 ]; then
+        return 2                                  # On <Cancel> return high-level backout to main
       else
-        IsInVbox=""
+        $((level+1))                              # Step completed, advance to next step
+      fi ;;
+    2) select_device                              # Detect all available devices & allow user to select
+      if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return high-level backout to main
+      get_device_size                             # First make sure that there is space for installation
+      case $? in
+       0) $((level+1)) ;;                         # Device selected, advance to next step
+       *) continue ;;                             # No device, rerun this step
+      esac ;;
+    3) localisation_settings                      # Locale, keyboard & hostname
+      case $? in
+       0) $((level+1)) ;;                         # Step completed, advance to next step
+       1) continue ;;                             # Low-level backout, rerun this step
+       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+      esac ;;
+    4) choose_mirrors
+      case $? in
+       0) $((level+1)) ;;                         # Step completed, advance to next step
+       1) continue ;;                             # Low-level backout, rerun this step
+       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+      esac ;;
+    5) desktop_settings                           # User chooses desktop environment and other extras
+      case $? in
+       0) $((level+1)) ;;                         # Step completed, advance to next step
+       1) continue ;;                             # Low-level backout, rerun this step
+       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+      esac ;;
+      if [ $Scope != "Basic" ]; then              # If any extra apps have been added
+        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ]
+        then                                      # Gnome and FelizOB install their own DM
+          choose_display_manager                  # User selects from list of display managers
+        fi
+        set_username                              # Enter name of primary user
+        if (ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null); then
+          confirm_virtualbox                      # If running in Virtualbox, offer to include guest utilities
+        else
+          IsInVbox=""
+        fi
       fi
-    fi
-
-    # Partitioning - In f-part1.sh
-    while true; do
-      check_parts                               # Check partition table & offer partitioning options
-      if [ $? -ne 0 ]; then return 1; fi        # User cancelled partitioning options
-
+      case $? in
+       0) $((level+1)) ;;                         # Step completed, advance to next step
+       1) continue ;;                             # Low-level backout, rerun this step
+       *) $((level-1)) ;;                         # High-level backout, rerun previous step
+      esac ;;
+    6) check_parts                                # Check partition table & offer partitioning options
+      if [ $? -ne 0 ]; then level=1; fi           # User cancelled partitioning options, low-level backout
       if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
-        allocate_partitions                     # Assign /root /swap & others
+        allocate_partitions                       # Assign /root /swap & others
+        if [ $? -eq 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi
-      if [ $? -eq 0 ]; then break; fi
-    done
-    if [ $retval -ne 0 ]; then continue; fi
-    select_kernel                               # Select kernel and device for Grub
-    if [ $? -ne 0 ]; then exit; fi
-
-    if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
-      GrubDevice="EFI"                          # Set variable
-    else							                          # If BIOS 
-      select_grub_device                        # User chooses grub partition
-    fi
-    if [ $? -ne 0 ]; then continue; fi
-
-    final_check                                 # Allow user to change any variables
-    if [ $? -ne 0 ]; then continue; fi
-    return 0
+      $((level+1)) ;;                             # Step completed, advance to next step
+    7) select_kernel                              # Select kernel and device for Grub
+      if [ $? -ne 0 ]; then level=1; fi           # No kernel selected, high level backout
+      $((level+1)) ;;                             # Step completed, advance to next step
+    8) if [ ${UEFI} -eq 1 ]; then                 # If installing in EFI
+        GrubDevice="EFI"                          # Set variable
+      else							                          # If BIOS 
+        select_grub_device                        # User chooses grub partition
+      fi
+      if [ $? -ne 0 ]; then level=6; fi           # No grub location selected, restart partitioning
+      $((level+1)) ;;                             # Step completed, advance to next step
+    8) final_check                                # Allow user to change any variables
+      return $? ;;                                # Exit from final_check may be 0 or 1
+    *) level=1                                    # In case other level, restart
+    esac
   done
 }
 
