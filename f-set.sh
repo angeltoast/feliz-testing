@@ -754,8 +754,8 @@ function enter_grub_path { # Manual input
 
 function select_kernel {
   
-  Kernel="0"
-  until [ "$Kernel" != "0" ]
+  Kernel=0
+  until [ "$Kernel" -ne 0 ]
   do
     translate "Choose your kernel"
     title="$Result"
@@ -767,12 +767,16 @@ function select_kernel {
     Default="${Result} LTS"
   
     dialog --backtitle "$Backtitle" --title "$title" \
-      --ok-label "$Ok" --cancel-label "$Cancel" --no-tags --menu "\n  $Default" 10 70 2 \
+      --ok-label "$Ok" --no-cancel --no-tags --menu "\n  $Default" 10 70 2 \
       "1" "$LTS" \
       "2" "$Latest" 2>output.file
-    if [ $? -ne 0 ]; then Result="1"; fi
+    retval=$?
     Result=$(cat output.file)
-    Kernel=${Result} # Set the Kernel variable (1 = LTS; 2 = Latest)
+    if [ $retval -ne 0 ] || [ -z "$Result" ] || ([ "$Result" -ne 1 ] && [ "$Result" -ne 2 ]); then
+      Kernel=1  # Set the Kernel variable (1 = LTS; 2 = Latest)
+    else
+      Kernel="$Result"
+    fi
   done
   return 0
 }
@@ -965,7 +969,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
     EMPTY="$SaveStartPoint" # Reset cursor start point
     # 8) Kernel
     translate "Kernel"
-    if [ $Kernel -eq 1 ]; then
+    if [ -n $Kernel ] && [ $Kernel -eq 1 ]; then
       print_subsequent "8) $Result = 'LTS'"
     else
       print_subsequent "8) $Result = 'Latest'"

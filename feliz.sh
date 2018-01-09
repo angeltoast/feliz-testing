@@ -138,7 +138,7 @@ function the_start {  # All user interraction takes place in this function
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
         allocate_partitions                       # Assign /root /swap & others
-        if [ $? -eq 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
+        if [ $? -ne 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi
       step=7 ;;                                   # Step completed, advance to next step
     7) select_kernel                              # Select kernel and device for Grub
