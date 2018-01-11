@@ -128,12 +128,8 @@ function the_start {  # All user interraction takes place in this function
         fi                                        # Installation can continue without a display manager
         set_username                              # Enter name of primary user; default = "archie"
         wireless_option                           # New option to bypass wireless tools if not needed
-        if [ $(ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null) ]; then
-          confirm_virtualbox                      # If running in Virtualbox, offer to include
-        else                                      # guest utilities. Can be rejected
-          IsInVbox=""
-        fi
-      fi
+        confirm_virtualbox                        # Offer Virtualbox option
+       fi
       step=6 ;;                                   # Step completed, advance to next step
     6) check_parts                                # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout

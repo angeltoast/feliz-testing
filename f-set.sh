@@ -895,11 +895,8 @@ function edit_mirrors { # Called without arguments by choose_mirrors
 }
 
 function confirm_virtualbox { # Called without arguments by feliz.sh/the_start
-  message_first_line  "It appears that feliz is running in Virtualbox"
-  message_subsequent  "If it is, feliz can install Virtualbox guest"
-  message_subsequent  "utilities and make appropriate settings for you"
-  translate "Install Virtualbox guest utilities?"
-  title="$Result"
+  message_first_line "Install Virtualbox guest utilities?"
+  title="Virtualbox"
     
   dialog --backtitle "$Backtitle" --title " $title " \
     --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70
@@ -909,9 +906,6 @@ function confirm_virtualbox { # Called without arguments by feliz.sh/the_start
   else                   # No
     IsInVbox=""
   fi
-
-read -p "$IsInVbox"
-  
   return 0
 }
 
