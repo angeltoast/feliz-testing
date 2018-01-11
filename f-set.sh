@@ -38,6 +38,7 @@
 # set_username          477   confirm_virtualbox      949
 # set_hostname          496   final_check             968
 # type_of_installation  515   manual_settings        1098
+#                             wireless_option        1115
 # -------------------------   ---------------------------
 
 function menu_dialog {  # Display a simple menu from $menu_dialogVariable and return selection as $Result
@@ -908,6 +909,9 @@ function confirm_virtualbox { # Called without arguments by feliz.sh/the_start
   else                   # No
     IsInVbox=""
   fi
+
+read -p "$IsInVbox"
+  
   return 0
 }
 

@@ -189,7 +189,7 @@ function the_middle { # The installation phase
       echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
     fi
     GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # If secondary locale not already set, and
-    if [ $GrepTest ] && [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then # if main is not English
+    if [ "$GrepTest" ] && [ "$GrepTest" = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then # if main is not English
       echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # add en_US for completeness
     fi
     cp -f /etc/locale.gen /mnt/etc/                                     # Copy to installed system
@@ -217,7 +217,7 @@ function the_middle { # The installation phase
     if [ ${GrubDevice} = "EFI" ]; then                        # Installing grub in UEFI environment
       pacstrap /mnt grub efibootmgr
       arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
-      if [ ${IsInVbox} = "VirtualBox" ]; then                 # Prepare for Virtualbox
+      if [ "$IsInVbox" = "VirtualBox" ]; then                 # Prepare for Virtualbox
         mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi 2>> feliz.log
       fi
       arch_chroot "os-prober"
@@ -237,7 +237,7 @@ function the_middle { # The installation phase
     if [ $Scope != "Basic" ]; then
       add_codecs                                               # Various bits
 
-read -p "Next step is Virtualbox"
+read -p "Next step is Virtualbox $IsInVbox"
       
       if [ "$IsInVbox" = "VirtualBox" ]; then                  # If in Virtualbox
 
