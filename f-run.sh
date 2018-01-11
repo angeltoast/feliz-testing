@@ -372,12 +372,14 @@ function add_codecs { # Called without arguments by feliz.sh
   pacstrap /mnt a52dec autofs faac faad2 flac lame libdca libdv libmad libmpeg2 libtheora 2>> feliz.log
   pacstrap /mnt libvorbis libxv wavpack x264 gstreamer gst-plugins-base gst-plugins-good 2>> feliz.log
   pacstrap /mnt pavucontrol pulseaudio pulseaudio-alsa libdvdcss dvd+rw-tools dvdauthor dvgrab 2>> feliz.log
-  translate "Wireless Tools"
-  Message="$Result"
-  translate "Installing"
-  install_message "$Result $Message"
-  pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
-  pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
+  if [ "$WirelessTools" = "Y" ]; then
+    translate "Wireless Tools"
+    Message="$Result"
+    translate "Installing"
+    install_message "$Result $Message"
+    pacstrap /mnt b43-fwcutter ipw2100-fw ipw2200-fw zd1211-firmware 2>> feliz.log
+    pacstrap /mnt iw wireless_tools wpa_supplicant 2>> feliz.log
+  fi
   # Note that networkmanager and network-manager-applet are installed separately by feliz.sh
   translate "Graphics tools"
   Message="$Result"

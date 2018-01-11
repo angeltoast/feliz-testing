@@ -1110,3 +1110,19 @@ function manual_settings {  # Called without arguments by final_check if
   done
   return 0
 }
+
+function wireless_option { # Called without arguments by feliz.sh/the_start
+  message_first_line  "Install wireless tools?"
+  translate "Wifi Option"
+  title="$Result"
+    
+  dialog --backtitle "$Backtitle" --title " $title " \
+    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 70
+
+  if [ $? -eq 0 ]; then  # Yes
+    WirelessTools="Y"
+  else                   # No
+    WirelessTools="N"
+  fi
+  return 0
+}

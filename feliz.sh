@@ -127,6 +127,7 @@ function the_start {  # All user interraction takes place in this function
           choose_display_manager                  # User selects from list of display managers
         fi                                        # Installation can continue without a display manager
         set_username                              # Enter name of primary user; default = "archie"
+        wireless_option                           # New option to bypass wireless tools if not needed
         if [ $(ls -l /dev/disk/by-id | grep "VBOX" &> /dev/null) ]; then
           confirm_virtualbox                      # If running in Virtualbox, offer to include
         else                                      # guest utilities. Can be rejected
@@ -187,9 +188,9 @@ function the_middle { # The installation phase
     if [ -z $GrepTest ]; then                                           # If not, add it at bottom
       echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
     fi
-    GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # If secondary locale not already set, and main
-    if [ $GrepTest ] && [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then # is not English, add it at bottom
-      echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # Added for completeness
+    GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # If secondary locale not already set, and
+    if [ $GrepTest ] && [ $GrepTest = "" ] && [ "${CountryLocale:0:2}" != "en" ]; then # if main is not English
+      echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 2>> feliz.log         # add en_US for completeness
     fi
     cp -f /etc/locale.gen /mnt/etc/                                     # Copy to installed system
     arch_chroot "locale-gen"
@@ -235,7 +236,13 @@ function the_middle { # The installation phase
   # Extra processes for desktop installation
     if [ $Scope != "Basic" ]; then
       add_codecs                                               # Various bits
+
+read -p "Next step is Virtualbox"
+      
       if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
+
+read -p "In Virtualbox at $LINENO"
+      
         translate="Installing"
         install_message "$Result " "Virtualbox Guest Modules"
         translate="Y"
@@ -248,6 +255,9 @@ function the_middle { # The installation phase
         pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
         arch_chroot "systemctl enable vboxservice"
       fi
+
+read -p "After Virtualbox"
+      
       install_extras                                           # Install DEs, WMs and DMs
       user_add
     fi
