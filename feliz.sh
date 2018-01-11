@@ -232,13 +232,7 @@ function the_middle { # The installation phase
   # Extra processes for desktop installation
     if [ $Scope != "Basic" ]; then
       add_codecs                                               # Various bits
-
-read -p "Next step is Virtualbox $IsInVbox"
-      
       if [ "$IsInVbox" = "VirtualBox" ]; then                  # If in Virtualbox
-
-read -p "In Virtualbox at $LINENO"
-      
         translate="Installing"
         install_message "$Result " "Virtualbox Guest Modules"
         translate="Y"
@@ -251,9 +245,6 @@ read -p "In Virtualbox at $LINENO"
         pacstrap /mnt virtualbox-guest-utils 2>> feliz.log
         arch_chroot "systemctl enable vboxservice"
       fi
-
-read -p "After Virtualbox"
-      
       install_extras                                           # Install DEs, WMs and DMs
       user_add
     fi
