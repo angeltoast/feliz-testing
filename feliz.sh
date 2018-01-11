@@ -239,7 +239,7 @@ function the_middle { # The installation phase
 
 read -p "Next step is Virtualbox"
       
-      if [ ${IsInVbox} = "VirtualBox" ]; then                  # If in Virtualbox
+      if [ "$IsInVbox" = "VirtualBox" ]; then                  # If in Virtualbox
 
 read -p "In Virtualbox at $LINENO"
       
