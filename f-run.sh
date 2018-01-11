@@ -337,10 +337,10 @@ function install_kernel { # Called without arguments by feliz.sh
   # Passes test if the date of the running iso is more recent than the date of the latest Arch
   # trust update. Next trust update due 2018:06:25
   # Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
-  RunningDate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
-  TrustDate=201710                                                # Reset this to date of latest Arch Linux trust update
+  isodate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
+  TrustDate=201710                                                # Date of latest Arch Linux trust update
                                                                   # Next trustdb check 2018-10-20
-  if [ "$RunningDate" -ge "$TrustDate" ]; then                    # If the running iso is more recent than
+  if [ "$isodate" -ge "$TrustDate" ]; then                        # If the running iso is more recent than
     echo "pacman-key trust check passed" >> feliz.log             # the last trust update, no action is taken
   else                                                            # But if the iso is older than the last trust
     install_message "Updating keys"                               # update then the keys are updated
@@ -506,8 +506,8 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
           pacstrap /mnt deepin-extra 2>> feliz.log
           sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-deepin-greeter/' /mnt/etc/lightdm/lightdm.conf
           arch_chroot "systemctl disable display-manager.service" >> feliz.log
-          arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
-      "Enlightenment") install_message "$Result Enlightenment" ;;
+          arch_chroot "systemctl -f enable lightdm.service" >> feliz.log ;;
+      "Enlightenment") install_message "$Result Enlightenment"
           pacstrap /mnt enlightenment connman terminology 2>> feliz.log ;;
       "Fluxbox") install_message "$Result Fluxbox"
           pacstrap /mnt fluxbox 2>> feliz.log ;;
