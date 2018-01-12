@@ -220,7 +220,7 @@ function create_partition_table {
   # Create a new partition table
   if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
 
-read -p "f-run.sh line $LINENO"
+# read -p "f-run.sh line $LINENO"
 
     sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
@@ -229,14 +229,14 @@ read -p "f-run.sh line $LINENO"
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
 
-read -p "f-run.sh line $LINENO"
+# read -p "f-run.sh line $LINENO"
 
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # Set start point for next partition
   fi
 
-read -p "f-run.sh line $LINENO"
+# read -p "f-run.sh line $LINENO"
 
 }
 
@@ -273,7 +273,7 @@ function autopart { # Called by feliz.sh/preparation during installation phase
 function mount_partitions { # Called without arguments by feliz.sh after action_UEFI or action_EFI
     install_message "Preparing and mounting partitions"
   # 1) Root partition
-    if [ $RootType = "" ]; then
+    if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
     else                                                              # Check if replacing existing ext3/4 with btrfs
       CurrentType=$(file -sL ${RootPartition} | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -293,7 +293,13 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
       fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
     fi
+
+read -p "f-run.sh line $LINENO"
+
     mount ${RootPartition} /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+
+read -p "f-run.sh line $LINENO"
+
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log                    # Format EFI boot partition
@@ -301,8 +307,11 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
       parted_script "set 1 boot on"                                   # Make bootable
       mount ${EFIPartition} /mnt/boot                                 # Mount it
     fi
+
+read -p "f-run.sh line $LINENO"
+
   # 3) Swap
-    if [ $SwapPartition ]; then
+    if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
       if [ "$MakeSwap" = "Y" ]; then
         Partition=${SwapPartition: -4}                                # Last 4 characters (eg: sda2)
@@ -337,6 +346,9 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
       mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
+
+read -p "f-run.sh line $LINENO"
+
   return 0
 }
 
