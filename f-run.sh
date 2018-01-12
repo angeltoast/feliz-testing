@@ -102,8 +102,11 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
 
 function action_EFI { # Called without arguments by feliz.sh before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
-                      
+
+read -p "f-run.sh line $LINENO"
+
   create_partition_table
+  
   local Unit
   local EndPoint
   declare -i Chars
@@ -112,8 +115,8 @@ function action_EFI { # Called without arguments by feliz.sh before other partit
   declare -i NextStart
   # Format the drive for EFI
     tput setf 0                         # Change foreground colour to black temporarily to hide error message
-    sgdisk --zap-all /dev/sda           # Remove all partitions
-    wipefs -a /dev/sda                  # Remove filesystem
+    sgdisk --zap-all "$GrubDevice"    # Remove all partitions
+    wipefs -a "$GrubDevice"                  # Remove filesystem
     tput sgr0                           # Reset colour
     parted_script "mklabel gpt"         # Create EFI partition table
   # Boot partition
@@ -215,17 +218,26 @@ function home_partition {
 
 function create_partition_table {
   # Create a new partition table
-  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
+  if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
+
+read -p "f-run.sh line $LINENO"
+
+    sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     parted_script "mklabel gpt"                            # Create new filesystem
     parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
+
+read -p "f-run.sh line $LINENO"
+
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # Set start point for next partition
   fi
+
+read -p "f-run.sh line $LINENO"
+
 }
 
 function autopart { # Called by feliz.sh/preparation during installation phase

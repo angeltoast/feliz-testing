@@ -156,9 +156,9 @@ function the_start {  # All user interraction takes place in this function
 }
 
 function preparation { # Prepare the environment for the installation phase
-  if [ ${UEFI} -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI with Guided partitioning_options
+  if [ "$UEFI" -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI with Guided partitioning_options
     action_EFI
-  elif [ ${UEFI} -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning_options
+  elif [ "$UEFI" -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning_options
     action_MBR
   elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart 

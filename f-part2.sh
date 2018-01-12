@@ -115,7 +115,7 @@ function select_device {  # Called by feliz.sh
       if [ "$retval" -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
-        if [ "$retval" -eq 0 ]; then return 1; fi
+        if [ "$?" -eq 0 ]; then return 1; fi
       fi
       UseDisk="${Result}"
     done
