@@ -187,9 +187,9 @@ function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first 
   select_device                   # Get details of device to use
   get_device_size                 # Get available space in MiB
 
-  message_first_line "Here you can set the size and format of the partitions"
-  message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
-  message_subsequent "and create a new partition table with your settings"
+  message_first_line "Here you can set the size and format of the partitions you"
+  message_subsequent "wish to create. during installation, Feliz will wipe the"
+  message_subsequent "disk and create a new partition table with your settings"
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
@@ -325,8 +325,10 @@ function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSi
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
-    echo
-    if [ -z "$CheckInput1"]; then
+
+read -p "f-part2.sh line $LINENO $RESPONSE $CheckInput"
+
+    if [ -z "$CheckInput1" ]; then
       RootSize=""
     elif [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       message_first_line "You must include M, G or %"
