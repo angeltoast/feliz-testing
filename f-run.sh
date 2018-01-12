@@ -106,7 +106,9 @@ function action_EFI { # Called without arguments by feliz.sh before other partit
 read -p "f-run.sh line $LINENO"
 
   create_partition_table
-  
+
+read -p "f-run.sh line $LINENO"
+
   local Unit
   local EndPoint
   declare -i Chars
@@ -119,6 +121,9 @@ read -p "f-run.sh line $LINENO"
     wipefs -a "$GrubDevice"                  # Remove filesystem
     tput sgr0                           # Reset colour
     parted_script "mklabel gpt"         # Create EFI partition table
+
+read -p "f-run.sh line $LINENO"
+
   # Boot partition
   # --------------
     # Calculate end-point
@@ -133,6 +138,9 @@ read -p "f-run.sh line $LINENO"
     parted_script "set 1 boot on"
     EFIPartition="${GrubDevice}1"       # "/dev/sda1"
     NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
+
+read -p "f-run.sh line $LINENO"
+
   # Root partition
   # --------------
     root_partition
@@ -140,6 +148,9 @@ read -p "f-run.sh line $LINENO"
     parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
     RootPartition="${GrubDevice}2"      # "/dev/sda2"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
+
+read -p "f-run.sh line $LINENO"
+
   # Swap partition
   # --------------
     if [ -n "$SwapSize" ]; then
@@ -150,6 +161,9 @@ read -p "f-run.sh line $LINENO"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
+
+read -p "f-run.sh line $LINENO"
+
   # Home partition
   # --------------
     if [ -n "$HomeSize" ]; then
@@ -162,6 +176,9 @@ read -p "f-run.sh line $LINENO"
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
+
+read -p "f-run.sh line $LINENO"
+
   return 0
 }
 
@@ -219,25 +236,16 @@ function home_partition {
 function create_partition_table {
   # Create a new partition table
   if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
-
-# read -p "f-run.sh line $LINENO"
-
     sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     parted_script "mklabel gpt"                            # Create new filesystem
     parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
-
-# read -p "f-run.sh line $LINENO"
-
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # Set start point for next partition
   fi
-
-# read -p "f-run.sh line $LINENO"
-
 }
 
 function autopart { # Called by feliz.sh/preparation during installation phase
@@ -293,13 +301,7 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         mkfs.${RootType} ${Label} ${RootPartition} &>> feliz.log
       fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
     fi
-
-read -p "f-run.sh line $LINENO"
-
     mount ${RootPartition} /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
-
-read -p "f-run.sh line $LINENO"
-
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log                    # Format EFI boot partition
@@ -307,9 +309,6 @@ read -p "f-run.sh line $LINENO"
       parted_script "set 1 boot on"                                   # Make bootable
       mount ${EFIPartition} /mnt/boot                                 # Mount it
     fi
-
-read -p "f-run.sh line $LINENO"
-
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
@@ -346,9 +345,6 @@ read -p "f-run.sh line $LINENO"
       mount ${id} /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
-
-read -p "f-run.sh line $LINENO"
-
   return 0
 }
 

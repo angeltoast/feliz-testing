@@ -172,11 +172,7 @@ read -p "feliz.sh line $LINENO"
 
   mount_partitions                                            # In f-run.sh
 
-read -p "feliz.sh line $LINENO"
-
   mirror_list                                                 # In f-run.sh
-
-read -p "feliz.sh line $LINENO"
 
   install_kernel                                              # In f-run.sh
   return 0

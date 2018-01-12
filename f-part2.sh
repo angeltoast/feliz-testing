@@ -48,9 +48,9 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
 	translate "Here are the partitions that are available"
   title="$Result"
 	message_first_line "First you should select one to use for EFI /boot"
-	message_subsequent "This must be of type vfat, and may be about 512MiB"
+	message_subsequent "This must be of type vfat, and may be about 512M"
   display_partitions
-  if [ $retval -ne 0 ]; then return; fi
+  if [ $retval -ne 0 ]; then return 1; fi
   PassPart="/dev/${Result}" # eg: sda1
   SetLabel "/dev/${Result}"
 	EFIPartition="/dev/${Result}"
