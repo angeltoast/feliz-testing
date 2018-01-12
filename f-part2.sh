@@ -277,13 +277,13 @@ function guided_EFI_Boot {  # Called by guided_EFI
     title="/boot"
     FreeGigs=$((FreeSpace/1024))
     message_first_line "You have"
-    Message="$Message ${FreeGigs}GiB"
+    Message="$Message ${FreeGigs}G"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
     message_subsequent "All we need to set here is the size of your /boot partition"
-    message_subsequent "It should be no less than 512MiB and need be no larger than 1GiB"
-
-    dialog_inputbox 12 70
+    message_subsequent "It should be no less than 512M and need be no larger than 1GiB"
+    message_subsequent "eg: 512M"
+    dialog_inputbox 14 70
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
     CheckInput=${RESPONSE: -1}
@@ -309,26 +309,25 @@ function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSi
     translate "partition"
     Message="/boot $Result: ${BootSize}\n"
     message_subsequent "You now have"
-    Message="$Message ${FreeGigs}GiB"
+    Message="$Message ${FreeGigs}G"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
     message_subsequent "A partition is needed for /root"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     message_subsequent "although you may want to leave room for a /swap partition"
     message_subsequent "and perhaps also a /home partition"
-    message_subsequent "The /root partition should not be less than 8GiB"
-    message_subsequent "ideally more, up to 20GiB"
+    message_subsequent "The /root partition should not be less than 8G"
+    message_subsequent "ideally more, up to 20G"
     
     enter_size               # Adds advice about 100%
-    
+    message_subsequent "eg: 9G"
     dialog_inputbox 30 70
+
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
 
-read -p "f-part2.sh line $LINENO $RESPONSE $CheckInput"
-
-    if [ -z "$CheckInput1" ]; then
+    if [ -z "$CheckInput" ]; then
       RootSize=""
     elif [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       message_first_line "You must include M, G or %"
@@ -365,7 +364,7 @@ function guided_MBR_root { # Called by guided_MBR - Set variables: RootSize, Roo
     message_subsequent "The /root partition should not be less than 8G"
     message_subsequent "ideally more, up to 20G"
     enter_size        # Adds advice to message about 100%
-    
+    message_subsequent "eg: 9G"
     dialog_inputbox 30 75
 
     RESPONSE="${Result^^}"
@@ -407,25 +406,25 @@ function guided_EFI_Swap {  # Called by guided_EFI
       message_first_line "There is space for a"
       translate "partition"
       Message="$Message /swap $Result"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ "$FreeSpace" -gt 5 ]; then
       message_first_line "There is space for a"
       translate "partition"
       Message="$Message /swap $Result"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_first_line "There is just space for a"
       translate "partition"
       Message="$Message /swap $Result"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
     fi
     enter_size        # Adds advice about 100%
-
+    message_subsequent "eg: 1G"
     dialog_inputbox 30 70
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
@@ -465,27 +464,27 @@ function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
       message_subsequent "There is space for a"
       translate "partition"
       Message="$Message /swap ${Result}\n"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
       message_subsequent "You may want to leave room for a /home partition"
     elif [ "$FreeSpace" -gt 5 ]; then
       message_subsequent "There is space for a"
       translate "partition"
       Message="$Message /swap ${Result}\n"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
       message_subsequent "You can use all the remaining space on the device, if you wish"
       message_subsequent "You may want to leave room for a /home partition"
     else
       message_subsequent "There is just space for a"
       translate "partition"
       Message="$Message /swap ${Result}\n"
-      message_subsequent "Swap can be anything from 512MiB upwards but"
-      message_subsequent "it is not necessary to exceed 4GiB"
+      message_subsequent "Swap can be anything from 512M upwards but"
+      message_subsequent "it is not necessary to exceed 4G"
       message_subsequent "You can use all the remaining space on the device, if you wish"
     fi
     enter_size        # Adds advice about 100%
-    
+    message_subsequent "eg: 1G"
     dialog_inputbox 30 75
     RESPONSE="${Result^^}"
 
@@ -521,7 +520,7 @@ function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, Hom
     Message="${Message}\n/root $Result: ${RootType} : ${RootSize}"
     Message="${Message}\n/swap $Result: ${SwapSize}\n"
     message_subsequent "You now have"
-    Message="$Message ${FreeGigs}GiB"
+    Message="$Message ${FreeGigs}G"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
     message_subsequent "There is space for a"
@@ -529,7 +528,7 @@ function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, Hom
     Message="$Message /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size        # Adds advice about 100%
-
+    message_subsequent "eg: 20G"
     dialog_inputbox 30 75
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
@@ -564,7 +563,7 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
     Message="/root $Result: ${RootType}: ${RootSize}"
     message_subsequent "/swap ${Result}: ${SwapSize}\n"
     translate "You now have"
-    Message="${Message} ${FreeGigs}GiB"
+    Message="${Message} ${FreeGigs}G"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
     message_subsequent "There is space for a"
@@ -572,7 +571,7 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
     Message="${Message} /home $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
     enter_size        # Adds advice about 100%
-
+    message_subsequent "eg: 20G"
     dialog_inputbox 16 70
     RESPONSE="${Result^^}"
     case ${RESPONSE} in
