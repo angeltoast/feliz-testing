@@ -72,7 +72,7 @@ function select_device {  # Called by feliz.sh
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=$(echo "$DiskDetails" | wc -w)
-  if [ $Counter -gt 1 ]; then   # If there are multiple devices ask user which to use
+  if [ "$Counter" -gt 1 ]; then   # If there are multiple devices ask user which to use
     UseDisk=""            # Reset for user choice
     while [ -z "$UseDisk" ]; do
       message_first_line "There are"
@@ -112,10 +112,10 @@ function select_device {  # Called by feliz.sh
       Result=$(cat output.file)                           # Return values to calling function
       rm list.file
       
-      if [ $retval -ne 0 ]; then
+      if [ "$retval" -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
-        if [ $retval -eq 0 ]; then return 1; fi
+        if [ "$retval" -eq 0 ]; then return 1; fi
       fi
       UseDisk="${Result}"
     done
@@ -169,16 +169,16 @@ function get_device_size {  # Called by feliz.sh
 
 function recalculate_space {  # Called by guided_MBR & guided_EFI
                               # Calculate remaining disk space
-  local Passed=$1
+  local Passed="$1"
   case ${Passed: -1} in
-  "%") Calculator=$FreeSpace ;;         # Allow for 100%
-  "G") Chars=${#Passed}                 # Count characters in variable
-        Passed=${Passed:0:Chars-1}      # Passed variable stripped of unit
-        Calculator=$((Passed*1024)) ;;
-    *) Chars=${#Passed}                 # Count characters in variable
-       Calculator=${Passed:0:Chars-1}   # Passed variable stripped of unit
+  "%") Calculator="$FreeSpace" ;;         # Allow for 100%
+  "G") Chars="${#Passed}"                 # Count characters in variable
+        Passed="${Passed:0:Chars-1}"      # Passed variable stripped of unit
+        Calculator="$((Passed*1024))" ;;
+    *) Chars="${#Passed}"                 # Count characters in variable
+       Calculator="${Passed:0:Chars-1}"   # Passed variable stripped of unit
   esac
-  FreeSpace=$((FreeSpace-Calculator))   # Recalculate available space
+  FreeSpace="$((FreeSpace-Calculator))"   # Recalculate available space
   return 0
 }
 
@@ -225,6 +225,9 @@ function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first 
 
 function guided_MBR { # Called by f-part1.sh/partitioning_options as the first step in the 
                       # guided BIOS partitioning option - Inform user of purpose, call each step
+  select_device                   # Get details of device to use
+  get_device_size                 # Get available space in MiB
+
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
@@ -323,13 +326,17 @@ function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSi
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
     echo
-    if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
+    if [ -z "$CheckInput1"]; then
+      RootSize=""
+    elif [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       message_first_line "You must include M, G or %"
       RootSize=""
     else
       RootSize=$RESPONSE
       Partition="/root"
-      select_filesystem
+      translate "allocated to /root"
+      Message="${RootSize}" "$Result"
+      select_filesystem 30 60
       RootType=${PartitionType}
     fi
   done
@@ -362,16 +369,15 @@ function guided_MBR_root { # Called by guided_MBR - Set variables: RootSize, Roo
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput1=${RESPONSE: -1}
-    if [ -z ${CheckInput1} ]; then
+    if [ -z "$CheckInput1"]; then
       RootSize=""
-    elif [ ${CheckInput1} != "%" ] && [ ${CheckInput1} != "G" ] && [ ${CheckInput1} != "M" ]; then
+    elif [ "$CheckInput1" != "%" ] && [ "$CheckInput1" != "G" ] && [ "$CheckInput1" != "M" ]; then
       message_first_line "You must include M, G or %"
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
       RootSize=""
     else
       RootSize=$RESPONSE
       Partition="/root"
-      print_heading
       translate "allocated to /root"
       Message="${RootSize}" "$Result"
       select_filesystem 30 60
@@ -453,14 +459,14 @@ function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
     Message="$Message ${FreeGigs}GiB"
     translate "available on the chosen device"
     Message="$Message ${Result}\n"
-    if [ ${FreeSpace} -gt 10 ]; then
+    if [ "$FreeSpace" -gt 10 ]; then
       message_subsequent "There is space for a"
       translate "partition"
       Message="$Message /swap ${Result}\n"
       message_subsequent "Swap can be anything from 512MiB upwards but"
       message_subsequent "it is not necessary to exceed 4GiB"
       message_subsequent "You may want to leave room for a /home partition"
-    elif [ ${FreeSpace} -gt 5 ]; then
+    elif [ "$FreeSpace" -gt 5 ]; then
       message_subsequent "There is space for a"
       translate "partition"
       Message="$Message /swap ${Result}\n"
@@ -490,7 +496,7 @@ function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
       return 0 ;;
     *) # Check that entry includes 'G or %'
       CheckInput=${RESPONSE: -1}
-      if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+      if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
         message_first_line "You must include M, G or %"
         dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         SwapSize=""
@@ -534,7 +540,11 @@ function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, Hom
         else
           HomeSize=$RESPONSE
           Partition="/home"
-          select_filesystem
+          translate "of remaining space allocated to"
+          Message="${HomeSize} $Result"
+          translate "partition"
+          Message="${Message} /home $Result"
+          select_filesystem 12 60
           HomeType=${PartitionType}
         fi
     esac
@@ -567,7 +577,7 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
     "") return 0 ;;
     *) # Check that entry includes 'G or %'
         CheckInput=${RESPONSE: -1}
-      if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+      if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
         message_first_line "You must include M, G or %"
         dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "$Message"
         HomeSize=""
