@@ -103,8 +103,6 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
 function action_EFI { # Called without arguments by feliz.sh before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
 
-read -p "f-run.sh line $LINENO"
-
   create_partition_table
 
 read -p "f-run.sh line $LINENO"
@@ -115,11 +113,20 @@ read -p "f-run.sh line $LINENO"
   declare -i Var
   declare -i EndPart
   declare -i NextStart
+
+read -p "f-run.sh line $LINENO"
+
   # Format the drive for EFI
     tput setf 0                         # Change foreground colour to black temporarily to hide error message
-    sgdisk --zap-all "$GrubDevice"    # Remove all partitions
-    wipefs -a "$GrubDevice"                  # Remove filesystem
+    sgdisk --zap-all "/dev/${UseDisk}"    # Remove all partitions
+
+read -p "f-run.sh line $LINENO"
+
+    wipefs -a "/dev/${UseDisk}"                  # Remove filesystem
     tput sgr0                           # Reset colour
+
+read -p "f-run.sh line $LINENO"
+
     parted_script "mklabel gpt"         # Create EFI partition table
 
 read -p "f-run.sh line $LINENO"
