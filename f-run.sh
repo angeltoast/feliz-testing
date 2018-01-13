@@ -267,6 +267,12 @@ function autopart { # Called by feliz.sh/preparation during installation phase
 
 function mount_partitions { # Called without arguments by feliz.sh after action_UEFI or action_EFI
     install_message "Preparing and mounting partitions"
+
+echo "RootType = $RootType"
+echo "UEFI = $UEFI"
+echo "EFIPartition = $EFIPartition"
+read -p "f-run $LINENO starting mount_partitions"
+    
   # 1) Root partition
     if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
@@ -332,7 +338,11 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
       mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
-  return 0
+    
+lsblk
+fdisk -l
+read -p "f-run $LINENO at end of mount_partitions"
+
 }
 
 function install_kernel { # Called without arguments by feliz.sh

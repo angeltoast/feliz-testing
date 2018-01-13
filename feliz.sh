@@ -168,8 +168,6 @@ function preparation { # Prepare the environment for the installation phase
     return 1
   fi
 
-read -p "feliz.sh line $LINENO"
-
   mount_partitions                                            # In f-run.sh
 
   mirror_list                                                 # In f-run.sh
