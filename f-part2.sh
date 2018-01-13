@@ -55,7 +55,6 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
   SetLabel "/dev/${Result}"
 	EFIPartition="/dev/${Result}"
   PartitionList=$(echo "$PartitionList" | sed "s/$Result //")  # Remove selected item
-  return 0
 }
 
 function enter_size { # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
@@ -63,12 +62,10 @@ function enter_size { # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_H
   message_subsequent "Please enter the desired size"
   message_subsequent "or, to allocate all the remaining space, enter"
   Message="$Message 100%"
-  return 0
 }
 
-function select_device {  # Called by feliz.sh
-                          # User chooses device to use for auto partition
-                          # from all connected devices
+function select_device {  # Called by f-part1.sh/check_parts
+                          # Detects available devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
   local Counter=$(echo "$DiskDetails" | wc -w)
@@ -115,13 +112,17 @@ function select_device {  # Called by feliz.sh
       if [ "$retval" -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
-        if [ "$?" -eq 0 ]; then return 1; fi
+        if [ "$?" -eq 0 ]; then
+          UseDisk=""
+          GrubDevice=""
+          return 1
+        fi
       fi
-      UseDisk="${Result}"
+      UseDisk="$Result"
     done
   fi
   GrubDevice="/dev/${UseDisk}"  # Full path of selected device
-  return 0
+  EFIPartition="${GrubDevice}1"
 }
 
 function get_device_size {  # Called by feliz.sh
@@ -164,7 +165,6 @@ function get_device_size {  # Called by feliz.sh
     message_subsequent "installation, but you should choose light applications only"
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --infobox "$Message" 10 60
   fi
-  return 0
 }
 
 function recalculate_space {  # Called by guided_MBR & guided_EFI
@@ -184,9 +184,6 @@ function recalculate_space {  # Called by guided_MBR & guided_EFI
 
 function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first step
                        # in EFI guided partitioning option - Inform user of purpose, call each step
-  select_device                   # Get details of device to use
-  get_device_size                 # Get available space in MiB
-
   message_first_line "Here you can set the size and format of the partitions you"
   message_subsequent "wish to create. during installation, Feliz will wipe the"
   message_subsequent "disk and create a new partition table with your settings"
@@ -225,9 +222,6 @@ function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first 
 
 function guided_MBR { # Called by f-part1.sh/partitioning_options as the first step in the 
                       # guided BIOS partitioning option - Inform user of purpose, call each step
-  select_device                   # Get details of device to use
-  get_device_size                 # Get available space in MiB
-
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"

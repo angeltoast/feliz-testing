@@ -105,8 +105,6 @@ function action_EFI { # Called without arguments by feliz.sh before other partit
 
   create_partition_table
 
-read -p "f-run.sh line $LINENO"
-
   local Unit
   local EndPoint
   declare -i Chars
@@ -114,22 +112,14 @@ read -p "f-run.sh line $LINENO"
   declare -i EndPart
   declare -i NextStart
 
-read -p "f-run.sh line $LINENO"
-
   # Format the drive for EFI
     tput setf 0                         # Change foreground colour to black temporarily to hide error message
     sgdisk --zap-all "/dev/${UseDisk}"    # Remove all partitions
 
-read -p "f-run.sh line $LINENO"
-
     wipefs -a "/dev/${UseDisk}"                  # Remove filesystem
     tput sgr0                           # Reset colour
 
-read -p "f-run.sh line $LINENO"
-
     parted_script "mklabel gpt"         # Create EFI partition table
-
-read -p "f-run.sh line $LINENO"
 
   # Boot partition
   # --------------
@@ -146,8 +136,6 @@ read -p "f-run.sh line $LINENO"
     EFIPartition="${GrubDevice}1"       # "/dev/sda1"
     NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
 
-read -p "f-run.sh line $LINENO"
-
   # Root partition
   # --------------
     root_partition
@@ -155,8 +143,6 @@ read -p "f-run.sh line $LINENO"
     parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
     RootPartition="${GrubDevice}2"      # "/dev/sda2"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
-
-read -p "f-run.sh line $LINENO"
 
   # Swap partition
   # --------------
@@ -168,8 +154,6 @@ read -p "f-run.sh line $LINENO"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
-
-read -p "f-run.sh line $LINENO"
 
   # Home partition
   # --------------
@@ -183,10 +167,6 @@ read -p "f-run.sh line $LINENO"
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
-
-read -p "f-run.sh line $LINENO"
-
-  return 0
 }
 
 function root_partition {

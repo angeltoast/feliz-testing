@@ -39,6 +39,10 @@
 function check_parts { # Called by feliz.sh
                        # Tests for existing partitions, informs user, calls build_lists to prepare arrays
                        # Displays menu of options, then calls partitioning_options to act on user selection
+  select_device                                             # Get details of device to use
+  if [ $? -ne 0 ]; then return 1; fi
+  get_device_size                                           # Get available space in MiB
+  if [ $? -ne 0 ]; then return 1; fi
   translate "Choose from existing partitions"
   LongPart1="$Result"
   translate "Guided manual partitioning tool"
@@ -47,19 +51,19 @@ function check_parts { # Called by feliz.sh
   LongPart3="$Result"
   title="Partitioning"
 
-  ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1) # List of all partitions on all connected devices
+  ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo $ShowPartitions | wc -w)
 
-  if [ $PARTITIONS -eq 0 ]; then          # If no partitions exist, offer options
+  if [ $PARTITIONS -eq 0 ]; then                            # If no partitions exist, offer options
     while [ $PARTITIONS -eq 0 ]; do
       message_first_line "If you are uncertain about partitioning, you should read the Arch Wiki"
       message_subsequent "There are no partitions on the device, and at least"
-      if [ ${UEFI} -eq 1 ]; then          # Installing in UEFI environment
+      if [ ${UEFI} -eq 1 ]; then                            # Installing in UEFI environment
         message_subsequent "two partitions are needed - one for EFI /boot, and"
         message_subsequent "one partition is needed for the root directory"
         message_subsequent "There is a guided manual partitioning option"
         message_subsequent "or you can exit now to use an external tool"
-      else                                # Installing in BIOS environment
+      else                                                  # Installing in BIOS environment
         message_subsequent "one partition is needed for the root directory"
       fi
       Message="${Message}\n"
@@ -72,19 +76,15 @@ function check_parts { # Called by feliz.sh
         3 "$LongPart3" 2>output.file
       if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
-      partitioning_options                # Act on user selection
+      partitioning_options                                  # Act on user selection
       if [ $? -ne 0 ]; then 
         dialog --backtitle "$Backtitle" --ok-label "$Ok" \
           --infobox "Exiting to allow you to partition the device" 6 30
         exit
       fi
-      # Check that partitions have been created
-      ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)
-      PARTITIONS=$(echo $ShowPartitions | wc -w)
     done
-    build_lists                          # Generate list of partitions and matching array
-  else                                   # There are existing partitions on the device
-    build_lists                          # Generate list of partitions and matching array
+  else                                                    # There are existing partitions on the device
+    build_lists                                           # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
 
@@ -103,7 +103,6 @@ function check_parts { # Called by feliz.sh
     partitioning_options                  # Act on user selection
     if [ $? -ne 0 ]; then return 1; fi
   fi
-  return 0
 }
 
 function build_lists { # Called by check_parts to generate details of existing partitions
@@ -210,7 +209,7 @@ function choose_device { # Called from partitioning_options or partitioning_opti
   return 0
 }
 
-function allocate_partitions { # Called by feliz.sh after check_parts
+function allocate_partitions { # Called by feliz.sh
                                # Calls allocate_root, allocate_swap, no_swap_partition, more_partitions
   RootPartition=""
   while [ -z "$RootPartition" ]; do
