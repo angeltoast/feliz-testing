@@ -170,37 +170,37 @@ function action_EFI { # Called without arguments by feliz.sh before other partit
 }
 
 function root_partition {
-    # Calculate end-point
-    Unit=${RootSize: -1}                # Save last character of root (eg: G)
-    Chars=${#RootSize}                  # Count characters in root variable
-    Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
-    if [ "$Unit" = "G" ]; then
-      Var=$((Var*1024))                 # Convert to MiB
-      EndPart=$((NextStart+Var))        # Add to previous end
-      EndPoint="${EndPart}MiB"          # Add unit
-    elif [ "$Unit" = "M" ]; then
-      EndPart=$((NextStart+Var))        # Add to previous end
-      EndPoint="${EndPart}MiB"          # Add unit
-    elif [ "$Unit" = "%" ]; then
-      EndPoint="${Var}%"
-    fi
+  # Calculate end-point
+  Unit=${RootSize: -1}                # Save last character of root (eg: G)
+  Chars=${#RootSize}                  # Count characters in root variable
+  Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
+  if [ "$Unit" = "G" ]; then
+    Var=$((Var*1024))                 # Convert to MiB
+    EndPart=$((NextStart+Var))        # Add to previous end
+    EndPoint="${EndPart}MiB"          # Add unit
+  elif [ "$Unit" = "M" ]; then
+    EndPart=$((NextStart+Var))        # Add to previous end
+    EndPoint="${EndPart}MiB"          # Add unit
+  elif [ "$Unit" = "%" ]; then
+    EndPoint="${Var}%"
+  fi
 }
   
 function swap_partition {
-# Calculate end-point
-      Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
-      Chars=${#SwapSize}                # Count characters in swap variable
-      Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
-      if [ "$Unit" = "G" ]; then
-        Var=$((Var*1024))               # Convert to MiB
-        EndPart=$((NextStart+Var))      # Add to previous end
-        EndPoint="${EndPart}MiB"        # Add unit
-      elif [ "$Unit" = "M" ]; then
-        EndPart=$((NextStart+Var))      # Add to previous end
-        EndPoint="${EndPart}MiB"        # Add unit
-      elif [ "$Unit" = "%" ]; then
-        EndPoint="${Var}%"
-      fi
+  # Calculate end-point
+  Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
+  Chars=${#SwapSize}                # Count characters in swap variable
+  Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
+  if [ "$Unit" = "G" ]; then
+    Var=$((Var*1024))               # Convert to MiB
+    EndPart=$((NextStart+Var))      # Add to previous end
+    EndPoint="${EndPart}MiB"        # Add unit
+  elif [ "$Unit" = "M" ]; then
+    EndPart=$((NextStart+Var))      # Add to previous end
+    EndPoint="${EndPart}MiB"        # Add unit
+  elif [ "$Unit" = "%" ]; then
+    EndPoint="${Var}%"
+  fi
 }
 
 function home_partition {
