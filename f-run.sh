@@ -299,8 +299,7 @@ read -p "f-run $LINENO starting mount_partitions"
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
-    #  parted_script "set 1 boot on"                 # (see action_EFI line 135)
-      mount "$EFIPartition" /mnt/boot                                 # Mount it
+      mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
     fi
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
@@ -370,12 +369,18 @@ function install_kernel { # Called without arguments by feliz.sh
   Message="$Result"
   translate "kernel and core systems"
   install_message "$Message $Result"
+  
+read -p "f-run $LINENO before installing kernel"
+
   case $Kernel in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
       # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
     pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log ;;
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
+  
+read -p "f-run $LINENO after installing kernel"
+
   translate "cli tools"
   install_message "$Message $Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
