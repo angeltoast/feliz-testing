@@ -299,7 +299,7 @@ read -p "f-run $LINENO starting mount_partitions"
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
-      parted_script "set 1 boot on"                                   # Make bootable
+    #  parted_script "set 1 boot on"                 # (see action_EFI line 135)
       mount "$EFIPartition" /mnt/boot                                 # Mount it
     fi
   # 3) Swap

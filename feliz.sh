@@ -25,13 +25,13 @@
 # Main module
 
 # Include source files
-source f-vars.sh     # Global variables and arrays are declared here
-source f-set.sh      # Functions to set variables used during installation
-source f-part1.sh    # Functions concerned with allocating partitions
-source f-part2.sh    # Guided partitioning setup for BIOS & EFI systems
-source f-run.sh      # Functions called during installation
+source f-vars.sh      # Global functions, variables and arrays are declared in this module
+source f-set.sh       # Functions to set user locale and preferences
+source f-part1.sh     # Functions concerned with allocating partitions
+source f-part2.sh     # Guided partitioning setup for BIOS & EFI systems
+source f-run.sh       # Functions called during installation
 
-function main {
+function main {       # Prepare environment, call the four processes in sequence
   
   if [ -f dialogrc ] && [ ! -f .dialogrc ]; then  # Ensure that display of dialogs is controlled
     cp dialogrc .dialogrc
@@ -145,8 +145,8 @@ function the_start {  # All user interraction takes place in this function
         GrubDevice="EFI"                          # Set variable
       else							                          # If BIOS 
         select_grub_device                        # User chooses grub partition
+        if [ $? -ne 0 ]; then step=6; fi          # No grub location selected, restart partitioning
       fi
-      if [ $? -ne 0 ]; then step=6; fi            # No grub location selected, restart partitioning
       step=9 ;;                                   # Step completed, advance to next step
     9) final_check                                # Allow user to change any variables
       return $? ;;                                # Exit from final_check may be 0 or 1
@@ -169,11 +169,8 @@ function preparation { # Prepare the environment for the installation phase
   fi
 
   mount_partitions                                            # In f-run.sh
-
   mirror_list                                                 # In f-run.sh
-
   install_kernel                                              # In f-run.sh
-  return 0
 }
 
 function the_middle { # The installation phase
@@ -251,7 +248,6 @@ function the_middle { # The installation phase
       install_extras                                           # Install DEs, WMs and DMs
       user_add
     fi
-  return 0
 }
 
 function the_end { # Set passwords and finish Feliz
@@ -263,7 +259,6 @@ function the_end { # Set passwords and finish Feliz
   if [ $Scope != "Basic" ]; then set_user_password; fi
   cp feliz.log /mnt/etc                                        # Copy installation log for reference
   finish                                                       # Shutdown or reboot
-  return 0
 }
 
 main

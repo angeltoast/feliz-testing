@@ -695,7 +695,6 @@ function choose_display_manager {
     "xdm" "XDM" 2> output.file
   if [ $? -ne 0 ]; then return; fi
   DisplayManager="$(cat output.file)"
-  return 0
 }
 
 function select_grub_device {
@@ -723,7 +722,6 @@ function select_grub_device {
       GrubDevice="$Result"
     fi
   done
-  return 0
 }
 
 function enter_grub_path { # Manual input

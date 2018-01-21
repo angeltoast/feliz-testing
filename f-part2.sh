@@ -230,10 +230,10 @@ function guided_MBR { # Called by f-part1.sh/partitioning_options as the first s
   message_subsequent "Are you sure you wish to continue?"
 
   dialog --backtitle "Feliz" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
-  if [ "$?" -ne 0 ]; then return 1; fi                  # User cancelled guided partitioning
+  if [ "$?" -ne 0 ]; then return 1; fi                # User cancelled guided partitioning
 
   guided_MBR_root                                     # Create /root partition
-  if [ "$?" -ne 0 ]; then return 1; fi                  # User cancelled guided root
+  if [ "$?" -ne 0 ]; then return 1; fi                # User cancelled guided root
 
   recalculate_space "$RootSize"                       # Recalculate remaining space
   if [ "$FreeSpace" -gt 0 ]; then

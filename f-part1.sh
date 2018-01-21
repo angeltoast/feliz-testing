@@ -39,10 +39,14 @@
 function check_parts { # Called by feliz.sh
                        # Tests for existing partitions, informs user, calls build_lists to prepare arrays
                        # Displays menu of options, then calls partitioning_options to act on user selection
-  select_device                                             # Get details of device to use
-  if [ $? -ne 0 ]; then return 1; fi
-  get_device_size                                           # Get available space in MiB
-  if [ $? -ne 0 ]; then return 1; fi
+  if [ ${UEFI} -eq 1 ]; then                  # If installing in EFI
+    GrubDevice="EFI"                          # Set variable
+  else							                          # If BIOS 
+    select_device                             # Get details of device to use
+    if [ $? -ne 0 ]; then return 1; fi
+    get_device_size                           # Get available space in MiB
+    if [ $? -ne 0 ]; then return 1; fi
+  fi
   translate "Choose from existing partitions"
   LongPart1="$Result"
   translate "Guided manual partitioning tool"
