@@ -163,9 +163,10 @@ function partitioning_options { # Called without arguments by check_parts after 
       guided_MBR                                      # ... or action_MBR, in installation phase
       if [ $? -ne 0 ]; then return 1; fi
     fi
+    PARTITIONS=1                                      # Informs calling function
     AutoPart="GUIDED" ;;
-  3) AutoPart=""                                      # Checks if multiple devices, and allows selection
-    choose_device
+  3) AutoPart=""
+    choose_device                                     # Checks if multiple devices, and allows selection
     if [ $? -eq 1 ]; then return 1; fi                # AUTO flag triggers autopart in installation phase
   esac
 }
@@ -204,11 +205,11 @@ function choose_device { # Called from partitioning_options or partitioning_opti
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
     if [ $? -eq 0 ]; then
       AutoPart="AUTO"
+      PARTITIONS=1                                      # Informs calling function
     else
       AutoPart="NONE"
     fi
   done
-  return 0
 }
 
 function allocate_partitions { # Called by feliz.sh
@@ -218,12 +219,12 @@ function allocate_partitions { # Called by feliz.sh
     allocate_root                       # User must select root partition
     if [ "$?" -ne 0 ]; then return 1; fi
   done
-  if [ -z "$PartitionList" ]; then return 0; fi
                                         # All others are optional
   if [ -n "$PartitionList" ]; then      # If there are unallocated partitions
     allocate_swap                       # Display display them for user to choose swap
   else                                  # If there is no partition for swap
     no_swap_partition                   # Inform user and allow swapfile
+    return 0
   fi
   if [ -z "$PartitionList" ]; then return 0; fi
   for i in ${PartitionList}; do         # Check contents of PartitionList
@@ -234,7 +235,6 @@ function allocate_partitions { # Called by feliz.sh
   if [ "${Result}" != "" ]; then        # If any remaining partitions
     more_partitions                     # Allow user to allocate
   fi
-  return 0
 }
 
 function select_filesystem { # Called by allocate_root and more_partitions (via choose_mountpoint)

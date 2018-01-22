@@ -133,7 +133,7 @@ function the_start {  # All user interraction takes place in this function
       step=6 ;;                                   # Step completed, advance to next step
     6) check_parts                                # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
-      if [ "$AutoPart" = "MANUAL" ] || [ "$AutoPart" = "CFDISK" ]; then  # Not Auto partitioned or guided
+      if [ "$AutoPart" = "MANUAL" ]; then         # Not Auto partitioned or guided
         allocate_partitions                       # Assign /root /swap & others
         if [ $? -ne 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi

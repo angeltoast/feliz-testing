@@ -26,18 +26,18 @@
 # ---------------------------    ---------------------------
 # Functions             Line     Functions              Line
 # --------------------------    ---------------------------
-# arch_chroot             42    add_codecs              370
-# parted_script           46    mirror_list             405
-# install_message         50    install_display_manager 459
-# action_MBR              58    install_extras          473
-# action_EFI             102    install_yaourt          567
-# root_partition         165    user_add                589
-# swap_partition         182    check_existing          652
-# home_partition         199    set_root_password       659
-# create_partition_table 216    set_user_password       714
-# autopart               231    
+# arch_chroot             43    install_kernel          332
+# parted_script           47    add_codecs              370
+# install_message         51    mirror_list             405
+# action_MBR              59    install_display_manager 459
+# action_EFI             102    install_extras          473
+# root_partition         165    install_yaourt          567
+# swap_partition         182    user_add                589
+# home_partition         199    check_existing          652
+# create_partition_table 216    set_root_password       659
+# autopart               231    set_user_password       714
+# partition_maker        779    
 # mount_partitions       261    finish                  760
-# install_kernel         332    partition_maker         779
 # --------------------------    ---------------------------
 
 function arch_chroot { # From Lution AIS - calls arch-chroot with options
@@ -56,7 +56,7 @@ function install_message { # For displaying status while running on auto
   echo
 }
 
-function action_MBR { # Called without arguments by feliz.sh before other partitioning actions
+function action_MBR { # Called without arguments by feliz.sh if BIOS before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
   create_partition_table
   
@@ -100,7 +100,7 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
   return 0
 }
 
-function action_EFI { # Called without arguments by feliz.sh before other partitioning actions
+function action_EFI { # Called without arguments by feliz.sh if EFI before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
   create_partition_table
 
@@ -260,9 +260,48 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  RootType="ext4"
-  HomeType="ext4"
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
+}
+
+function partition_maker {  # Called from autopart for both EFI and BIOS systems
+                            # Uses GNU Parted to create partitions as defined by autopart
+                            # Receives up to 4 arguments
+  local StartPoint=$1       #   $1 is the starting point of the first partition
+                            #   $2 is size of root partition
+                            #   $3 if passed is size of home partition
+                            #   $4 if passed is size of swap partition
+                            # Appropriate partition table has already been created in autopart
+                            # If EFI the /boot partition has also been created at /dev/sda1 and
+                            # set as bootable, and the startpoint has been set to follow /boot
+                                                    # Set the device to be used to 'set x boot on'    
+  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
+                                                    # Start with first partition = [sda]1
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
+                                                          # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
+  if [ "$UEFI" -eq 1 ]; then                        # Reset if installing in EFI environment
+    MountDevice=2                                   # Next partition after /boot = [sda]2
+  fi
+  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
+  RootType="ext4"
+  StartPoint=$2                                     # Increment startpoint for /home or /swap
+  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
+
+  if [ -n "$3" ]; then
+    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
+    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
+    AddPartMount[0]="/home"                         # Mountpoint     | array of
+    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
+    Home="Y"
+    StartPoint=$3                                   # Reset startpoint for /swap
+    MountDevice=$((MountDevice+1))                  # Advance partition numbering
+  fi
+
+  if [ -n "$4" ]; then
+    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+    SwapPartition="${GrubDevice}${MountDevice}"
+    MakeSwap="Y"
+  fi
 }
 
 function mount_partitions { # Called without arguments by feliz.sh after action_UEFI or action_EFI
@@ -378,7 +417,7 @@ function install_kernel { # Called without arguments by feliz.sh
   translate "kernel and core systems"
   install_message "$Message $Result"
   
-read -p "f-run $LINENO before installing kernel"
+read -p "f-run $LINENO before installing kernel $Kernel"
 
   case "$Kernel" in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
@@ -804,48 +843,5 @@ function finish {
   2) reboot ;;
   *) exit
   esac
-  return 0
-}
-
-function partition_maker {  # Called from autopart for autopartitioning both EFI and BIOS systems
-                            # Uses GNU Parted to create partitions as defined
-                            # Receives up to 4 arguments
-                            #   $1 is the starting point of the first partition
-                            #   $2 is size of root partition
-                            #   $3 if passed is size of home partition
-                            #   $4 if passed is size of swap partition
-                            # Appropriate partition table has already been created in autopart
-                            # If EFI the /boot partition has also been created at /dev/sda1 and
-                            # set as bootable, and the startpoint has been set to follow /boot
-  local StartPoint=$1 
-                                                    # Set the device to be used to 'set x boot on'    
-  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
-                                                    # Start with first partition = [sda]1
-  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
-                                                          # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
-  if [ "$UEFI" -eq 1 ]; then                        # Reset if installing in EFI environment
-    MountDevice=2                                   # Next partition after /boot = [sda]2
-  fi
-  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
-  RootType="ext4"
-  StartPoint=$2                                     # Increment startpoint for /home or /swap
-  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
-
-  if [ -n "$3" ]; then
-    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
-    AddPartMount[0]="/home"                         # Mountpoint     | array of
-    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
-    Home="Y"
-    StartPoint=$3                                   # Reset startpoint for /swap
-    MountDevice=$((MountDevice+1))                  # Advance partition numbering
-  fi
-
-  if [ -n "$4" ]; then
-    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
-    SwapPartition="${GrubDevice}${MountDevice}"
-    MakeSwap="Y"
-  fi
   return 0
 }
