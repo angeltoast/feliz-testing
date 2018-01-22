@@ -208,13 +208,10 @@ function the_middle { # The installation phase
       echo "/swapfile none  swap  defaults  0 0" >> /mnt/etc/fstab 2>> feliz.log
     fi
   # Grub
-  
-read -p "feliz.sh $LINENO before installing grub"
-
     translate "Installing"
     install_message "$Result " "Grub"
     if [ "${GrubDevice}" = "EFI" ]; then                        # Installing grub in UEFI environment
-      pacstrap /mnt/boot grub efibootmgr
+      pacstrap /mnt grub efibootmgr
       arch_chroot "grub-install --efi-directory=/boot --target=x86_64-efi --bootloader-id=boot ${GrubDevice}"
       if [ "$IsInVbox" = "VirtualBox" ]; then                 # Prepare for Virtualbox
         mv /mnt/boot/EFI/boot/grubx64.efi /mnt/boot/EFI/boot/bootx64.efi 2>> feliz.log
@@ -229,9 +226,6 @@ read -p "feliz.sh $LINENO before installing grub"
     else                                                      # No grub device selected
       echo "Not installing Grub" >> feliz.log
     fi
-  
-read -p "feliz.sh $LINENO after installing grub"
-
   # Set keyboard to selected language at next startup
     echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
     echo -e "Section \"InputClass\"\nIdentifier \"system-keyboard\"\nMatchIsKeyboard \"on\"\nOption \"XkbLayout\" \"${Countrykbd}\"\nEndSection" > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf 2>> feliz.log

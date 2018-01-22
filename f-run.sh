@@ -58,7 +58,6 @@ function install_message { # For displaying status while running on auto
 
 function action_MBR { # Called without arguments by feliz.sh before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
-                      
   create_partition_table
   
   local Unit
@@ -67,6 +66,7 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
   declare -i Var
   declare -i EndPart
   declare -i NextStart
+  
   # Root partition
   # --------------
     root_partition
@@ -102,7 +102,6 @@ function action_MBR { # Called without arguments by feliz.sh before other partit
 
 function action_EFI { # Called without arguments by feliz.sh before other partitioning actions
                       # Uses the variables set by user to create partition table & all partitions
-
   create_partition_table
 
   local Unit
@@ -114,9 +113,9 @@ function action_EFI { # Called without arguments by feliz.sh before other partit
 
   # Format the drive for EFI
     tput setf 0                         # Change foreground colour to black temporarily to hide error message
-    sgdisk --zap-all "/dev/${UseDisk}"    # Remove all partitions
+    sgdisk --zap-all "/dev/${UseDisk}"  # Remove all partitions
 
-    wipefs -a "/dev/${UseDisk}"                  # Remove filesystem
+    wipefs -a "/dev/${UseDisk}"         # Remove filesystem
     tput sgr0                           # Reset colour
 
     parted_script "mklabel gpt"         # Create EFI partition table
@@ -262,20 +261,18 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapPartition=""                                # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
-  return 0
 }
 
 function mount_partitions { # Called without arguments by feliz.sh after action_UEFI or action_EFI
-    install_message "Preparing and mounting partitions"
+  
+  install_message "Preparing and mounting partitions"
 
-echo "RootType = $RootType"
-echo "UEFI = $UEFI"
-echo "EFIPartition = $EFIPartition"
-read -p "f-run $LINENO starting mount_partitions"
-    
   # 1) Root partition
     if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
+
+read -p "RootType is : $RootType :"
+    
     else                                                              # Check if replacing existing ext3/4 with btrfs
       CurrentType=$(file -sL "$RootPartition" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
       # Check if /root type or existing partition are btrfs ...
@@ -295,12 +292,21 @@ read -p "f-run $LINENO starting mount_partitions"
       fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
     fi
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+
+read -p "Root: $RootPartition mounted to /mnt"
+    
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
+
+read -p "ESP: $EFIPartition mounted to /mnt/boot"
+    
     fi
+
+read -p "Did $EFIPartition mount to /mnt/boot?"
+    
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
@@ -372,7 +378,7 @@ function install_kernel { # Called without arguments by feliz.sh
   
 read -p "f-run $LINENO before installing kernel"
 
-  case $Kernel in
+  case "$Kernel" in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
       # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
     pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log ;;
@@ -385,7 +391,6 @@ read -p "f-run $LINENO after installing kernel"
   install_message "$Message $Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
-  return 0
 }
 
 function add_codecs { # Called without arguments by feliz.sh
