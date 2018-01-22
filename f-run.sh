@@ -260,6 +260,8 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
+  RootType="ext4"
+  HomeType="ext4"
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
 }
 

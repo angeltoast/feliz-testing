@@ -150,7 +150,6 @@ function build_lists { # Called by check_parts to generate details of existing p
       # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
       #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
     done
-  return 0
 }
 
 function partitioning_options { # Called without arguments by check_parts after user selects an action
@@ -169,7 +168,6 @@ function partitioning_options { # Called without arguments by check_parts after 
     choose_device
     if [ $? -eq 1 ]; then return 1; fi                # AUTO flag triggers autopart in installation phase
   esac
-  return 0
 }
 
 function choose_device { # Called from partitioning_options or partitioning_optionsEFI
