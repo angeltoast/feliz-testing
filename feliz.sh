@@ -88,14 +88,14 @@ function the_start {  # All user interraction takes place in this function
       if [ $? -ne 0 ]; then
         return 2                                  # On <Cancel> return backout code to main
       else
-        step=2                                    # Step completed, advance to next step
+        step=2                                    # Step 1 completed, advance to step 2
       fi ;;
     2) # Devices (if only one device detected, no user interaction
       select_device                               # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return backout code to main
       get_device_size                             # First make sure that there is space for installation
       case $? in
-       0) step=3 ;;                               # Device selected, advance to next step
+       0) step=3 ;;                               # Device selected, advance to step 3
        *) continue ;;                             # No device, rerun this step
       esac ;;
     3) # localisation_settings                    Locale, keyboard & hostname
@@ -105,17 +105,17 @@ function the_start {  # All user interraction takes place in this function
       if [ $? -ne 0 ]; then continue; fi
       set_hostname
       case $? in
-       0) step=4 ;;                               # Step completed, advance to next step
+       0) step=4 ;;                               # Step 3 completed, advance to step 4
        1) continue ;;                             # Backout, rerun this step
        *) step=2 ;;                               # Backout, rerun previous step
       esac ;;
     4) choose_mirrors
       case $? in
-       0) step=5 ;;                               # Step completed, advance to next step
+       0) step=5 ;;                               # Step 4 completed, advance to desktop settings
        1) continue ;;                             # Backout, rerun this step
        *) step=3 ;;                               # Backout, rerun previous step
       esac ;;
-    5) # desktop_settings
+    5) # desktop settings
       DesktopEnvironment=""
       type_of_installation                        # Basic or Full - use chooses Build, FeliOB or Basic
       if [ $? -ne 0 ]; then
@@ -130,7 +130,7 @@ function the_start {  # All user interraction takes place in this function
         wireless_option                           # New option to bypass wireless tools if not needed
         confirm_virtualbox                        # Offer Virtualbox option
        fi
-      step=6 ;;                                   # Step completed, advance to next step
+      step=6 ;;                                   # Step 5 completed, advance to partitioning
     6) check_parts                                # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ]; then         # Not Auto partitioned or guided

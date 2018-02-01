@@ -179,7 +179,6 @@ function recalculate_space {  # Called by guided_MBR & guided_EFI
        Calculator="${Passed:0:Chars-1}"   # Passed variable stripped of unit
   esac
   FreeSpace="$((FreeSpace-Calculator))"   # Recalculate available space
-  return 0
 }
 
 function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first step
@@ -190,20 +189,33 @@ function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first 
   Message="${Message}\n"
   message_subsequent "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --yes-label "$Yes" --no-label "$No" --yesno "$Message" 15 70
-  if [ "$?" -ne 0 ]; then return 1; fi   # Inform calling function
+  if [ "$?" -ne 0 ]; then return 1; fi    # Inform calling function
   
   message_first_line "We begin with the"
   translate "partition"
   Message="$Message /boot $Result"
 
-  guided_EFI_Boot                  # Create /boot partition
-  recalculate_space "$BootSize"    # Recalculate remaining space
-  
-  guided_EFI_Root                  # Create /root partition
-  recalculate_space "$RootSize"    # Recalculate remaining space
+  guided_EFI_Boot                         # Create /boot partition
+
+  if [ -n "$BootSize" ]; then
+    PARTITIONS=$((PARTITIONS+1))
+    recalculate_space "$BootSize"         # Recalculate remaining space
+  else
+    return 1
+  fi
+  guided_EFI_Root                         # Create /root partition
+  if [ -n "$RootSize" ]; then
+    PARTITIONS=$((PARTITIONS+1))
+    recalculate_space "$RootSize"         # Recalculate remaining space
+  else
+    return 1
+  fi
   if [ "$FreeSpace" -gt 0 ]; then
     guided_EFI_Swap
-    if [ -n "$SwapSize" ]; then recalculate_space "$SwapSize"; fi  # Recalculate available space
+    if [ -n "$SwapSize" ]; then
+      PARTITIONS=$((PARTITIONS+1))
+      recalculate_space "$SwapSize"
+    fi                                    # Recalculate available space
   else
     message_first_line "There is no space for a /swap partition, but you can"
     message_subsequent "assign a swap-file. It is advised to allow some swap"
@@ -216,8 +228,10 @@ function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first 
   fi                        # (SwapFile will be created during installation by mount_partitions)
 
   if [ "$FreeSpace" -gt 2 ]; then guided_EFI_Home; fi
+  if [ -n "$HomeSize" ]; then
+    PARTITIONS=$((PARTITIONS+1))
+  fi
   AutoPart="GUIDED"
-  return 0
 }
 
 function guided_MBR { # Called by f-part1.sh/partitioning_options as the first step in the 
@@ -233,12 +247,16 @@ function guided_MBR { # Called by f-part1.sh/partitioning_options as the first s
   if [ "$?" -ne 0 ]; then return 1; fi                # User cancelled guided partitioning
 
   guided_MBR_root                                     # Create /root partition
-  if [ "$?" -ne 0 ]; then return 1; fi                # User cancelled guided root
-
-  recalculate_space "$RootSize"                       # Recalculate remaining space
+  if [ -n "$RootSize" ]; then
+    PARTITIONS=$((PARTITIONS+1))
+    recalculate_space "$RootSize"                       # Recalculate remaining space
+  else
+    return 1                                          # User cancelled guided root
+  fi
   if [ "$FreeSpace" -gt 0 ]; then
     guided_MBR_swap
     if [ -n "$SwapSize" ]; then
+      PARTITIONS=$((PARTITIONS+1))
       recalculate_space "$SwapSize"                   # Recalculate remaining space
     fi
   else
@@ -256,16 +274,16 @@ function guided_MBR { # Called by f-part1.sh/partitioning_options as the first s
 
   if [ "$FreeSpace" -gt 0 ]; then
     guided_MBR_home
+    if [ -n "$HomeSize" ]; then
+      PARTITIONS=$((PARTITIONS+1))
+    fi
   else
     HomeSize=""
   fi
-
   AutoPart="GUIDED"
-  return 0
 }
 
-function guided_EFI_Boot {  # Called by guided_EFI
-                            # EFI - User sets variable: BootSize
+function guided_EFI_Boot {  # Called by guided_EFI - User sets variable: BootSize
   BootSize=""
   while [ -z "$BootSize" ]; do
     title="/boot"
@@ -290,11 +308,9 @@ function guided_EFI_Boot {  # Called by guided_EFI
       BootSize="${RESPONSE}"
     fi
   done
-  return 0
 }
 
 function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSize, RootType
-  
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ -z "$RootSize" ]; do
@@ -335,11 +351,9 @@ function guided_EFI_Root {  # Celled by guided_EFI - User sets variables: RootSi
       RootType=${PartitionType}
     fi
   done
-  return 0
 }
 
 function guided_MBR_root { # Called by guided_MBR - Set variables: RootSize, RootType
-  
   RootSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ -z "$RootSize" ]; do
@@ -379,11 +393,9 @@ function guided_MBR_root { # Called by guided_MBR - Set variables: RootSize, Roo
       RootType=${PartitionType}
     fi
   done
-  return 0
 }
 
-function guided_EFI_Swap {  # Called by guided_EFI
-                            # User sets variable: SwapSize
+function guided_EFI_Swap {  # Called by guided_EFI - User sets variable: SwapSize
   SwapSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ -z "$SwapSize" ]; do
@@ -438,11 +450,9 @@ function guided_EFI_Swap {  # Called by guided_EFI
       fi
     esac
   done
-  return 0
 }
 
 function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
-
   FreeGigs=$((FreeSpace/1024))
   SwapSize=""
   translate "partition"
@@ -500,11 +510,9 @@ function guided_MBR_swap { # Called by guided_MBR - Set variable: SwapSize
       fi
     esac
   done
-  return 0
 }
 
 function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, HomeType
-  
   HomeSize=""
   FreeGigs=$((FreeSpace/1024))
   while [ -z "$HomeSize" ]; do
@@ -544,7 +552,6 @@ function guided_EFI_Home { # Called by guided_EFI - Set variables: HomeSize, Hom
         fi
     esac
   done
-  return 0
 }
 
 function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, HomeType
@@ -588,5 +595,4 @@ function guided_MBR_home { # Called by guided_MBR - Set variables: HomeSize, Hom
       fi
     esac
   done
-  return 0
 }

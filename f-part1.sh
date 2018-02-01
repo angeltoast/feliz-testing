@@ -163,7 +163,6 @@ function partitioning_options { # Called without arguments by check_parts after 
       guided_MBR                                      # ... or action_MBR, in installation phase
       if [ $? -ne 0 ]; then return 1; fi
     fi
-    PARTITIONS=1                                      # Informs calling function
     AutoPart="GUIDED" ;;
   3) AutoPart=""
     choose_device                                     # Checks if multiple devices, and allows selection
@@ -308,7 +307,7 @@ function allocate_root {  # Called by allocate_partitions
   Partition="/dev/$Result"
   RootPartition="${Partition}"
 
-  if [ $AutoPart = "MANUAL" ]; then # Not required for AUTO or GUIDED
+  if [ "$AutoPart" = "MANUAL" ]; then # Not required for AUTO or GUIDED
                                     # Check if there is an existing filesystem on the selected partition
     check_filesystem                # This sets variable CurrentType and starts the Message
     Message="\n${Message}"
@@ -338,7 +337,6 @@ function allocate_root {  # Called by allocate_partitions
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
-  return 0
 }
 
 function check_filesystem { # Called by choose_mountpoint & allocate_root
