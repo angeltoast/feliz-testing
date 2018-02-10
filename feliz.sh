@@ -156,9 +156,9 @@ function the_start {  # All user interraction takes place in this function
 }
 
 function preparation { # Prepare the environment for the installation phase
-  if [ "$UEFI" -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI with Guided partitioning_options
+  if [ "$UEFI" -eq 1 ] && [ "$AutoPart" = "GUIDED" ]; then    # If installing on EFI with Guided partitioning
     action_EFI
-  elif [ "$UEFI" -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning_options
+  elif [ "$UEFI" -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning
     action_MBR
   elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart 
@@ -198,7 +198,7 @@ function the_middle { # The installation phase
     arch_chroot "systemctl enable dhcpcd.service"
     pacstrap /mnt networkmanager network-manager-applet rp-pppoe 2>> feliz.log
     arch_chroot "systemctl enable NetworkManager.service && systemctl enable NetworkManager-dispatcher.service"
-  # Generate fstab and set up swapfile
+  # Generate fstab and set up swapfile (10 Feb 2018: note that this is also being tested at f-run.sh line 325)
     genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
     if [ ${SwapFile} ]; then
       fallocate -l ${SwapFile} /mnt/swapfile 2>> feliz.log

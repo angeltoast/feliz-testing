@@ -56,9 +56,13 @@ function install_message { # For displaying status while running on auto
   echo
 }
 
-function action_MBR { # Called without arguments by feliz.sh if BIOS before other partitioning actions
-                      # Uses the variables set by user to create partition table & all partitions
-  create_partition_table
+function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
+                      # Called by feliz.sh before other partitioning actions
+                      # Uses variables set by user to create partition
+                      # table & all partitions
+                      # Called without arguments
+                      
+  create_partition_table # 216
   
   local Unit
   local EndPoint
@@ -68,40 +72,36 @@ function action_MBR { # Called without arguments by feliz.sh if BIOS before othe
   declare -i NextStart
   
   # Root partition
-  # --------------
-    root_partition
-    # Make the partition
-    parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}"
+    root_partition                      # Line165 (calculates start and end)
+    parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}" # Make the partition
     parted_script "set 1 boot on"
     RootPartition="${GrubDevice}1"      # "/dev/sda1"
     local NextStart=${EndPart}          # Save for next partition. Numerical only (has no unit)
   # Swap partition
-  # --------------
     if [ -n "$SwapSize" ]; then
-      swap_partition
-      # Make the partition
-      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+      swap_partition                    # Line 182 (calculates start and end)
+      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
       SwapPartition="${GrubDevice}2"    # "/dev/sda2"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
   # Home partition
-  # --------------
     if [ -n "$HomeSize" ]; then
-      home_partition
-      # Make the partition
-      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+      home_partition                    # Line 199 (calculates start and end)
+      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
       HomePartition="${GrubDevice}3"    # "/dev/sda4"
       Home="Y"
       AddPartList[0]="${GrubDevice}3"   # /dev/sda3     | add to
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
-  return 0
 }
 
-function action_EFI { # Called without arguments by feliz.sh if EFI before other partitioning actions
-                      # Uses the variables set by user to create partition table & all partitions
+function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
+                      # Called by feliz.sh before other partitioning actions
+                      # Uses variables set by user to create partition
+                      # table & all partitions
+                      # Called without arguments
   create_partition_table
 
   local Unit
@@ -121,7 +121,6 @@ function action_EFI { # Called without arguments by feliz.sh if EFI before other
     parted_script "mklabel gpt"         # Create EFI partition table
 
   # Boot partition
-  # --------------
     # Calculate end-point
     Unit=${BootSize: -1}                # Save last character of boot (eg: M)
     Chars=${#BootSize}                  # Count characters in boot variable
@@ -136,30 +135,24 @@ function action_EFI { # Called without arguments by feliz.sh if EFI before other
     NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
 
   # Root partition
-  # --------------
-    root_partition
-    # Make the partition
-    parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
+    root_partition                      # Line165 (calculates start and end)
+    parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}" # Make the partition
     RootPartition="${GrubDevice}2"      # "/dev/sda2"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
   # Swap partition
-  # --------------
     if [ -n "$SwapSize" ]; then
-      swap_partition
-      # Make the partition
-      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+      swap_partition                    # Line 182 (calculates start and end)
+      parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
       SwapPartition="${GrubDevice}3"    # "/dev/sda3"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
 
   # Home partition
-  # --------------
     if [ -n "$HomeSize" ]; then
-      home_partition
-      # Make the partition
-      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+      home_partition                    # Line 199 (calculates start and end)
+      parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
       HomePartition="${GrubDevice}4"    # "/dev/sda4"
       Home="Y"
       AddPartList[0]="${GrubDevice}4"   # /dev/sda4     | add to
@@ -168,8 +161,7 @@ function action_EFI { # Called without arguments by feliz.sh if EFI before other
     fi
 }
 
-function root_partition {
-  # Calculate end-point
+function root_partition { # Calculate end-point
   Unit=${RootSize: -1}                # Save last character of root (eg: G)
   Chars=${#RootSize}                  # Count characters in root variable
   Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
@@ -185,8 +177,7 @@ function root_partition {
   fi
 }
   
-function swap_partition {
-  # Calculate end-point
+function swap_partition { # Calculate end-point
   Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
   Chars=${#SwapSize}                # Count characters in swap variable
   Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
@@ -202,8 +193,7 @@ function swap_partition {
   fi
 }
 
-function home_partition {
-  # Calculate end-point
+function home_partition { # Calculate end-point
   Unit=${HomeSize: -1}              # Save last character of home (eg: G)
   Chars=${#HomeSize}                # Count characters in home variable
   Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
@@ -219,8 +209,10 @@ function home_partition {
   fi
 }
 
-function create_partition_table {
-  # Create a new partition table
+function create_partition_table { # Create a new partition table
+
+read -p "UseDisk = ${UseDisk} : GrubDevice = $GrubDevice"
+  
   if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
     wipefs -a "$GrubDevice" &>> feliz.log           # from the drive
@@ -311,10 +303,7 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
   # 1) Root partition
     if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
-
-read -p "RootType is : $RootType :"
-    
-    else                                                              # Check if replacing existing ext3/4 with btrfs
+    else                                                              # Check if replacing ext3/4 with btrfs
       CurrentType=$(file -sL "$RootPartition" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
       # Check if /root type or existing partition are btrfs ...
       if [ -n "$CurrentType" ] && [ "$RootType" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
@@ -332,22 +321,15 @@ read -p "RootType is : $RootType :"
         mkfs."$RootType" "$Label" "$RootPartition" &>> feliz.log
       fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
     fi
+    # Generate fstab and set up swapfile (10 Feb 2018 copied this from feliz.sh line 202)
+    genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
-
-read -p "Root: $RootPartition mounted to /mnt"
-    
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
-
-read -p "ESP: $EFIPartition mounted to /mnt/boot"
-    
     fi
-
-read -p "Did $EFIPartition mount to /mnt/boot?"
-    
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
@@ -363,7 +345,7 @@ read -p "Did $EFIPartition mount to /mnt/boot?"
     fi
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
-    for id in "${AddPartList[@]}"; do                                      # $id will be in the form /dev/sda2
+    for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
       mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log            # eg: mkdir -p /mnt/home
       # Check if replacing existing ext3/4 partition with btrfs (as with /root)
       CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -384,11 +366,6 @@ read -p "Did $EFIPartition mount to /mnt/boot?"
       mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
-    
-lsblk
-fdisk -l
-read -p "f-run $LINENO at end of mount_partitions"
-
 }
 
 function install_kernel { # Called without arguments by feliz.sh
@@ -416,18 +393,12 @@ function install_kernel { # Called without arguments by feliz.sh
   Message="$Result"
   translate "kernel and core systems"
   install_message "$Message $Result"
-  
-read -p "f-run $LINENO before installing kernel $Kernel"
-
   case "$Kernel" in
   1) # This is the full linux group list at 1st August 2017 with linux-lts in place of linux
       # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
     pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs 2>> feliz.log ;;
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
-  
-read -p "f-run $LINENO after installing kernel"
-
   translate "cli tools"
   install_message "$Message $Result"
   pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
@@ -468,7 +439,6 @@ function add_codecs { # Called without arguments by feliz.sh
   # install_message "Installing  CUPS printer services"
   # pacstrap /mnt -S system-config-printer cups
   # arch_chroot "systemctl enable org.cups.cupsd.service"
-  return 0
 }
 
 function mirror_list {  # Use rankmirrors (script in /usr/bin/ from Arch) to generate fast mirror list
@@ -522,7 +492,6 @@ function mirror_list {  # Use rankmirrors (script in /usr/bin/ from Arch) to gen
     echo -e "# Ranked mirrors /etc/pacman.d/mirrorlist \n# $Date \n# Generated by Feliz and rankmirrors\n#" > /etc/pacman.d/mirrorlist
     rankmirrors -n 5 usemirrors.list | grep '^Server' >> /etc/pacman.d/mirrorlist
   fi
-  return 0
 }
 
 function install_display_manager { # Disable any existing display manager
@@ -535,7 +504,6 @@ function install_display_manager { # Disable any existing display manager
   *) pacstrap /mnt "${DisplayManager}" 2>> feliz.log
     arch_chroot "systemctl -f enable ${DisplayManager}.service" >> feliz.log
   esac
-  return 0
 }
 
 function install_extras { # Install desktops and other extras for FelizOB (note that $LuxuriesList 
@@ -631,7 +599,6 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
       esac
     done
   fi
-  return 0
 }
 
 function install_yaourt {
@@ -653,7 +620,6 @@ function install_yaourt {
   pacman-key --populate archlinux 2>> feliz.log
   pacman -Sy 2>> feliz.log
   pacstrap /mnt yaourt 2>> feliz.log
-  return 0
 }
 
 function user_add { # Adds user and copies FelizOB configurations
@@ -716,14 +682,12 @@ function user_add { # Adds user and copies FelizOB configurations
   "uk") echo "setxkbmap -layout gb" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log ;;
   *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log
   esac
-  return 0
 }
 
 function check_existing {     # Test if $1 (path) + $2 (file) already exists
   if [ -f "$1$2" ]; then      # If path+file already exists
       mv "$1$2" "$1saved$2"   # Rename it
   fi
-  return 0
 }
 
 function set_root_password {
@@ -778,7 +742,6 @@ function set_root_password {
       Message="${Message}\n"
     fi
   done
-  return 0
 }
 
 function set_user_password {
@@ -824,7 +787,6 @@ function set_user_password {
       Message="${Message}\n"
     fi
   done
-  return 0
 }
 
 function finish {
@@ -843,5 +805,4 @@ function finish {
   2) reboot ;;
   *) exit
   esac
-  return 0
 }
