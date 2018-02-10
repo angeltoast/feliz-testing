@@ -210,9 +210,6 @@ function home_partition { # Calculate end-point
 }
 
 function create_partition_table { # Create a new partition table
-
-read -p "UseDisk = ${UseDisk} : GrubDevice = $GrubDevice"
-  
   if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
     wipefs -a "$GrubDevice" &>> feliz.log           # from the drive
@@ -321,8 +318,8 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         mkfs."$RootType" "$Label" "$RootPartition" &>> feliz.log
       fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
     fi
-    # Generate fstab and set up swapfile (10 Feb 2018 copied this from feliz.sh line 202)
-    genfstab -p -U /mnt > /mnt/etc/fstab 2>> feliz.log
+    # 10 Feb 2018 attempting to cure partitions not mounted after AUTO or GUIDED
+    partprobe 2>> feliz.log                                           # Inform kernel of changes to partitions
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
