@@ -223,7 +223,6 @@ function allocate_partitions { # Called by feliz.sh
     allocate_swap                       # Display display them for user to choose swap
   else                                  # If there is no partition for swap
     no_swap_partition                   # Inform user and allow swapfile
-    return 0
   fi
   if [ -z "$PartitionList" ]; then return 0; fi
   for i in ${PartitionList}; do         # Check contents of PartitionList

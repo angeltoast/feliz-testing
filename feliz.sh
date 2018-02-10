@@ -62,7 +62,7 @@ function main {       # Prepare environment, call the four processes in sequence
     2) exit ;;                                    # Quit on high-level backout
     esac
       
-    if [ "$AutoPart" = "NONE"  ]; then continue; fi  # Restart if no partitioning options    
+    if [ "$AutoPart" = "NONE"  ] || [ -z "$AutoPart"  ]; then continue; fi  # Restart if no partitioning options    
     translate "Preparations complete"             # Inform user
     install_message "$Result"
     translate "Entering automatic installation phase"
@@ -135,7 +135,6 @@ function the_start {  # All user interraction takes place in this function
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ]; then         # Not Auto partitioned or guided
         allocate_partitions                       # Assign /root /swap & others
-        if [ $? -ne 0 ]; then continue; fi        # Incomplete partitioning, rerun this option
       fi
       step=7 ;;                                   # Step completed, advance to next step
     7) select_kernel                              # Select kernel and device for Grub
