@@ -317,19 +317,19 @@ function mount_partitions { # Format each partition as defined by MANUAL, AUTO o
           Label="-L $Label"                                           # ... prepare to use it
         fi
 
-read -p "$f-run.sh $LINENO : $RootType : $Label : $RootPartition : eg: mkfs.ext4 -L Arch-Root /dev/sda1"
+read -p "f-run.sh $LINENO : mkfs.$RootType -F : $Label : $RootPartition : eg: mkfs.ext4 -F -L Arch-Root /dev/sda1"
 
-        mkfs."$RootType" "$Label" "$RootPartition" # &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
-      fi
+        mkfs."$RootType" -F "$Label" "$RootPartition" # &>> feliz.log  # eg: mkfs.ext4 -F -L Arch-Root /dev/sda1
+      fi                                              # -F is to force overwrite of existing filesystem
     fi
 
-read -p "$f-run.sh $LINENO : Check above ... eg: mkfs.ext4 -L Arch-Root /dev/sda1"
+read -p "f-run.sh $LINENO : Check above ... eg: mkfs.ext4 -F -L Arch-Root /dev/sda1"
 
     # 10 Feb 2018 attempting to cure partitions not mounted after AUTO or GUIDED
     partprobe 2>> feliz.log                                           # Inform kernel of changes to partitions
     mount "$RootPartition" /mnt # 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
-read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda1 /mnt"
+read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda1 /mnt"
 
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
@@ -337,7 +337,7 @@ read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda1 /mnt"
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
 
-read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
+read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
 
     fi
   # 3) Swap
@@ -354,7 +354,7 @@ read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
       swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
     fi
 
-read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot" # Note: release 2>> feliz.log above
+read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot" # Note: release 2>> feliz.log above
 
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
@@ -380,7 +380,7 @@ read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot" # No
       Counter=$((Counter+1))
     done
 
-read -p "$f-run.sh $LINENO : Check all above"  # Note: release all commented "2>> feliz.log" above
+read -p "f-run.sh $LINENO : Check all above"  # Note: release all commented "2>> feliz.log" above
 
 }
 
