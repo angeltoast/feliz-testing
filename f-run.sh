@@ -229,9 +229,9 @@ function create_partition_table { # Create a new partition table
 function autopart { # Called by feliz.sh/preparation during installation phase
                     # if AutoPartition flag is AUTO.
                     # Consolidated automatic partitioning for BIOS or EFI environment
-  Root="/dev/${UseDisk}"
+  Root="${RootDevice}"
   Home="N"                                          # No /home partition at this point
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
+  DiskSize=$(lsblk -l | grep "${RootDevice}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
   create_partition_table
                                                     # Decide partition sizes
@@ -253,6 +253,9 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapPartition=""                                # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
+
+read -p "f-run.sh $LINENO : Check autopart errors"
+
 }
 
 function partition_maker {  # Called from autopart for both EFI and BIOS systems

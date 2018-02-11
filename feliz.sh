@@ -167,6 +167,8 @@ function preparation { # Prepare the environment for the installation phase
     return 1
   fi                                                          # Note that MANUAL allocation was done in f-part1
 
+read -p "f-run.sh $LINENO : Check RootDevice = $RootDevice "
+
   mount_partitions                                            # In f-run.sh
   mirror_list                                                 # In f-run.sh
   install_kernel                                              # In f-run.sh
