@@ -293,7 +293,8 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
   fi
 }
 
-function mount_partitions { # Called without arguments by feliz.sh after action_UEFI or action_EFI
+function mount_partitions { # Format each partition as defined by MANUAL, AUTO or GUIDED
+                            # Called without arguments by feliz.sh after autopart, action_MBR or action_EFI
   
   install_message "Preparing and mounting partitions"
 
@@ -315,17 +316,29 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         if [ -n "$Label" ]; then                                      # If it has a label ...
           Label="-L $Label"                                           # ... prepare to use it
         fi
-        mkfs."$RootType" "$Label" "$RootPartition" &>> feliz.log
-      fi                                                              # eg: mkfs.ext4 -L Arch-Root /dev/sda1
+
+read -p "$f-run.sh $LINENO : $RootType : $Label : $RootPartition : eg: mkfs.ext4 -L Arch-Root /dev/sda1"
+
+        mkfs."$RootType" "$Label" "$RootPartition" # &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
+      fi
     fi
+
+read -p "$f-run.sh $LINENO : Check above ... eg: mkfs.ext4 -L Arch-Root /dev/sda1"
+
     # 10 Feb 2018 attempting to cure partitions not mounted after AUTO or GUIDED
     partprobe 2>> feliz.log                                           # Inform kernel of changes to partitions
-    mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+    mount "$RootPartition" /mnt # 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+
+read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda1 /mnt"
+
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
+
+read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
+
     fi
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
@@ -336,10 +349,13 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         if [ -n "$Label" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkswap "$Label" "$SwapPartition" 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
+        mkswap "$Label" "$SwapPartition" # 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
       fi
-      swapon "$SwapPartition" 2>> feliz.log                           # eg: swapon /dev/sda2
+      swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
     fi
+
+read -p "$f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot" # Note: release 2>> feliz.log above
+
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
     for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
@@ -358,11 +374,14 @@ function mount_partitions { # Called without arguments by feliz.sh after action_
         if [ -n "${Label}" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkfs."${AddPartType[$Counter]}" "$Label" "$id" &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
+        mkfs."${AddPartType[$Counter]}" "$Label" "$id" # &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
       fi
-      mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
+      mount "$id" /mnt${AddPartMount[$Counter]} # &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
+
+read -p "$f-run.sh $LINENO : Check all above"  # Note: release all commented "2>> feliz.log" above
+
 }
 
 function install_kernel { # Called without arguments by feliz.sh

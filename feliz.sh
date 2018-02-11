@@ -165,7 +165,7 @@ function preparation { # Prepare the environment for the installation phase
     Message="No partitions"
     not_found 6 20
     return 1
-  fi
+  fi                                                          # Note that MANUAL allocation was done in f-part1
 
   mount_partitions                                            # In f-run.sh
   mirror_list                                                 # In f-run.sh
