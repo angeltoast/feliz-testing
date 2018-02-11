@@ -72,17 +72,14 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
   declare -i NextStart
   
   # Root partition
-    root_partition                      # Line165 (calculates start and end)
-
-read -p "f-run.sh $LINENO : Check RootDevice = $RootDevice "
-
+    root_partition                      # Line165 (calculates endpoint for this partition)
     parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}" # Make the partition
     parted_script "set 1 boot on"
     RootPartition="${RootDevice}1"      # "/dev/sda1"
     local NextStart=${EndPart}          # Save for next partition. Numerical only (has no unit)
   # Swap partition
     if [ -n "$SwapSize" ]; then
-      swap_partition                    # Line 182 (calculates start and end)
+      swap_partition                    # Line 182 (calculates endpoint for this partition)
       parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
       SwapPartition="${RootDevice}2"    # "/dev/sda2"
       MakeSwap="Y"
@@ -90,7 +87,7 @@ read -p "f-run.sh $LINENO : Check RootDevice = $RootDevice "
     fi
   # Home partition
     if [ -n "$HomeSize" ]; then
-      home_partition                    # Line 199 (calculates start and end)
+      home_partition                    # Line 199 (calculates endpoint for this partition)
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
       HomePartition="${RootDevice}3"    # "/dev/sda4"
       Home="Y"
@@ -253,9 +250,6 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapPartition=""                                # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
-
-read -p "f-run.sh $LINENO : Check autopart errors"
-
 }
 
 function partition_maker {  # Called from autopart for both EFI and BIOS systems
@@ -322,29 +316,27 @@ function mount_partitions { # Format each partition as defined by MANUAL, AUTO o
         if [ -n "$Label" ]; then                                      # If it has a label ...
           Label="-L $Label"                                           # ... prepare to use it
         fi
-
-read -p "f-run.sh $LINENO : mkfs.$RootType -F : $Label : $RootPartition : eg: mkfs.ext4 -F -L Arch-Root /dev/sda1"
-
         mkfs."$RootType" -F "$Label" "$RootPartition" # &>> feliz.log  # eg: mkfs.ext4 -F -L Arch-Root /dev/sda1
       fi                                              # -F is to force overwrite of existing filesystem
     fi
 
-read -p "f-run.sh $LINENO : Check above ... eg: mkfs.ext4 -F -L Arch-Root /dev/sda1"
-
-    # 10 Feb 2018 attempting to cure partitions not mounted after AUTO or GUIDED
-    partprobe 2>> feliz.log                                           # Inform kernel of changes to partitions
+    # 11 Feb 2018 - attempting to cure failure of root partition to mount after AUTO or GUIDED
+    if [ "$AutoPart" = "AUTO" ] || [ "$AutoPart" = "GUIDED" ]; then
+      # manually add / root to fstab using SampleArchFstab notes ...
+      echo -e "<device> \t <dir> \t <type> \t <options> \t <dump> \t <fsck>" > /etc/fstab # Heading
+      echo -e "$RootPartition \t / \t $RootType \t defaults,noatime \t 0 \t 1" >> /etc/fstab   # root
+    fi
+    
     mount "$RootPartition" /mnt # 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
-read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda1 /mnt"
+cat /etc/fstab
+read -p "f-run.sh $LINENO : Check for errors "
 
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
-
-read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
-
     fi
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
@@ -382,9 +374,6 @@ read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
       mount "$id" /mnt${AddPartMount[$Counter]} # &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
-
-read -p "f-run.sh $LINENO : Check all above"  # Note: release all commented "2>> feliz.log" above
-
 }
 
 function install_kernel { # Called without arguments by feliz.sh
@@ -467,7 +456,7 @@ function mirror_list {  # Use rankmirrors (script in /usr/bin/ from Arch) to gen
   install_message "Generating mirrorlist"
   cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.safe 2>> feliz.log
 
-  if [ -f mirrors.list ] && [ "$(wc mirrors.list)" -gt 1 ]; then  # If user has entered a manual list of one or more mirrors
+  if [ -f mirrors.list ] && [ "$(wc mirrors.list)" -gt 1 ]; then  # If user has entered a manual list of >0 mirrors
     install_message "Ranking mirrors - please wait ..."
     Date=$(date)
     echo -e "# Ranked mirrors /etc/pacman.d/mirrorlist \n# $Date \n# Generated by ${user_name} and rankmirrors\n#" > /etc/pacman.d/mirrorlist
