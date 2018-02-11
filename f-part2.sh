@@ -114,15 +114,15 @@ function select_device {  # Called by f-part1.sh/check_parts
         "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
         if [ "$?" -eq 0 ]; then
           UseDisk=""
-          GrubDevice=""
+          RootDevice=""
           return 1
         fi
       fi
       UseDisk="$Result"
     done
   fi
-  GrubDevice="/dev/${UseDisk}"  # Full path of selected device
-  EFIPartition="${GrubDevice}1"
+  RootDevice="/dev/${UseDisk}"  # Full path of selected device
+  EFIPartition="${RootDevice}1"
 }
 
 function get_device_size {  # Called by feliz.sh

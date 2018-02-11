@@ -214,7 +214,8 @@ UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
 
 # Grub & kernel variables
-GrubDevice=""             # eg: /dev/sda
+GrubDevice=""             # eg: /dev/sda - device for grub
+RootDevice=""             # eg: /dev/sda - device for root partitin
 Kernel="1"                # Default 1 = LTS
 IsInVbox="N"              # Result of test to see if installation is in Virtualbox
 OSprober="Y"

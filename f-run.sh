@@ -62,7 +62,7 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
                       # table & all partitions
                       # Called without arguments
                       
-  create_partition_table # 216
+  create_partition_table # Line 216
   
   local Unit
   local EndPoint
@@ -75,13 +75,13 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
     root_partition                      # Line165 (calculates start and end)
     parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}" # Make the partition
     parted_script "set 1 boot on"
-    RootPartition="${GrubDevice}1"      # "/dev/sda1"
+    RootPartition="${RootDevice}1"      # "/dev/sda1"
     local NextStart=${EndPart}          # Save for next partition. Numerical only (has no unit)
   # Swap partition
     if [ -n "$SwapSize" ]; then
       swap_partition                    # Line 182 (calculates start and end)
       parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
-      SwapPartition="${GrubDevice}2"    # "/dev/sda2"
+      SwapPartition="${RootDevice}2"    # "/dev/sda2"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
@@ -89,9 +89,9 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
     if [ -n "$HomeSize" ]; then
       home_partition                    # Line 199 (calculates start and end)
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
-      HomePartition="${GrubDevice}3"    # "/dev/sda4"
+      HomePartition="${RootDevice}3"    # "/dev/sda4"
       Home="Y"
-      AddPartList[0]="${GrubDevice}3"   # /dev/sda3     | add to
+      AddPartList[0]="${RootDevice}3"   # /dev/sda3     | add to
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
@@ -131,20 +131,20 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
     EndPoint=$((Var+1))                 # Add start and finish. Result is MiBs, numerical only (has no unit)
     parted_script "mkpart primary fat32 1MiB ${EndPoint}MiB"
     parted_script "set 1 boot on"
-    EFIPartition="${GrubDevice}1"       # "/dev/sda1"
+    EFIPartition="${RootDevice}1"       # "/dev/sda1"
     NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
 
   # Root partition
     root_partition                      # Line165 (calculates start and end)
     parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}" # Make the partition
-    RootPartition="${GrubDevice}2"      # "/dev/sda2"
+    RootPartition="${RootDevice}2"      # "/dev/sda2"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
   # Swap partition
     if [ -n "$SwapSize" ]; then
       swap_partition                    # Line 182 (calculates start and end)
       parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
-      SwapPartition="${GrubDevice}3"    # "/dev/sda3"
+      SwapPartition="${RootDevice}3"    # "/dev/sda3"
       MakeSwap="Y"
       NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
     fi
@@ -153,9 +153,9 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
     if [ -n "$HomeSize" ]; then
       home_partition                    # Line 199 (calculates start and end)
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
-      HomePartition="${GrubDevice}4"    # "/dev/sda4"
+      HomePartition="${RootDevice}4"    # "/dev/sda4"
       Home="Y"
-      AddPartList[0]="${GrubDevice}4"   # /dev/sda4     | add to
+      AddPartList[0]="${RootDevice}4"   # /dev/sda4     | add to
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
@@ -211,13 +211,13 @@ function home_partition { # Calculate end-point
 
 function create_partition_table { # Create a new partition table
   if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all "$GrubDevice" &>> feliz.log    # Remove all existing filesystems
-    wipefs -a "$GrubDevice" &>> feliz.log           # from the drive
-    parted_script "mklabel gpt"                            # Create new filesystem
-    parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
+    sgdisk --zap-all "$RootDevice" &>> feliz.log    # Remove all existing filesystems
+    wipefs -a "$RootDevice" &>> feliz.log           # from the drive
+    parted_script "mklabel gpt"                        # Create new filesystem
+    parted_script "mkpart primary fat32 1MiB 513MiB"   # EFI boot partition
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
-    dd if=/dev/zero of="$GrubDevice" bs=512 count=1 # Remove any existing partition table
+    dd if=/dev/zero of="$RootDevice" bs=512 count=1 # Remove any existing partition table
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # Set start point for next partition
   fi
@@ -226,7 +226,7 @@ function create_partition_table { # Create a new partition table
 function autopart { # Called by feliz.sh/preparation during installation phase
                     # if AutoPartition flag is AUTO.
                     # Consolidated automatic partitioning for BIOS or EFI environment
-  GrubDevice="/dev/${UseDisk}"
+  Root="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
@@ -271,14 +271,14 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
   if [ "$UEFI" -eq 1 ]; then                        # Reset if installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   fi
-  RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
+  RootPartition="${RootDevice}${MountDevice}"       # eg: /dev/sda1
   RootType="ext4"
   StartPoint=$2                                     # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
   if [ -n "$3" ]; then
     parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
+    AddPartList[0]="${RootDevice}${MountDevice}"    # eg: /dev/sda3  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"
@@ -288,7 +288,7 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
 
   if [ -n "$4" ]; then
     parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
-    SwapPartition="${GrubDevice}${MountDevice}"
+    SwapPartition="${RootDevice}${MountDevice}"
     MakeSwap="Y"
   fi
 }

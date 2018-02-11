@@ -707,7 +707,6 @@ function select_grub_device {
     Enter_Manually="$Result"
     menu_dialogVariable="$DevicesList $Result"
     title="Grub"
-    GrubDevice=""
     local Counter=0
     message_first_line "Select the device where Grub is to be installed"
     message_subsequent "Note that if you do not select a device, Grub"
