@@ -231,7 +231,7 @@ function autopart { # Called by feliz.sh/preparation during installation phase
                     # Consolidated automatic partitioning for BIOS or EFI environment
   Root="${RootDevice}"
   Home="N"                                          # No /home partition at this point
-  DiskSize=$(lsblk -l | grep "${RootDevice}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
+  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
   create_partition_table
                                                     # Decide partition sizes
