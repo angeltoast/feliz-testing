@@ -45,7 +45,7 @@ function arch_chroot { # From Lution AIS - calls arch-chroot with options
 }
 
 function parted_script { # Calls GNU parted tool with options
-  parted --script /dev/"$UseDisk" "$1" 2>> feliz.log
+  parted --script "$RootDevice" "$1" 2>> feliz.log
 }
 
 function install_message { # For displaying status while running on auto
@@ -73,6 +73,9 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
   
   # Root partition
     root_partition                      # Line165 (calculates start and end)
+
+read -p "f-run.sh $LINENO : Check RootDevice = $RootDevice "
+
     parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}" # Make the partition
     parted_script "set 1 boot on"
     RootPartition="${RootDevice}1"      # "/dev/sda1"
@@ -353,9 +356,6 @@ read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot"
       fi
       swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
     fi
-
-read -p "f-run.sh $LINENO : Check above ... eg: mount /dev/sda2 /mnt/boot" # Note: release 2>> feliz.log above
-
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
     for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
