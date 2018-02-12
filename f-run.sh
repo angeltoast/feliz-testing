@@ -317,27 +317,11 @@ function mount_partitions { # Format and mount each partition as defined by MANU
         if [ -n "$Label" ]; then                                      # If it has a label ...
           Label="-L $Label"                                           # ... prepare to use it
         fi
-        mkfs."$RootType" -F "$Label" "$RootPartition" # &>> feliz.log  # eg: mkfs.ext4 -F -L Arch-Root /dev/sda1
-
-read -p "f-run.sh $LINENO : Check for errors "
-
-      fi                                              # -F is to force overwrite of existing filesystem
+        mkfs."$RootType" "$Label" "$RootPartition" &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
+      fi
     fi
 
-    # 11 Feb 2018 - attempting to cure failure of root partition to mount after AUTO or GUIDED
-    # AUTO and GUIDED both destroy any existing partition table, then create a new one
-    # Note: To list existing tables of a specific device, run parted /dev/sda print or fdisk -l /dev/sda
-    #       See file PartitionTable and SampleArchFstab
-    if [ "$AutoPart" = "AUTO" ] || [ "$AutoPart" = "GUIDED" ]; then
-      # manually add / root to fstab using SampleArchFstab notes ...
-      echo -e "<device> \t <dir> \t <type> \t <options> \t <dump> \t <fsck>" > /etc/fstab # Heading
-      echo -e "$RootPartition \t / \t $RootType \t defaults,noatime \t 0 \t 1" >> /etc/fstab   # root
-      
-cat /etc/fstab
-
-    fi
-    
-    mount "$RootPartition" /mnt # 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+    mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
 read -p "f-run.sh $LINENO : Check for errors "
 
@@ -356,9 +340,9 @@ read -p "f-run.sh $LINENO : Check for errors "
         if [ -n "$Label" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkswap "$Label" "$SwapPartition" # 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
+        mkswap "$Label" "$SwapPartition" 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
       fi
-      swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
+      swapon "$SwapPartition" 2>> feliz.log                           # eg: swapon /dev/sda2
     fi
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
@@ -378,9 +362,9 @@ read -p "f-run.sh $LINENO : Check for errors "
         if [ -n "${Label}" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkfs."${AddPartType[$Counter]}" "$Label" "$id" # &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
+        mkfs."${AddPartType[$Counter]}" "$Label" "$id" &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
       fi
-      mount "$id" /mnt${AddPartMount[$Counter]} # &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
+      mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
 }
