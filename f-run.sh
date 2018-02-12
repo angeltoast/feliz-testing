@@ -45,7 +45,7 @@ function arch_chroot { # From Lution AIS - calls arch-chroot with options
 }
 
 function parted_script { # Calls GNU parted tool with options
-  parted --script "$RootDevice" "$1" 2>> feliz.log
+  parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
 function install_message { # For displaying status while running on auto
@@ -70,7 +70,7 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
   declare -i NextStart
 
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
-  StartPoint="1MiB"                               # Set start point for next partition
+  StartPoint="1MiB"                     # Set start point for next partition
   
   # Root partition
     root_partition                      # Line165 (calculates endpoint for this partition)
@@ -206,13 +206,25 @@ function home_partition { # Calculate end-point
 }
 
 function remove_partitions { # Delete existing partitions for AUTO & GUIDED
-                                                            # First count partitions:
-  HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# eg: 6
-  if [ -n $HowMany ]; then
-    for i in $(seq 1 $HowMany)
-    do
-      parted_script "rm $i"                           # Then use parted to remove each one
-    done
+
+  #If no existing partition table on $UseDisk, then create one
+  table=$(parted /dev/sda print | grep 'Partition Table')
+  if [ ${table: -7:7} = "unknown" ]; then
+    if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
+      parted_script "mklabel gpt"
+    else
+      parted_script "mklabel msdos"
+    fi
+  fi
+    return
+  else
+    HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# First count partitions (eg: 6)
+    if [ -n $HowMany ]; then
+      for i in $(seq 1 $HowMany)
+      do
+        parted_script "rm $i"                           # Then use parted to remove each one
+      done
+    fi
   fi
 }
 

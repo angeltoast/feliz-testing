@@ -157,23 +157,30 @@ function build_lists { # Called by check_parts to generate details of existing p
 function partitioning_options { # Called without arguments by check_parts after user selects an action
   case $Result in
   1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
-    AutoPart="MANUAL" ;;                              # Flag - MANUAL/AUTO/GUIDED/NONE
-  2) if [ ${UEFI} -eq 1 ]; then
-      guided_EFI                                      # Calls guided manual partitioning functions              
-      if [ $? -ne 0 ]; then return 1; fi              # then sets GUIDED flag to trigger action_EFI ...
-    else                                              # 
-      guided_MBR                                      # ... or action_MBR, in installation phase
-      if [ $? -ne 0 ]; then return 1; fi
-    fi
-    AutoPart="GUIDED" ;;
+      AutoPart="MANUAL" ;;                              # Flag - MANUAL/AUTO/GUIDED/NONE
+  2) choose_device                                     # Checks if multiple devices, and allows selection
+      if [ ${UEFI} -eq 1 ]; then
+        guided_EFI                                      # Calls guided manual partitioning functions              
+        if [ $? -ne 0 ]; then return 1; fi              # then sets GUIDED flag
+      else 
+        guided_MBR 
+        if [ $? -ne 0 ]; then return 1; fi
+      fi
+      AutoPart="GUIDED" ;;
   3) AutoPart=""
-    choose_device                                     # Checks if multiple devices, and allows selection
-    if [ $? -eq 1 ]; then return 1; fi                # AUTO flag triggers autopart in installation phase
+      choose_device                                     # Checks if multiple devices, and allows selection
+      if [ $? -eq 0 ]; then
+        AutoPart="AUTO"                                 # AUTO flag triggers autopart in installation phase
+        PARTITIONS=1                                    # Informs calling function
+      else
+        AutoPart="NONE"
+        return 1 
+      fi
   esac
 }
 
 function choose_device { # Called from partitioning_options or partitioning_optionsEFI
-                         # Select device for autopartition
+                         # Select device for autopartition or guided partitioning
                          # Sets AutoPart and UseDisk; returns 0 if completed, 1 if interrupted
   while [ -z ${AutoPart} ]; do
     DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)
@@ -204,12 +211,7 @@ function choose_device { # Called from partitioning_options or partitioning_opti
     message_subsequent "Are you sure you wish to continue?"
     dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 55 2>output.file
-    if [ $? -eq 0 ]; then
-      AutoPart="AUTO"
-      PARTITIONS=1                                      # Informs calling function
-    else
-      AutoPart="NONE"
-    fi
+    return $?
   done
 }
 
