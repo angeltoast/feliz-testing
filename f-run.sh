@@ -207,7 +207,7 @@ function home_partition { # Calculate end-point
 
 function remove_partitions { # Delete existing partitions for AUTO & GUIDED
 
-  #If no existing partition table on $UseDisk, then create one
+  # First test for existing partition table on $UseDisk, then create one
   table=$(parted /dev/sda print | grep 'Partition Table')
   if [ ${table: -7:7} = "unknown" ]; then
     if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
@@ -215,7 +215,6 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
     else
       parted_script "mklabel msdos"
     fi
-  fi
     return
   else
     HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# First count partitions (eg: 6)

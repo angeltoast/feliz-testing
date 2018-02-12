@@ -44,6 +44,8 @@ function check_parts { # Called by feliz.sh
   fi
   
   select_device                             # User selects device to use for system
+
+read -p "$UseDisk"
   
   if [ $? -ne 0 ]; then return 1; fi
   get_device_size                           # Get available space in MiB
@@ -203,7 +205,7 @@ function choose_device { # Called from partitioning_options or partitioning_opti
         UseDisk="${Result}"
       done
     else
-      UseDisk=$DiskDetails
+      UseDisk="$DiskDetails"
     fi
     title="Warning"
     translate "This will erase any data on"
