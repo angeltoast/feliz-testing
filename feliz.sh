@@ -43,7 +43,7 @@ function main {       # Prepare environment, call the four processes in sequence
   Backtitle=$(head -n 1 README)                   # Will be different for testing or stable
 
   # Check if on UEFI or BIOS system
-  tput setf 0                                     # Change foreground colour to black temporarily to hide system messages
+  tput setf 0                                     # Change foreground colour to black to hide system messages
   dmesg | grep -q "efi: EFI"                      # Test for EFI (-q tells grep to be quiet)
   if [ $? -eq 0 ]; then                           # check exit code; 0 = EFI, else BIOS
     UEFI=1                                        # Set variable UEFI ON and mount the device
@@ -51,7 +51,7 @@ function main {       # Prepare environment, call the four processes in sequence
   else
     UEFI=0                                        # Set variable UEFI OFF
   fi
-  tput sgr0                                       # Reset colour
+  tput sgr0                                       # Reset foreground colour
 
   timedatectl set-ntp true
     
@@ -159,15 +159,14 @@ function preparation { # Prepare the environment for the installation phase
     action_EFI
   elif [ "$UEFI" -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning
     action_MBR
-  elif [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
+  fi
+  if [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart 
   elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
     Message="No partitions"
     not_found 6 20
     return 1
   fi                                                          # Note that MANUAL allocation was done in f-part1
-
-read -p "f-run.sh $LINENO : Check RootDevice = $RootDevice "
 
   mount_partitions                                            # In f-run.sh
   mirror_list                                                 # In f-run.sh

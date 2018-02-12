@@ -34,7 +34,7 @@
 # root_partition         165    install_yaourt          567
 # swap_partition         182    user_add                589
 # home_partition         199    check_existing          652
-# create_partition_table 216    set_root_password       659
+# remove_partitions      208    set_root_password       659
 # autopart               231    set_user_password       714
 # partition_maker        779    
 # mount_partitions       261    finish                  760
@@ -61,8 +61,6 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
                       # Uses variables set by user to create partition
                       # table & all partitions
                       # Called without arguments
-                      
-  create_partition_table # Line 216
   
   local Unit
   local EndPoint
@@ -70,6 +68,9 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
   declare -i Var
   declare -i EndPart
   declare -i NextStart
+
+  remove_partitions                     # Delete existing partitions for AUTO & GUIDED
+  StartPoint="1MiB"                               # Set start point for next partition
   
   # Root partition
     root_partition                      # Line165 (calculates endpoint for this partition)
@@ -102,7 +103,6 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
                       # Uses variables set by user to create partition
                       # table & all partitions
                       # Called without arguments
-  create_partition_table
 
   local Unit
   local EndPoint
@@ -111,14 +111,10 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
   declare -i EndPart
   declare -i NextStart
 
-  # Format the drive for EFI
-    tput setf 0                         # Change foreground colour to black temporarily to hide error message
-    sgdisk --zap-all "/dev/${UseDisk}"  # Remove all partitions
+  remove_partitions                     # Delete existing partitions for AUTO & GUIDED
 
-    wipefs -a "/dev/${UseDisk}"         # Remove filesystem
-    tput sgr0                           # Reset colour
-
-    parted_script "mklabel gpt"         # Create EFI partition table
+  parted_script "mkpart primary fat32 1MiB 513MiB"   # EFI boot partition
+  StartPoint="513MiB"                             # For next partition
 
   # Boot partition
     # Calculate end-point
@@ -209,47 +205,52 @@ function home_partition { # Calculate end-point
   fi
 }
 
-function create_partition_table { # Create a new partition table
-  if [ "$UEFI" -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all "$RootDevice" &>> feliz.log    # Remove all existing filesystems
-    wipefs -a "$RootDevice" &>> feliz.log           # from the drive
-    parted_script "mklabel gpt"                        # Create new filesystem
-    parted_script "mkpart primary fat32 1MiB 513MiB"   # EFI boot partition
-    StartPoint="513MiB"                             # For next partition
-  else                                              # Installing in BIOS environment
-    dd if=/dev/zero of="$RootDevice" bs=512 count=1 # Remove any existing partition table
-    parted_script "mklabel msdos"                   # Create new filesystem
-    StartPoint="1MiB"                               # Set start point for next partition
+function remove_partitions { # Delete existing partitions for AUTO & GUIDED
+                                                            # First count partitions:
+  HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# eg: 6
+  if [ -n $HowMany ]; then
+    for i in $(seq 1 $HowMany)
+    do
+      parted_script "rm $i"                           # Then use parted to remove each one
+    done
   fi
 }
 
 function autopart { # Called by feliz.sh/preparation during installation phase
                     # if AutoPartition flag is AUTO.
                     # Consolidated automatic partitioning for BIOS or EFI environment
+                    
   Root="${RootDevice}"
-  Home="N"                                          # No /home partition at this point
+  Home="N"                                            # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
-  create_partition_table
-                                                    # Decide partition sizes
-  if [ "$DiskSize" -ge 40 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
-    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
-  elif [ "$DiskSize" -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-3))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
-    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
-  elif [ "$DiskSize" -ge 18 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
-    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
-  elif [ "$DiskSize" -gt 10 ]; then                   # ------ /root & /swap partitions only ------
-    RootSize=$((DiskSize-1))                        # /root 9 to 17GiB, /swap 1GiB
-    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
-  else                                              # ------ Swap file and /root partition only -----
-    partition_maker "${StartPoint}" "100%" "" ""
-    SwapFile="2G"                                   # Swap file
-    SwapPartition=""                                # Clear swap partition variable
+  remove_partitions                                   # Delete existing partitions for AUTO & GUIDED
+
+  if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
+    parted_script "mkpart primary fat32 1MiB 513MiB"  # EFI boot partition
+    StartPoint="513MiB"                               # For next GPT partition
+  else
+    StartPoint="1MiB"                                 # Start point for next MBR partition
   fi
-  partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
+                                                      # Decide partition sizes
+  if [ "$DiskSize" -ge 40 ]; then                     # ------ /root /home /swap partitions ------ #
+    HomeSize=$((DiskSize-15-4))                       # /root 15 GiB, /swap 4GiB, /home from 18GiB
+    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
+  elif [ "$DiskSize" -ge 30 ]; then                   # ------ /root /home /swap partitions ------ #
+    HomeSize=$((DiskSize-15-3))                       # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
+    partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
+  elif [ "$DiskSize" -ge 18 ]; then                   # ----- /root & /swap partitions only ------ #
+    RootSize=$((DiskSize-2))                          # /root 16 to 28GiB, /swap 2GiB
+    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
+  elif [ "$DiskSize" -gt 10 ]; then                   # ----- /root & /swap partitions only ------ #
+    RootSize=$((DiskSize-1))                          # /root 9 to 17GiB, /swap 1GiB
+    partition_maker "${StartPoint}" "${RootSize}GiB" "" "100%"
+  else                                                # --- Swap file and /root partition only --- #
+    partition_maker "${StartPoint}" "100%" "" ""
+    SwapFile="2G"                                     # Swap file
+    SwapPartition=""                                  # Clear swap partition variable
+  fi
+  partprobe 2>> feliz.log                             # Inform kernel of changes to partitions
 }
 
 function partition_maker {  # Called from autopart for both EFI and BIOS systems
@@ -262,28 +263,28 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
                             # Appropriate partition table has already been created in autopart
                             # If EFI the /boot partition has also been created at /dev/sda1 and
                             # set as bootable, and the startpoint has been set to follow /boot
-                                                    # Set the device to be used to 'set x boot on'    
-  MountDevice=1                                     # $MountDevice is numerical - eg: 1 in sda1
-                                                    # Start with first partition = [sda]1
+                                                          # Set the device to be used to 'set x boot on'    
+  MountDevice=1                                           # $MountDevice is numerical - eg: 1 in sda1
+                                                          # Start with first partition = [sda]1
   parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
                                                           # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "set ${MountDevice} boot on"        # eg: parted /dev/sda set 1 boot on
-  if [ "$UEFI" -eq 1 ]; then                        # Reset if installing in EFI environment
-    MountDevice=2                                   # Next partition after /boot = [sda]2
+  parted_script "set ${MountDevice} boot on"              # eg: parted /dev/sda set 1 boot on
+  if [ "$UEFI" -eq 1 ]; then                              # Reset if installing in EFI environment
+    MountDevice=2                                         # Next partition after /boot = [sda]2
   fi
-  RootPartition="${RootDevice}${MountDevice}"       # eg: /dev/sda1
+  RootPartition="${RootDevice}${MountDevice}"             # eg: /dev/sda1
   RootType="ext4"
-  StartPoint=$2                                     # Increment startpoint for /home or /swap
-  MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
+  StartPoint=$2                                           # Increment startpoint for /home or /swap
+  MountDevice=$((MountDevice+1))                          # Advance partition numbering for next step
 
   if [ -n "$3" ]; then
     parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    AddPartList[0]="${RootDevice}${MountDevice}"    # eg: /dev/sda3  | add to
-    AddPartMount[0]="/home"                         # Mountpoint     | array of
-    AddPartType[0]="ext4"                           # Filesystem     | additional partitions
+    AddPartList[0]="${RootDevice}${MountDevice}"          # eg: /dev/sda3  | add to
+    AddPartMount[0]="/home"                               # Mountpoint     | array of
+    AddPartType[0]="ext4"                                 # Filesystem     | additional partitions
     Home="Y"
-    StartPoint=$3                                   # Reset startpoint for /swap
-    MountDevice=$((MountDevice+1))                  # Advance partition numbering
+    StartPoint=$3                                         # Reset startpoint for /swap
+    MountDevice=$((MountDevice+1))                        # Advance partition numbering
   fi
 
   if [ -n "$4" ]; then
@@ -293,7 +294,7 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
   fi
 }
 
-function mount_partitions { # Format each partition as defined by MANUAL, AUTO or GUIDED
+function mount_partitions { # Format and mount each partition as defined by MANUAL, AUTO or GUIDED
                             # Called without arguments by feliz.sh after autopart, action_MBR or action_EFI
   
   install_message "Preparing and mounting partitions"
@@ -317,19 +318,27 @@ function mount_partitions { # Format each partition as defined by MANUAL, AUTO o
           Label="-L $Label"                                           # ... prepare to use it
         fi
         mkfs."$RootType" -F "$Label" "$RootPartition" # &>> feliz.log  # eg: mkfs.ext4 -F -L Arch-Root /dev/sda1
+
+read -p "f-run.sh $LINENO : Check for errors "
+
       fi                                              # -F is to force overwrite of existing filesystem
     fi
 
     # 11 Feb 2018 - attempting to cure failure of root partition to mount after AUTO or GUIDED
+    # AUTO and GUIDED both destroy any existing partition table, then create a new one
+    # Note: To list existing tables of a specific device, run parted /dev/sda print or fdisk -l /dev/sda
+    #       See file PartitionTable and SampleArchFstab
     if [ "$AutoPart" = "AUTO" ] || [ "$AutoPart" = "GUIDED" ]; then
       # manually add / root to fstab using SampleArchFstab notes ...
       echo -e "<device> \t <dir> \t <type> \t <options> \t <dump> \t <fsck>" > /etc/fstab # Heading
       echo -e "$RootPartition \t / \t $RootType \t defaults,noatime \t 0 \t 1" >> /etc/fstab   # root
+      
+cat /etc/fstab
+
     fi
     
     mount "$RootPartition" /mnt # 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
-cat /etc/fstab
 read -p "f-run.sh $LINENO : Check for errors "
 
   # 2) EFI (if required)
