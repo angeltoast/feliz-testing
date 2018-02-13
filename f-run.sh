@@ -237,10 +237,12 @@ function autopart { # Called by feliz.sh/preparation during installation phase
   Home="N"                                            # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
+lsblk
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   
   remove_partitions                                   # Delete existing partitions for AUTO & GUIDED
 
+lsblk
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   
   if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
