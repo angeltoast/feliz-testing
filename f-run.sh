@@ -114,9 +114,6 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
 
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
 
-  parted_script "mkpart primary fat32 1MiB 513MiB"   # EFI boot partition
-  StartPoint="513MiB"                             # For next partition
-
   # Boot partition
     # Calculate end-point
     Unit=${BootSize: -1}                # Save last character of boot (eg: M)
