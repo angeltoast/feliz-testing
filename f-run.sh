@@ -218,7 +218,7 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
     return
   else
     HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# First count partitions (eg: 6)
-    if [ -n $HowMany ]; then
+    if [ -n "$HowMany" ]; then
       for i in $(seq 1 $HowMany)
       do
         parted_script "rm $i"                           # Then use parted to remove each one
@@ -333,8 +333,6 @@ function mount_partitions { # Format and mount each partition as defined by MANU
     fi
 
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
-
-read -p "f-run.sh $LINENO : Check for errors "
 
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required

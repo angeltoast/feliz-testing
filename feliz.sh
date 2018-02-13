@@ -160,6 +160,9 @@ function preparation { # Prepare the environment for the installation phase
   elif [ "$UEFI" -eq 0 ] && [ "$AutoPart" = "GUIDED" ]; then  # If installing on BIOS with Guided partitioning
     action_MBR
   fi
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   if [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
     autopart 
   elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
@@ -168,20 +171,31 @@ function preparation { # Prepare the environment for the installation phase
     return 1
   fi                                                          # Note that MANUAL allocation was done in f-part1
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   mount_partitions                                            # In f-run.sh
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   mirror_list                                                 # In f-run.sh
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   install_kernel                                              # In f-run.sh
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
 }
 
 function the_middle { # The installation phase
     translate "Preparing local services"
     install_message "$Result"
-    echo ${HostName} > /mnt/etc/hostname 2>> feliz.log
+    echo "$HostName" > /mnt/etc/hostname 2>> feliz.log
     sed -i "/127.0.0.1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
     sed -i "/::1/s/$/ ${HostName}/" /mnt/etc/hosts 2>> feliz.log
   # Set up locale, etc. The local copy of locale.gen may have been manually edited in f-set.sh, so ...
     GrepTest=$(grep "^${CountryLocale}" /etc/locale.gen)                # Check main locale not already set
-    if [ -z $GrepTest ]; then                                           # If not, add it at bottom
+    if [ -z "$GrepTest" ]; then                                           # If not, add it at bottom
       echo "${CountryLocale} UTF-8" >> /etc/locale.gen 2>> feliz.log    # eg: en_GB.UTF-8 UTF-8
     fi
     GrepTest=$(grep "^en_US.UTF-8" /etc/locale.gen)                     # If secondary locale not already set, and
@@ -227,7 +241,7 @@ function the_middle { # The installation phase
       echo "Not installing Grub" >> feliz.log
     fi
   # Set keyboard to selected language at next startup
-    echo KEYMAP=${Countrykbd} > /mnt/etc/vconsole.conf 2>> feliz.log
+    echo KEYMAP="$Countrykbd" > /mnt/etc/vconsole.conf 2>> feliz.log
     echo -e "Section \"InputClass\"\nIdentifier \"system-keyboard\"\nMatchIsKeyboard \"on\"\nOption \"XkbLayout\" \"${Countrykbd}\"\nEndSection" > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf 2>> feliz.log
   # Extra processes for desktop installation
     if [ $Scope != "Basic" ]; then
