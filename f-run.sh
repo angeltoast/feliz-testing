@@ -46,6 +46,7 @@ function arch_chroot { # From Lution AIS - calls arch-chroot with options
 
 function parted_script { # Calls GNU parted tool with options
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
+  read -p "parted /dev/${UseDisk} $1"
 }
 
 function install_message { # For displaying status while running on auto
@@ -206,23 +207,24 @@ function home_partition { # Calculate end-point
 }
 
 function remove_partitions { # Delete existing partitions for AUTO & GUIDED
-
-  # First test for existing partition table on $UseDisk, then create one
-  table=$(parted /dev/sda print | grep 'Partition Table')
-  if [ -n "$table" ] && [ ${table: -7:7} = "unknown" ]; then
-    if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
-      parted_script "mklabel gpt"
+                                                                  
+  table=$(parted "/dev/${UseDisk}" print | grep 'Partition Table' | grep unknown) # Test if partition table exists
+                                                                          # eg: Partition Table: unknown
+  if [ -n "$table" ] ; then                                               # If device has no table, make one
+    if [ "$UEFI" -eq 1 ]; then
+      parted_script "mklabel gpt"                                         # On EFI
     else
-      parted_script "mklabel msdos"
+      parted_script "mklabel msdos"                                       # On BIOS
     fi
-    return
   else
-    HowMany=$(lsblk -l | grep "sda" | grep -v "sda " | wc -l)	# First count partitions (eg: 6)
-    if [ -n "$HowMany" ]; then
+    HowMany=$(lsblk -l | grep "$UseDisk" | grep -v "${UseDisk} " | wc -l)	# Count existing partitions (eg: 6 or 0)
+    if [ "$HowMany" -gt 0 ]; then                                         # If more than one existing partition
       for i in $(seq 1 $HowMany)
       do
-        parted_script "rm $i"                           # Then use parted to remove each one
+        parted_script "rm $i"                                             # Use parted to remove each one
       done
+    else
+      return 1                                                            # Unlikely event that there is no device
     fi
   fi
 }
@@ -319,6 +321,8 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   
   install_message "Preparing and mounting partitions"
 
+lsblk
+echo "RootPartition $RootPartition RootType $RootType"
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   
   # 1) Root partition

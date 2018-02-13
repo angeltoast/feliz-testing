@@ -161,9 +161,7 @@ function preparation { # Prepare the environment for the installation phase
     action_MBR
   fi
 
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
-  if [ "$AutoPart" = "AUTO" ]; then                         # If Auto partitioning_options
+  if [ "$AutoPart" = "AUTO" ]; then                           # If Auto partitioning_options
     autopart 
   elif [ "$AutoPart" = "NONE" ]; then                         # If partitioning_options not set
     Message="No partitions"
@@ -171,20 +169,9 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     return 1
   fi                                                          # Note that MANUAL allocation was done in f-part1
 
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
   mount_partitions                                            # In f-run.sh
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
   mirror_list                                                 # In f-run.sh
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
   install_kernel                                              # In f-run.sh
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
 }
 
 function the_middle { # The installation phase
