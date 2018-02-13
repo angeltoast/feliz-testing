@@ -209,7 +209,7 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
 
   # First test for existing partition table on $UseDisk, then create one
   table=$(parted /dev/sda print | grep 'Partition Table')
-  if [ ${table: -7:7} = "unknown" ]; then
+  if [ -n "$table" ] && [ ${table: -7:7} = "unknown" ]; then
     if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
       parted_script "mklabel gpt"
     else
@@ -235,15 +235,21 @@ function autopart { # Called by feliz.sh/preparation during installation phase
   Home="N"                                            # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   remove_partitions                                   # Delete existing partitions for AUTO & GUIDED
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
     parted_script "mkpart primary fat32 1MiB 513MiB"  # EFI boot partition
     StartPoint="513MiB"                               # For next GPT partition
   else
     StartPoint="1MiB"                                 # Start point for next MBR partition
   fi
-                                                      # Decide partition sizes
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+                                                        # Decide partition sizes
   if [ "$DiskSize" -ge 40 ]; then                     # ------ /root /home /swap partitions ------ #
     HomeSize=$((DiskSize-15-4))                       # /root 15 GiB, /swap 4GiB, /home from 18GiB
     partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
@@ -262,6 +268,9 @@ function autopart { # Called by feliz.sh/preparation during installation phase
     SwapPartition=""                                  # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                             # Inform kernel of changes to partitions
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
 }
 
 function partition_maker {  # Called from autopart for both EFI and BIOS systems
@@ -310,6 +319,8 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   
   install_message "Preparing and mounting partitions"
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   # 1) Root partition
     if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
@@ -317,26 +328,30 @@ function mount_partitions { # Format and mount each partition as defined by MANU
       CurrentType=$(file -sL "$RootPartition" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
       # Check if /root type or existing partition are btrfs ...
       if [ -n "$CurrentType" ] && [ "$RootType" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
-        btrfs-convert "$RootPartition" 2>> feliz.log                  # Convert existing partition to btrfs
+        btrfs-convert "$RootPartition" # 2>> feliz.log                  # Convert existing partition to btrfs
       elif [ "$RootType" = "btrfs" ]; then                            # Otherwise, for btrfs /root
-        mkfs.btrfs -f "$RootPartition" 2>> feliz.log                  # eg: mkfs.btrfs -f /dev/sda2
+        mkfs.btrfs -f "$RootPartition" # 2>> feliz.log                  # eg: mkfs.btrfs -f /dev/sda2
       elif [ "$RootType" = "xfs" ]; then                              # Otherwise, for xfs /root
-        mkfs.xfs -f "$RootPartition" 2>> feliz.log                    # eg: mkfs.xfs -f /dev/sda2
+        mkfs.xfs -f "$RootPartition" # 2>> feliz.log                    # eg: mkfs.xfs -f /dev/sda2
       else                                                            # /root is not btrfs
         Partition=${RootPartition: -4}                                # Last 4 characters (eg: sda1)
         Label="${Labelled[${Partition}]}"                             # Check to see if it has a label
         if [ -n "$Label" ]; then                                      # If it has a label ...
           Label="-L $Label"                                           # ... prepare to use it
         fi
-        mkfs."$RootType" "$Label" "$RootPartition" &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
+        mkfs."$RootType" "$Label" "$RootPartition" # &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
       fi
     fi
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
-      mkfs.vfat -F32 "$EFIPartition" 2>> feliz.log                    # Format EFI boot partition
+      mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                    # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
     fi
@@ -349,9 +364,9 @@ function mount_partitions { # Format and mount each partition as defined by MANU
         if [ -n "$Label" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkswap "$Label" "$SwapPartition" 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
+        mkswap "$Label" "$SwapPartition" # 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
       fi
-      swapon "$SwapPartition" 2>> feliz.log                           # eg: swapon /dev/sda2
+      swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
     fi
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
