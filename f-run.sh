@@ -216,7 +216,7 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
 
       for p in $(lsblk -l | grep sda | grep -v "sda " | cut -c1-5)
       do
-        umount "$p"                                                       # Try to unmount any mounted partitions
+        umount "/dev/${p}"                                                # Try to unmount any mounted partitions
       done
 
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
@@ -248,14 +248,15 @@ lsblk
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
   
   if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
-    parted_script "mkpart primary fat32 1MiB 513MiB"  # EFI boot partition
-    StartPoint="513MiB"                               # For next GPT partition
+    parted_script "mkpart primary fat32 1MiB 513MiB"  # Create EFI boot partition
+    StartPoint="513MiB"                               # Start point for next GPT partition
   else
     StartPoint="1MiB"                                 # Start point for next MBR partition
   fi
 
 read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-                                                        # Decide partition sizes
+                    # Decide partition sizes then make each partition
+                    # startpoint : rootsize : homesize : swapsize
   if [ "$DiskSize" -ge 40 ]; then                     # ------ /root /home /swap partitions ------ #
     HomeSize=$((DiskSize-15-4))                       # /root 15 GiB, /swap 4GiB, /home from 18GiB
     partition_maker "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
@@ -286,16 +287,18 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
                             #   $2 is size of root partition
                             #   $3 if passed is size of home partition
                             #   $4 if passed is size of swap partition
-                            # Appropriate partition table has already been created in autopart
-                            # If EFI the /boot partition has also been created at /dev/sda1 and
-                            # set as bootable, and the startpoint has been set to follow /boot
+                            # Appropriate partition table has already been created in remove_partitions
+                            # If EFI the /boot partition has also been created at /dev/sda1
+                            # and the startpoint has been set to follow /boot
                                                           # Set the device to be used to 'set x boot on'    
-  MountDevice=1                                           # $MountDevice is numerical - eg: 1 in sda1
+  MountDevice=1                                           # $MountDevice is numerical - eg: 1 is sda1
                                                           # Start with first partition = [sda]1
-  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make /boot at startpoint
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"  # Make / at startpoint
                                                           # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "set ${MountDevice} boot on"              # eg: parted /dev/sda set 1 boot on
-  if [ "$UEFI" -eq 1 ]; then                              # Reset if installing in EFI environment
+  parted_script "set 1 boot on"                           # For autopart, /boot is always 1
+                                                          # eg: parted /dev/sda set 1 boot on
+                                                          
+  if [ "$UEFI" -eq 1 ]; then                              # In EFI environment
     MountDevice=2                                         # Next partition after /boot = [sda]2
   fi
   RootPartition="${RootDevice}${MountDevice}"             # eg: /dev/sda1
