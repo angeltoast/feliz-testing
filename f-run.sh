@@ -62,7 +62,6 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
                       # Uses variables set by user to create partition
                       # table & all partitions
                       # Called without arguments
-  
   local Unit
   local EndPoint
   declare -i Chars
@@ -71,17 +70,16 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
   declare -i NextStart
 
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
-  StartPoint="1MiB"                     # Set start point for next partition
   
   # Root partition
-    root_partition                      # Line165 (calculates endpoint for this partition)
+    root_partition                      # Calculate endpoint for this partition
     parted_script "mkpart primary ${RootType} 1MiB ${EndPoint}" # Make the partition
     parted_script "set 1 boot on"
     RootPartition="${RootDevice}1"      # "/dev/sda1"
     local NextStart=${EndPart}          # Save for next partition. Numerical only (has no unit)
   # Swap partition
     if [ -n "$SwapSize" ]; then
-      swap_partition                    # Line 182 (calculates endpoint for this partition)
+      swap_partition                    # Calculate endpoint for this partition
       parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
       SwapPartition="${RootDevice}2"    # "/dev/sda2"
       MakeSwap="Y"
@@ -89,7 +87,7 @@ function action_MBR { # GUIDED BIOS/MBR (if AutoPartition flag is "GUIDED")
     fi
   # Home partition
     if [ -n "$HomeSize" ]; then
-      home_partition                    # Line 199 (calculates endpoint for this partition)
+      home_partition                    # Calculate endpoint for this partition
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
       HomePartition="${RootDevice}3"    # "/dev/sda4"
       Home="Y"
@@ -104,7 +102,6 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
                       # Uses variables set by user to create partition
                       # table & all partitions
                       # Called without arguments
-
   local Unit
   local EndPoint
   declare -i Chars
@@ -114,8 +111,7 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
 
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
 
-  # Boot partition
-    # Calculate end-point
+  # Boot partition - calculate end-point, then create the partition as #1
     Unit=${BootSize: -1}                # Save last character of boot (eg: M)
     Chars=${#BootSize}                  # Count characters in boot variable
     Var=${BootSize:0:Chars-1}           # Remove unit character from boot variable
@@ -129,14 +125,14 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
     NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
 
   # Root partition
-    root_partition                      # Line165 (calculates start and end)
+    root_partition                      # Calculates end point
     parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}" # Make the partition
     RootPartition="${RootDevice}2"      # "/dev/sda2"
     NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
   # Swap partition
     if [ -n "$SwapSize" ]; then
-      swap_partition                    # Line 182 (calculates start and end)
+      swap_partition                    # Calculates end point
       parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}" # Make the partition
       SwapPartition="${RootDevice}3"    # "/dev/sda3"
       MakeSwap="Y"
@@ -145,7 +141,7 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
 
   # Home partition
     if [ -n "$HomeSize" ]; then
-      home_partition                    # Line 199 (calculates start and end)
+      home_partition                    # Calculates end point
       parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}" # Make the partition
       HomePartition="${RootDevice}4"    # "/dev/sda4"
       Home="Y"
@@ -155,7 +151,8 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
     fi
 }
 
-function root_partition { # Calculate end-point
+function root_partition { # Called by action_EFI and action_MBR
+                          # Calculate end-point based on size set by user
   Unit=${RootSize: -1}                # Save last character of root (eg: G)
   Chars=${#RootSize}                  # Count characters in root variable
   Var=${RootSize:0:Chars-1}           # Remove unit character from root variable
@@ -206,7 +203,7 @@ function home_partition { # Calculate end-point
 function remove_partitions { # Delete existing partitions for AUTO & GUIDED
                                                                   
   table=$(parted "/dev/${UseDisk}" print | grep 'Partition Table' | grep unknown) # Test if partition table exists
-                                                                          # eg: Partition Table: unknown
+                                                                          # eg: "Partition Table: unknown"
   if [ -n "$table" ] ; then                                               # If device has no table, make one
     if [ "$UEFI" -eq 1 ]; then
       parted_script "mklabel gpt"                                         # On EFI
@@ -216,6 +213,14 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
   else
     HowMany=$(lsblk -l | grep "$UseDisk" | grep -v "${UseDisk} " | wc -l)	# Count existing partitions (eg: 6 or 0)
     if [ "$HowMany" -gt 0 ]; then                                         # If more than one existing partition
+
+      for p in $(lsblk -l | grep sda | grep -v "sda " | cut -c1-5)
+      do
+        umount "$p"                                                       # Try to unmount any mounted partitions
+      done
+
+read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
+  
       for i in $(seq 1 $HowMany)
       do
         parted_script "rm $i"                                             # Use parted to remove each one
