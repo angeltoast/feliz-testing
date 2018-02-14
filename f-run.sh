@@ -329,6 +329,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   install_message "Preparing and mounting partitions"
 
   # 1) Root partition
+    umount "$RootPartition"
     if [ -z "$RootType" ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
     else                                                              # Check if replacing ext3/4 with btrfs
@@ -354,7 +355,8 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
-      mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                    # Format EFI boot partition
+      umount "$EFIPartition"
+      mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                  # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
     fi
@@ -374,6 +376,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
     for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
+      umount "$id"
       mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log            # eg: mkdir -p /mnt/home
       # Check if replacing existing ext3/4 partition with btrfs (as with /root)
       CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
