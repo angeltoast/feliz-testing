@@ -109,7 +109,11 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
   declare -i EndPart
   declare -i NextStart
 
+read -p "$LINENO $(lsblk)"
+
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
+
+read -p "$LINENO $(lsblk)"
 
   # Boot partition - calculate end-point, then create the partition as #1
     Unit=${BootSize: -1}                # Save last character of boot (eg: M)
@@ -149,6 +153,9 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
+
+read -p "$LINENO $(lsblk)"
+
 }
 
 function root_partition { # Called by action_EFI and action_MBR
@@ -166,6 +173,9 @@ function root_partition { # Called by action_EFI and action_MBR
   elif [ "$Unit" = "%" ]; then
     EndPoint="${Var}%"
   fi
+
+read -p "$LINENO $(lsblk)"
+
 }
   
 function swap_partition { # Calculate end-point
@@ -358,6 +368,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
       umount "$EFIPartition"
       mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                  # Format EFI boot partition
       mkdir -p /mnt/boot                                              # Make mountpoint
+      mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
     fi
   # 3) Swap
