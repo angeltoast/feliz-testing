@@ -102,6 +102,9 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
                       # Uses variables set by user to create partition
                       # table & all partitions
                       # Called without arguments
+
+  if [ "$UEFI" -eq 1 ]; then return 0; fi # Option disabled
+                      
   local Unit
   local EndPoint
   declare -i Chars
@@ -109,11 +112,7 @@ function action_EFI { # GUIDED EFI/GPT (if AutoPartition flag is "GUIDED")
   declare -i EndPart
   declare -i NextStart
 
-read -p "$LINENO $(lsblk)"
-
   remove_partitions                     # Delete existing partitions for AUTO & GUIDED
-
-read -p "$LINENO $(lsblk)"
 
   # Boot partition - calculate end-point, then create the partition as #1
     Unit=${BootSize: -1}                # Save last character of boot (eg: M)
@@ -153,9 +152,6 @@ read -p "$LINENO $(lsblk)"
       AddPartMount[0]="/home"           # Mountpoint    | array of
       AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
     fi
-
-read -p "$LINENO $(lsblk)"
-
 }
 
 function root_partition { # Called by action_EFI and action_MBR
@@ -173,9 +169,6 @@ function root_partition { # Called by action_EFI and action_MBR
   elif [ "$Unit" = "%" ]; then
     EndPoint="${Var}%"
   fi
-
-read -p "$LINENO $(lsblk)"
-
 }
   
 function swap_partition { # Calculate end-point
@@ -229,8 +222,6 @@ function remove_partitions { # Delete existing partitions for AUTO & GUIDED
         umount "/dev/${p}"                                                # Try to unmount any mounted partitions
       done
 
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
       for i in $(seq 1 $HowMany)
       do
         parted_script "rm $i"                                             # Use parted to remove each one
@@ -243,28 +234,22 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
 
 function autopart { # Called by feliz.sh/preparation during installation phase
                     # if AutoPartition flag is AUTO.
-                    # Consolidated automatic partitioning for BIOS or EFI environment
+                    # Consolidated automatic partitioning for BIOS
+
+  if [ "$UEFI" -eq 1 ]; then return 0; fi # Option disabled
                     
   Root="${RootDevice}"
   Home="N"                                            # No /home partition at this point
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
 
-lsblk
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
   remove_partitions                                   # Delete existing partitions for AUTO & GUIDED
 
-lsblk
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
   if [ "$UEFI" -eq 1 ]; then                          # If installing on EFI
     parted_script "mkpart primary fat32 1MiB 513MiB"  # Create EFI boot partition
     StartPoint="513MiB"                               # Start point for next GPT partition
   else
     StartPoint="1MiB"                                 # Start point for next MBR partition
   fi
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
                     # Decide partition sizes then make each partition
                     # startpoint : rootsize : homesize : swapsize
   if [ "$DiskSize" -ge 40 ]; then                     # ------ /root /home /swap partitions ------ #
@@ -285,12 +270,9 @@ read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE
     SwapPartition=""                                  # Clear swap partition variable
   fi
   partprobe 2>> feliz.log                             # Inform kernel of changes to partitions
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
 }
 
-function partition_maker {  # Called from autopart for both EFI and BIOS systems
+function partition_maker {  # Called from autopart for and BIOS systems
                             # Uses GNU Parted to create partitions as defined by autopart
                             # Receives up to 4 arguments
   local StartPoint=$1       #   $1 is the starting point of the first partition
@@ -300,6 +282,9 @@ function partition_maker {  # Called from autopart for both EFI and BIOS systems
                             # Appropriate partition table has already been created in remove_partitions
                             # If EFI the /boot partition has also been created at /dev/sda1
                             # and the startpoint has been set to follow /boot
+
+  if [ "$UEFI" -eq 1 ]; then return 0; fi                 # Option disabled for UEFI
+                            
                                                           # Set the device to be used to 'set x boot on'    
   MountDevice=1                                           # $MountDevice is numerical - eg: 1 is sda1
                                                           # Start with first partition = [sda]1
@@ -340,7 +325,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 
   # 1) Root partition
     umount "$RootPartition"
-    if [ -z "$RootType" ]; then
+    if [ -z "$RootType" ] || [ "$UEFI" -eq 1 ]; then
       echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
     else                                                              # Check if replacing ext3/4 with btrfs
       CurrentType=$(file -sL "$RootPartition" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
@@ -366,7 +351,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       umount "$EFIPartition"
-      mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                  # Format EFI boot partition
+    #  mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                 # Format EFI boot partition ... disabled
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
@@ -374,15 +359,15 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
-      if [ "$MakeSwap" = "Y" ]; then
+      if [ "$MakeSwap" = "Y" ] && [ "$UEFI" -ne 1 ]; then
         Partition=${SwapPartition: -4}                                # Last 4 characters (eg: sda2)
         Label="${Labelled[${Partition}]}"                             # Check for label
         if [ -n "$Label" ]; then
           Label="-L ${Label}"                                         # Prepare label
         fi
-        mkswap "$Label" "$SwapPartition" # 2>> feliz.log                # eg: mkswap -L Arch-Swap /dev/sda2
+        mkswap "$Label" "$SwapPartition" # 2>> feliz.log              # eg: mkswap -L Arch-Swap /dev/sda2
       fi
-      swapon "$SwapPartition" # 2>> feliz.log                           # eg: swapon /dev/sda2
+      swapon "$SwapPartition" # 2>> feliz.log                         # eg: swapon /dev/sda2
     fi
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
@@ -391,7 +376,10 @@ function mount_partitions { # Format and mount each partition as defined by MANU
       mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log            # eg: mkdir -p /mnt/home
       # Check if replacing existing ext3/4 partition with btrfs (as with /root)
       CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
-      if [ "${AddPartType[$Counter]}" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
+
+      if [ "$UEFI" -eq 1 ]; then
+        echo "UEFI system - not formatting partition" >> feliz.log    # If /root filetype not set - do nothing
+      elif [ "${AddPartType[$Counter]}" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
         btrfs-convert "$id" 2>> feliz.log
       elif [ "${AddPartType[$Counter]}" = "btrfs" ]; then
         mkfs.btrfs -f "$id" 2>> feliz.log                             # eg: mkfs.btrfs -f /dev/sda2
@@ -408,9 +396,6 @@ function mount_partitions { # Format and mount each partition as defined by MANU
       mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
-
-read -p "in ${BASH_SOURCE[0]}/${FUNCNAME[0]}/${LINENO} called from ${BASH_SOURCE[1]}/${FUNCNAME[1]}/${LINENO[1]}"
-  
 }
 
 function install_kernel { # Called without arguments by feliz.sh

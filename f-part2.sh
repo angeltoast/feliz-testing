@@ -183,6 +183,9 @@ function recalculate_space {  # Called by guided_MBR & guided_EFI
 
 function guided_EFI {  # Called by f-part1.sh/partitioning_options as the first step
                        # in EFI guided partitioning option - Inform user of purpose, call each step
+
+  if [ "$UEFI" -eq 1 ]; then return 1; fi # Option disabled
+                       
   message_first_line "Here you can set the size and format of the partitions you"
   message_subsequent "wish to create. during installation, Feliz will wipe the"
   message_subsequent "disk and create a new partition table with your settings"

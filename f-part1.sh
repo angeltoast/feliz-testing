@@ -157,21 +157,24 @@ function build_lists { # Called by check_parts to generate details of existing p
 function partitioning_options { # Called without arguments by check_parts after user selects an action
   case $Result in
   1) echo "Manual partition allocation" >> feliz.log  # Manual allocation of existing Partitions
-      AutoPart="MANUAL" ;;                              # Flag - MANUAL/AUTO/GUIDED/NONE
-  2) choose_device                                     # Checks if multiple devices, and allows selection
+      AutoPart="MANUAL" ;;                            # Flag - MANUAL/AUTO/GUIDED/NONE
+  2) choose_device                                    # Checks if multiple devices, and allows selection
       if [ "$UEFI" -eq 1 ]; then
-        guided_EFI                                      # Calls guided manual partitioning functions              
-        if [ $? -ne 0 ]; then return 1; fi              # then sets GUIDED flag
+      
+        return 0                                      # All UEFI options disabled
+      
+        guided_EFI                                    # Calls guided manual partitioning functions              
+        if [ $? -ne 0 ]; then return 1; fi            # then sets GUIDED flag
       else 
         guided_MBR 
         if [ $? -ne 0 ]; then return 1; fi
       fi
       AutoPart="GUIDED" ;;
   3) AutoPart=""
-      choose_device                                     # Checks if multiple devices, and allows selection
+      choose_device                                   # Checks if multiple devices, and allows selection
       if [ $? -eq 0 ]; then
-        AutoPart="AUTO"                                 # AUTO flag triggers autopart in installation phase
-        PARTITIONS=1                                    # Informs calling function
+        AutoPart="AUTO"                               # AUTO flag triggers autopart in installation phase
+        PARTITIONS=1                                  # Informs calling function
       else
         AutoPart="NONE"
         return 1 
@@ -240,8 +243,9 @@ function allocate_partitions { # Called by feliz.sh
 }
 
 function select_filesystem { # Called by allocate_root and more_partitions (via choose_mountpoint)
-                             # and guided_MBR and guided_EFI 
+                             # and guided_MBR - not UEFI 
                              # Receives two arguments (window size)
+  if [ "$UEFI" -eq 1 ]; then return 1; fi
   translate "Please select the file system for"
   title="$Result ${Partition}"
   message_first_line "It is not recommended to mix the btrfs file-system with others"
