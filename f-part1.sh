@@ -67,8 +67,14 @@ function check_parts { # Called by feliz.sh
       if [ "$UEFI" -eq 1 ]; then                            # Installing in UEFI environment
         message_subsequent "two partitions are needed - one for EFI /boot, and"
         message_subsequent "one partition is needed for the root directory"
-        message_subsequent "There is a guided manual partitioning option"
-        message_subsequent "or you can exit now to use an external tool"
+      #  message_subsequent "There is a guided manual partitioning option"
+      #  message_subsequent "or you can exit now to use an external tool"
+        message_subsequent "Feliz is not able to partition for UEFI at present"
+        message_subsequent "Please read the README file for advice"
+        echo
+        echo -e "$Message"
+        read -p "Please press [Enter] to exit Feliz"
+        exit
       else                                                  # Installing in BIOS environment
         message_subsequent "one partition is needed for the root directory"
       fi
@@ -98,16 +104,21 @@ function check_parts { # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    dialog --backtitle "$Backtitle" --title " $title " --no-tags \
-      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
-      1 "$LongPart1" \
-      2 "$LongPart2" \
-      3 "$LongPart3" 2>output.file
-    if [ $? -ne 0 ]; then return 1; fi
-    Result=$(cat output.file)
-
+    if [ "$UEFI" -eq 1 ]; then
+      Result=1                                            # No options under UEFI
+    else
+      dialog --backtitle "$Backtitle" --title " $title " --no-tags \
+        --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
+        1 "$LongPart1" \
+        2 "$LongPart2" \
+        3 "$LongPart3" 2>output.file
+      if [ $? -ne 0 ]; then return 1; fi
+      Result=$(cat output.file)
+    fi
+    
     partitioning_options                  # Act on user selection
     if [ $? -ne 0 ]; then return 1; fi
+
   fi
 }
 
@@ -160,9 +171,7 @@ function partitioning_options { # Called without arguments by check_parts after 
       AutoPart="MANUAL" ;;                            # Flag - MANUAL/AUTO/GUIDED/NONE
   2) choose_device                                    # Checks if multiple devices, and allows selection
       if [ "$UEFI" -eq 1 ]; then
-      
-        return 0                                      # All UEFI options disabled
-      
+        return 1                                      # All UEFI options disabled
         guided_EFI                                    # Calls guided manual partitioning functions              
         if [ $? -ne 0 ]; then return 1; fi            # then sets GUIDED flag
       else 
@@ -172,7 +181,10 @@ function partitioning_options { # Called without arguments by check_parts after 
       AutoPart="GUIDED" ;;
   3) AutoPart=""
       choose_device                                   # Checks if multiple devices, and allows selection
-      if [ $? -eq 0 ]; then
+      if [ "$UEFI" -eq 1 ]; then
+        AutoPart="NONE"
+        return 1                                      # All UEFI options disabled
+      elif [ $? -eq 0 ]; then
         AutoPart="AUTO"                               # AUTO flag triggers autopart in installation phase
         PARTITIONS=1                                  # Informs calling function
       else
