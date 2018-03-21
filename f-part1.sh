@@ -130,7 +130,7 @@ function build_lists { # Called by check_parts to generate details of existing p
 
   # 1) Make a simple list variable of all partitions up to sd*99
                          # | starts /dev/  | select 1st field | ignore /dev/
-  PartitionList=$(fdisk -l | grep '^/dev/' | cut -d' ' -f1 | cut -d'/' -f3) # eg: sdb1
+  PartitionList=$(fdisk -l | grep '^/dev/' | cut -d' ' -f1 | cut -d'/' -f3) # eg: sda1 sdb1 sdb2
 
   # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
     ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
@@ -307,7 +307,7 @@ function allocate_root {  # Called by allocate_partitions
                           # Display partitions for user-selection of one as /root
                           #  (uses list of all available partitions in PartitionList)
   if [ "$UEFI" -eq 1 ]; then        # Installing in UEFI environment
-    allocate_uefi                   # First allocate the /boot partition (sets boot on for EFI)
+    allocate_uefi                   # First allocate the /boot partition
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
   fi
@@ -417,7 +417,7 @@ function allocate_swap { # Called by allocate_partitions
     fi
   fi
   PartitionList="$SavePartitionList"                                        # Restore PartitionList without 'swapfile'
-  if [ -z "$SwapPartition" ]; then
+  if [ -z "$SwapPartition" ] && [ -z "$SwapFile" ]; then
     translate "No provision has been made for swap"
     dialog --ok-label "$Ok" --msgbox "$Result" 6 30
   elif [ -n "$SwapPartition" ] && [ "$SwapPartition" != "swapfile" ]; then
@@ -515,27 +515,27 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
 function choose_mountpoint {  # Called by more_partitions. Uses $Partition set by caller
                               # Allows user to choose filesystem and mountpoint
                               # Returns 0 if completed, 1 if interrupted
-  declare -i formatPartition=0                    # Set to reformat
-
-  check_filesystem                                # Check the partition for existing filesystem
-  if [ -n "$CurrentType" ]; then
-    PartitionType="$CurrentType"                  # Save current type in case retained
-    message_subsequent "You can choose to leave it as it is, by selecting Exit, but not"
-    message_subsequent "reformatting an existing partition can have unexpected consequences"
-    Message="$Message \n"
-    message_subsequent "Do you wish to reformat it?"
-    dialog --backtitle "$Backtitle" --title " $title " \
-      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 15 70
-    formatPartition=$?                            # 0 = Yes 1 = No
+  declare -i formatPartition=0                      # Set to reformat
+  if [ "$UEFI" -ne 1 ]; then                        # Not for UEFI until bugs fixed
+    check_filesystem                                # Check the partition for existing filesystem
+    if [ -n "$CurrentType" ]; then
+      PartitionType="$CurrentType"                  # Save current type in case retained
+      message_subsequent "You can choose to leave it as it is, by selecting Exit, but not"
+      message_subsequent "reformatting an existing partition can have unexpected consequences"
+      Message="$Message \n"
+      message_subsequent "Do you wish to reformat it?"
+      dialog --backtitle "$Backtitle" --title " $title " \
+        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 15 70
+      formatPartition=$?                            # 0 = Yes 1 = No
+    fi
+  
+    if [ $formatPartition -eq 0 ]; then             # Reformat
+      select_filesystem 12 50                       # Calls menu_dialog to display list of filesystems
+                                                    # Sets $retval & $PartitionType
+                                                    # Returns 0 if completed, 1 if interrupted
+      if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
+    fi
   fi
-
-  if [ $formatPartition -eq 0 ]; then             # Reformat
-    select_filesystem 12 50                       # Calls menu_dialog to display list of filesystems
-                                                  # Sets $retval & $PartitionType
-                                                  # Returns 0 if completed, 1 if interrupted
-    if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
-  fi
-
   message_first_line "Enter a mountpoint for"
   Message="$Message ${Partition}\n(eg: /home) ... "
   

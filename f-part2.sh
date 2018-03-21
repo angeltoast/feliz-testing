@@ -52,13 +52,9 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
   display_partitions
   if [ $retval -ne 0 ]; then return 1; fi
   PassPart="/dev/${Result}" # eg: sda1
-  SetLabel "/dev/${Result}"
+  SetLabel="/dev/${Result}"
 	EFIPartition="/dev/${Result}"
-
-echo "$PartitionList"
-read -p "$Result $PassPart $SetLabel $EFIPartition"
-  
-  PartitionList=$(echo "$PartitionList" | sed "s/$Result //")  # Remove selected item
+  PartitionList=$(echo "$PartitionList" | sed "s/${Result}$//")  # Remove selected item
 }
 
 function enter_size { # Called by guided_EFI_Root, guided_EFI_Swap, guided_EFI_Home
