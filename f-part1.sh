@@ -77,8 +77,6 @@ function use_parts {                                      # There are existing p
 
     partitioning_options  # Act on user selection - this defaults to manual until partitioning problems are fixed
     if [ $? -ne 0 ]; then return 1; fi
-
-  fi
 }
 
 function build_lists { # Called by check_parts to generate details of existing partitions
