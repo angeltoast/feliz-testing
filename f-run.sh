@@ -46,7 +46,6 @@ function arch_chroot { # From Lution AIS - calls arch-chroot with options
 
 function parted_script { # Calls GNU parted tool with options
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
-  read -p "parted /dev/${UseDisk} $1"
 }
 
 function install_message { # For displaying status while running on auto

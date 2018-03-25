@@ -26,14 +26,13 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           40    allocate_root       291
-# build_lists          108    check_filesystem    347
-# partitioning_options 152    allocate_swap       361
-# choose_device        172    no_swap_partition   416   
-#                             set_swap_file       431
-# allocate_partitions  214    more_partitions     452 
-# select_filesystem    242    choose_mountpoint   503 
-# edit_label           257    display_partitions  559 
+# check_parts           40    allocate_swap       361
+# build_lists          108    no_swap_partition   416 
+# partitioning_options 152    set_swap_file       431
+# choose_device        172    more_partitions     452   
+# allocate_partitions  214    choose_mountpoint   503
+# edit_label           257    display_partitions  559
+# allocate_root        291    
 # ------------------------    ------------------------
 
 function check_parts { # Called by feliz.sh
@@ -60,15 +59,25 @@ function check_parts { # Called by feliz.sh
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
-  if [ "$PARTITIONS" -eq 0 ]; then                            # If no partitions exist, notify and exit
-      message_first_line "If you are uncertain about partitioning, you should read the Arch Wiki"
-      message_subsequent "There are no partitions on the device, and"
-      message_subsequent "Feliz is not able to create partitions at present"
-      message_subsequent "Please read the README file for advice"
-      echo
-      echo -e "$Message"
-      read -p "Please press [Enter] to exit Feliz"
-      exit
+  if [ "$PARTITIONS" -eq 0 ]; then                          # If no partitions exist, notify
+    title="Pertitioning"
+    message_first_line "There are no partitions on the device."
+    message_subsequent "Please read the README file for advice"
+    message_subsequent "cfdisk is available, would you like to use it?"
+    message_subsequent "Use cfdisk, or exit?"
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$cfdisk" --no-label "$Exit" --yesno "\n$Message" 10 55 2>output.file
+    Result=$?
+    if [ "$Result" -eq 0 ]; then
+      cfdisk 2>> feliz.log
+      tput setf 0             # Change foreground colour to black temporarily to hide error message
+      clear
+      partprobe 2>> feliz.log # Inform kernel of changes to partitions
+      tput sgr0               # Reset colour
+      check_parts
+    else
+      shutdown -h now
+    fi
   else                                                    # There are existing partitions on the device
     build_lists                                           # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
@@ -218,22 +227,6 @@ function allocate_partitions { # Called by feliz.sh
   fi
 }
 
-function select_filesystem { # Called by allocate_root and more_partitions (via choose_mountpoint)
-                             # and guided_MBR - not UEFI 
-                             # Receives two arguments (window size)
-  # if [ "$UEFI" -eq 1 ]; then return 1; fi
-  return 0
-  translate "Please select the file system for"
-  title="$Result ${Partition}"
-  message_first_line "It is not recommended to mix the btrfs file-system with others"
-  menu_dialogVariable="ext4 ext3 btrfs xfs"
-  
-  menu_dialog "$1" "$2"
-  if [ $? -ne 0 ]; then return 1; fi
-  PartitionType="$Result"
-  return 0
-}
-
 function edit_label { # Called by allocate_root, allocate_swap & more_partitions
                       # If a partition has a label, allow user to change or keep it
   Label="${Labelled[$1]}"
@@ -301,18 +294,8 @@ function allocate_root {  # Called by allocate_partitions
       message_subsequent "partition can have unexpected consequences"
     fi
     
-    select_filesystem  18 75                               # This sets variable PartitionType
-    if [ $? -ne 0 ]; then                                  # User has cancelled the operation
-      PartitionType=""                                     # PartitionType can be empty (will not be formatted)
-    else
-      PartitionType="$Result"
-    fi
-    
+    PartitionType=""                # PartitionType can be empty (will not be formatted)
     RootType="${PartitionType}" 
-  
-    if [ "$UEFI" -eq 0 ]; then                                    # Installing in BIOS environment
-      parted_script "set ${MountDevice} boot on"                  # Make /root bootable
-    fi
   fi
   
   Label="${Labelled[${PassPart}]}"
@@ -321,21 +304,6 @@ function allocate_root {  # Called by allocate_partitions
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
-}
-
-function check_filesystem { # Called by choose_mountpoint & allocate_root
-                            # Finds if there is an existing file system on the selected partition
-                            # Sets $CurrentType and prepares $Message
-  return 0
-  CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
-
-  if [ -n "$CurrentType" ]; then
-    message_first_line "The selected partition"
-    translate "is currently formatted to"
-    Message="$Message $Result $CurrentType"
-    message_subsequent "Reformatting it will remove all data currently on it"
-  fi
-  return 0
 }
 
 function allocate_swap { # Called by allocate_partitions
@@ -430,7 +398,7 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     if [ "$retval" -ne 0 ]; then return 1; fi # User cancelled or escaped; no partition selected. Inform caller
     PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
-    choose_mountpoint   # Calls check_filesystem & select_filesystem, then dialog_inputbox to manually enter mountpoint
+    choose_mountpoint   # Calls dialog_inputbox to manually enter mountpoint
                         # Validates response, warns if already used, then adds the partition to
     retval=$?           # the arrays for extra partitions. Returns 0 if completed, 1 if interrupted
 
@@ -466,26 +434,6 @@ function choose_mountpoint {  # Called by more_partitions. Uses $Partition set b
                               # Allows user to choose filesystem and mountpoint
                               # Returns 0 if completed, 1 if interrupted
   declare -i formatPartition=0                      # Set to reformat
-  if [ "$UEFI" -ne 1 ]; then                        # Not for UEFI until bugs fixed
-    check_filesystem                                # Check the partition for existing filesystem
-    if [ -n "$CurrentType" ]; then
-      PartitionType="$CurrentType"                  # Save current type in case retained
-      message_subsequent "You can choose to leave it as it is, by selecting Exit, but not"
-      message_subsequent "reformatting an existing partition can have unexpected consequences"
-      Message="$Message \n"
-      message_subsequent "Do you wish to reformat it?"
-      dialog --backtitle "$Backtitle" --title " $title " \
-        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 15 70
-      formatPartition=$?                            # 0 = Yes 1 = No
-    fi
-  
-    if [ $formatPartition -eq 0 ]; then             # Reformat
-      select_filesystem 12 50                       # Calls menu_dialog to display list of filesystems
-                                                    # Sets $retval & $PartitionType
-                                                    # Returns 0 if completed, 1 if interrupted
-      if [ $? -ne 0 ]; then return 1; fi            # Inform calling function if no filesystem selected
-    fi
-  fi
   message_first_line "Enter a mountpoint for"
   Message="$Message ${Partition}\n(eg: /home) ... "
   
