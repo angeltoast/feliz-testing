@@ -60,41 +60,15 @@ function check_parts { # Called by feliz.sh
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
-  if [ "$PARTITIONS" -eq 0 ]; then                            # If no partitions exist, offer options
-   # while [ "$PARTITIONS" -eq 0 ]; do
+  if [ "$PARTITIONS" -eq 0 ]; then                            # If no partitions exist, notify and exit
       message_first_line "If you are uncertain about partitioning, you should read the Arch Wiki"
       message_subsequent "There are no partitions on the device, and"
-    #  if [ "$UEFI" -eq 1 ]; then                            # Installing in UEFI environment
-    #    message_subsequent "two partitions are needed - one for EFI /boot, and"
-    #    message_subsequent "one partition is needed for the root directory"
-      #  message_subsequent "There is a guided manual partitioning option"
-      #  message_subsequent "or you can exit now to use an external tool"
-        message_subsequent "Feliz is not able to create partitions at present"
-        message_subsequent "Please read the README file for advice"
-        echo
-        echo -e "$Message"
-        read -p "Please press [Enter] to exit Feliz"
-        exit
-    #  else                                                  # Installing in BIOS environment
-    #    message_subsequent "one partition is needed for the root directory"
-    #  fi
-    #  Message="${Message}\n"
-    #  message_subsequent "If you choose to do nothing now, the script will"
-    #  message_subsequent "terminate to allow you to partition in some other way"
-
-    #  dialog --backtitle "$Backtitle" --title " $title " --no-tags \
-        --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
-        2 "$LongPart2" \
-        3 "$LongPart3" 2>output.file
-    #  if [ $? -ne 0 ]; then return 1; fi
-    #  Result=$(cat output.file)
-    #  partitioning_options                                  # Act on user selection
-    #  if [ $? -ne 0 ]; then 
-    #    dialog --backtitle "$Backtitle" --ok-label "$Ok" \
-          --infobox "Exiting to allow you to partition the device" 6 30
-    #    exit
-    #  fi
-  #  done
+      message_subsequent "Feliz is not able to create partitions at present"
+      message_subsequent "Please read the README file for advice"
+      echo
+      echo -e "$Message"
+      read -p "Please press [Enter] to exit Feliz"
+      exit
   else                                                    # There are existing partitions on the device
     build_lists                                           # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
@@ -103,19 +77,9 @@ function check_parts { # Called by feliz.sh
     for part in ${PartitionList}; do
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
-
-  #  if [ "$UEFI" -eq 1 ]; then
-      Result=1 # Default to manual until partitioning problems are fixed
-  #  else
-  #    dialog --backtitle "$Backtitle" --title " $title " --no-tags \
-  #      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
-  #      1 "$LongPart1" \
-  #      2 "$LongPart2" \
-  #      3 "$LongPart3" 2>output.file
-  #    if [ $? -ne 0 ]; then return 1; fi
-  #    Result=$(cat output.file)
-  #  fi
     
+    Result=1 # Default to manual until partitioning problems are fixed
+
     partitioning_options  # Act on user selection - this defaults to manual until partitioning problems are fixed
     if [ $? -ne 0 ]; then return 1; fi
 
@@ -362,6 +326,7 @@ function allocate_root {  # Called by allocate_partitions
 function check_filesystem { # Called by choose_mountpoint & allocate_root
                             # Finds if there is an existing file system on the selected partition
                             # Sets $CurrentType and prepares $Message
+  return 0
   CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
 
   if [ -n "$CurrentType" ]; then
@@ -395,22 +360,6 @@ function allocate_swap { # Called by allocate_partitions
   else
     SwapPartition="/dev/$Swap"
     IsSwap=$(blkid "$SwapPartition" | grep 'swap' | cut -d':' -f1)
-    if [ -n "$IsSwap" ]; then
-      title="Swap"
-      translate "is already formatted as a swap partition"
-      Message="$SwapPartition $SwapPartition"
-      message_subsequent "Reformatting it will change the UUID, and if this swap"
-      message_subsequent "partition is used by another operating system, that"
-      message_subsequent "system will no longer be able to access the partition"
-      message_subsequent "Do you wish to reformat it?"
-      MakeSwap="N"
-      dialog --backtitle "$Backtitle" --title " $title " \
-        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 13 70 2>output.file
-      case $? in
-      0) FormatSwap="Y" ;;
-      *FormatSwap="Y") FormatSwap="N"
-      esac
-    fi
     MakeSwap="Y"
     Label="${Labelled[${SwapPartition}]}"
     if [ "${Label}" ] && [ "${Label}" != "" ]; then

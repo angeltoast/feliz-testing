@@ -325,27 +325,6 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 
   # 1) Root partition
     umount "$RootPartition"
-  #  if [ -z "$RootType" ] || [ "$UEFI" -eq 1 ]; then
-      echo "Not formatting root partition" >> feliz.log               # If /root filetype not set - do nothing
-  #  else                                                              # Check if replacing ext3/4 with btrfs
-  #    CurrentType=$(file -sL "$RootPartition" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
-  #    # Check if /root type or existing partition are btrfs ...
-  #   if [ -n "$CurrentType" ] && [ "$RootType" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
-  #     btrfs-convert "$RootPartition" # 2>> feliz.log                  # Convert existing partition to btrfs
-  #   elif [ "$RootType" = "btrfs" ]; then                            # Otherwise, for btrfs /root
-  #     mkfs.btrfs -f "$RootPartition" # 2>> feliz.log                  # eg: mkfs.btrfs -f /dev/sda2
-  #   elif [ "$RootType" = "xfs" ]; then                              # Otherwise, for xfs /root
-  #     mkfs.xfs -f "$RootPartition" # 2>> feliz.log                    # eg: mkfs.xfs -f /dev/sda2
-  #   else                                                            # /root is not btrfs
-  #     Partition=${RootPartition: -4}                                # Last 4 characters (eg: sda1)
-  #     Label="${Labelled[${Partition}]}"                             # Check to see if it has a label
-  #     if [ -n "$Label" ]; then                                      # If it has a label ...
-  #       Label="-L $Label"                                           # ... prepare to use it
-  #     fi
-  #     mkfs."$RootType" "$Label" "$RootPartition" # &>> feliz.log      # eg: mkfs.ext4 -L Arch-Root /dev/sda1
-  #   fi
-  # fi
-
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
   # 2) EFI (if required)
@@ -374,25 +353,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
     for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
       umount "$id"
       mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log            # eg: mkdir -p /mnt/home
-      # Check if replacing existing ext3/4 partition with btrfs (as with /root)
-   #  CurrentType=$(file -sL "${AddPartType[$Counter]}" | grep 'ext\|btrfs' | cut -c26-30) 2>> feliz.log
 
-   #  if [ "$UEFI" -eq 1 ]; then
-   #    echo "UEFI system - not formatting partition" >> feliz.log    # If /root filetype not set - do nothing
-   #  elif [ "${AddPartType[$Counter]}" = "btrfs" ] && [ "$CurrentType" != "btrfs" ]; then
-   #    btrfs-convert "$id" 2>> feliz.log
-   #  elif [ "${AddPartType[$Counter]}" = "btrfs" ]; then
-   #    mkfs.btrfs -f "$id" 2>> feliz.log                             # eg: mkfs.btrfs -f /dev/sda2
-   #  elif [ "${AddPartType[$Counter]}" = "xfs" ]; then
-   #    mkfs.xfs -f "$id" 2>> feliz.log                               # eg: mkfs.xfs -f /dev/sda2
-   #  elif [ "${AddPartType[$Counter]}" != "" ]; then                 # Only format if type has been set
-   #    Partition=${id: -4}                                           # Last 4 characters of ${id}
-   #    Label="${Labelled[${Partition}]}"
-   #    if [ -n "${Label}" ]; then
-   #      Label="-L ${Label}"                                         # Prepare label
-   #    fi
-   #    mkfs."${AddPartType[$Counter]}" "$Label" "$id" &>> feliz.log    # eg: mkfs.ext4 -L Arch-Home /dev/sda3
-   #  fi
       mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
     done
