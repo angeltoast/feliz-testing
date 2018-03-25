@@ -96,7 +96,7 @@ function the_start {  # All user interraction takes place in this function
       get_device_size                             # First make sure that there is space for installation
       case $? in
        0) step=3 ;;                               # Device selected, advance to step 3
-       *) continue ;;                             # No device, rerun this step
+       *) continue                                # No device, rerun this step
       esac ;;
     3) # Check that there are partitions on the device, if not, exit
       check_parts
