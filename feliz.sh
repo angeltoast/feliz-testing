@@ -98,24 +98,31 @@ function the_start {  # All user interraction takes place in this function
        0) step=3 ;;                               # Device selected, advance to step 3
        *) continue ;;                             # No device, rerun this step
       esac ;;
-    3) # localisation_settings                    Locale, keyboard & hostname
+
+    3) # Check that there are partitions on the device, if not, exit
+      check_parts
+      case $? in
+       0) step=4 ;;                               # Partitions exist, advance to step 4
+       *) shutdown -h now ;;                      # No device, rerun this step
+      esac ;;
+    4) # localisation_settings                    Locale, keyboard & hostname
       setlocale                                   # CountryLocale eg: en_GB.UTF-8
       if [ $? -ne 0 ]; then step=1; continue; fi
       get_keymap                                  # Select keyboard layout eg: uk
       if [ $? -ne 0 ]; then continue; fi
       set_hostname
       case $? in
-       0) step=4 ;;                               # Step 3 completed, advance to step 4
+       0) step=5 ;;                               # Step 3 completed, advance to step 5
        1) continue ;;                             # Backout, rerun this step
        *) step=2 ;;                               # Backout, rerun previous step
       esac ;;
-    4) choose_mirrors
+    5) choose_mirrors
       case $? in
-       0) step=5 ;;                               # Step 4 completed, advance to desktop settings
+       0) step=6 ;;                               # Step completed, advance to desktop settings
        1) continue ;;                             # Backout, rerun this step
        *) step=3 ;;                               # Backout, rerun previous step
       esac ;;
-    5) # desktop settings
+    6) # desktop settings
       DesktopEnvironment=""
       type_of_installation                        # Basic or Full - use chooses Build, FeliOB or Basic
       if [ $? -ne 0 ]; then
@@ -123,31 +130,31 @@ function the_start {  # All user interraction takes place in this function
         continue                                  # No option selected, restart
       fi
       if [ "$Scope" != "Basic" ]; then            # If any extra apps have been added
-        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ] && [ "$DesktopEnvironment" != "Deepin" ]; then  # Deepin, Gnome and FelizOB install their own DM
+        if [ -n "$DesktopEnvironment" ] && [ "$DesktopEnvironment" != "FelizOB" ] && [ "$DesktopEnvironment" != "Gnome" ] && [ "$DesktopEnvironment" != "Deepin" ]; then # Deepin, Gnome and FelizOB install their own DM
           choose_display_manager                  # User selects from list of display managers
         fi                                        # Installation can continue without a display manager
         set_username                              # Enter name of primary user; default = "archie"
         wireless_option                           # New option to bypass wireless tools if not needed
         confirm_virtualbox                        # Offer Virtualbox option
        fi
-      step=6 ;;                                   # Step 5 completed, advance to partitioning
-    6) check_parts                                # Check partition table & offer partitioning options
+      step=7 ;;                                   # Step completed, advance to partitioning
+    7) use_parts                                  # Check partition table & offer partitioning options
       if [ $? -ne 0 ]; then step=1; fi            # User cancelled partitioning options, backout
       if [ "$AutoPart" = "MANUAL" ]; then         # Not Auto partitioned or guided
         allocate_partitions                       # Assign /root /swap & others
       fi
-      step=7 ;;                                   # Step completed, advance to next step
-    7) select_kernel                              # Select kernel and device for Grub
-      if [ $? -ne 0 ]; then step=1; fi            # No kernel selected, backout
       step=8 ;;                                   # Step completed, advance to next step
-    8) if [ ${UEFI} -eq 1 ]; then                 # If installing in EFI
+    8) select_kernel                              # Select kernel and device for Grub
+      if [ $? -ne 0 ]; then step=1; fi            # No kernel selected, backout
+      step=9 ;;                                   # Step completed, advance to next step
+    9) if [ ${UEFI} -eq 1 ]; then                 # If installing in EFI
         GrubDevice="EFI"                          # Set variable
       else							                          # If BIOS 
         select_grub_device                        # User chooses grub partition
         if [ $? -ne 0 ]; then step=6; fi          # No grub location selected, restart partitioning
       fi
-      step=9 ;;                                   # Step completed, advance to next step
-    9) final_check                                # Allow user to change any variables
+      step=10 ;;                                  # Step completed, advance to next step
+    10) final_check                               # Allow user to change any variables
       return $? ;;                                # Exit from final_check may be 0 or 1
     *) step=1                                     # In case other level, restart
     esac

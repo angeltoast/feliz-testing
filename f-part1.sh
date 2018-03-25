@@ -50,35 +50,21 @@ function check_parts { # Called by feliz.sh
 
   translate "Choose from existing partitions"
   LongPart1="$Result"
-  translate "Guided manual partitioning tool"
-  LongPart2="$Result"
-  translate "Allow feliz to partition the whole device"
-  LongPart3="$Result"
   title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
   if [ "$PARTITIONS" -eq 0 ]; then                          # If no partitions exist, notify
-    title="Pertitioning"
     message_first_line "There are no partitions on the device."
-    message_subsequent "Please read the README file for advice"
-    message_subsequent "cfdisk is available, would you like to use it?"
-    message_subsequent "Use cfdisk, or exit?"
-    dialog --backtitle "$Backtitle" --title " $title " \
-      --yes-label "$cfdisk" --no-label "$Exit" --yesno "\n$Message" 10 55 2>output.file
-    Result=$?
-    if [ "$Result" -eq 0 ]; then
-      cfdisk 2>> feliz.log
-      tput setf 0             # Change foreground colour to black temporarily to hide error message
-      clear
-      partprobe 2>> feliz.log # Inform kernel of changes to partitions
-      tput sgr0               # Reset colour
-      check_parts
-    else
-      shutdown -h now
-    fi
-  else                                                    # There are existing partitions on the device
+    message_subsequent "Please read the README file for advice."
+    message_subsequent "Feliz will exit now."
+    dialog --backtitle "$Backtitle" --title " Partitioning " --ok-label "$Ok" --msgbox "\n$Message" 8 45 2>output.file
+    return 1
+  fi
+}
+
+function use_parts {                                      # There are existing partitions on the device
     build_lists                                           # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
     Message="\n               ${Result}:\n"
