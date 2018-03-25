@@ -61,40 +61,40 @@ function check_parts { # Called by feliz.sh
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
   if [ "$PARTITIONS" -eq 0 ]; then                            # If no partitions exist, offer options
-    while [ "$PARTITIONS" -eq 0 ]; do
+   # while [ "$PARTITIONS" -eq 0 ]; do
       message_first_line "If you are uncertain about partitioning, you should read the Arch Wiki"
-      message_subsequent "There are no partitions on the device, and at least"
-      if [ "$UEFI" -eq 1 ]; then                            # Installing in UEFI environment
-        message_subsequent "two partitions are needed - one for EFI /boot, and"
-        message_subsequent "one partition is needed for the root directory"
+      message_subsequent "There are no partitions on the device, and"
+    #  if [ "$UEFI" -eq 1 ]; then                            # Installing in UEFI environment
+    #    message_subsequent "two partitions are needed - one for EFI /boot, and"
+    #    message_subsequent "one partition is needed for the root directory"
       #  message_subsequent "There is a guided manual partitioning option"
       #  message_subsequent "or you can exit now to use an external tool"
-        message_subsequent "Feliz is not able to partition for UEFI at present"
+        message_subsequent "Feliz is not able to create partitions at present"
         message_subsequent "Please read the README file for advice"
         echo
         echo -e "$Message"
         read -p "Please press [Enter] to exit Feliz"
         exit
-      else                                                  # Installing in BIOS environment
-        message_subsequent "one partition is needed for the root directory"
-      fi
-      Message="${Message}\n"
-      message_subsequent "If you choose to do nothing now, the script will"
-      message_subsequent "terminate to allow you to partition in some other way"
+    #  else                                                  # Installing in BIOS environment
+    #    message_subsequent "one partition is needed for the root directory"
+    #  fi
+    #  Message="${Message}\n"
+    #  message_subsequent "If you choose to do nothing now, the script will"
+    #  message_subsequent "terminate to allow you to partition in some other way"
 
-      dialog --backtitle "$Backtitle" --title " $title " --no-tags \
+    #  dialog --backtitle "$Backtitle" --title " $title " --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 70 4 \
         2 "$LongPart2" \
         3 "$LongPart3" 2>output.file
-      if [ $? -ne 0 ]; then return 1; fi
-      Result=$(cat output.file)
-      partitioning_options                                  # Act on user selection
-      if [ $? -ne 0 ]; then 
-        dialog --backtitle "$Backtitle" --ok-label "$Ok" \
+    #  if [ $? -ne 0 ]; then return 1; fi
+    #  Result=$(cat output.file)
+    #  partitioning_options                                  # Act on user selection
+    #  if [ $? -ne 0 ]; then 
+    #    dialog --backtitle "$Backtitle" --ok-label "$Ok" \
           --infobox "Exiting to allow you to partition the device" 6 30
-        exit
-      fi
-    done
+    #    exit
+    #  fi
+  #  done
   else                                                    # There are existing partitions on the device
     build_lists                                           # Generate list of partitions and matching array
     translate "Here is a list of available partitions"
@@ -104,19 +104,19 @@ function check_parts { # Called by feliz.sh
       Message="${Message}\n        $part ${PartitionArray[${part}]}"
     done
 
-    if [ "$UEFI" -eq 1 ]; then
-      Result=1                                            # No options under UEFI
-    else
-      dialog --backtitle "$Backtitle" --title " $title " --no-tags \
-        --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
-        1 "$LongPart1" \
-        2 "$LongPart2" \
-        3 "$LongPart3" 2>output.file
-      if [ $? -ne 0 ]; then return 1; fi
-      Result=$(cat output.file)
-    fi
+  #  if [ "$UEFI" -eq 1 ]; then
+      Result=1 # Default to manual until partitioning problems are fixed
+  #  else
+  #    dialog --backtitle "$Backtitle" --title " $title " --no-tags \
+  #      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 18 78 4 \
+  #      1 "$LongPart1" \
+  #      2 "$LongPart2" \
+  #      3 "$LongPart3" 2>output.file
+  #    if [ $? -ne 0 ]; then return 1; fi
+  #    Result=$(cat output.file)
+  #  fi
     
-    partitioning_options                  # Act on user selection
+    partitioning_options  # Act on user selection - this defaults to manual until partitioning problems are fixed
     if [ $? -ne 0 ]; then return 1; fi
 
   fi
@@ -171,7 +171,7 @@ function partitioning_options { # Called without arguments by check_parts after 
       AutoPart="MANUAL" ;;                            # Flag - MANUAL/AUTO/GUIDED/NONE
   2) choose_device                                    # Checks if multiple devices, and allows selection
       if [ "$UEFI" -eq 1 ]; then
-        return 1                                      # All UEFI options disabled
+      # return 1                                      # All UEFI options disabled
         guided_EFI                                    # Calls guided manual partitioning functions              
         if [ $? -ne 0 ]; then return 1; fi            # then sets GUIDED flag
       else 
@@ -183,7 +183,7 @@ function partitioning_options { # Called without arguments by check_parts after 
       choose_device                                   # Checks if multiple devices, and allows selection
       if [ "$UEFI" -eq 1 ]; then
         AutoPart="NONE"
-        return 1                                      # All UEFI options disabled
+      #  return 1                                      # All UEFI options disabled
       elif [ $? -eq 0 ]; then
         AutoPart="AUTO"                               # AUTO flag triggers autopart in installation phase
         PARTITIONS=1                                  # Informs calling function
@@ -257,7 +257,8 @@ function allocate_partitions { # Called by feliz.sh
 function select_filesystem { # Called by allocate_root and more_partitions (via choose_mountpoint)
                              # and guided_MBR - not UEFI 
                              # Receives two arguments (window size)
-  if [ "$UEFI" -eq 1 ]; then return 1; fi
+  # if [ "$UEFI" -eq 1 ]; then return 1; fi
+  return 0
   translate "Please select the file system for"
   title="$Result ${Partition}"
   message_first_line "It is not recommended to mix the btrfs file-system with others"
