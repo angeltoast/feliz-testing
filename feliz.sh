@@ -90,7 +90,7 @@ function the_start {  # All user interraction takes place in this function
       else
         step=2                                    # Step 1 completed, advance to step 2
       fi ;;
-    2) # Devices (if only one device detected, no user interaction
+    2) # Devices (if only one device detected, no user interaction)
       select_device                               # Detect all available devices & allow user to select
       if [ $? -ne 0 ]; then return 2; fi          # On <Cancel> return backout code to main
       get_device_size                             # First make sure that there is space for installation
