@@ -64,7 +64,6 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
       umount "$EFIPartition"
-    #  mkfs.vfat -F32 "$EFIPartition" # 2>> feliz.log                 # Format EFI boot partition ... disabled
       mkdir -p /mnt/boot                                              # Make mountpoint
       mount -t efivarfs efivarfs /sys/firmware/efi/efivars 2> feliz.log
       mount "$EFIPartition" /mnt/boot                                 # eg: mount /dev/sda2 /mnt/boot
@@ -72,14 +71,6 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 3) Swap
     if [ -n "$SwapPartition" ]; then
       swapoff -a 2>> feliz.log                                        # Make sure any existing swap cleared
-      if [ "$MakeSwap" = "Y" ] && [ "$UEFI" -ne 1 ]; then
-        Partition=${SwapPartition: -4}                                # Last 4 characters (eg: sda2)
-        Label="${Labelled[${Partition}]}"                             # Check for label
-        if [ -n "$Label" ]; then
-          Label="-L ${Label}"                                         # Prepare label
-        fi
-        mkswap "$Label" "$SwapPartition" # 2>> feliz.log              # eg: mkswap -L Arch-Swap /dev/sda2
-      fi
       swapon "$SwapPartition" # 2>> feliz.log                         # eg: swapon /dev/sda2
     fi
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)

@@ -1,4 +1,4 @@
-                       (press [Enter] to scroll)
+                       (press [Enter] to scroll, 'Q' to quit)
 
 Partitioning
 ------------
@@ -11,21 +11,21 @@ I recommend using Gparted Live (https://gparted.org/download.php), or a similar
 partitioning program, to prepare the partition table in advance, in accordance with
 the procedures set out in the Arch Wiki.
 
-A more basic alternative to Gparted is called cfdisk, and it is included with the
-Feliz session. To use it, exit Feliz to the command line and type:
+As an alternative to Gparted, several command-line (cli) partitioning tools are
+included with the Arch Linux session:
    cfdisk
-If there is no partition table on the device, cfdisk will offer a table of options.
-   For BIOS systems, choose: msdos (which is an alternative name for MBR),
-   or for UEFI systems, choose gpt.
-Further advice on using cfdisk can be found here:
-   http://www.tldp.org/HOWTO/IBM7248-HOWTO/cfdisk.html
-After setting up your partitions (see suggestions below) save the settings, exit
-cfdisk, and type:
+   fdisk
+   parted
+If you create partitions using the above cli tools, you will also have to format
+them with appropriate filesystems, using the same tools. See the man pages for help.
+
+After setting up your partitions (see suggestions below) restart Feliz by typing:
    ./feliz.sh
+
 If Feliz still informs you that there are no partitions, try shutting down the
 session and restarting. If that fails, then Gparted may be your best bet.
 
-                       (press [Enter] to scroll)
+                       (press [Enter] to scroll, 'Q' to quit)
 
 The partitions you need for Arch Linux might be as follows:
 
@@ -42,4 +42,4 @@ If desired, a home partition of 10GB or more (for all your programs, data, etc) 
 
 If you do not desire a separate home partition, then your root partition should be 20GB or bigger.
 
-Liz Mills (developer, Feliz)
+Liz Mills
