@@ -102,7 +102,7 @@ function the_start {  # All user interraction takes place in this function
       check_parts
       case $? in
        0) step=4 ;;                               # Partitions exist, advance to step 4
-       *) shutdown -h now                         # No device, rerun this step
+       *) shutdown -h now                         # Shutdown
       esac ;;
     4) # localisation_settings                    Locale, keyboard & hostname
       setlocale                                   # CountryLocale eg: en_GB.UTF-8

@@ -2,8 +2,6 @@ Feliz Testing - Arch Linux installation scripts
 
 Feliz is an independent set of install scripts for Arch Linux
 
-For help, open the readme.html file in your browser
-
 -------------------------------------------------------------
   This is the unstable repo for the Feliz scripts, located at:
     https://github.com/angeltoast/feliz-testing
@@ -33,3 +31,21 @@ For help, open the readme.html file in your browser
   Both sets of scripts use the language files located at:
     https://github.com/angeltoast/feliz-language-files
 -------------------------------------------------------------
+
+Please Note: Partitioning
+Feliz used to offer tools to modify existing partitions and create new partitions. However, there have recently been serious problems with this code, so those options have been removed until the bugs can be fixed. This means that the partitions you wish to use for installation must be created before running Feliz. I recommend running Gparted Live (https://gparted.org/download.php), or a similar partitioning program, to prepare the partition table in accordance with the procedures set out in the Arch Wiki. Ideally, these might be as follows:
+
+For a BIOS/MBR system ...
+A root partition of at least 8GB (preferably more, up to 12GB) of type ext4;
+If desired, a swap partition up to 4GB (alternatively, Feliz can make a swap file);
+If desired, a home partition of 10GB or more (for all your programs, data, etc) of type ext4.
+
+For a UEFI/GPT system …
+An EFI partition of 512MB to 1GB of type vfat;
+A root partition of at least 8GB (preferably more, up to 12GB) of type ext4;
+If desired, a swap partition up to 4GB (alternatively, Feliz can make a swap file);
+If desired, a home partition of 10GB or more (for all your programs, data, etc) of type ext4.
+
+If you do not desire a separate home partition, then your root partition should be 20GB or bigger.
+
+I am sorry for this retrograde step, but it is important that Feliz works safely and correctly. Liz Mills (developer, Feliz)
