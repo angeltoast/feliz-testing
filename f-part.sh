@@ -64,23 +64,27 @@ function check_parts { # Called by feliz.sh
 
   if [ "$PARTITIONS" -eq 0 ]; then                          # If no partitions exist, notify
     message_first_line "There are no partitions on the device."
-    message_subsequent "Please read the README file for advice."
+    message_subsequent "Please read the 'partitioning file for advice."
     message_subsequent "You can exit Feliz to the prompt, or shutdown."
 
-    dialog --backtitle "$Backtitle" --title " Partitioning " \
-    --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
-      24 70 3 \
-      1 "Exit Feliz to the command line" \
-      2 "Shut down this session" 2>output.file
-    if [ $? -ne 0 ]; then return 1; fi
-    Result=$(cat output.file)
-  
-    case $Result in
-      1) exit ;;
-      *) shutdown -h now
-    esac
-  
-    return 1
+    while true
+    do
+      dialog --backtitle "$Backtitle" --title " Partitioning " \
+      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
+        24 70 3 \
+        1 "Exit Feliz to the command line" \
+        2 "Shut down this session" \
+        3 "Display the 'partitioning' file" 2>output.file
+      if [ $? -ne 0 ]; then return 1; fi
+      Result=$(cat output.file)
+    
+      case $Result in
+        1) exit ;;
+        2) shutdown -h now ;;
+        *) more partitioning
+          continue
+      esac
+    done
   fi
 }
 

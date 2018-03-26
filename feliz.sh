@@ -27,8 +27,7 @@
 # Include source files
 source f-vars.sh      # Global functions, variables and arrays are declared in this module
 source f-set.sh       # Functions to set user locale and preferences
-source f-part1.sh     # Functions concerned with allocating partitions
-source f-part2.sh     # Guided partitioning setup for BIOS & EFI systems
+source f-part.sh      # Functions concerned with allocating partitions
 source f-run.sh       # Functions called during installation
 
 function main {       # Prepare environment, call the four processes in sequence
