@@ -424,15 +424,18 @@ function set_root_password {
   while [ $Repeat = "Y" ]; do
     message_subsequent "Enter a password for"
     Message="${Message} root\n"
-    dialog --backtitle "$Backtitle" --title " $title " --insecure --nocancel \
-      --ok-label "$Ok" --passwordbox "$Message" 16 60 2>output.file
-    Pass1=$(cat output.file)
+
+    dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
+    --passwordform "\n $Message" 18 60 2 \
+    "Enter password:" 1 1 "" 1 25 25 30 \
+    "Re-enter password:" 2 1 "" 2 25 25 30 \
+    2>output.file
+
+    Pass1=$(head -n1 output.file)
+    Pass2=$(tail -n1 output.file)
+
     rm output.file
-    translate "Re-enter the password for"
-    Message="${Message} root\n"
-    dialog --backtitle "$Backtitle" --insecure --title " Root " --ok-label "$Ok" --nocancel --passwordbox "$Result root\n" 10 50 2>output.file
-    Pass2=$(cat output.file)
-    rm output.file
+
     if [ -z "$Pass1" ] || [ -z "$Pass2" ]; then
       title="Error"
       message_first_line "Passwords cannot be blank"
@@ -461,6 +464,7 @@ function set_root_password {
 }
 
 function set_user_password {
+  title="Passwords"
   message_first_line "Enter a password for"
   Message="${Message} ${user_name}\n"
   Repeat="Y"
@@ -468,15 +472,16 @@ function set_user_password {
     message_subsequent "Note that you will not be able to"
     message_subsequent "see passwords as you enter them"
     Message="${Message}\n"
-    dialog --backtitle "$Backtitle" --title " $user_name " --insecure \
-      --ok-label "$Ok" --nocancel --passwordbox "$Message" 15 50 2>output.file
-    Pass1=$(cat output.file)
-    rm output.file
-    message_first_line "Re-enter the password for"
-    Message="${Message} $user_name\n"
-    dialog --backtitle "$Backtitle" --title " $user_name " --insecure \
-      --ok-label "$Ok" --nocancel --passwordbox "$Message" 10 50 2>output.file
-    Pass2=$(cat output.file)
+    
+    dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
+    --passwordform "\n $Message" 16 60 2 \
+    "Enter password:" 1 1 "" 1 25 25 30 \
+    "Re-enter password:" 2 1 "" 2 25 25 30 \
+    2>output.file
+
+    Pass1=$(head -n1 output.file)
+    Pass2=$(tail -n1 output.file)
+
     rm output.file
     if [ -z "$Pass1" ] || [ -z "$Pass2" ]; then
       title="Error"

@@ -30,7 +30,7 @@
 # use_parts             87    set_swap_file       361
 # build_lists           99    more_partitions     382
 # allocate_partitions  142    choose_mountpoint   430 
-# edit_label           166    display_partitions  461  
+#                             display_partitions  461  
 # allocate_root        200    allocate_uefi       489 
 # allocate_swap        245    select_device       509 
 # select_device        285    get_device_size     570 
@@ -63,7 +63,7 @@ function check_parts { # Called by feliz.sh
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
   if [ "$PARTITIONS" -eq 0 ]; then                          # If no partitions exist, notify
-    message_first_line "/nThere are no partitions on the device."
+    message_first_line "\nThere are no partitions on the device."
     message_subsequent "Please read the 'partitioning' file for advice."
 
     while true
@@ -166,40 +166,6 @@ function allocate_partitions { # Called by feliz.sh
   fi
 }
 
-function edit_label { # Called by allocate_root, allocate_swap & more_partitions
-                      # If a partition has a label, allow user to change or keep it
-  Label="${Labelled[$1]}"
-  
-  if [ -n "${Label}" ]; then
-    translate "The partition you have chosen is labelled"
-    local Message="$Result '${Label}'"
-    translate "Keep that label"
-    local Keep="$Result"
-    translate "Delete the label"
-    local Delete="$Result"
-    translate "Enter a new label"
-    local Edit="$Result"
-
-    dialog --backtitle "$Backtitle" --title " $PassPart " \
-      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 24 50 3 \
-      1 "$Keep" \
-      2 "$Delete" \
-      3 "$Edit" 2>output.file
-    if [ $? -ne 0 ]; then return 1; fi
-    Result="$(cat output.file)"  
-    # Save to the -A array
-    case $Result in
-      1) Labelled[$PassPart]=$Label ;;
-      2) Labelled[$PassPart]="" ;;
-      3) Message="Enter a new label"
-        dialog_inputbox 10 40
-        if [ "$retval" -ne 0 ] || [ -z "$Result" ]; then return 1; fi
-        Labelled[$PassPart]=$Result
-    esac
-  fi
-  return 0
-}
-
 function allocate_root {  # Called by allocate_partitions
                           # Display partitions for user-selection of one as /root
                           #  (uses list of all available partitions in PartitionList)
@@ -236,11 +202,6 @@ function allocate_root {  # Called by allocate_partitions
     PartitionType=""                # PartitionType can be empty (will not be formatted)
     RootType="${PartitionType}" 
   fi
-  
-  Label="${Labelled[${PassPart}]}"
-  if [ -n "${Label}" ]; then
-    edit_label "$PassPart"
-  fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
 }
@@ -268,10 +229,6 @@ function allocate_swap { # Called by allocate_partitions
     SwapPartition="/dev/$Swap"
     IsSwap=$(blkid "$SwapPartition" | grep 'swap' | cut -d':' -f1)
     MakeSwap="Y"
-    Label="${Labelled[${SwapPartition}]}"
-    if [ "${Label}" ] && [ "${Label}" != "" ]; then
-      edit_label "$PassPart"
-    fi
   fi
   PartitionList="$SavePartitionList"                                        # Restore PartitionList without 'swapfile'
   if [ -z "$SwapPartition" ] && [ -z "$SwapFile" ]; then
@@ -403,11 +360,6 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     retval=$?           # the arrays for extra partitions. Returns 0 if completed, 1 if interrupted
 
     if [ $retval -ne 0 ]; then return 1; fi # Inform calling function that user cancelled; no details added
-    
-    Label="${Labelled[${PassPart}]}"
-    if [ -n "$Label" ]; then
-      edit_label "$PassPart"
-    fi
 
     # If this point has been reached, then all data for a partiton has been accepted
     # So add it to the arrays for extra partitions
