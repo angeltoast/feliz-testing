@@ -30,7 +30,7 @@
 # use_parts             87    set_swap_file       361
 # build_lists           99    more_partitions     382
 # allocate_partitions  142    choose_mountpoint   430 
-#                             display_partitions  461  
+# parted_script        150    display_partitions  461  
 # allocate_root        200    allocate_uefi       489 
 # allocate_swap        245    select_device       509 
 # select_device        285    get_device_size     570 
@@ -54,8 +54,6 @@ function check_parts { # Called by feliz.sh
   
   get_device_size                           # Get available space in MiB
   if [ $? -ne 0 ]; then return 1; fi
-
-read -p "f-part $LINENO $UseDisk $RootDevice "
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
@@ -81,9 +79,6 @@ read -p "f-part $LINENO $UseDisk $RootDevice "
         1) exit ;;
         2) shutdown -h now ;;
         3) auto_warning
-
-read -p "f-part $LINENO $UseDisk $retval"
-
           if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
           autopart ;;                                     # Auto-partitioning function
         4) continue ;;
@@ -171,6 +166,10 @@ function allocate_partitions { # Called by feliz.sh
   if [ "${Result}" != "" ]; then        # If any remaining partitions
     more_partitions                     # Allow user to allocate
   fi
+}
+
+function parted_script { # Calls GNU parted tool with options
+  parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
 function check_filesystem { # Called by choose_mountpoint & allocate_root

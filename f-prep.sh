@@ -53,23 +53,19 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
-read -p "f-prep $LINENO"
-
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
     wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
-    Parted "mklabel gpt"                            # Create new filesystem
-    Parted "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
-   # Parted "set 1 boot on"     # This is done in prepare_partitions
+    parted_script "mklabel gpt"                            # Create new filesystem
+    parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
+   # parted_script "set 1 boot on"     # This is done in prepare_partitions
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
     dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
-    Parted "mklabel msdos"                          # Create new filesystem
+    parted_script "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
-
-read -p "f-prep $LINENO"
 
   # Decide partition sizes
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
@@ -92,9 +88,6 @@ read -p "f-prep $LINENO"
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   tput sgr0                                         # Reset colour
   AutoPart="AUTO"                                   # Set auto-partition flag
-
-read -p "f-prep $LINENO"
-
 }
 
 prepare_partitions() { # Called from autopart() for both EFI and BIOS systems
@@ -112,8 +105,8 @@ prepare_partitions() { # Called from autopart() for both EFI and BIOS systems
   # Set the device to be used to 'set x boot on'    # $MountDevice is numerical - eg: 1 in sda1
   MountDevice=1                                     # Start with first partition = [sda]1
                                                     # Make /boot at startpoint
-  Parted "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  Parted "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
+  parted_script "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
+  parted_script "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
   if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   fi
@@ -123,7 +116,7 @@ prepare_partitions() { # Called from autopart() for both EFI and BIOS systems
   MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
   if [ $3 ]; then
-    Parted "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
+    parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
@@ -133,7 +126,7 @@ prepare_partitions() { # Called from autopart() for both EFI and BIOS systems
   fi
 
   if [ $4 ]; then
-    Parted "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+    parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
   fi
@@ -493,7 +486,7 @@ action_MBR() { # Final BIOS step - Uses the variables set above to create partit
     Echo
     Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
     case $Response in
-      "1" | "Y" | "y") Parted "mklabel msdos"  # Create mbr partition table
+      "1" | "Y" | "y") parted_script "mklabel msdos"  # Create mbr partition table
         break
        ;;
       "2" | "N" | "n") UseDisk=""
@@ -519,8 +512,8 @@ action_MBR() { # Final BIOS step - Uses the variables set above to create partit
   elif [ ${Unit} = "%" ]; then
     EndPoint="${Var}%"
   fi
-  Parted "mkpart primary ext4 1MiB ${EndPoint}"
-  Parted "set 1 boot on"
+  parted_script "mkpart primary ext4 1MiB ${EndPoint}"
+  parted_script "set 1 boot on"
   RootPartition="${GrubDevice}1"      # "/dev/sda1"
   NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
@@ -542,7 +535,7 @@ action_MBR() { # Final BIOS step - Uses the variables set above to create partit
       EndPoint="${Var}%"
     fi
     # Make the partition
-    Parted "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+    parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
     SwapPartition="${GrubDevice}2"    # "/dev/sda2"
     MakeSwap="Y"
     NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
@@ -566,7 +559,7 @@ action_MBR() { # Final BIOS step - Uses the variables set above to create partit
       EndPoint="${Var}%"
     fi
     # Make the partition
-    Parted "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+    parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
     HomePartition="${GrubDevice}3"    # "/dev/sda3"
     Home="Y"
     AddPartList[0]="${GrubDevice}3"   # /dev/sda3     | add to
@@ -826,7 +819,7 @@ action_EFI() { # EFI Final step. Uses the variables set above to create GPT part
     Buttons "Yes/No" "$_Yes $_No" "$_Instructions"
     case $Response in
       "1" | "$_Yes") WipeDevice   # Format the drive
-        Parted "mklabel gpt"        # Create EFI partition table
+        parted_script "mklabel gpt"        # Create EFI partition table
         break
        ;;
       "2" | "$_No") UseDisk=""
@@ -846,8 +839,8 @@ action_EFI() { # EFI Final step. Uses the variables set above to create GPT part
     Var=$((Var*1024))                 # Convert to MiB
   fi
   EndPoint=$((Var+1))                 # Add start and finish. Result is MiBs, numerical only (has no unit)
-  Parted "mkpart primary fat32 1MiB ${EndPoint}MiB"
-  Parted "set 1 boot on"
+  parted_script "mkpart primary fat32 1MiB ${EndPoint}MiB"
+  parted_script "set 1 boot on"
   EFIPartition="${GrubDevice}1"       # "/dev/sda1"
   NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
 
@@ -868,7 +861,7 @@ action_EFI() { # EFI Final step. Uses the variables set above to create GPT part
     EndPoint="${Var}%"
   fi
   # Make the partition
-  Parted "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
+  parted_script "mkpart primary ${RootType} ${NextStart}MiB ${EndPoint}"
   RootPartition="${GrubDevice}2"      # "/dev/sda2"
   NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
 
@@ -890,7 +883,7 @@ action_EFI() { # EFI Final step. Uses the variables set above to create GPT part
       EndPoint="${Var}%"
     fi
     # Make the partition
-    Parted "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
+    parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
     SwapPartition="${GrubDevice}3"    # "/dev/sda3"
     MakeSwap="Y"
     NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
@@ -914,7 +907,7 @@ action_EFI() { # EFI Final step. Uses the variables set above to create GPT part
       EndPoint="${Var}%"
     fi
     # Make the partition
-    Parted "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
+    parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
     HomePartition="${GrubDevice}4"    # "/dev/sda4"
     Home="Y"
     AddPartList[0]="${GrubDevice}4"   # /dev/sda4     | add to
