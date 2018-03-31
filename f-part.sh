@@ -55,6 +55,8 @@ function check_parts { # Called by feliz.sh
   get_device_size                           # Get available space in MiB
   if [ $? -ne 0 ]; then return 1; fi
 
+read -p "f-part $LINENO $UseDisk $RootDevice "
+
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
@@ -79,7 +81,10 @@ function check_parts { # Called by feliz.sh
         1) exit ;;
         2) shutdown -h now ;;
         3) auto_warning
-          if [ $? -eq 1 ]; then continue; fi              # If 'No' then display menu again
+
+read -p "f-part $LINENO $UseDisk $retval"
+
+          if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
           autopart ;;                                     # Auto-partitioning function
         4) continue ;;
         *) more partitioning                              # Use bash 'more' to display help file

@@ -41,7 +41,8 @@ function auto_warning
   Message="$Message" "${UseDisk}"
   message_subsequent "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --title " $title " \
-    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
+    --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 9 50
+  retval=$?
 }
 
 function autopart   # Consolidated fully automatic partitioning for BIOS or EFI environment
@@ -51,6 +52,8 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
+
+read -p "f-prep $LINENO"
 
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
@@ -65,6 +68,8 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
     Parted "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
+
+read -p "f-prep $LINENO"
 
   # Decide partition sizes
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
@@ -86,7 +91,10 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   fi
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   tput sgr0                                         # Reset colour
-  AutoPart=1                                        # Set auto-partition flag to 'on'
+  AutoPart="AUTO"                                   # Set auto-partition flag
+
+read -p "f-prep $LINENO"
+
 }
 
 prepare_partitions() { # Called from autopart() for both EFI and BIOS systems
