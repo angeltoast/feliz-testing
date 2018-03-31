@@ -49,15 +49,11 @@ function check_parts { # Called by feliz.sh
     GrubDevice="EFI"                        # Preset $GrubDevice if installing in EFI
   fi
   
-  select_device                             # User selects device to use for system
-
+  select_device                             # User selects device $UseDisk (eg: sda)
   if [ $? -ne 0 ]; then return 1; fi
+  
   get_device_size                           # Get available space in MiB
   if [ $? -ne 0 ]; then return 1; fi
-
-  translate "Choose from existing partitions"
-  LongPart1="$Result"
-  title="Partitioning"
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
@@ -70,17 +66,23 @@ function check_parts { # Called by feliz.sh
     do
       dialog --backtitle "$Backtitle" --title " Partitioning " \
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
-        15 50 3 \
+        15 50 5 \
         1 "Exit Feliz to the command line" \
         2 "Shut down this session" \
-        3 "Display the 'partitioning' file" 2>output.file
+        3 "Allow Feliz to partition the device" \
+        4 "Use Guided Manual Partitioning" \
+        5 "Display the 'partitioning' file" 2>output.file
       if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
     
       case $Result in
         1) exit ;;
         2) shutdown -h now ;;
-        *) more partitioning
+        3) auto_warning
+          if [ $? -eq 1 ]; then continue; fi              # If 'No' then display menu again
+          autopart ;;                                     # Auto-partitioning function
+        4) continue ;;
+        *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
     done
@@ -165,6 +167,14 @@ function allocate_partitions { # Called by feliz.sh
     more_partitions                     # Allow user to allocate
   fi
 }
+
+function check_filesystem { # Called by choose_mountpoint & allocate_root
+                            # Checks file system type on the selected partition
+                            # Sets $CurrentType to existing file system type
+  CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+  return 0
+}
+
 
 function allocate_root {  # Called by allocate_partitions
                           # Display partitions for user-selection of one as /root
@@ -523,7 +533,7 @@ function select_device {  # Called by f-part1.sh/check_parts
 }
 
 function get_device_size {  # Called by feliz.sh
-                            # Establish size of device in MiB and inform user
+                            # Establish size of device $UseDisk in MiB and inform user
   DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
                                   # Remove last character for calculations
