@@ -180,8 +180,12 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
   while true
   do
     # Clear display, show /boot and available space
-    message_first_line "$_BootPartition : ${BootSize}"
-    message_subsequent "You now have"
+    if [ $UEFI -eq 1 ]; then
+      message_first_line "$_BootPartition : ${BootSize}"
+      message_subsequent "You now have"
+    else
+      message_first_line "You have"
+    fi
     Message="$Message ${FreeGigs}GiB"
     message_subsequent "available on the chosen device"
     message_subsequent "A partition is needed for /root"
@@ -193,15 +197,21 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     allocate_all
     translate "Size"
     message_subsequent "${Result} [eg: 12G or 100%] ... "
+    
+    read -p "f-prep.sh $LINENO"
+    
     dialog --backtitle "$Backtitle" --ok-label "$Ok" --inputbox "$Message" 14 70 2>output.file
     retval=$?
+    if [ $retval -me 0 ]; then return 1; fi
     Result="$(cat output.file)"
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
-
+        
+    read -p "f-prep.sh $LINENO"
+    
     if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
-      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 6 50
       RootSize=""
       continue
     else
@@ -269,7 +279,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
         *) # Check that entry includes 'G or %'
           CheckInput=${RESPONSE: -1}
           if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
-            dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
+            dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 6 50
             RootSize=""
             continue
           else
@@ -347,16 +357,11 @@ function start_guided_message
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
   message_subsequent "$limitations"
-  message_subsequent "\nAre you sure you wish to continue?"
-  
-read -p "$LINENO $retval"
-    
+  message_subsequent "\nDo you wish to continue?"
+
   dialog --backtitle "$Backtitle" --title " $title " \
-      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 12 60
   retval=$?
-  
-read -p "$LINENO $retval"
-  
 }
 
 function guided_MBR # Main MBR function - Inform user of purpose, call each step
