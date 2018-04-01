@@ -52,14 +52,10 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
 
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
-    sgdisk --zap-all ${GrubDevice} &>> feliz.log    # Remove all existing filesystems
-    wipefs -a ${GrubDevice} &>> feliz.log           # from the drive
     parted_script "mklabel gpt"                            # Create new filesystem
     parted_script "mkpart primary fat32 1MiB 513MiB"       # EFI boot partition
-   # parted_script "set 1 boot on"     # This is done in prepare_partitions
     StartPoint="513MiB"                             # For next partition
   else                                              # Installing in BIOS environment
-    dd if=/dev/zero of=${GrubDevice} bs=512 count=1 # Remove any existing partition table
     parted_script "mklabel msdos"                          # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
@@ -105,7 +101,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
                                                     # Make /boot at startpoint
   parted_script "mkpart primary ext4 ${StartPoint} ${2}"   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
   parted_script "set ${MountDevice} boot on"               # eg: parted /dev/sda set 1 boot on
-  if [ ${UEFI} -eq 1 ]; then                        # Reset if installing in EFI environment
+  if [ $UEFI -eq 1 ]; then                          # Reset if installing in EFI environment
     MountDevice=2                                   # Next partition after /boot = [sda]2
   fi
   RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
@@ -113,7 +109,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
   StartPoint=$2                                     # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
-  if [ $3 ]; then
+  if [ -n "$3" ]; then
     parted_script "mkpart primary ext4 ${StartPoint} ${3}" # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
@@ -123,7 +119,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
     MountDevice=$((MountDevice+1))                  # Advance partition numbering
   fi
 
-  if [ $4 ]; then
+  if [ -n "$4" ]; then
     parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
@@ -199,7 +195,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     # Check that entry includes 'G or %'
     CheckInput=${RESPONSE: -1}
 
-    if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+    if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
       RootSize=""
       continue
@@ -267,7 +263,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
         ;;
         *) # Check that entry includes 'G or %'
           CheckInput=${RESPONSE: -1}
-          if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+          if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
             dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
             RootSize=""
             continue
@@ -322,7 +318,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
       ;;
       *) # Check that entry includes 'G or %'
           CheckInput=${RESPONSE: -1}
-        if [ ${CheckInput} != "%" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+        if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
           dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
           HomeSize=""
           continue
@@ -349,8 +345,11 @@ function start_guided_message
   message_subsequent "\nAre you sure you wish to continue?"
 
   dialog --backtitle "$Backtitle" --title " $title " \
-      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55
   retval=$?
+  
+read -p "$LINENO $retval"
+  
 }
 
 function GuidedMBR # Main MBR function - Inform user of purpose, call each step
@@ -359,13 +358,21 @@ function GuidedMBR # Main MBR function - Inform user of purpose, call each step
   start_guided_message
   if [ $retval -ne 0 ]; then return 1; fi   # If 'No' then return to caller
   
+read -p "$LINENO $retval"
+    
   guided_root                               # Create /root partition
   
+read -p "$LINENO $retval"
+    
   guided_recalc"$RootSize"                  # Recalculate remaining space after adding /root
-
+  
+read -p "$LINENO $retval"
+  
   guided_swap
-
-  if [ $SwapSize ]; then
+  
+read -p "$LINENO $retval"
+  
+  if [ -n "$SwapSize" ]; then
     guided_recalc"$SwapSize"  # Recalculate remaining space after adding /swap
   fi
   if [ ${FreeSpace} -gt 2 ]; then
@@ -389,7 +396,7 @@ function guided_EFI # Main EFIfunction - Inform user of purpose, call each step
 
   guided_swap
 
-  if [ $SwapSize ]; then
+  if [ -n "$SwapSize" ]; then
     guided_recalc"$SwapSize"  # Recalculate remaining space after adding /swap
   fi
   if [ ${FreeSpace} -gt 2 ]; then
@@ -422,7 +429,7 @@ function guided_EFI_boot      # EFI - Set variable: BootSize
     # Check that entry includes 'M or G'
     CheckInput=${RESPONSE: -1}
     Echo
-    if [ ${CheckInput} != "M" ] && [ ${CheckInput} != "G" ] && [ ${CheckInput} != "M" ]; then
+    if [ "$CheckInput" != "M" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       print_heading
       PrintOne "You must include M, G or %"
       Echo
@@ -485,7 +492,7 @@ function action_guided # Final GUIDED step - creates partition table & all parti
       Unit=${BootSize: -1}                # Save last character of boot (eg: M)
       Chars=${#BootSize}                  # Count characters in boot variable
       Var=${BootSize:0:Chars-1}           # Remove unit character from boot variable
-      if [ ${Unit} = "G" ]; then
+      if [ "$Unit" = "G" ]; then
         Var=$((Var*1024))                 # Convert to MiB
       fi
       EndPoint=$((Var+1))                 # Add start and finish. Result is MiBs, numerical only (has no unit)
@@ -518,19 +525,19 @@ function action_guided # Final GUIDED step - creates partition table & all parti
 
 # Swap partition
 # --------------
-  if [ $SwapSize ]; then
+  if [ -n "$SwapSize" ]; then
     # Calculate end-point
     Unit=${SwapSize: -1}              # Save last character of swap (eg: G)
     Chars=${#SwapSize}                # Count characters in swap variable
     Var=${SwapSize:0:Chars-1}         # Remove unit character from swap variable
-    if [ ${Unit} = "G" ]; then
+    if [ "$Unit" = "G" ]; then
       Var=$((Var*1024))               # Convert to MiB
       EndPart=$((NextStart+Var))      # Add to previous end
       EndPoint="${EndPart}MiB"        # Append unit
-    elif [ ${Unit} = "M" ]; then
+    elif [ "$Unit" = "M" ]; then
       EndPart=$((NextStart+Var))      # Add to previous end
       EndPoint="${EndPart}MiB"        # Append unit
-    elif [ ${Unit} = "%" ]; then
+    elif [ "$Unit" = "%" ]; then
       EndPoint="${Var}%"
     fi
     # Make the partition
@@ -542,19 +549,19 @@ function action_guided # Final GUIDED step - creates partition table & all parti
 
 # Home partition
 # --------------
-  if [ $HomeSize ]; then
+  if [ -n "$HomeSize" ]; then
     # Calculate end-point
     Unit=${HomeSize: -1}              # Save last character of home (eg: G)
     Chars=${#HomeSize}                # Count characters in home variable
     Var=${HomeSize:0:Chars-1}         # Remove unit character from home variable
-    if [ ${Unit} = "G" ]; then
+    if [ "$Unit" = "G" ]; then
       Var=$((Var*1024))               # Convert to MiB
       EndPart=$((NextStart+Var))      # Add to previous end
       EndPoint="${EndPart}MiB"        # Append unit
-    elif [ ${Unit} = "M" ]; then
+    elif [ "$Unit" = "M" ]; then
       EndPart=$((NextStart+Var))      # Add to previous end
       EndPoint="${EndPart}MiB"        # Append unit
-    elif [ ${Unit} = "%" ]; then
+    elif [ "$Unit" = "%" ]; then
       EndPoint="${Var}%"
     fi
     # Make the partition
