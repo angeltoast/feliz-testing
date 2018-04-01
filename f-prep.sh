@@ -60,7 +60,7 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
     StartPoint="1MiB"                               # For next partition
   fi
 
-  # Decide partition sizes
+  # Decide partition sizes based on device size
   if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
     HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
     prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
@@ -81,9 +81,10 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
   tput sgr0                                         # Reset colour
   AutoPart="AUTO"                                   # Set auto-partition flag
+  display_results
 }
 
-function prepare_partitions # Called from autopart() for both EFI and BIOS systems
+function prepare_partitions # Called from autopart for either EFI or BIOS system
 { # Uses gnu parted to create partitions 
   # Receives up to 4 arguments
   #   $1 is the starting point of the first partition
@@ -347,7 +348,9 @@ function start_guided_message
   message_subsequent "and create a new partition table with your settings"
   message_subsequent "$limitations"
   message_subsequent "\nAre you sure you wish to continue?"
-
+  
+read -p "$LINENO $retval"
+    
   dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55
   retval=$?
@@ -359,7 +362,13 @@ read -p "$LINENO $retval"
 function GuidedMBR # Main MBR function - Inform user of purpose, call each step
 {
   limitations="This facility will create /root, /swap and /home"
+  
+read -p "$LINENO $retval"
+    
   start_guided_message
+  
+read -p "$LINENO $retval"
+    
   if [ $retval -ne 0 ]; then return 1; fi   # If 'No' then return to caller
   
 read -p "$LINENO $retval"
@@ -489,7 +498,9 @@ function action_guided # Final GUIDED step - creates partition table & all parti
       return 1                        # Go right back to start
     fi
   done
+  
   MountDevice=1
+  
   if [ $UEFI -eq 1 ]; then                # EFI only
     # Boot partition
     # --------------
@@ -528,7 +539,7 @@ function action_guided # Final GUIDED step - creates partition table & all parti
   parted_script "mkpart primary ext4 1MiB ${EndPoint}"
   parted_script "set 1 boot on"
   RootPartition="${GrubDevice}${MountDevice}" # "/dev/sda2"
-  mkfs.ext4 ${RootPartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
+  mkfs.${RootType} ${RootPartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
   MountDevice=$((MountDevice+1))
 
@@ -577,7 +588,7 @@ function action_guided # Final GUIDED step - creates partition table & all parti
     # Make the partition
     parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
     HomePartition="${GrubDevice}${MountDevice}"    # "/dev/sda3"
-    mkfs.ext4 ${HomePartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
+    mkfs.${HomeType} ${HomePartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
     Home="Y"
     AddPartList[0]="${HomePartition}" # /dev/sda3     | add to
     AddPartMount[0]="/home"           # Mountpoint    | array of
