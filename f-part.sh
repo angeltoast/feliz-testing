@@ -65,8 +65,7 @@ function check_parts {  # Called by feliz.sh
     while true
     do
       dialog --backtitle "$Backtitle" --title " Partitioning " \
-      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
-        15 50 5 \
+      --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 15 50 5 \
         1 "Exit Feliz to the command line" \
         2 "Shut down this session" \
         3 "Allow Feliz to partition the device" \
@@ -80,16 +79,22 @@ function check_parts {  # Called by feliz.sh
         2) shutdown -h now ;;
         3) auto_warning
           if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
-          autopart                                        # Auto-partitioning function
-          break ;;
+          autopart ;;                                       # Auto-partitioning function
         4) if [ $UEFI -eq 0 ]; then
+        
+        read -p "f-part.sh $LINENO"
+        
             guided_MBR
+           
+        read -p "f-part.sh $LINENO"
+           
           else
             guided_EFI
           fi ;;
         *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
     done
   fi
 }
