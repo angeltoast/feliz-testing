@@ -59,6 +59,9 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 
   # 1) Root partition
     umount "$RootPartition"
+    if [ -n "$RootType" ]; then
+      mkfs.${RootType} ${RootPartition} &>> feliz.log                 # eg: mkfs.ext4 -L Arch-Root /dev/sda1
+    fi
     mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
   # 2) EFI (if required)

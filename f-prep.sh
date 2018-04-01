@@ -84,7 +84,8 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
 }
 
 function prepare_partitions # Called from autopart() for both EFI and BIOS systems
-{ # Receives up to 4 arguments
+{ # Uses gnu parted to create partitions 
+  # Receives up to 4 arguments
   #   $1 is the starting point of the first partition
   #   $2 is size of root partition
   #   $3 if passed is size of home partition
@@ -106,6 +107,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
   fi
   RootPartition="${GrubDevice}${MountDevice}"       # eg: /dev/sda1
   RootType="ext4"
+  mkfs.ext4 ${RootPartition} &>> feliz.log          # eg: mkfs.ext4 /dev/sda1
   StartPoint=$2                                     # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))                    # Advance partition numbering for next step
 
@@ -115,6 +117,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="ext4"                           # Filesystem     | additional partitions
     Home="Y"
+    mkfs.ext4 "${GrubDevice}${MountDevice}"} &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
     StartPoint=$3                                   # Reset startpoint for /swap
     MountDevice=$((MountDevice+1))                  # Advance partition numbering
   fi
@@ -122,6 +125,7 @@ function prepare_partitions # Called from autopart() for both EFI and BIOS syste
   if [ -n "$4" ]; then
     parted_script "mkpart primary linux-swap ${StartPoint} ${4}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
+    mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
 }
@@ -472,6 +476,7 @@ function action_guided # Final GUIDED step - creates partition table & all parti
     --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 9 50
     retval=$?
 
+    # Create partition table
     if [ $retval -eq 0 ]; then
       if [ $UEFI -eq 0 ]; then
         parted_script "mklabel msdos" # Create mbr partition table
@@ -484,8 +489,8 @@ function action_guided # Final GUIDED step - creates partition table & all parti
       return 1                        # Go right back to start
     fi
   done
-
-  if [ $UEFI -eq 1 ]; then            # EFI only
+  MountDevice=1
+  if [ $UEFI -eq 1 ]; then                # EFI only
     # Boot partition
     # --------------
       # Calculate end-point
@@ -499,7 +504,9 @@ function action_guided # Final GUIDED step - creates partition table & all parti
       parted_script "mkpart primary fat32 1MiB ${EndPoint}MiB"
       parted_script "set 1 boot on"
       EFIPartition="${GrubDevice}1"       # "/dev/sda1"
+      mkfs.vfat -F32 ${EFIPartition} &>> feliz.log   # eg: mkfs.vfat -L Arch-Root /dev/sda1
       NextStart=${EndPoint}               # Save for next partition. Numerical only (has no unit)
+      MountDevice=2
   fi
 
 # Root partition
@@ -520,8 +527,10 @@ function action_guided # Final GUIDED step - creates partition table & all parti
   fi
   parted_script "mkpart primary ext4 1MiB ${EndPoint}"
   parted_script "set 1 boot on"
-  RootPartition="${GrubDevice}1"      # "/dev/sda1"
+  RootPartition="${GrubDevice}${MountDevice}" # "/dev/sda2"
+  mkfs.ext4 ${RootPartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   NextStart=${EndPart}                # Save for next partition. Numerical only (has no unit)
+  MountDevice=$((MountDevice+1))
 
 # Swap partition
 # --------------
@@ -542,9 +551,10 @@ function action_guided # Final GUIDED step - creates partition table & all parti
     fi
     # Make the partition
     parted_script "mkpart primary linux-swap ${NextStart}MiB ${EndPoint}"
-    SwapPartition="${GrubDevice}2"    # "/dev/sda2"
-    MakeSwap="Y"
+    SwapPartition="${GrubDevice}${MountDevice}"    # "/dev/sda2"
+    mkswap "${SwapPartition}"
     NextStart=${EndPart}              # Save for next partition. Numerical only (has no unit)
+    MountDevice=$((MountDevice+1))
   fi
 
 # Home partition
@@ -566,9 +576,10 @@ function action_guided # Final GUIDED step - creates partition table & all parti
     fi
     # Make the partition
     parted_script "mkpart primary ${HomeType} ${NextStart}MiB ${EndPoint}"
-    HomePartition="${GrubDevice}3"    # "/dev/sda3"
+    HomePartition="${GrubDevice}${MountDevice}"    # "/dev/sda3"
+    mkfs.ext4 ${HomePartition} &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
     Home="Y"
-    AddPartList[0]="${GrubDevice}3"   # /dev/sda3     | add to
+    AddPartList[0]="${HomePartition}" # /dev/sda3     | add to
     AddPartMount[0]="/home"           # Mountpoint    | array of
     AddPartType[0]="${HomeType}"      # Filesystem    | additional partitions
   fi
