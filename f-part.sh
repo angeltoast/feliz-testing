@@ -81,14 +81,8 @@ function check_parts {  # Called by feliz.sh
           if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
           autopart ;;                                       # Auto-partitioning function
         4) if [ $UEFI -eq 0 ]; then
-        
-        read -p "f-part.sh $LINENO"
-        
             guided_MBR
-           
-        read -p "f-part.sh $LINENO"
-           
-          else
+           else
             guided_EFI
           fi ;;
         *) more partitioning                              # Use bash 'more' to display help file

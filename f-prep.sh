@@ -359,35 +359,21 @@ read -p "$LINENO $retval"
   
 }
 
-function GuidedMBR # Main MBR function - Inform user of purpose, call each step
+function guided_MBR # Main MBR function - Inform user of purpose, call each step
 {
   limitations="This facility will create /root, /swap and /home"
-  
-read -p "$LINENO $retval"
-    
+
   start_guided_message
-  
-read -p "$LINENO $retval"
-    
   if [ $retval -ne 0 ]; then return 1; fi   # If 'No' then return to caller
-  
-read -p "$LINENO $retval"
-    
+
   guided_root                               # Create /root partition
-  
-read -p "$LINENO $retval"
-    
   guided_recalc"$RootSize"                  # Recalculate remaining space after adding /root
-  
-read -p "$LINENO $retval"
-  
+
   guided_swap
-  
-read -p "$LINENO $retval"
-  
   if [ -n "$SwapSize" ]; then
     guided_recalc"$SwapSize"  # Recalculate remaining space after adding /swap
   fi
+  
   if [ ${FreeSpace} -gt 2 ]; then
     guided_home
   fi
