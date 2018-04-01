@@ -37,14 +37,14 @@
 # ------------------------    ------------------------
 
 # Variables for UEFI Architecture
-UEFI=0            # 1 = UEFI; 0 = BIOS
-EFIPartition=""   # eg: /dev/sda1
-UEFI_MOUNT=""    	# UEFI mountpoint
-DualBoot="N"      # For formatting EFI partition
+UEFI=0                  # 1 = UEFI; 0 = BIOS
+EFIPartition=""         # eg: /dev/sda1
+UEFI_MOUNT=""    	      # UEFI mountpoint
+DualBoot="N"            # For formatting EFI partition
 
-function check_parts { # Called by feliz.sh
-                       # Tests for existing partitions, informs user, calls build_lists to prepare arrays
-                       # Displays menu of options, then calls partitioning_options to act on user selection
+function check_parts {  # Called by feliz.sh
+                        # Tests for existing partitions, informs user, calls build_lists to prepare arrays
+                        # Displays menu of options, then calls partitioning_options to act on user selection
   if [ "$UEFI" -eq 1 ]; then
     GrubDevice="EFI"                        # Preset $GrubDevice if installing in EFI
   fi
@@ -80,8 +80,13 @@ function check_parts { # Called by feliz.sh
         2) shutdown -h now ;;
         3) auto_warning
           if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
-          autopart ;;                                     # Auto-partitioning function
-        4) continue ;;
+          autopart                                        # Auto-partitioning function
+          break ;;
+        4) if [ $UEFI -eq 0 ]; then
+            guided_MBR
+          else
+            guided_EFI
+          fi ;;
         *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
@@ -89,16 +94,14 @@ function check_parts { # Called by feliz.sh
   fi
 }
 
-function use_parts {                                      # There are existing partitions on the device
-    build_lists                                           # Generate list of partitions and matching array
-    translate "Here is a list of available partitions"
-    Message="\n               ${Result}:\n"
+function use_parts {    # Called by feliz.sh/the_start step 7 to display existing partitions
+  build_lists                                           # Generate list of partitions and matching array
+  translate "Here is a list of available partitions"
+  Message="\n               ${Result}:\n"
 
-    for part in ${PartitionList}; do
-      Message="${Message}\n        $part ${PartitionArray[${part}]}"
-    done
-
-    AutoPart="MANUAL"
+  for part in ${PartitionList}; do
+    Message="${Message}\n        $part ${PartitionArray[${part}]}"
+  done
 }
 
 function build_lists { # Called by check_parts to generate details of existing partitions
@@ -176,7 +179,6 @@ function check_filesystem { # Called by choose_mountpoint & allocate_root
                             # Checks file system type on the selected partition
                             # Sets $CurrentType to existing file system type
   CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
-  return 0
 }
 
 
@@ -208,13 +210,16 @@ function allocate_root {  # Called by allocate_partitions
     check_filesystem                # This sets variable CurrentType and starts the Message
     Message="\n${Message}"
     if [ -n "$CurrentType" ]; then
-      message_subsequent "You can choose to leave it as it is, but should"
-      message_subsequent "understand that not reformatting the /root"
-      message_subsequent "partition can have unexpected consequences"
+      dialog --backtitle "$Backtitle" --title " Root Partition " \
+    --yes-label "$Yes" --no-label "$No" --yesno "\nReformat the root partition?" 6 50
+      retval=$?
+      if [ $retval -eq 0 ]; then
+        PartitionType="$CurrentType"    # Reformat to current type
+      else
+        PartitionType=""                # PartitionType can be empty (will not be formatted)
+      fi
+      RootType="${PartitionType}"
     fi
-    
-    PartitionType=""                # PartitionType can be empty (will not be formatted)
-    RootType="${PartitionType}" 
   fi
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
