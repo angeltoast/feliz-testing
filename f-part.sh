@@ -90,6 +90,8 @@ function check_parts {  # Called by feliz.sh
       esac
       if [ $? -eq 0 ]; then return 0; else return 1; fi
     done
+  else
+    autopart="MANUAL"
   fi
 }
 

@@ -146,10 +146,10 @@ function select_filesystem # User chooses filesystem from list in global variabl
   Message="$Message ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
   message_subsequent "or choose Exit to leave it as it is"
-  menu_dialog_variable="${TypeList}"
+  menu_dialog_variable="ext4 ext3 btrfs xfs"
 
   menu_dialog 12 55 "$_Exit"
-  
+
   if [ $retval -ne 0 ]; then
     PartitionType=""
     return 1
@@ -417,7 +417,9 @@ function guided_MBR # Main MBR function - Inform user of purpose, call each step
   fi
   
   # Perform partitioning
-  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # partition sizes may include MiB GiB or %
+  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
+  AutoPart="GUIDED"                         # Set auto-partition flag
+  display_results
 }
 
 function guided_EFI # Main EFIfunction - Inform user of purpose, call each step
@@ -445,7 +447,9 @@ function guided_EFI # Main EFIfunction - Inform user of purpose, call each step
   fi
   
   # Perform partitioning - Note that /boot has already been created in prepare_device and $startpoint advanced
-  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # partition sizes may include MiB GiB or %
+  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
+  AutoPart="GUIDED"                         # Set auto-partition flag
+  display_results
 }
 
 function guided_boot      # EFI - Set variable: BootSize (eg: 1GiB)
@@ -491,10 +495,10 @@ function guided_boot      # EFI - Set variable: BootSize (eg: 1GiB)
 
 function display_results
 {
-  device=$(lsblk -l | head -n 2 | tail -n 1)        
+  device="${UseDisk}"
   plist=$(lsblk -l | grep "$device")
   
-  message_first_line "Partitioning of ${GrubDevice} successful"
+  message_first_line "Partitioning of ${GrubDevice}"
   message_subsequent "${plist}"
 
   dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 14 75
