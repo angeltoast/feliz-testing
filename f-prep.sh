@@ -478,9 +478,10 @@ function display_results
 {
 
   lsblk -l | grep "${UseDisk}" > output.file
-  
-  message_first_line "Partitioning of ${GrubDevice}"
-  message_subsequent "${plist}"
+
+  read
+  cat output.file
+  read
 
   dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nPartitioning of ${GrubDevice}\n$(cat output.file)" 20 55
 }
