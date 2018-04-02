@@ -233,7 +233,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       RootSize=""
       continue
     else
-      if [ "$CheckInput" != "%" ]; then
+      if [ "$CheckInput" = "%" ]; then
         RootSize="$RESPONSE"
       else
         RootSize="${RESPONSE}iB"
@@ -307,7 +307,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
             SwapSize=""
             continue
           else
-            if [ "$CheckInput" != "%" ]; then
+            if [ "$CheckInput" = "%" ]; then
               SwapSize="$RESPONSE"
             else
               SwapSize="${RESPONSE}iB"
@@ -369,7 +369,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           HomeSize=""
           continue
         else
-          if [ "$CheckInput" != "%" ]; then
+          if [ "$CheckInput" = "%" ]; then
             HomeSize="$RESPONSE"
           else
             HomeSize="${RESPONSE}iB"
