@@ -25,7 +25,7 @@
 # ------------------------    ----------------------    ------------------------
 # Functions           Line    Functions         Line    Functions           Line 
 # ------------------------    ----------------------    ------------------------
-# auto_warning          35    allocate_all       162    start_guided_message 386
+# auto_warning          35                              start_guided_message 386
 # autopart              45    guided_recalc      169    guided_MBR           398
 # prepare_device        77    guided_root        196    guided_EFI           423
 # prepare_partitions    97    guided_swap        246    guided_boot          451
@@ -162,13 +162,6 @@ function select_filesystem # User chooses filesystem from list in global variabl
   fi
 }
 
-function allocate_all
-{
-  message_subsequent "\nPlease enter the desired size"
-  message_subsequent "or, to allocate all the remaining space, enter"
-  Message="${Message}: 100%"
-}
-
 function guided_recalc                  # Calculate remaining disk space
 {
   local Passed=$1
@@ -216,28 +209,24 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     message_subsequent "and perhaps also a /home partition"
     message_subsequent "The /root partition should not be less than 8GiB"
     message_subsequent "ideally more, up to 20GiB"
-    allocate_all
+    message_subsequent "\nPlease enter the desired size"
     translate "Size"
-    message_subsequent "${Result} [eg: 12G or 100%] ... "
+    message_subsequent "${Result} [ eg: 12G ] ... "
 
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"
     RESPONSE="${Result^^}"
-    # Check that entry includes 'G or %'
+    # Check that entry includes 'G or M'
     CheckInput=${RESPONSE: -1}
 
-    if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
-      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 6 50
+    if [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
+      dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M or G \n" 6 50
       RootSize=""
       continue
     else
-      if [ "$CheckInput" = "%" ]; then
-        RootSize="$RESPONSE"
-      else
-        RootSize="${RESPONSE}iB"
-      fi
+      RootSize="${RESPONSE}iB"
       Partition="/root"
       select_filesystem
       RootType=${PartitionType}
@@ -281,9 +270,9 @@ function guided_swap # MBR & EFI Set variable: SwapSize
         message_subsequent "it is not necessary to exceed 4GiB"
         message_subsequent "You can use all the remaining space on the device, if you wish"
       fi
-      allocate_all
+      message_subsequent "\nPlease enter the desired size"
       translate "Size"
-      message_subsequent "$Result [eg: 2G ... 100% ... 0] ... "
+      message_subsequent "$Result [ eg: 2G or 0 ] ... "
   
       dialog --backtitle "$Backtitle" --title " Swap " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
       retval=$?
@@ -300,18 +289,14 @@ function guided_swap # MBR & EFI Set variable: SwapSize
           fi
           break
         ;;
-        *) # Check that entry includes 'G or %'
+        *) # Check that entry includes 'G or M'
           CheckInput=${RESPONSE: -1}
-          if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
-            dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 6 50
+          if [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
+            dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M or G \n" 6 50
             SwapSize=""
             continue
           else
-            if [ "$CheckInput" = "%" ]; then
-              SwapSize="$RESPONSE"
-            else
-              SwapSize="${RESPONSE}iB"
-            fi
+            SwapSize="${RESPONSE}iB"
             break
           fi
       esac
@@ -350,9 +335,9 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     translate "/home partition"
     Message="$Message $Result"
     message_subsequent "You can use all the remaining space on the device, if you wish"
-    allocate_all
+    message_subsequent "\nPlease enter the desired size"
     translate "Size"
-    message_subsequent "${Result} [eg: 100% or 0] ... "
+    message_subsequent "${Result} [ eg: 10G or 0 ] ... "
     
     dialog --backtitle "$Backtitle" --title " Home " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
     retval=$?
@@ -362,18 +347,14 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     case ${RESPONSE} in
       "" | 0) break
       ;;
-      *) # Check that entry includes 'G or %'
+      *) # Check that entry includes 'G or M'
           CheckInput=${RESPONSE: -1}
-        if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
+        if [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
           dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M, G or %\n" 8 75
           HomeSize=""
           continue
         else
-          if [ "$CheckInput" = "%" ]; then
-            HomeSize="$RESPONSE"
-          else
-            HomeSize="${RESPONSE}iB"
-          fi
+          HomeSize="${RESPONSE}iB"
           translate "of remaining space allocated to"
           Message="$HomeSize $Result"
           translate "/home partition"
@@ -480,18 +461,14 @@ function guided_boot      # EFI - Set variable: BootSize (eg: 1GiB)
     # Check that entry includes 'M or G'
     CheckInput=${RESPONSE: -1}
     Echo
-    if [ "$CheckInput" != "M" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
+    if [ "$CheckInput" != "M" ] && [ "$CheckInput" != "G" ]; then
       print_heading
-      PrintOne "You must include M, G or %"
+      PrintOne "You must include M or G"
       Echo
       BootSize=""
       continue
     else
-      if [ "$CheckInput" != "%" ]; then
-        BootSize="$RESPONSE"
-      else
-        BootSize="${RESPONSE}iB"
-      fi
+      BootSize="${RESPONSE}iB"
       break
     fi
   done
@@ -500,10 +477,10 @@ function guided_boot      # EFI - Set variable: BootSize (eg: 1GiB)
 function display_results
 {
 
-  plist=$(lsblk -l | grep "${UseDisk}")
+  lsblk -l | grep "${UseDisk}" > output.file
   
   message_first_line "Partitioning of ${GrubDevice}"
   message_subsequent "${plist}"
 
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 18 75
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nPartitioning of ${GrubDevice}\n$(cat output.file)" 20 55
 }
