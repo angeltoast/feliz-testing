@@ -23,7 +23,7 @@
 # In this module - functions for guided creation of a GPT or EFI partition table
 #                  and partitions, and functions for autopartitioning
 # ------------------------    ----------------------    ------------------------
-# SHARED Functions    Line    SHARED Functions  Line    MBR/EFI Functions   Line 
+# Functions           Line    Functions         Line    Functions           Line 
 # ------------------------    ----------------------    ------------------------
 # auto_warning          35    allocate_all       162    start_guided_message 386
 # autopart              45    guided_recalc      169    guided_MBR           398
@@ -94,16 +94,21 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
 }
 
 function prepare_partitions # Called from autopart for either EFI or BIOS system
-{ # Uses gnu parted to create partitions 
+{
+
+read -p "$1 $2 $3 $4"
+
+  # Uses gnu parted to create partitions 
   # Receives up to 4 arguments
-  #   $1 is the starting point of the first partition
-  #   $2 is size of root partition
-  #   $3 if passed is size of home partition
-  #   $4 if passed is size of swap partition
+  #   $1 is the starting point of the root partition  - 1MiB if MBR, 513MiB if GPT
+  #   $2 is size of root partition                    - 8GiB upwards to x%
+  #   $3 is size of home partition or null            - may be xGiB x% or ""
+  #   $4 if passed is size of swap partition          - may be xMiB xGiB x% or ""
   # Note:
-  # An appropriate partition table has already been created in autopart()
-  # If EFI the /boot partition has also been created at /dev/sda1 and set as bootable
-  # and the startpoint (passed as $1) has been set to follow /boot
+  # An appropriate partition table has already been created in prepare_device
+  # If system is EFI, prepare_device has also created the /boot partition at
+  #   /dev/${UseDisk} and set it as bootable, and the startpoint (passed as $1)
+  #   has been set to follow /boot
                     
   local StartPoint=$1                               # Local variable 
 
@@ -145,10 +150,9 @@ function select_filesystem # User chooses filesystem from list in global variabl
   message_first_line "Please select the file system for"
   Message="$Message ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
-  message_subsequent "or choose Exit to leave it as it is"
-  menu_dialog_variable="ext4 ext3 btrfs xfs"
 
-  menu_dialog 12 55 "$_Exit"
+  menu_dialog_variable="ext4 ext3 btrfs xfs"
+  menu_dialog 16 55 "$_Exit"
 
   if [ $retval -ne 0 ]; then
     PartitionType=""
@@ -160,7 +164,7 @@ function select_filesystem # User chooses filesystem from list in global variabl
 
 function allocate_all
 {
-  message_subsequent "Please enter the desired size"
+  message_subsequent "\nPlease enter the desired size"
   message_subsequent "or, to allocate all the remaining space, enter"
   Message="${Message}: 100%"
 }
@@ -216,7 +220,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     translate "Size"
     message_subsequent "${Result} [eg: 12G or 100%] ... "
 
-    dialog --backtitle "$Backtitle" --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
+    dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"
@@ -281,7 +285,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       translate "Size"
       message_subsequent "$Result [eg: 2G ... 100% ... 0] ... "
   
-      dialog --backtitle "$Backtitle" --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
+      dialog --backtitle "$Backtitle" --title " Swap " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
       retval=$?
       Result="$(cat output.file)"
       RESPONSE="${Result^^}"
@@ -350,7 +354,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     translate "Size"
     message_subsequent "${Result} [eg: 100% or 0] ... "
     
-    dialog --backtitle "$Backtitle" --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
+    dialog --backtitle "$Backtitle" --title " Home " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
     RESPONSE="${Result^^}"
@@ -495,11 +499,11 @@ function guided_boot      # EFI - Set variable: BootSize (eg: 1GiB)
 
 function display_results
 {
-  device="${UseDisk}"
-  plist=$(lsblk -l | grep "$device")
+
+  plist=$(lsblk -l | grep "${UseDisk}")
   
   message_first_line "Partitioning of ${GrubDevice}"
   message_subsequent "${plist}"
 
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 14 75
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n${Message}\n" 18 75
 }
