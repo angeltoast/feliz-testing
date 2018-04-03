@@ -1054,9 +1054,11 @@ function final_check {  # Called without arguments by feliz.sh/the_start
         AddPartType=""
         autopart="MANUAL"
         check_parts                           # Update lists
-        if [ $? -ne 0 ]; then return $?; fi
+      #  if [ $? -ne 0 ]; then return $?; fi
+read -p "f-set.sh $LINENO : check_parts returned $?"
         allocate_partitions
-        if [ $? -ne 0 ]; then return $?; fi ;;
+read -p "f-set.sh $LINENO : allocate_partitions returned $?"
+      #  if [ $? -ne 0 ]; then return $?; fi ;;
       *) break
     esac
   done
