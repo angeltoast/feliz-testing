@@ -45,7 +45,6 @@ function auto_warning
 
 function autopart   # Consolidated fully automatic partitioning for BIOS or EFI environment
 {                   # Called by f-part.sh/check_parts (after auto_warning)
-
   prepare_device                                    # Create partition table and device variables
   RootType="ext4"                                   # Default for auto
   HomeType="ext4"                                   # Default for auto
@@ -67,10 +66,7 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  partprobe 2>> feliz.log                           # Inform kernel of changes to partitions
-  tput sgr0                                         # Reset colour
   AutoPart="AUTO"                                   # Set auto-partition flag
-  display_results
 }
 
 function prepare_device # Called by autopart, guided_MBR and guided_EFI
@@ -140,7 +136,6 @@ read -p "$1 $2 $3 $4"
     mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
-
   display_results
 }
 
@@ -434,7 +429,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
 
 function display_results
 {
-  lsblk -l | grep "${UseDisk}" > output.file
+  lsblk -l -f | grep "${UseDisk}" > output.file
   p=" "
   while read -r Item; do             # Read items from the output.file file
     p="$p \n $Item"                  # Add to $p with newline after each $Item

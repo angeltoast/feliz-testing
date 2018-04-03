@@ -977,42 +977,11 @@ function final_check {  # Called without arguments by feliz.sh/the_start
     translate "The following partitions have been selected"
     print_subsequent "11) $Result ..."
     translate "partition"
-    case "$AutoPart" in
-    "AUTO") message_first_line "Feliz will"
-      translate "partition"
-      print_first_line "${Message} $Result $GrubDevice" ;;
-    "GUIDED") message_first_line "Feliz will"
-        translate "partition"
-        print_first_line "Feliz will $Result ..."
-        if [ "$UEFI" -eq 1 ]; then
-          print_subsequent "/boot : fat32 : ${BootSize}"
-        fi
-        print_subsequent "/root : ${RootType}: ${RootSize}"
-        if [ -n "$SwapSize" ]; then
-          print_subsequent "/swap : ${SwapSize}"
-        elif [ -n "$SwapFile" ]; then
-          print_subsequent "swapfile : ${SwapFile}"
-        fi
-        if [ -n "${HomeSize}" ]; then
-          print_subsequent "/home ${Result}: ${HomeSize}"
-        fi ;;
-    *) translate="N"
-      print_first_line "${RootPartition} /root ${RootType}"
-      print_subsequent "${SwapPartition} /swap"
-      if [ -n "${AddPartList}" ]; then
-        local Counter=0
-        for Part in ${AddPartList}; do                # Iterate through the list of extra partitions
-          if [ $Counter -ge 1 ]; then                 # Only display the first one
-            translate "Too many to display all"
-            print_subsequent "$Result"
-            break
-          fi                                          # Display each partition, mountpoint & format type
-          print_subsequent "${Part} ${AddPartMount[${Counter}]} ${AddPartType[${Counter}]}"
-          Counter=$((Counter+1))
-        done
-      fi
-    esac
-    
+    translate="N"
+    print_first_line "${RootPartition} /root ${RootType}"
+    print_subsequent "${SwapPartition} /swap"
+    print_subsequent "${HomePartition} /home ${HomeType}"
+  
     echo
     # Prompt user for a number
     translate="Y"
@@ -1032,7 +1001,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
       stpt=$(( (T_COLS - 10) / 2 ))
     fi
     EMPTY="$(printf '%*s' $stpt)"
-    read -p "$EMPTY $Result :" Change
+    read -p "$EMPTY $Result : " Change
     case $Change in
       1) set_timezone ;;
       2) setlocale ;;
@@ -1054,11 +1023,9 @@ function final_check {  # Called without arguments by feliz.sh/the_start
         AddPartType=""
         autopart="MANUAL"
         check_parts                           # Update lists
-      #  if [ $? -ne 0 ]; then return $?; fi
-read -p "f-set.sh $LINENO : check_parts returned $?"
+        if [ $? -ne 0 ]; then return $?; fi
         allocate_partitions
-read -p "f-set.sh $LINENO : allocate_partitions returned $?"
-      #  if [ $? -ne 0 ]; then return $?; fi ;;
+        if [ $? -ne 0 ]; then return $?; fi ;;
       *) break
     esac
   done
