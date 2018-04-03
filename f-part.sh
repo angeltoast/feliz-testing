@@ -78,13 +78,9 @@ function check_parts {  # Called by feliz.sh
         1) exit ;;
         2) shutdown -h now ;;
         3) auto_warning
-          if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
-          autopart ;;                                       # Auto-partitioning function
-        4) if [ $UEFI -eq 0 ]; then
-            guided_MBR
-           else
-            guided_EFI
-          fi ;;
+            if [ $retval -ne 0 ]; then continue; fi         # If 'No' then display menu again
+            autopart ;;
+        4) guided_partitions ;;
         *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
