@@ -140,6 +140,8 @@ read -p "$1 $2 $3 $4"
     mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
+
+  display_results
 }
 
 function select_filesystem # User chooses filesystem from list in global variable ${TypeList}

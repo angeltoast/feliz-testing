@@ -1052,6 +1052,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
       11) AddPartList=""                      # Empty the lists of extra partitions
         AddPartMount=""
         AddPartType=""
+        autopart="MANUAL"
         check_parts                           # Update lists
         if [ $? -ne 0 ]; then return $?; fi
         allocate_partitions

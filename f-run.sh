@@ -429,7 +429,7 @@ function set_root_password {
     Message="${Message} root\n"
 
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
-    --passwordform "\n $Message" 18 60 2 \
+    --passwordform "\n $Message" 20 60 2 \
     "Enter password:" 1 1 "" 1 25 25 30 \
     "Re-enter password:" 2 1 "" 2 25 25 30 \
     2>output.file
@@ -442,8 +442,8 @@ function set_root_password {
     if [ -z "$Pass1" ] || [ -z "$Pass2" ]; then
       title="Error"
       message_first_line "Passwords cannot be blank"
-      message_subsequent "Please try again"
-      Message="${Message}\n"
+      translate "Please try again"
+      Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
       Message="${Message}\n"
@@ -457,8 +457,8 @@ function set_root_password {
     else
       title="Error"
       message_first_line "Passwords don't match"
-      message_subsequent "Please try again"
-      Message="${Message}\n"
+      translate "Please try again"
+      Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
       Message="${Message}\n"
@@ -477,7 +477,7 @@ function set_user_password {
     Message="${Message}\n"
     
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
-    --passwordform "\n $Message" 16 60 2 \
+    --passwordform "\n $Message" 20 60 2 \
     "Enter password:" 1 1 "" 1 25 25 30 \
     "Re-enter password:" 2 1 "" 2 25 25 30 \
     2>output.file
@@ -489,11 +489,10 @@ function set_user_password {
     if [ -z "$Pass1" ] || [ -z "$Pass2" ]; then
       title="Error"
       message_first_line "Passwords cannot be blank"
-      message_subsequent "Please try again"
-      Message="${Message}\n"
-      message_subsequent "Note that you will not be able to"
-      message_subsequent "see passwords as you enter them"
-      Message="${Message}\n"
+      translate "Please try again"
+      Message="${Message}. $Result \n"
+      message_subsequent "Enter a password for"
+      Message="${Message} ${user_name} \n"
       continue
     fi
     if [ "$Pass1" = "$Pass2" ]; then
@@ -504,11 +503,10 @@ function set_user_password {
     else
       title="Error"
       message_first_line "Passwords don't match"
-      message_subsequent "Please try again"
-      Message="${Message}\n"
-      message_subsequent "Note that you will not be able to"
-      message_subsequent "see passwords as you enter them"
-      Message="${Message}\n"
+      translate "Please try again"
+      Message="${Message}. $Result \n"
+      message_subsequent "Enter a password for"
+      Message="${Message} ${user_name} \n"
     fi
   done
 }
