@@ -42,7 +42,7 @@ EFIPartition=""         # eg: /dev/sda1
 UEFI_MOUNT=""    	      # UEFI mountpoint
 DualBoot="N"            # For formatting EFI partition
 
-function check_parts {  # Called by feliz.sh
+function check_parts {  # Called by feliz.sh and f-set.sh
                         # Tests for existing partitions, informs user, calls build_lists to prepare arrays
                         # Displays menu of options, then calls partitioning_options to act on user selection
   if [ "$UEFI" -eq 1 ]; then

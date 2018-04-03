@@ -198,10 +198,22 @@ function guided_partitions
   if [ ${FreeSpace} -gt 1 ]; then
     guided_swap                             # Prepare $SwapSize
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
+  else
+    message_first_line "There is no space for a /swap partition, but you can"
+    message_subsequent "assign a swap-file. It is advised to allow some swap\n"
+    message_subsequent "Do you wish to allocate a swapfile?"
+    SwapSize="0"
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
+    
+    if [ $? -eq 1 ]; then
+      set_swap_file # Note: Global variable SwapFile is set by set_swap_file
+                    # and a swap file is created during installation by MountPartitions
+    fi
   fi
 
   prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
-  AutoPart="GUIDED"                         # Set auto-partition flag
+  AutoPart="GUIDED"                     # Set auto-partition flag
 }
 
 function guided_recalc                  # Calculate remaining disk space
@@ -380,7 +392,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
           dialog --backtitle "$Backtitle" --title " $title " \
               --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 7 60
           if [ $? -eq 0 ]; then
-            SetSwapFile
+            set_swap_file
           else
             SwapSize="0"
           fi
@@ -410,7 +422,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
       
       if [ $? -eq 1 ]; then
-        SetSwapFile # Note: Global variable SwapFile is set by SetSwapFile
+        set_swap_file # Note: Global variable SwapFile is set by set_swap_file
                     # and SwapFile is created during installation by MountPartitions
       fi
       break

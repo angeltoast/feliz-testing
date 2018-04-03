@@ -1042,16 +1042,20 @@ function final_check {  # Called without arguments by feliz.sh/the_start
          choose_display_manager ;;
       6) manual_settings ;;
       7) pick_category ;;
-      8) select_kernel ;;
+      8) select_kernel
+         if [ $? -ne 0 ]; then return $?; fi ;;
       9) if [ "$GrubDevice" != "EFI" ]; then  # Can't be changed if EFI
           select_grub_device
+          if [ $? -ne 0 ]; then return $?; fi
          fi ;;
-      10) return 1 ;;                       # Low-level backout
-      11) AddPartList=""                    # Empty the lists of extra partitions
+      10) return 1 ;;                         # Low-level backout
+      11) AddPartList=""                      # Empty the lists of extra partitions
         AddPartMount=""
         AddPartType=""
-        check_parts                         # Update lists
-        allocate_partitions ;;
+        check_parts                           # Update lists
+        if [ $? -ne 0 ]; then return $?; fi
+        allocate_partitions
+        if [ $? -ne 0 ]; then return $?; fi ;;
       *) break
     esac
   done
