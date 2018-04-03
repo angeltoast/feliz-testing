@@ -979,9 +979,8 @@ function final_check {  # Called without arguments by feliz.sh/the_start
     translate "partition"
     translate="N"
     print_first_line "${RootPartition} /root ${RootType}"
-    print_subsequent "${SwapPartition} /swap"
     print_subsequent "${HomePartition} /home ${HomeType}"
-  
+    print_subsequent "${SwapPartition} /swap"
     echo
     # Prompt user for a number
     translate="Y"

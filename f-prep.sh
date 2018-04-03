@@ -121,11 +121,12 @@ read -p "$1 $2 $3 $4"
 
   if [ -n "$3" ] && [ "$3" != "0" ]; then # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     parted_script "mkpart primary ext4 ${StartPoint} ${3}"
-    AddPartList[0]="${GrubDevice}${MountDevice}"    # eg: /dev/sda3  | add to
+    HomePartition="${GrubDevice}${MountDevice}"
+    AddPartList[0]="${HomePartition}"               # eg: /dev/sda2  | add to
     AddPartMount[0]="/home"                         # Mountpoint     | array of
     AddPartType[0]="$HomeType"                      # Filesystem     | additional partitions
     Home="Y"
-    mkfs."$HomeType" "${GrubDevice}${MountDevice}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
+    mkfs."$HomeType" "${HomePartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda3
     StartPoint=$3                                   # Reset startpoint for /swap
     MountDevice=$((MountDevice+1))                  # Advance partition numbering
   fi
@@ -435,5 +436,5 @@ function display_results
     p="$p \n $Item"                  # Add to $p with newline after each $Item
   done < output.file
 
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 55
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 15 70
 }
