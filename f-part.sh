@@ -49,7 +49,7 @@ function check_parts {  # Called by feliz.sh and f-set.sh
     GrubDevice="EFI"                                                   # Preset $GrubDevice if installing in EFI
   fi
 
-  ShowPartitions=$(lsblk -l "$RootDisk" | grep 'part' | cut -d' ' -f1) # List all partitions on the device
+  ShowPartitions=$(lsblk -l "$RootDevice" | grep 'part' | cut -d' ' -f1) # List all partitions on the device
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
   if [ "$PARTITIONS" -eq 0 ]; then                                     # If no partitions exist, notify
@@ -115,7 +115,7 @@ function build_lists { # Called by check_parts to generate details of existing p
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
     for part in ${PartitionList}; do
       # Get size and mountpoint of that partition
-      SizeMount=$(lsblk -l "$RootDisk" | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
+      SizeMount=$(lsblk -l "$RootDevice" | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
       Type=$(blkid /dev/"$part" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
