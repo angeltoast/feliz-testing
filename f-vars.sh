@@ -130,7 +130,6 @@ function dialog_inputbox {          # General-purpose input box ... $1 & $2 are 
     --inputbox "\n$Message\n" $1 $2 2>output.file
   retval=$?
   Result=$(cat output.file)
-  return 0
 }
 
 function message_first_line {       # translates $1 and starts a Message with it

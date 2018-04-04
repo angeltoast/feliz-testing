@@ -290,7 +290,7 @@ function no_swap_partition {  # Called by allocate_partitions when there are no 
   message_subsequent "but you can allocate a swap file, if you wish"
   title="Create a swap file?"
   dialog --backtitle "$Backtitle" --title " $title " \
-    --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 10 55 2>output.file
+    --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 14 60 2>output.file
   case $? in
   0) set_swap_file
     SwapPartition="" ;;
@@ -304,8 +304,12 @@ function set_swap_file {
   SwapFile=""
   while [ -z ${SwapFile} ]; do
     message_first_line "Allocate the size of your swap file"
-    message_subsequent "M = Megabytes, G = Gigabytes [eg: 512M or 2G]"
+    message_subsequent "M = Megabytes, G = Gigabytes [ eg: 512M or 2G ]"
+    title="Swap File"
     dialog_inputbox 12 60
+    
+read -p "f-part.sh $LINENO"
+
     if [ $retval -ne 0 ]; then SwapFile=""; return 0; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'
