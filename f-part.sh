@@ -496,7 +496,7 @@ function select_device {  # Called by f-part1.sh/check_parts
 
       if [ "$retval" -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
-        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
+        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 50
         if [ "$?" -eq 0 ]; then
           UseDisk=""
           RootDevice=""
@@ -508,8 +508,6 @@ function select_device {  # Called by f-part1.sh/check_parts
   fi
   RootDevice="/dev/${UseDisk}"  # Full path of selected device
   EFIPartition="${RootDevice}1"
-}
-
 }
 
 function get_device_size {  # Called by feliz.sh
