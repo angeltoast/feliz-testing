@@ -25,12 +25,12 @@
 # ------------------------    ----------------------
 # Functions           Line    Functions         Line 
 # ------------------------    ----------------------
-# auto_warning          36    guided_message     166
-# autopart              46    guided_partitions  176
-# prepare_device        76    guided_recalc      206
-# prepare_partitions    96    guided_root        236
-# select_filesystem    146    guided_home        286
-# display_results      426    guided_swap        336
+# auto_warning          36    guided_message     162
+# autopart              46    guided_partitions  172
+# prepare_device        72    guided_recalc      216
+# prepare_partitions    92    guided_root        243
+# select_filesystem    142    guided_home        286
+# display_results      435    guided_swap        336
 # ------------------------    ----------------------
 
 function auto_warning
@@ -78,6 +78,8 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
+read -p "f-prep.sh line $LINENO : FreeSpace = $FreeSpace"
+
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     parted_script "mklabel gpt"                       # Create new filesystem
@@ -87,6 +89,9 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
+
+read -p "f-prep.sh line $LINENO"
+
 }
 
 function prepare_partitions # Called from autopart for either EFI or BIOS system
@@ -243,6 +248,9 @@ function guided_recalc                  # Calculate remaining disk space
 function guided_root # MBR & EFI Set variables: RootSize, RootType
 {
   FreeGigs=$((FreeSpace/1024))
+
+read -p "f-prep.sh $LINENO FreeGigs $FreeGigs FreeSpace $FreeSpace"
+
   while true
   do
     # Clear display, show /boot and available space
@@ -261,16 +269,22 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     message_subsequent "The /root partition should not be less than 8GiB"
     message_subsequent "ideally more, up to 20GiB"
     message_subsequent "\nPlease enter the desired size"
-    translate "Size"
-    message_subsequent "${Result} [ eg: 12G or 100% ] ... "
+     Message="$Message \n [ eg: 12G or 100% ] ... "
+
+read -p "f-prep.sh $LINENO"
 
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
+
+read -p "f-prep.sh $LINENO : retval $retval"
+
     if [ $retval -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"
     RESPONSE="${Result^^}"
-    # Check that entry includes 'G or M'
+    # Check that entry includes 'G or M or %'
     CheckInput=${RESPONSE: -1}
+
+read -p "f-prep.sh $LINENO Result $Result "
 
     if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M or G or %\n" 6 50
@@ -288,6 +302,9 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       break
     fi
   done
+
+read -p "f-prep.sh $LINENO RootSize $RootSize"
+
 }
 
 function guided_home # MBR & EFI Set variables: HomeSize, HomeType
