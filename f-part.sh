@@ -32,7 +32,7 @@
 # allocate_partitions  142    choose_mountpoint   430 
 # parted_script        150    display_partitions  461  
 # allocate_root        200    allocate_uefi       489 
-# allocate_swap        245    select_device       509 
+# allocate_swap        245    
 # select_device        285    get_device_size     570 
 # ------------------------    ------------------------
 
@@ -252,7 +252,7 @@ function allocate_swap { # Called by allocate_partitions
   return 0
 }
 
-function select_device {  # Called by f-part1.sh/check_parts
+function select_device {  # Called by f-part.sh/check_parts
                           # Detects available devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
@@ -266,40 +266,12 @@ function select_device {  # Called by f-part1.sh/check_parts
       Message="$Message $Result"
       message_subsequent "Which do you wish to use for this installation?"
 
-      Counter=0
-      for i in $DiskDetails; do
-        Counter=$((Counter+1))
-        message_first_line "" "$Counter) $i"
-      done
+      menu_dialog_variable="$DiskDetails"
+      menu_dialog 15 50
 
-      title="Selecting a device"
-      echo $DiskDetails > list.file
-
-      # Prepare list for display as a radiolist
-      local -a ItemList=                                # Array will hold entire checklist
-      local Items=0
-      local Counter=0
-      while read -r Item; do                              # Read items from the file
-        Counter=$((Counter+1)) 
-        Items=$((Items+1))
-        ItemList[${Items}]="${Item}"                      # and copy each one to the variable
-        Items=$((Items+1))
-        ItemList[${Items}]="${Item}" 
-        Items=$((Items+1))
-        ItemList[${Items}]="off"                          # with added off switch and newline
-      done < list.file
-      Items=$Counter
-
-      dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
-        --cancel-label "$Cancel"--no-tags --radiolist "${Message}" \
-          $1 $2 ${Items} ${ItemList[@]} 2>output.file
-      retval=$?
-      Result=$(cat output.file)                           # Return values to calling function
-      rm list.file
-      
       if [ "$retval" -ne 0 ]; then
         dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
-        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 40
+        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 50
         if [ "$?" -eq 0 ]; then
           UseDisk=""
           RootDevice=""
@@ -471,42 +443,9 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
   PartitionList=$(echo "$PartitionList" | sed "s/${Result}$//")  # Remove selected item
 }
 
-function select_device {  # Called by f-part.sh/check_parts
-                          # Detects available devices
-  DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
-  UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
-  local Counter=$(echo "$DiskDetails" | wc -w)
-  if [ "$Counter" -gt 1 ]; then   # If there are multiple devices ask user which to use
-    UseDisk=""            # Reset for user choice
-    while [ -z "$UseDisk" ]; do
-      message_first_line "There are"
-      Message="$Message $Counter"
-      translate "devices available"
-      Message="$Message $Result"
-      message_subsequent "Which do you wish to use for this installation?"
-
-      menu_dialog_variable="$DiskDetails"
-      menu_dialog 15 50
-
-      if [ "$retval" -ne 0 ]; then
-        dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
-        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 50
-        if [ "$?" -eq 0 ]; then
-          UseDisk=""
-          RootDevice=""
-          return 1
-        fi
-      fi
-      UseDisk="$Result"
-    done
-  fi
-  RootDevice="/dev/${UseDisk}"  # Full path of selected device
-  EFIPartition="${RootDevice}1"
-}
-
 function get_device_size {  # Called by feliz.sh
                             # Establish size of device $UseDisk in MiB and inform user
-  DiskSize=$(lsblk -l "$RootDevice" | awk '{print $4}') # 1) Get disk size eg: 465.8G
+  DiskSize=$(lsblk -l "$RootDevice" | grep "$UseDisk " | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
                                   # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
