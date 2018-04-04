@@ -36,7 +36,7 @@
 function auto_warning
 {
   message_first_line "This will erase any data on"
-  Message="$Message ${UseDisk}"
+  Message="$Message $RootDevice"
   message_subsequent "Are you sure you wish to continue?"
   dialog --backtitle "$Backtitle" --title " Auto-partition " \
     --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 9 50

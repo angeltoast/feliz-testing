@@ -506,7 +506,7 @@ function select_device {  # Called by f-part.sh/check_parts
 
 function get_device_size {  # Called by feliz.sh
                             # Establish size of device $UseDisk in MiB and inform user
-  DiskSize=$(lsblk -l "$RootDisk" | awk '{print $4}') # 1) Get disk size eg: 465.8G
+  DiskSize=$(lsblk -l "$RootDevice" | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
                                   # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
