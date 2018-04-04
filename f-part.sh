@@ -323,13 +323,9 @@ function set_swap_file {
     message_first_line "Allocate the size of your swap file"
     message_subsequent "M = Megabytes, G = Gigabytes [ eg: 512M or 2G ]"
     title="Swap File"
-    
-read -p "f-part.sh $LINENO"
 
     dialog_inputbox 12 60
-    
-read -p "f-part.sh $LINENO"
-
+ 
     if [ $retval -ne 0 ]; then SwapFile=""; return 0; fi
     RESPONSE="${Result^^}"
     # Check that entry includes 'M or G'

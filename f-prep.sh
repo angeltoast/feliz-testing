@@ -204,9 +204,11 @@ function guided_partitions
     dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
     
-    if [ $? -eq 1 ]; then
+    if [ $? -eq 0 ]; then
       set_swap_file # Note: Global variable SwapFile is set by set_swap_file
                     # and a swap file is created during installation by MountPartitions
+    else
+      SwapSize="0"
     fi
   fi
 
@@ -245,8 +247,6 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
 {
   FreeGigs=$((FreeSpace/1024))
 
-read -p "f-prep.sh $LINENO FreeGigs $FreeGigs FreeSpace $FreeSpace"
-
   while true
   do
     # Clear display, show /boot and available space
@@ -267,20 +267,14 @@ read -p "f-prep.sh $LINENO FreeGigs $FreeGigs FreeSpace $FreeSpace"
     message_subsequent "\nPlease enter the desired size"
      Message="$Message \n [ eg: 12G or 100% ] ... "
 
-read -p "f-prep.sh $LINENO"
-
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
-
-read -p "f-prep.sh $LINENO : retval $retval"
 
     if [ $retval -ne 0 ]; then return 1; fi
     Result="$(cat output.file)"
     RESPONSE="${Result^^}"
     # Check that entry includes 'G or M or %'
     CheckInput=${RESPONSE: -1}
-
-read -p "f-prep.sh $LINENO Result $Result "
 
     if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\nYou must include M or G or %\n" 6 50
@@ -298,9 +292,6 @@ read -p "f-prep.sh $LINENO Result $Result "
       break
     fi
   done
-
-read -p "f-prep.sh $LINENO RootSize $RootSize"
-
 }
 
 function guided_home # MBR & EFI Set variables: HomeSize, HomeType
@@ -431,9 +422,11 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
       
-      if [ $? -eq 1 ]; then
+      if [ $? -eq 0 ]; then
         set_swap_file # Note: Global variable SwapFile is set by set_swap_file
                     # and SwapFile is created during installation by MountPartitions
+      else
+        SwapSize="0"
       fi
       break
     fi
