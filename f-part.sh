@@ -49,11 +49,11 @@ function check_parts {  # Called by feliz.sh and f-set.sh
     GrubDevice="EFI"                        # Preset $GrubDevice if installing in EFI
   fi
   
-  select_device                             # User selects device $UseDisk (eg: sda)
-  if [ $? -ne 0 ]; then return 1; fi
+ # select_device                             # User selects device $UseDisk (eg: sda)
+ # if [ $? -ne 0 ]; then return 1; fi
   
-  get_device_size                           # Get available space in MiB
-  if [ $? -ne 0 ]; then return 1; fi
+ # get_device_size                           # Get available space in MiB
+ # if [ $? -ne 0 ]; then return 1; fi
 
   ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
@@ -477,7 +477,7 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
   PartitionList=$(echo "$PartitionList" | sed "s/${Result}$//")  # Remove selected item
 }
 
-function select_device {  # Called by f-part1.sh/check_parts
+function select_device {  # Called by f-part.sh/check_parts
                           # Detects available devices
   DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
   UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
