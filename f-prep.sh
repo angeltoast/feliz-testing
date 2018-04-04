@@ -201,7 +201,7 @@ function guided_partitions
     message_subsequent "Do you wish to allocate a swapfile?"
     SwapSize="0"
     dialog --backtitle "$Backtitle" --title " $title " \
-      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
+      --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
     
     if [ $? -eq 1 ]; then
       set_swap_file # Note: Global variable SwapFile is set by set_swap_file
@@ -416,7 +416,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       message_subsequent "Do you wish to allocate a swapfile?"
       SwapSize="0"
       dialog --backtitle "$Backtitle" --title " $title " \
-        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 6 55 2>output.file
+        --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
       
       if [ $? -eq 1 ]; then
         set_swap_file # Note: Global variable SwapFile is set by set_swap_file
