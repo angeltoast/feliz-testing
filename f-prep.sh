@@ -73,8 +73,8 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
 {
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
-  FreeSpace="$DiskSize" !!!!Add this to new function  # For guided partitioning
+  DiskSize=$(lsblk -l "$RootDisk" | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
+  FreeSpace="$DiskSize"                             # For guided partitioning
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
@@ -91,7 +91,6 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
 
 function prepare_partitions # Called from autopart for either EFI or BIOS system
 {
-read -p "$1 $2 $3 $4"
   # Uses gnu parted to create partitions 
   # Receives up to 4 arguments
   #   $1 is the starting point of the root partition  - 1MiB if MBR, 513MiB if GPT
@@ -430,7 +429,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
 
 function display_results
 {
-  lsblk -l -f | grep "${UseDisk}" > output.file
+  lsblk -l "${RootDisk}" > output.file
   p=" "
   while read -r Item; do             # Read items from the output.file file
     p="$p \n $Item"                  # Add to $p with newline after each $Item

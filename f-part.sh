@@ -46,19 +46,13 @@ function check_parts {  # Called by feliz.sh and f-set.sh
                         # Tests for existing partitions, informs user, calls build_lists to prepare arrays
                         # Displays menu of options, then calls partitioning_options to act on user selection
   if [ "$UEFI" -eq 1 ]; then
-    GrubDevice="EFI"                        # Preset $GrubDevice if installing in EFI
+    GrubDevice="EFI"                                                   # Preset $GrubDevice if installing in EFI
   fi
-  
- # select_device                             # User selects device $UseDisk (eg: sda)
- # if [ $? -ne 0 ]; then return 1; fi
-  
- # get_device_size                           # Get available space in MiB
- # if [ $? -ne 0 ]; then return 1; fi
 
-  ShowPartitions=$(lsblk -l | grep 'part' | cut -d' ' -f1)  # List of all partitions on all connected devices
+  ShowPartitions=$(lsblk -l "$RootDisk" | grep 'part' | cut -d' ' -f1) # List all partitions on the device
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
-  if [ "$PARTITIONS" -eq 0 ]; then                          # If no partitions exist, notify
+  if [ "$PARTITIONS" -eq 0 ]; then                                     # If no partitions exist, notify
     message_first_line "\nThere are no partitions on the device."
     message_subsequent "Please read the 'partitioning' file for advice."
 
@@ -121,7 +115,7 @@ function build_lists { # Called by check_parts to generate details of existing p
   # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
     for part in ${PartitionList}; do
       # Get size and mountpoint of that partition
-      SizeMount=$(lsblk -l | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
+      SizeMount=$(lsblk -l "$RootDisk" | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
       # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
       Type=$(blkid /dev/"$part" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
       PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
@@ -512,7 +506,7 @@ function select_device {  # Called by f-part.sh/check_parts
 
 function get_device_size {  # Called by feliz.sh
                             # Establish size of device $UseDisk in MiB and inform user
-  DiskSize=$(lsblk -l | grep "${UseDisk}\ " | awk '{print $4}') # 1) Get disk size eg: 465.8G
+  DiskSize=$(lsblk -l "$RootDisk" | awk '{print $4}') # 1) Get disk size eg: 465.8G
   Unit=${DiskSize: -1}                                          # 2) Save last character (eg: G)
                                   # Remove last character for calculations
   Chars=${#DiskSize}              # Count characters in variable
