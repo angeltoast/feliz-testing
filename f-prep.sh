@@ -78,8 +78,6 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
-read -p "f-prep.sh line $LINENO : UseDisk $UseDisk RootDevice $RootDevice FreeSpace $FreeSpace"
-
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     parted_script "mklabel gpt"                       # Create new filesystem
@@ -89,8 +87,6 @@ read -p "f-prep.sh line $LINENO : UseDisk $UseDisk RootDevice $RootDevice FreeSp
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
-
-read -p "f-prep.sh line $LINENO"
 
 }
 

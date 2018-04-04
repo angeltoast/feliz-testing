@@ -254,11 +254,13 @@ function allocate_swap { # Called by allocate_partitions
 
 function select_device {  # Called by f-part.sh/check_parts
                           # Detects available devices
-  DiskDetails=$(lsblk -l | grep 'disk' | cut -d' ' -f1)     # eg: sda sdb
-  UseDisk=$DiskDetails                                      # If more than one, $UseDisk will be first
+  # First list all devices with their sizes
+  DiskDetails=$(lsblk -l -o NAME,SIZE,TYPE | grep disk | sed 's/disk//')  # eg: sda 10G sdb 215G
+
   local Counter=$(echo "$DiskDetails" | wc -w)
+  Counter=$((Counter/2))
   if [ "$Counter" -gt 1 ]; then   # If there are multiple devices ask user which to use
-    UseDisk=""            # Reset for user choice
+    UseDisk=""                    # Reset
     while [ -z "$UseDisk" ]; do
       message_first_line "There are"
       Message="$Message $Counter"
@@ -266,21 +268,36 @@ function select_device {  # Called by f-part.sh/check_parts
       Message="$Message $Result"
       message_subsequent "Which do you wish to use for this installation?"
 
-      menu_dialog_variable="$DiskDetails"
-      menu_dialog 15 50
+      declare -a ItemList=()                                    # Array will hold entire list for menu display
+      Items=0
+      for Item in $DiskDetails; do 
+        Items=$((Items+1))
+        ItemList[${Items}]="${Item}"                            # eg: sda1
+      done
+      
+      if [ "$Items" -gt 0 ]; then                               # Display for selection
+        dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
+        --cancel-label "$Cancel" --menu "$Message" 18 70 ${Items} "${ItemList[@]}" 2>output.file
+        retval=$?
+        Result=$(cat output.file)
+        UseDisk="$Result"
 
-      if [ "$retval" -ne 0 ]; then
-        dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
-        "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 50
-        if [ "$?" -eq 0 ]; then
-          UseDisk=""
-          RootDevice=""
-          return 1
+        if [ "$retval" -ne 0 ]; then
+          dialog --title "$title" --yes-label "$Yes" --no-label "$No" --yesno \
+          "\nPartitioning cannot continue without a device.\nAre you sure you don't want to select a device?" 10 50
+          if [ "$?" -eq 0 ]; then
+            UseDisk=""
+            RootDevice=""
+            return 1
+          fi
         fi
+        UseDisk="$Result"
       fi
-      UseDisk="$Result"
     done
+  else                          # If only one device
+    UseDisk=$DiskDetails        # Save just the name
   fi
+
   RootDevice="/dev/${UseDisk}"  # Full path of selected device
   EFIPartition="${RootDevice}1"
 }
