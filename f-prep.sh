@@ -74,11 +74,11 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l "$RootDevice" | grep "${UseDisk} " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
-  FreeSpace="$DiskSize"                             # For guided partitioning
+  FreeSpace="$((DiskSize*1024))"                    # For guided partitioning
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
-read -p "f-prep.sh line $LINENO : FreeSpace = $FreeSpace"
+read -p "f-prep.sh line $LINENO : UseDisk $UseDisk RootDevice $RootDevice FreeSpace $FreeSpace"
 
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
