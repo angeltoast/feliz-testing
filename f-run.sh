@@ -392,9 +392,8 @@ function user_add { # Adds user and copies FelizOB configurations
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log
     # Configure lightdm
     sed -i 's/#greeter-hide-users=false/greeter-hide-users=false/' /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
-    sed -i 's/#background=/background=/usr/share/wallpaper.jpg/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
-    sed -i 's/#user-background=false/user-background=false/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
-    sed -i 's/#position=/position=25% 75%/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
+    sed -i 's/#background=/background=\/usr\/share\/wallpaper.jpg/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
+    sed -i 's/#user-background=/user-background=false/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${user_name}:users /home/${user_name}/"
   fi
@@ -425,7 +424,7 @@ function set_root_password {  # ↓↑
   Message="${Message}\n"
   message_subsequent "Note that you will not be able to"
   message_subsequent "see passwords as you enter them"
-  message_subsequent "Use cursor keys ↓ ↑ "
+  message_subsequent "Use cursor keys up/down"
   Message="${Message}\n"
   Repeat="Y"
   while [ $Repeat = "Y" ]; do
@@ -435,7 +434,7 @@ function set_root_password {  # ↓↑
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 20 60 2 \
     "Enter password:" 1 1 "" 1 25 25 30 \
-    "Re-enter password ↑ :" 2 1 "" 2 25 25 30 \
+    "Re-enter password:" 2 1 "" 2 25 25 30 \
     2>output.file
 
     Pass1=$(head -n1 output.file)
@@ -450,7 +449,7 @@ function set_root_password {  # ↓↑
       Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
-      message_subsequent "Use cursor keys ↓ ↑ "
+      message_subsequent "Use cursor keys up/down"
       Message="${Message}\n"
       continue
     fi
@@ -466,7 +465,7 @@ function set_root_password {  # ↓↑
       Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
-      message_subsequent "Use cursor keys ↓ ↑ "
+      message_subsequent "Use cursor keys up/down"
       Message="${Message}\n"
     fi
   done
@@ -480,7 +479,7 @@ function set_user_password {
   while [ $Repeat = "Y" ]; do
     message_subsequent "Note that you will not be able to"
     message_subsequent "see passwords as you enter them"
-    message_subsequent "Use cursor keys ↓ ↑ "
+    message_subsequent "Use cursor keys up/down"
     Message="${Message}\n"
     
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
@@ -500,7 +499,7 @@ function set_user_password {
       Message="${Message}. $Result \n"
       message_subsequent "Enter a password for"
       Message="${Message} ${user_name} \n"
-      message_subsequent "Use cursor keys ↓ ↑ "
+      message_subsequent "Use cursor keys up/down"
       continue
     fi
     if [ "$Pass1" = "$Pass2" ]; then
@@ -515,7 +514,7 @@ function set_user_password {
       Message="${Message}. $Result \n"
       message_subsequent "Enter a password for"
       Message="${Message} ${user_name} \n"
-      message_subsequent "Use cursor keys ↓ ↑ "
+      message_subsequent "Use cursor keys up/down"
     fi
   done
 }
