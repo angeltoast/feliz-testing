@@ -230,7 +230,7 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
   if [ "$DesktopEnvironment" = "FelizOB" ]; then
     translate "Installing"
     install_message "$Result FelizOB"
-    pacstrap /mnt lightdm 2>> feliz.log
+    pacstrap /mnt lightdm lightdm-gtk-greeter 2>> feliz.log
     arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
     pacstrap /mnt openbox 2>> feliz.log                                               # First ensure that Openbox gets installed
     pacstrap /mnt obmenu obconf 2>> feliz.log                                         # Then Openbox tools
