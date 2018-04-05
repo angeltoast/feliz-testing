@@ -422,6 +422,7 @@ function set_root_password {  # ↓↑
   Message="${Message}\n"
   message_subsequent "Note that you will not be able to"
   message_subsequent "see passwords as you enter them"
+  message_subsequent "Use cursor keys ↓ ↑ "
   Message="${Message}\n"
   Repeat="Y"
   while [ $Repeat = "Y" ]; do
@@ -430,8 +431,8 @@ function set_root_password {  # ↓↑
 
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 20 60 2 \
-    "Enter password:" 1 1 " ↓ " 1 25 25 30 \
-    "Re-enter password:" 2 1 " ↑ " 2 25 25 30 \
+    "Enter password:" 1 1 "" 1 25 25 30 \
+    "Re-enter password ↑ :" 2 1 "" 2 25 25 30 \
     2>output.file
 
     Pass1=$(head -n1 output.file)
@@ -446,6 +447,7 @@ function set_root_password {  # ↓↑
       Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
+      message_subsequent "Use cursor keys ↓ ↑ "
       Message="${Message}\n"
       continue
     fi
@@ -461,6 +463,7 @@ function set_root_password {  # ↓↑
       Message="${Message}. $Result \n"
       message_subsequent "Note that you will not be able to"
       message_subsequent "see passwords as you enter them"
+      message_subsequent "Use cursor keys ↓ ↑ "
       Message="${Message}\n"
     fi
   done
@@ -474,12 +477,13 @@ function set_user_password {
   while [ $Repeat = "Y" ]; do
     message_subsequent "Note that you will not be able to"
     message_subsequent "see passwords as you enter them"
+    message_subsequent "Use cursor keys ↓ ↑ "
     Message="${Message}\n"
     
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 18 60 2 \
-    "Enter password:" 1 1 " ↓ " 1 25 25 30 \
-    "Re-enter password:" 2 1 " ↑ " 2 25 25 30 \
+    "Enter password:" 1 1 "" 1 25 25 30 \
+    "Re-enter password:" 2 1 "" 2 25 25 30 \
     2>output.file
 
     Pass1=$(head -n1 output.file)
@@ -493,6 +497,7 @@ function set_user_password {
       Message="${Message}. $Result \n"
       message_subsequent "Enter a password for"
       Message="${Message} ${user_name} \n"
+      message_subsequent "Use cursor keys ↓ ↑ "
       continue
     fi
     if [ "$Pass1" = "$Pass2" ]; then
@@ -507,6 +512,7 @@ function set_user_password {
       Message="${Message}. $Result \n"
       message_subsequent "Enter a password for"
       Message="${Message} ${user_name} \n"
+      message_subsequent "Use cursor keys ↓ ↑ "
     fi
   done
 }
