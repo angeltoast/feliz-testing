@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 8th January 2018
+# Revision date: 3rd April 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -409,7 +409,7 @@ function check_existing {     # Test if $1 (path) + $2 (file) already exists
   fi
 }
 
-function set_root_password {
+function set_root_password {  # ↓↑
   translate "Success!"
   title="$Result"
   translate "minutes"
@@ -430,8 +430,8 @@ function set_root_password {
 
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 20 60 2 \
-    "Enter password:" 1 1 "" 1 25 25 30 \
-    "Re-enter password:" 2 1 "" 2 25 25 30 \
+    "Enter password:" 1 1 " ↓ " 1 25 25 30 \
+    "Re-enter password:" 2 1 " ↑ " 2 25 25 30 \
     2>output.file
 
     Pass1=$(head -n1 output.file)
@@ -478,8 +478,8 @@ function set_user_password {
     
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 18 60 2 \
-    "Enter password:" 1 1 "" 1 25 25 30 \
-    "Re-enter password:" 2 1 "" 2 25 25 30 \
+    "Enter password:" 1 1 " ↓ " 1 25 25 30 \
+    "Re-enter password:" 2 1 " ↑ " 2 25 25 30 \
     2>output.file
 
     Pass1=$(head -n1 output.file)

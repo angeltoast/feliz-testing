@@ -3,7 +3,7 @@
 # The Feliz2 installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 9th January 2018
+# Revision date: 3rd April 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -557,6 +557,9 @@ function pick_category { # menu_dialog of categories of selected items from the 
 
   for i in $LuxuriesList; do                          # Run through list
     Check=$(echo "$Desktops" | grep $i)               # Test if a DE
+    if [ -z "$Check" ]; then                          # If not DE
+      Check=$(echo "$WindowManagers" | grep $i)             # Test if a WM
+    fi
     if [ -n "$Check" ]; then                          # This is just to set a primary DE variable
       DesktopEnvironment="$i"                         # Add as DE
       if [ "$DesktopEnvironment" = "Gnome" ]; then    # Gnome installs own DM, so break after adding
