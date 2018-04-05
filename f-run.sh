@@ -230,15 +230,13 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
   if [ "$DesktopEnvironment" = "FelizOB" ]; then
     translate "Installing"
     install_message "$Result FelizOB"
-    # arch_chroot "systemctl disable display-manager.service" 2>> feliz.log
-    pacstrap /mnt lxdm 2>> feliz.log
-    arch_chroot "systemctl -f enable lxdm.service" >> feliz.log
+    pacstrap /mnt lightdm 2>> feliz.log
+    arch_chroot "systemctl -f enable lightdm.service" >> feliz.log
     pacstrap /mnt openbox 2>> feliz.log                                               # First ensure that Openbox gets installed
     pacstrap /mnt obmenu obconf 2>> feliz.log                                         # Then Openbox tools
     pacstrap /mnt lxde-icon-theme leafpad lxappearance lxinput lxpanel 2>> feliz.log  # Then LXDE tools
     pacstrap /mnt lxrandr lxsession lxtask lxterminal pcmanfm 2>> feliz.log           # more LXDE tools
     pacstrap /mnt compton conky gpicview midori xscreensaver 2>> feliz.log            # Add some extras
-    cp lxdm.conf /mnt/etc/lxdm/                                                       # Copy the LXDM config file
     install_yaourt                                                                    # And install Yaourt
   fi
   # Display manager - runs only once
@@ -392,6 +390,11 @@ function user_add { # Adds user and copies FelizOB configurations
     check_existing "/mnt/home/${user_name}/.config/pcmanfm/default/" "desktop-items-0.conf"
     cp desktop-items /mnt/home/"$user_name"/.config/pcmanfm/default/desktop-items-0.conf 2>> feliz.log # Desktop configurations for pcmanfm
     cp wallpaper.jpg /mnt/usr/share/ 2>> feliz.log
+    # Configure lightdm
+    sed -i 's/#greeter-hide-users=false/greeter-hide-users=false/' /mnt/etc/lightdm/lightdm.conf 2>> feliz.log
+    sed -i 's/#background=/background=/usr/share/wallpaper.jpg/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
+    sed -i 's/#user-background=false/user-background=false/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
+    sed -i 's/#position=/position=25% 75%/' /mnt/etc/lightdm/lightdm-gtk-greeter.conf 2>> feliz.log
     # Set owner
     arch_chroot "chown -R ${user_name}:users /home/${user_name}/"
   fi
