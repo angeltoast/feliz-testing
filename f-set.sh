@@ -982,8 +982,18 @@ function final_check {  # Called without arguments by feliz.sh/the_start
     translate "partition"
     translate="N"
     print_first_line "${RootPartition} /root ${RootType}"
-    print_subsequent "${HomePartition} /home ${HomeType}"
-    print_subsequent "${SwapPartition} /swap"
+    if [ -z "${HomePartition}" ]; then
+      print_subsequent "No /home partition"
+    else
+      print_subsequent "${HomePartition} /home ${HomeType}"
+    fi
+    if [ -n "${SwapFile}" ]; then
+      print_subsequent "Swap file ${SwapFile}"
+    elif [ -z "${SwapPartition}" ]; then
+      print_subsequent "No /swap partition"
+    else
+      print_subsequent "${SwapPartition} /swap"
+    fi
     echo
     # Prompt user for a number
     translate="Y"
