@@ -732,8 +732,7 @@ function enter_grub_path { # Manual input
     message_first_line "You have chosen to manually enter the path for Grub"
     message_subsequent "This should be in the form /dev/sdx or similar"
     message_subsequent "Only enter a device, do not include a partition number"
-    message_subsequent "If in doubt, consult"
-    message_subsequent "https://wiki.archlinux.org/index.php/GRUB"
+    message_subsequent "If in doubt, consult the Arch Wiki"
     
     dialog_inputbox 15 65    # text input dialog
     if [ $retval -eq 0 ]; then return; fi
@@ -913,7 +912,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
   while true; do
     clear
     echo
-    translate "These are the settings you have entered."
+    translate "These are the settings you have entered"
     print_first_line "$Result"
     translate "Please check them before Feliz begins the installation"
     print_first_line "$Result"
