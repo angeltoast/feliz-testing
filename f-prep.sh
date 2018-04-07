@@ -85,6 +85,7 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
     EFIPartition="${GrubDevice}1"                     # Define EFI partition 
     mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log      # Format EFI boot partition
     StartPoint="551MiB"                               # For next partition
+    FreeSpace="$((FreeSpace-550))"                    # For guided partitioning
   else                                                # Installing in BIOS environment
     parted_script "mklabel msdos"                     # Create new filesystem
     StartPoint="1MiB"                                 # For next partition
@@ -263,7 +264,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     if [ $UEFI -eq 1 ]; then
-      message_first_line "$BootPartition : ${BootSize}"
+      message_first_line "EFI Partition : 550MiB"
       message_subsequent "You now have"
     else
       message_first_line "You have"
