@@ -230,7 +230,7 @@ function guided_partitions
 
 function guided_recalc                  # Calculate remaining disk space
 {
-  if [ -z $1 ]; then return; fi         # Just in case
+  if [ -z $1 ] || [  $1 -eq 0 ]; then return; fi         # Just in case
   local Passed
   Chars=${#1}                           # Count characters in variable
   
@@ -289,9 +289,9 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
 
-    if [ $retval -ne 0 ]; then return 1; fi
+    if [ $retval -ne 0 ]; then continue 1; fi
     Result="$(cat output.file)"
-    if [ $retval -eq 1 ] || [ -z "$Result" ]; then
+    if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
         continue        # Cannot be zero or blank
       else
         RESPONSE="${Result^^}"
@@ -344,8 +344,9 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     dialog --backtitle "$Backtitle" --title " Home " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
-    if [ $retval -eq 1 ] || [ -z "$Result" ]; then
-      RESPONSE=0
+    if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
+      HomeSize="0"
+      return 0
     else
       RESPONSE="${Result^^}"
     fi
@@ -416,10 +417,10 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       translate "Size"
       message_subsequent "$Result [ eg: 2G or 0 or 100% ] ... "
   
-      dialog --backtitle "$Backtitle" --title " Swap " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
+      dialog --backtitle "$Backtitle" --title " Swap " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
       retval=$?
       Result="$(cat output.file)"
-      if [ $retval -eq 1 ] || [ -z "$Result" ]; then
+      if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
         RESPONSE=0
       else
         RESPONSE="${Result^^}"
@@ -476,11 +477,11 @@ function guided_swap # MBR & EFI Set variable: SwapSize
 
 function display_results
 {
-  lsblk -l "${RootDevice}" > output.file
+  fdisk -l "${RootDevice}" > output.file
   p=" "
   while read -r Item; do             # Read items from the output.file file
     p="$p \n $Item"                  # Add to $p with newline after each $Item
   done < output.file
 
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 15 70
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 70
 }
