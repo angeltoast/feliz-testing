@@ -96,8 +96,8 @@ function install_kernel { # Called without arguments by feliz.sh
   # trust update. Next trust update due 2018:06:25
   # Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
   isodate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
-  TrustDate=201710                                                # Date of latest Arch Linux trust update
-  # Next trustdb check 2018-10-20
+  TrustDate=201801                                                # Date of latest Arch Linux trust update
+  # Next trustdb check 2018-06-25
   if [ "$isodate" -ge "$TrustDate" ]; then                        # If the running iso is more recent than
     echo "pacman-key trust check passed" >> feliz.log             # the last trust update, no action is taken
   else                                                            # But if the iso is older than the last trust
@@ -422,15 +422,16 @@ function set_root_password {  # ↓↑
   Message="$Message ${DIFFMIN} $mins ${DIFFSEC} ${secs}\n"
   message_subsequent "Finally we need to set passwords"
   Message="${Message}\n"
-  message_subsequent "Note that you will not be able to"
-  message_subsequent "see passwords as you enter them"
-  message_subsequent "Use cursor keys up/down"
-  Message="${Message}\n"
+
   Repeat="Y"
   while [ $Repeat = "Y" ]; do
     message_subsequent "Enter a password for"
     Message="${Message} root\n"
-
+    message_subsequent "Note that you will not be able to"
+    message_subsequent "see passwords as you enter them"
+    message_subsequent "Use cursor keys up/down"
+    Message="${Message}\n"
+    
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 20 60 2 \
     "Enter password:" 1 1 "" 1 25 25 30 \
@@ -447,10 +448,6 @@ function set_root_password {  # ↓↑
       message_first_line "Passwords cannot be blank"
       translate "Please try again"
       Message="${Message}. $Result \n"
-      message_subsequent "Note that you will not be able to"
-      message_subsequent "see passwords as you enter them"
-      message_subsequent "Use cursor keys up/down"
-      Message="${Message}\n"
       continue
     fi
     if [ "$Pass1" = "$Pass2" ]; then
@@ -463,24 +460,20 @@ function set_root_password {  # ↓↑
       message_first_line "Passwords don't match"
       translate "Please try again"
       Message="${Message}. $Result \n"
-      message_subsequent "Note that you will not be able to"
-      message_subsequent "see passwords as you enter them"
-      message_subsequent "Use cursor keys up/down"
-      Message="${Message}\n"
     fi
   done
 }
 
 function set_user_password {
   title="Passwords"
-  message_first_line "Enter a password for"
-  Message="${Message} ${user_name}\n"
   Repeat="Y"
   while [ $Repeat = "Y" ]; do
+    message_first_line "Enter a password for"
+    Message="${Message} ${user_name}\n"
     message_subsequent "Note that you will not be able to"
     message_subsequent "see passwords as you enter them"
     message_subsequent "Use cursor keys up/down"
-    Message="${Message}\n"
+    Message="${Message} \n"
     
     dialog --backtitle "$Backtitle" --title " $title " --nocancel --insecure --ok-label "$Ok" \
     --passwordform "\n $Message" 18 60 2 \
@@ -497,9 +490,6 @@ function set_user_password {
       message_first_line "Passwords cannot be blank"
       translate "Please try again"
       Message="${Message}. $Result \n"
-      message_subsequent "Enter a password for"
-      Message="${Message} ${user_name} \n"
-      message_subsequent "Use cursor keys up/down"
       continue
     fi
     if [ "$Pass1" = "$Pass2" ]; then
@@ -512,9 +502,6 @@ function set_user_password {
       message_first_line "Passwords don't match"
       translate "Please try again"
       Message="${Message}. $Result \n"
-      message_subsequent "Enter a password for"
-      Message="${Message} ${user_name} \n"
-      message_subsequent "Use cursor keys up/down"
     fi
   done
 }

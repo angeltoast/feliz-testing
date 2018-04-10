@@ -977,9 +977,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
     print_subsequent "10) $Result"
     # 11) Partitions
     translate "The following partitions have been selected"
-    print_subsequent "11) $Result ..."
-    translate "partition"
-    translate="N"
+    print_first_line "    $Result ..."
     print_first_line "${RootPartition} /root ${RootType}"
     if [ -z "${HomePartition}" ]; then
       print_subsequent "No /home partition"
@@ -1029,14 +1027,7 @@ function final_check {  # Called without arguments by feliz.sh/the_start
           if [ $? -ne 0 ]; then return $?; fi
          fi ;;
       10) return 1 ;;                         # Low-level backout
-      11) AddPartList=""                      # Empty the lists of extra partitions
-        AddPartMount=""
-        AddPartType=""
-        autopart="MANUAL"
-        check_parts                           # Update lists
-        if [ $? -ne 0 ]; then return $?; fi
-        allocate_partitions
-        if [ $? -ne 0 ]; then return $?; fi ;;
+      11) continue ;;
       *) break
     esac
   done
