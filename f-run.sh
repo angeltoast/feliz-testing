@@ -120,7 +120,7 @@ function install_kernel { # Called without arguments by feliz.sh
   esac
   translate "cli tools"
   install_message "$Message $Result"
-  pacstrap /mnt btrfs-progs gamin gksu gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
+  pacstrap /mnt btrfs-progs gamin gvfs ntp wget openssh os-prober screenfetch unrar unzip vim xarchiver xorg-xedit xterm 2>> feliz.log
   arch_chroot "systemctl enable sshd.service" >> feliz.log
 }
 
