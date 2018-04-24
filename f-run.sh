@@ -399,9 +399,11 @@ function user_add { # Adds user and copies FelizOB configurations
   fi
   # Set keyboard at login for user
   arch_chroot "localectl set-x11-keymap $Countrykbd"
-  case $Countrykbd in
-  "uk") echo "setxkbmap -layout gb" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log ;;
-  *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log
+  case "$Countrykbd" in
+  "uk") echo "setxkbmap -layout gb" >> /mnt/home/"$user_name"/.xinitrc 2>> feliz.log ;;
+    # echo "setxkbmap -layout gb" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log ;;
+  *) echo "setxkbmap -layout $Countrykbd" >> /mnt/home/"$user_name"/.xinitrc 2>> feliz.log
+    # echo "setxkbmap -layout $Countrykbd" >> /mnt/home/"$user_name"/.bashrc 2>> feliz.log
   esac
 }
 
