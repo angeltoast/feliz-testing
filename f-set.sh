@@ -91,7 +91,7 @@ function set_timezone {
     dialog --backtitle "$Backtitle" --no-tags \
         --ok-label "$Ok" --cancel-label "$Cancel" \
         --menu "\n      $Message\n" \
-        20 55 $Counter "${ItemList[@]}" 2>output.file
+        20 65 $Counter "${ItemList[@]}" 2>output.file
     if [ $? -ne 0 ]; then return 1; fi
     Response=$(cat output.file)
     Item=$((Response*2))
