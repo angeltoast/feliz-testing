@@ -155,6 +155,9 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
+  
+read -p "DEBUG at ${FUNCNAME[0]} line $LINENO"
+  
   display_results
 }
 
@@ -491,5 +494,5 @@ function display_results
     p="$p \n $Item"                  # Add to $p with newline after each $Item
   done < output.file
 
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 70
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 77
 }
