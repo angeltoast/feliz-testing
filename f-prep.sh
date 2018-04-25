@@ -49,19 +49,19 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   RootType="ext4"                                   # Default for auto
   HomeType="ext4"                                   # Default for auto
   # Decide partition sizes based on device size
-  if [ $DiskSize -ge 40 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 18GiB
+  if [ $DiskSize -ge 50 ]; then                     # ------ /root /home /swap partitions ------
+    HomeSize=$((DiskSize-15-4))                     # /root 15 GiB, /swap 4GiB, /home from 19GiB
     prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-15-3))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
-    prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
+    HomeSize=$((DiskSize-13-3))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
+    prepare_partitions "${StartPoint}" "13GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
     prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "100%"
   elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-1))                        # /root 9 to 17GiB, /swap 1GiB
     prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "100%"
-  else                                              # ------ Swap file and /root partition only -----
+  else                                              # ------/root partition &  Swap file only -----
     prepare_partitions "${StartPoint}" "100%" "0" "0"
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
@@ -113,7 +113,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   else
     MountDevice=1              # Or 1 if not on EFI
   fi
-  # Make /root partition at startpoint
+  # 1) Make /root partition at startpoint
   # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
   parted_script "mkpart primary ext4 ${StartPoint} ${2}"
   # eg: /dev/sda2 if there is an EFI partition
@@ -123,9 +123,10 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   # Set first partition as bootable
   # eg: parted /dev/sda set 1 boot on
   parted_script "set 1 boot on"
-  StartPoint=$2                               # Increment startpoint for /home or /swap
+  End=$(($2*1024))
+  StartPoint=$(($StartPoint+$End))            # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
-  # Make /home partition at startpoint
+  # 2) Make /home partition at startpoint
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
     parted_script "mkpart primary ext4 ${StartPoint} ${3}"
@@ -134,12 +135,12 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     AddPartMount[0]="/home"                   # Mountpoint     | array of
     AddPartType[0]="$HomeType"                # Filesystem     | additional partitions
     Home="Y"
-    # eg: mkfs.ext4 /dev/sda3
-    mkfs."$HomeType" "${HomePartition}" &>> feliz.log
-    StartPoint=$3                             # Reset startpoint for /swap
+    mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
+    End=$(($3*1024))
+    StartPoint=$(($StartPoint+$End))          # Reset startpoint for /swap
     MountDevice=$((MountDevice+1))            # Advance partition numbering
   fi
-  # Make /swap partition at startpoint
+  # 3) Make /swap partition at startpoint
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     parted_script "mkpart primary linux-swap ${StartPoint} ${4}"
