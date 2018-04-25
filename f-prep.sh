@@ -123,9 +123,12 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   # Set first partition as bootable
   # eg: parted /dev/sda set 1 boot on
   parted_script "set 1 boot on"
+  guided_recalc "$1"                          # Separate number from "nGiB"
+  Start="$Calculator"
   guided_recalc "$2"                          # Separate number from "nGiB"
   End="$Calculator"
-  StartPoint=$(($StartPoint+$End))            # Increment startpoint for /home or /swap
+  NewStart=$((Start+End))                     # Increment startpoint for /home or /swap
+  StartPoint="${NewStart}MiB"                 # Add "MiB"
   MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
   # 2) Make /home partition at startpoint
   if [ -n "$3" ] && [ "$3" != "0" ]; then
@@ -137,9 +140,11 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     AddPartType[0]="$HomeType"                # Filesystem     | additional partitions
     Home="Y"
     mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
+    Start="$NewStart"
     guided_recalc "$3"                        # Separate number from "nGiB"
     End="$Calculator"
-    StartPoint=$(($StartPoint+$End))          # Reset startpoint for /swap
+    NewStart=$((Start+End))                   # Reset startpoint for /swap
+    StartPoint="${NewStart}MiB"               # Add "MiB"
     MountDevice=$((MountDevice+1))            # Advance partition numbering
   fi
   # 3) Make /swap partition at startpoint
@@ -233,7 +238,7 @@ function guided_partitions
 
 function guided_recalc                  # Calculate remaining disk space
 { # $1 is a partition size eg: 10MiB or 100% or perhaps 0
-  if [ -z $1 ] || [  $1 -eq 0 ]; then Calculator=0; return; fi # Just in case
+  if [ -z $1 ] || [  "$1" -eq 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                           # Count characters in variable
   
