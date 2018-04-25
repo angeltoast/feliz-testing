@@ -74,21 +74,21 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   GrubDevice="/dev/${UseDisk}"
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l "$RootDevice" | grep "${UseDisk} " | awk '{print $4}' | sed "s/G\|M\|K//g") # Get disk size
-  FreeSpace="$((DiskSize*1024))"                    # For guided partitioning
+  FreeSpace="$((DiskSize*1024))"                    # For guided and auto partitioning
   tput setf 0                                       # Change foreground colour to black to hide error message
   clear
 
   # Create a new partition table
-  if [ ${UEFI} -eq 1 ]; then                          # Installing in UEFI environment
-    parted_script "mklabel gpt"                       # Create new filesystem
-    parted_script "mkpart ESP fat32 1MiB 550MiB"  # EFI boot partition
-    EFIPartition="${GrubDevice}1"                     # Define EFI partition 
-    mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log      # Format EFI boot partition
-    StartPoint="551MiB"                               # For next partition
-    FreeSpace="$((FreeSpace-550))"                    # For guided partitioning
-  else                                                # Installing in BIOS environment
-    parted_script "mklabel msdos"                     # Create new filesystem
-    StartPoint="1MiB"                                 # For next partition
+  if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
+    parted_script "mklabel gpt"                     # Create new filesystem
+    parted_script "mkpart ESP fat32 1MiB 550MiB"    # EFI boot partition
+    EFIPartition="${GrubDevice}1"                   # Define EFI partition 
+    mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log    # Format EFI boot partition
+    StartPoint="551MiB"                             # For next partition
+    FreeSpace="$((FreeSpace-550))"                  # For guided partitioning
+  else                                              # Installing in BIOS environment
+    parted_script "mklabel msdos"                   # Create new filesystem
+    StartPoint="1MiB"                               # For next partition
   fi
 
 }
@@ -123,7 +123,8 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   # Set first partition as bootable
   # eg: parted /dev/sda set 1 boot on
   parted_script "set 1 boot on"
-  End=$(($2*1024))
+  guided_recalc "$2"                          # Separate number from "nGiB"
+  End="$Calculator"
   StartPoint=$(($StartPoint+$End))            # Increment startpoint for /home or /swap
   MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
   # 2) Make /home partition at startpoint
@@ -136,7 +137,8 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     AddPartType[0]="$HomeType"                # Filesystem     | additional partitions
     Home="Y"
     mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
-    End=$(($3*1024))
+    guided_recalc "$3"                        # Separate number from "nGiB"
+    End="$Calculator"
     StartPoint=$(($StartPoint+$End))          # Reset startpoint for /swap
     MountDevice=$((MountDevice+1))            # Advance partition numbering
   fi
@@ -230,8 +232,8 @@ function guided_partitions
 }
 
 function guided_recalc                  # Calculate remaining disk space
-{
-  if [ -z $1 ] || [  $1 -eq 0 ]; then return; fi         # Just in case
+{ # $1 is a partition size eg: 10MiB or 100% or perhaps 0
+  if [ -z $1 ] || [  $1 -eq 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                           # Count characters in variable
   

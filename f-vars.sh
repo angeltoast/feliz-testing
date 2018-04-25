@@ -211,6 +211,7 @@ Ignorelist=""             # Used in review process
 AutoPart="MANUAL"         # Flag - MANUAL/AUTO/GUIDED/CFDISK/NONE
 UseDisk="sda"             # Used if more than one disk
 DiskDetails=0             # Size of selected disk
+Calculator=0              # Used in f-prep to separate numeric part of "nGiB"
 
 # Grub & kernel variables
 GrubDevice=""             # eg: /dev/sda - device for grub
