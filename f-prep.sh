@@ -140,11 +140,14 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   guided_recalc "$1"                          # Separate number from "nGiB"
   Start="$Calculator"
   guided_recalc "$2"                          # Separate number from "nGiB"
-  End="$Calculator"
-  NewStart=$((Start+End))                     # Increment startpoint for /home or /swap
+  End=$((Start+Calculator))
+  NewStart="$End"                             # Increment startpoint for /home or /swap
   StartPoint="${NewStart}MiB"                 # Add "MiB"
   MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
     
+echo "Start ${Start}"  
+echo "End ${End}"  
+echo "NewStart ${NewStart}"  
 echo "StartPoint ${StartPoint}"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
 
@@ -160,11 +163,14 @@ read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
     mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
     Start="$NewStart"
     guided_recalc "$3"                        # Separate number from "nGiB"
-    End="$Calculator"
-    NewStart=$((Start+End))                   # Reset startpoint for /swap
+    End=$((Start+Calculator))
+    NewStart="$End"                           # Reset startpoint for /swap
     StartPoint="${NewStart}MiB"               # Add "MiB"
     MountDevice=$((MountDevice+1))            # Advance partition numbering
-    
+
+echo "Start ${Start}"  
+echo "End ${End}"  
+echo "NewStart ${NewStart}"  
 echo "StartPoint ${StartPoint}"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
 
