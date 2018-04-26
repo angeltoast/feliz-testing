@@ -50,16 +50,16 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   HomeType="ext4"                                   # Default for auto
   # Decide partition sizes based on device size
   if [ $DiskSize -ge 50 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-19))                       # /root 15 GiB, /swap 4GiB, /home from 31GiB
+    HomeSize=$((DiskSize-19))                       # /root 15 GiB, /home from 31GiB, /swap 4GiB
 
-echo "${StartPoint}"  
-echo "$DiskSize"  
-echo "$HomeSize"  
+echo "DiskSize $DiskSize"  
+echo "StartPoint ${StartPoint}"  
+echo "HomeSize $HomeSize"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
   
     prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-16))                       # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
+    HomeSize=$((DiskSize-16))                       # /root 15 GiB, /home 12 to 22GiB, /swap 3GiB
     prepare_partitions "${StartPoint}" "13GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
@@ -144,6 +144,10 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   NewStart=$((Start+End))                     # Increment startpoint for /home or /swap
   StartPoint="${NewStart}MiB"                 # Add "MiB"
   MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
+    
+echo "StartPoint ${StartPoint}"  
+read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
+
   # 2) Make /home partition at startpoint
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
@@ -160,6 +164,10 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     NewStart=$((Start+End))                   # Reset startpoint for /swap
     StartPoint="${NewStart}MiB"               # Add "MiB"
     MountDevice=$((MountDevice+1))            # Advance partition numbering
+    
+echo "StartPoint ${StartPoint}"  
+read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
+
   fi
   # 3) Make /swap partition at startpoint
   if [ -n "$4" ] && [ "$4" != "0" ]; then
@@ -169,9 +177,9 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
-  
+    
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
-  
+
   display_results
 }
 
