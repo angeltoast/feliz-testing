@@ -128,57 +128,60 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   fi
 
   # 1) Make /root partition at startpoint
-  # eg: parted /dev/sda mkpart primary ext4 1MiB 12GiB
-  parted_script "mkpart primary ext4 ${StartPoint} ${2}"
-  # eg: /dev/sda2 if there is an EFI partition
-  RootPartition="${GrubDevice}${MountDevice}"
-  # eg: mkfs.ext4 /dev/sda1
-  mkfs."{RootType}" "${RootPartition}" &>> feliz.log
-  # Set first partition as bootable
-  # eg: parted /dev/sda set 1 boot on
-  parted_script "set 1 boot on"
-  guided_recalc "$1"                          # Separate number from "nGiB"
+  guided_recalc "$1"                                  # Get numeric part
   Start="$Calculator"
-  guided_recalc "$2"                          # Separate number from "nGiB"
+  guided_recalc "$2"                                  # Get numeric part
   End=$((Start+Calculator))
-  NewStart="$End"                             # Increment startpoint for /home or /swap
-  StartPoint="${NewStart}MiB"                 # Add "MiB"
-  MountDevice=$((MountDevice+1))              # Advance partition numbering for next step
+  EndPoint="${End}MiB"
+  parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 1MiB 12000MiB
+  RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
+  mkfs."{RootType}" "${RootPartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
+  # Set first partition as bootable
+  parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
+  NewStart="$End"                                     # Increment startpoint for /home or /swap
+  StartPoint="${NewStart}MiB"                         # Add "MiB"
+  MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
     
 echo "Start ${Start}"  
 echo "End ${End}"  
 echo "NewStart ${NewStart}"  
 echo "StartPoint ${StartPoint}"  
+echo "EndPoint ${EndPoint}"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
 
   # 2) Make /home partition at startpoint
   if [ -n "$3" ] && [ "$3" != "0" ]; then
-    # eg: parted /dev/sda mkpart primary ext4 12GiB 19GiB
-    parted_script "mkpart primary ext4 ${StartPoint} ${3}"
+    Start="$End"
+    guided_recalc "$3"                                # Get numeric part
+    End=$((Start+Calculator))
+    EndPoint="${End}MiB"
+    parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 12000GiB 19000GiB
     HomePartition="${GrubDevice}${MountDevice}"
-    AddPartList[0]="${HomePartition}"         # eg: /dev/sda2  | add to
-    AddPartMount[0]="/home"                   # Mountpoint     | array of
-    AddPartType[0]="$HomeType"                # Filesystem     | additional partitions
+    AddPartList[0]="${HomePartition}"                 # eg: /dev/sda2  | add to
+    AddPartMount[0]="/home"                           # Mountpoint     | array of
+    AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
     mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
     Start="$NewStart"
-    guided_recalc "$3"                        # Separate number from "nGiB"
+    guided_recalc "$3"                                # Separate number from "nGiB"
     End=$((Start+Calculator))
-    NewStart="$End"                           # Reset startpoint for /swap
-    StartPoint="${NewStart}MiB"               # Add "MiB"
-    MountDevice=$((MountDevice+1))            # Advance partition numbering
+    NewStart="$End"                                   # Reset startpoint for /swap
+    StartPoint="${NewStart}MiB"                       # Add "MiB"
+    MountDevice=$((MountDevice+1))                    # Advance partition numbering
 
 echo "Start ${Start}"  
 echo "End ${End}"  
 echo "NewStart ${NewStart}"  
 echo "StartPoint ${StartPoint}"  
+echo "EndPoint ${EndPoint}"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
 
   fi
   # 3) Make /swap partition at startpoint
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
-    parted_script "mkpart primary linux-swap ${StartPoint} ${4}"
+    EndPoint="${4}"
+    parted_script "mkpart primary linux-swap ${StartPoint} ${EndPoint}"
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition"
     MakeSwap="Y"
