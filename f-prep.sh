@@ -50,10 +50,16 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   HomeType="ext4"                                   # Default for auto
   # Decide partition sizes based on device size
   if [ $DiskSize -ge 50 ]; then                     # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-19))                     # /root 15 GiB, /swap 4GiB, /home from 31GiB
+    HomeSize=$((DiskSize-19))                       # /root 15 GiB, /swap 4GiB, /home from 31GiB
+
+echo "${StartPoint}"  
+echo "$DiskSize"  
+echo "$HomeSize"  
+read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
+  
     prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "4GiB"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
-    HomeSize=$((DiskSize-16))                     # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
+    HomeSize=$((DiskSize-16))                       # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
     prepare_partitions "${StartPoint}" "13GiB" "${HomeSize}GiB" "3GiB"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
@@ -164,7 +170,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     MakeSwap="Y"
   fi
   
-read -p "DEBUG at ${FUNCNAME[0]} line $LINENO"
+read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
   
   display_results
 }
@@ -249,7 +255,7 @@ function guided_partitions
 
 function guided_recalc                  # Calculate remaining disk space
 { # $1 is a partition size eg: 10MiB or 100% or perhaps 0
-  if [ -z $1 ] || [  "$1" -eq 0 ]; then Calculator=0; return; fi # Just in case
+  if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                           # Count characters in variable
   
