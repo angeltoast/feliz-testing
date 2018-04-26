@@ -57,16 +57,16 @@ echo "$DiskSize"
 echo "$HomeSize"  
 read -p "DEBUG at ${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
   
-    prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "4GiB"
+    prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 30 ]; then                   # ------ /root /home /swap partitions ------
     HomeSize=$((DiskSize-16))                       # /root 15 GiB, /swap 3GiB, /home 12 to 22GiB
-    prepare_partitions "${StartPoint}" "13GiB" "${HomeSize}GiB" "3GiB"
+    prepare_partitions "${StartPoint}" "13GiB" "${HomeSize}GiB" "100%"
   elif [ $DiskSize -ge 18 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-2))                        # /root 16 to 28GiB, /swap 2GiB
-    prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "2GiB"
+    prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "100%"
   elif [ $DiskSize -gt 10 ]; then                   # ------ /root & /swap partitions only ------
     RootSize=$((DiskSize-1))                        # /root 9 to 17GiB, /swap 1GiB
-    prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "1GiB"
+    prepare_partitions "${StartPoint}" "${RootSize}GiB" "0" "100%"
   else                                              # ------/root partition &  Swap file only -----
     prepare_partitions "${StartPoint}" "100%" "0" "0"
     SwapFile="2G"                                   # Swap file
