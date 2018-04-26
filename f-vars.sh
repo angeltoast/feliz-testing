@@ -192,7 +192,6 @@ declare -a AddPartType    # Array of format type for the same partitions eg: ext
 declare -A PartitionArray # Associative array of partition details
 declare -a NewArray       # For copying any array
 declare -A Labelled       # Associative array of labelled partitions
-declare -i DiskSize       # Ensure it's an integer
 BootSize=""               # Boot variable
 RootSize=""               # Root variable
 SwapSize=""               # Swap variable
