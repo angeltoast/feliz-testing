@@ -108,18 +108,17 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   # If system is EFI, prepare_device has also created the /boot partition at
   #   /dev/${UseDisk}1 and the startpoint (passed here as $1) has been set to follow /boot
 
-  local StartPoint="$1"
+  StartPoint="$1"
   # Set the partition number for parted commands
   if [ $UEFI -eq 1 ]; then                            # eg: 1 in sda1
     MountDevice=2                                     # Next after EFI
   else
     MountDevice=1                                     # Or 1 if not on EFI
   fi
-
   # 1) Make /root partition at startpoint
-  guided_recalc "$1"                                  # Get numeric part
+  guided_recalc "$1"                                  # Get numeric part of startpoint
   Start="$Calculator"
-  guided_recalc "$2"                                  # Get numeric part
+  guided_recalc "$2"                                  # Get numeric part of root size
   End=$((Start+Calculator))
   EndPoint="${End}MiB"
   parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 1MiB 12000MiB
@@ -127,13 +126,12 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   mkfs."{RootType}" "${RootPartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
-  NewStart="$End"                                     # Increment startpoint for /home or /swap
-  StartPoint="${NewStart}MiB"                         # Add "MiB"
+  StartPoint="${EndPoint}"                            # For /home or /swap
   MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
   # 2) Make /home partition at startpoint
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     Start="$End"
-    guided_recalc "$3"                                # Get numeric part
+    guided_recalc "$3"                                # Get numeric part og home size
     End=$((Start+Calculator))
     EndPoint="${End}MiB"
     parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 12000GiB 19000GiB
@@ -143,11 +141,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
     mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
-    Start="$NewStart"
-    guided_recalc "$3"                                # Separate number from "nGiB"
-    End=$((Start+Calculator))
-    NewStart="$End"                                   # Reset startpoint for /swap
-    StartPoint="${NewStart}MiB"                       # Add "MiB"
+    StartPoint="${EndPoint}"                          # Reset startpoint for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition numbering
   fi
   # 3) Make /swap partition at startpoint
