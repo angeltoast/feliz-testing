@@ -31,7 +31,7 @@
 # build_lists          109    set_swap_file       331
 # allocate_partitions  152    more_partitions     355
 # parted_script        176    choose_mountpoint   398
-# create_filesystem     181    display_partitions  429
+# create_filesystem    181    display_partitions  429
 # allocate_root        186    allocate_uefi       457 
 # allocate_swap        230    get_device_size     478
 # ------------------------    ------------------------

@@ -84,12 +84,45 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   FreeSpace="$((DiskSize*Factor))"                  # For guided and auto partitioning
   # Create a new partition table
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
+    while true
+    do
+      message_first "A partition is needed for"
+      Message="$Message EFI boot"
+      message_subsequent "can be anything from 512MiB upwards but"
+      Message="EFI boot $Message"
+      message_subsequent "it is not necessary to exceed"
+      Message="$Message 1024MiB"
+      message_subsequent "Please enter the desired size"
+      Message="$Message \n [ eg: 550M or 1024M ] ... "
+  
+      dialog --backtitle "$Backtitle" --title " EFI boot partition " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
+      retval=$?
+  
+      # Check input
+      if [ $retval -ne 0 ]; then continue 1; fi
+      
+      Result="$(cat output.file)"
+      if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
+        continue
+      else
+        RESPONSE="${Result^^}"
+      fi
+ 
+      CheckInput=${RESPONSE: -1}
+      if [ "$CheckInput" != "M" ]; then
+        continue
+      fi
+    done
     parted_script "mklabel gpt"                     # Create new filesystem
-    parted_script "mkpart ESP fat32 1MiB 550MiB"    # EFI boot partition
+    parted_script "mkpart ESP fat32 1MiB $RESPONSE" # EFI boot partition
     EFIPartition="${GrubDevice}1"                   # Define EFI partition 
+    
+    Chars=${#RESPONSE}                              # Count characters in variable
+    efi_size=${RESPONSE:0:Chars-1}                  # $RESPONSE stripped of unit
+    FreeSpace="$((FreeSpace-efi_size))"             # For guided partitioning
     mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log    # Format EFI boot partition
-    StartPoint="551MiB"                             # For next partition
-    FreeSpace="$((FreeSpace-550))"                  # For guided partitioning
+    efi_size=$((efi_size+1))
+    StartPoint="${efi_size}MiB"                     # For next partition
   else                                              # Installing in BIOS environment
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # For next partition
@@ -259,7 +292,7 @@ function guided_recalc  # Calculate remaining disk space
 
 function guided_root # MBR & EFI Set variables: RootSize, RootType
 {
-  if [ $Factor -gt 0 ]; then
+  if [ $Factor -gt 0 ]; then          # Factor is set by prepare_device
     FreeGigs=$((FreeSpace/Factor))
   else
     FreeGigs=0
@@ -269,14 +302,15 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
   do
     # Clear display, show /boot and available space
     if [ $UEFI -eq 1 ]; then
-      message_first_line "EFI Partition : 550MiB"
+      message_first_line "EFI Partition : ${efi_size}MiB"
       message_subsequent "You now have"
     else
       message_first_line "You have"
     fi
     Message="$Message ${FreeGigs}GiB"
     Message="$Message available on the chosen device"
-    message_subsequent "A partition is needed for /root"
+    message_subsequent "A partition is needed for"
+    Message="$Message /root"
     message_subsequent "It should not be less than"
     Message="$Message 8GiB"
     message_subsequent "ideally more, up to 20GiB"
@@ -293,9 +327,9 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
 
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
-
     if [ $retval -ne 0 ]; then continue 1; fi
     Result="$(cat output.file)"
+    
     if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
         continue        # Cannot be zero or blank
       else
@@ -316,7 +350,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
         RootSize="${RESPONSE}iB"
       fi
       Partition="/root"
-      select_filesystem
+      create_filesystem
       RootType=${PartitionType}
       break
     fi
@@ -339,7 +373,6 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     message_subsequent "You now have"
     Message="$Message ${FreeGigs}GiB"
     Message="$Message available on the chosen device"
-    
     message_subsequent "There is space for a"
     translate "partition"
     Message="$Message /home $Result"
@@ -376,12 +409,21 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           else
             HomeSize="${RESPONSE}iB"
           fi
-          select_filesystem
+          create_filesystem
           HomeType=${PartitionType}
           break
         fi
     esac
   done
+}
+
+function swap_message
+{
+  message_subsequent "can be anything from 512MiB upwards but"
+  Message="/swap $Message"
+  message_subsequent "it is not necessary to exceed"
+  Message="$Message 4GiB"
+  message_subsequent "You can use all the remaining space on the device, if you wish"
 }
 
 function guided_swap # MBR & EFI Set variable: SwapSize
@@ -409,23 +451,17 @@ function guided_swap # MBR & EFI Set variable: SwapSize
         message_subsequent "There is space for a"
         translate "partition"
         Message="$Message /swap $Result"
-        message_subsequent "Swap can be anything from 512MiB upwards but"
-        message_subsequent "it is not necessary to exceed 4GiB"
-        message_subsequent "You can use all the remaining space on the device, if you wish"
+        swap_message
       elif [ ${FreeSpace} -gt 5 ]; then
         message_subsequent "There is space for a"
         translate "partition"
         Message="$Message /swap $Result"
-        message_subsequent "Swap can be anything from 512MiB upwards but"
-        message_subsequent "it is not necessary to exceed 4GiB"
-        message_subsequent "You can use all the remaining space on the device, if you wish"
+        swap_message
       else
         message_subsequent "There is just space for a"
         translate "partition"
         Message="$Message /swap $Result"
-        message_subsequent "Swap can be anything from 512MiB upwards but"
-        message_subsequent "it is not necessary to exceed 4GiB"
-        message_subsequent "You can use all the remaining space on the device, if you wish"
+        swap_message
       fi
       Message="$Message \n"
       message_subsequent "Please enter the desired size"
@@ -465,6 +501,20 @@ function guided_swap # MBR & EFI Set variable: SwapSize
           else
             SwapSize="${RESPONSE}iB"
           fi
+          Chars=${#RESPONSE}                # Count characters in variable
+          swap_value=${RESPONSE:0:Chars-1}  # Separate the value from the unit
+          StartPoint=$(((DiskSize*Factor)-(FreeGigs*1024)))
+          if [ "$CheckInput" = "%" ]; then
+            EndPoint="${SwapSize}"
+          else
+            end_value=$((StartPoint+swap_value))
+            EndPoint="${end_value}MiB"
+          fi
+          parted_script "mkpart primary linux-swap ${StartPoint}MiB ${EndPoint}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+          SwapPartition="${GrubDevice}${MountDevice}"
+          mkswap "$SwapPartition"
+          MakeSwap="Y"
+          
           break
         fi
       esac
