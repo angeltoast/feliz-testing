@@ -26,14 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           45    no_swap_partition   346
-# use_parts             87    set_swap_file       361
-# build_lists           99    more_partitions     382
-# allocate_partitions  142    choose_mountpoint   430 
-# parted_script        150    display_partitions  461  
-# allocate_root        200    allocate_uefi       489 
-# allocate_swap        245    
-# select_device        285    get_device_size     570 
+# check_parts           45    select_device       267
+# use_parts             99    no_swap_partition   317
+# build_lists          109    set_swap_file       331
+# allocate_partitions  152    more_partitions     355
+# parted_script        176    choose_mountpoint   398
+# create_filesystem     181    display_partitions  429
+# allocate_root        186    allocate_uefi       457 
+# allocate_swap        230    get_device_size     478
 # ------------------------    ------------------------
 
 # Variables for UEFI Architecture
@@ -46,13 +46,13 @@ function check_parts {  # Called by feliz.sh and f-set.sh
                         # Tests for existing partitions, informs user, calls build_lists to prepare arrays
                         # Displays menu of options, then calls partitioning_options to act on user selection
   if [ "$UEFI" -eq 1 ]; then
-    GrubDevice="EFI"                                                   # Preset $GrubDevice if installing in EFI
+    GrubDevice="EFI"                                                      # Preset $GrubDevice if installing in EFI
   fi
 
-  ShowPartitions=$(lsblk -l "$RootDevice" | grep 'part' | cut -d' ' -f1) # List all partitions on the device
+  ShowPartitions=$(lsblk -l "$RootDevice" | grep 'part' | cut -d' ' -f1)  # List all partitions on the device
   PARTITIONS=$(echo "$ShowPartitions" | wc -w)
 
-  if [ "$PARTITIONS" -eq 0 ]; then                                     # If no partitions exist, notify
+  if [ "$PARTITIONS" -eq 0 ]; then                                        # If no partitions exist, notify
     message_first_line "There are no partitions on the device"
     message_subsequent "Please read the 'partitioning' file for advice."
 
@@ -177,52 +177,36 @@ function parted_script { # Calls GNU parted tool with options
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
-function check_filesystem { # Called by choose_mountpoint & allocate_root
-                            # Checks file system type on the selected partition
-                            # Sets $CurrentType to existing file system type
-  CurrentType=$(blkid "$Partition" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2)
+function create_filesystem {  # Called by choose_mountpoint & allocate_root
+                              # Creates a file-system on the selected partition
+  select_filesystem           # Offer the user the list of filesystem options
+  if [ $retval -ne 0 ] || [ -z $PartitionType ]; then return 1; fi # None selected
+  mkfs."${PartitionType}" "${Partition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
 }
-
 
 function allocate_root {  # Called by allocate_partitions
                           # Display partitions for user-selection of one as /root
                           #  (uses list of all available partitions in PartitionList)
-  if [ "$UEFI" -eq 1 ]; then        # Installing in UEFI environment
-    allocate_uefi                   # First allocate the /boot partition
-    retval=$?
-    if [ $retval -ne 0 ]; then return 1; fi
+  if [ "$UEFI" -eq 1 ]; then          # Installing in UEFI environment
+    allocate_uefi                     # First allocate the /boot partition
+    if [ $? -ne 0 ]; then return 1; fi
   fi
   Remaining=""
   Partition=""
   PartitionType=""
   message_first_line "Please select a partition to use for /root"
   display_partitions
-  if [ $retval -ne 0 ]; then        # User selected <Cancel>
+  if [ $retval -ne 0 ]; then            # User selected <Cancel>
     PartitionType=""
     return 1
   fi
   
-  PassPart=${Result:0:4}            # eg: sda4
-  MountDevice=${PassPart:3:2}       # Save the device number for 'set x boot on'
+  PassPart=${Result:0:4}                # eg: sda4
+  MountDevice=${PassPart:3:2}           # Save the device number for 'set x boot on'
   Partition="/dev/$Result"
   RootPartition="${Partition}"
 
-  if [ "$AutoPart" = "MANUAL" ]; then # Not required for AUTO or GUIDED
-                                    # Check if there is an existing filesystem on the selected partition
-    check_filesystem                # This sets variable CurrentType and starts the Message
-    Message="\n${Message}"
-    if [ -n "$CurrentType" ]; then
-      dialog --backtitle "$Backtitle" --title " Root Partition " \
-    --yes-label "$Yes" --no-label "$No" --yesno "\nReformat the root partition?" 6 50
-      retval=$?
-      if [ $retval -eq 0 ]; then
-        PartitionType="$CurrentType"    # Reformat to current type
-      else
-        PartitionType=""                # PartitionType can be empty (will not be formatted)
-      fi
-      RootType="${PartitionType}"
-    fi
-  fi
+  create_filesystem                     # User selects filesystem
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
 }
@@ -240,17 +224,15 @@ function allocate_swap { # Called by allocate_partitions
   PartitionList="$PartitionList swapfile"
   display_partitions  # Sets $retval & $Result, and returns 0 if it completes
   if [ $retval -ne 0 ]; then
-    FormatSwap="N"
     return 1          # Returns 1 to caller if no partition selected
   fi
-  FormatSwap="Y"
   Swap="$Result"
   if [ "$Swap" = "swapfile" ]; then
     set_swap_file
   else
     SwapPartition="/dev/$Swap"
     IsSwap=$(blkid "$SwapPartition" | grep 'swap' | cut -d':' -f1)
-    MakeSwap="Y"
+    mkswap "$SwapPartition"
   fi
   PartitionList="$SavePartitionList"                                        # Restore PartitionList without 'swapfile'
   if [ -z "$SwapPartition" ] && [ -z "$SwapFile" ]; then
@@ -311,7 +293,7 @@ function select_device {  # Called by f-part.sh/check_parts
   fi
 
   RootDevice="/dev/${UseDisk}"  # Full path of selected device
-  # EFIPartition="${RootDevice}1"
+  EFIPartition="${RootDevice}1"
 }
 
 function no_swap_partition {  # Called by allocate_partitions when there are no unallocated partitions
@@ -383,7 +365,9 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
   
     PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
-    Elements=$(echo "$PartitionList" | wc -w)                     # and count remaining partitions
+    Elements=$(echo "$PartitionList" | wc -w)                    # and count remaining partitions
+
+    create_filesystem                                 # Then create a filesystem on the partition
   done
 
   # Ensure that if AddPartList (the defining array) is empty, all others are too
@@ -430,7 +414,7 @@ function display_partitions { # Called by more_partitions, allocate_swap & alloc
                               # Uses $PartitionList & PartitionArray to generate menu of available partitions
                               # Sets $retval (0/1) and $Result (Item text from output.file - eg: sda1)
                               # Calling function must validate output
-  declare -a ItemList=()                                    # Array will hold entire list for menu display
+  declare -a ItemList=()                                    # Array to hold entire list for menu display
   Items=0
   for Item in $PartitionList; do 
     Items=$((Items+1))
@@ -471,6 +455,7 @@ function allocate_uefi {  # Called at start of allocate_root, as first step of E
   PassPart="/dev/${Result}" # eg: sda1
   SetLabel="/dev/${Result}"
 	EFIPartition="/dev/${Result}"
+  mkfs.vfat -F32 ${EFIPartition} 2>> feliz.log  # Format EFI boot partition
   PartitionList=$(echo "$PartitionList" | sed "s/${Result}$//")  # Remove selected item
 }
 

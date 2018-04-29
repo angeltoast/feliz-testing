@@ -25,12 +25,12 @@
 # ------------------------    ----------------------
 # Functions           Line    Functions         Line 
 # ------------------------    ----------------------
-# auto_warning          36    guided_message     162
-# autopart              46    guided_partitions  172
-# prepare_device        72    guided_recalc      216
-# prepare_partitions    92    guided_root        243
-# select_filesystem    142    guided_home        286
-# display_results      435    guided_swap        336
+# auto_warning          36    guided_partitions  188
+# autopart              46    guided_recalc      233
+# prepare_device        72    guided_root        260
+# prepare_partitions    99    guided_home        326
+# select_filesystem    158    guided_swap        387
+# guided_message       175    display_results    493
 # ------------------------    ----------------------
 
 function auto_warning
@@ -162,9 +162,9 @@ function select_filesystem # User chooses filesystem from list in global variabl
   Message="$Message ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
 
-  menu_dialog_variable="ext4 ext3 btrfs xfs"
+  menu_dialog_variable="ext4 ext3 btrfs xfs none"
   menu_dialog 16 55 "$_Exit"
-  if [ $retval -ne 0 ]; then
+  if [ $retval -ne 0 ] || [ "$Result" == "none" ]; then
     PartitionType=""
     return 1
   else
