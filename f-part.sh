@@ -321,8 +321,8 @@ function set_swap_file {
   done
 }
 
-function more_partitions {  # Called by allocate_partitions if partitions remain
-                            # unallocated. User may select for /home, etc
+function more_partitions {  # Called by allocate_partitions if any partitions
+                            # remain unallocated. User may select for /home, etc
   translate "Partitions"
   title="$Result"
   declare -i Elements
@@ -346,9 +346,9 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
       # And add it to the arrays for extra partitions
       ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
       AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
-      AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
-      AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
-      if [ "${Partition}" = "/home" ]; then HomePartition="${Partition}"; fi
+      AddPartType[$ExtraPartitions]="${PartitionType}"  # Link filesystem
+      AddPartMount[$ExtraPartitions]="${PartMount}"     # and mountpoint
+      if [ "${PartMount}" = "/home" ]; then HomePartition="${Partition}"; fi
       PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
       Elements=$(echo "$PartitionList" | wc -w)                    # and count remaining partitions
     esac
