@@ -49,7 +49,6 @@ function menu_dialog {  # Display a simple menu from $menu_dialog_variable and r
   else
     cancel="Cancel"
   fi
-  
   # Prepare array for display
   declare -a ItemList=()                                      # Array will hold entire list
   Items=0
@@ -59,7 +58,6 @@ function menu_dialog {  # Display a simple menu from $menu_dialog_variable and r
     Items=$((Items+1))
     ItemList[${Items}]="${Item}"                              # Second element is required
   done
-   
   # Display the list for user-selection
   dialog --backtitle "$Backtitle" --title " $title " \
     --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \

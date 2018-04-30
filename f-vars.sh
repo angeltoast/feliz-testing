@@ -37,17 +37,14 @@
 function set_language {
   
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
-  
   # First load English file
   if [ ! -f English.lan ]; then
     wget https://raw.githubusercontent.com/angeltoast/feliz-language-files/master/English.lan 2>> feliz.log
   fi
-  
-  dialog --backtitle "$Backtitle" \
-    --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " --no-tags --menu \
-    "\n       You can use the UP/DOWN arrow keys, or\n \
-    the first letter of your choice as a hot key.\n \
-           Please choose your language" 21 60 11 \
+  clear
+  dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " \
+        --ok-label "$Ok" --no-tags --menu \
+    "\n You can use the UP/DOWN arrow keys, or\n the first letter of your choice.\n Please choose your language" 21 60 11 \
       en "English" \
       de "Deutsche" \
       el "Ελληνικά" \
