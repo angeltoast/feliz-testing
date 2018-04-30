@@ -26,14 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           45    select_device       267
-# use_parts             99    no_swap_partition   317
-# build_lists          109    set_swap_file       331
-# allocate_partitions  152    more_partitions     355
-# parted_script        176    choose_mountpoint   398
-# create_filesystem    181    display_partitions  429
-# allocate_root        186    allocate_uefi       457 
-# allocate_swap        230    get_device_size     478
+# check_parts           45    select_device       249
+# use_parts             99    no_swap_partition   299
+# build_lists          109    set_swap_file       313
+# allocate_partitions  152    more_partitions     337
+# parted_script        176    choose_mountpoint   382
+# create_filesystem    181    display_partitions  413
+# allocate_root        186    allocate_uefi       441 
+# allocate_swap        214    get_device_size     462
 # ------------------------    ------------------------
 
 # Variables for UEFI Architecture

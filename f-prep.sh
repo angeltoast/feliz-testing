@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 26th April 2018
+# Revision date: 30th April 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,13 @@
 # ------------------------    ----------------------
 # Functions           Line    Functions         Line 
 # ------------------------    ----------------------
-# auto_warning          36    guided_partitions  188
-# autopart              46    guided_recalc      233
-# prepare_device        72    guided_root        260
-# prepare_partitions    99    guided_home        326
-# select_filesystem    158    guided_swap        387
-# guided_message       175    display_results    493
+# auto_warning          36    guided_partitions  221
+# autopart              46    guided_recalc      266
+# prepare_device        72    guided_root        293
+# prepare_partitions   132    guided_home        360
+#                             swap_message       421
+# select_filesystem    191    guided_swap        430
+# guided_message       208    display_results    544
 # ------------------------    ----------------------
 
 function auto_warning
@@ -195,9 +196,9 @@ function select_filesystem # User chooses filesystem from list in global variabl
   Message="$Message ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
 
-  menu_dialog_variable="ext4 ext3 btrfs xfs none"
+  menu_dialog_variable="ext4 ext3 btrfs xfs None"
   menu_dialog 16 55 "$_Exit"
-  if [ $retval -ne 0 ] || [ "$Result" == "none" ]; then
+  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then
     PartitionType=""
     return 1
   else
