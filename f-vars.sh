@@ -44,7 +44,7 @@ function set_language {
   clear
   dialog --backtitle "$Backtitle" --title " Idioma/Język/Language/Langue/Limba/Língua/Sprache " \
         --ok-label "Ok" --no-tags --menu \
-    "\n You can use the UP/DOWN arrow keys, or\n the first letter of your choice.\n Please choose your language" 21 60 11 \
+    "\n You can use the UP/DOWN arrow keys,\n or the first letter of your choice.\n Please choose your language" 21 60 11 \
       en "English" \
       de "Deutsche" \
       el "Ελληνικά" \

@@ -335,19 +335,23 @@ function more_partitions {  # Called by allocate_partitions if partitions remain
     if [ "$retval" -ne 0 ]; then return 1; fi # User cancelled or escaped; no partition selected. Inform caller
     PassPart=${Result:0:4}                    # Isolate first 4 characters of partition
     Partition="/dev/$PassPart"
-    choose_mountpoint   # Displays inputbox to manually enter mountpoint
-                        # Validates response, warns if already used, then adds the partition to
-    retval=$?           # the arrays for extra partitions. Returns 0 if completed, 1 if interrupted
-    if [ $retval -ne 0 ]; then return 1; fi # Inform calling function that user cancelled; no details added
-    # If this point has been reached, then all data for a partiton has been accepted
-    # So add it to the arrays for extra partitions
-    ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
-    AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
-    AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
-    AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
-    PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
-    Elements=$(echo "$PartitionList" | wc -w)                    # and count remaining partitions
-    create_filesystem                                 # Then create a filesystem on the partition
+    choose_mountpoint  # Displays inputbox to manually enter mountpoint, validates response, warns
+                       # if already used, then adds the partition to the arrays for extra partitions.
+    retval=$?          # Returns 0 if completed, 1 if interrupted 2 if incomplete
+    case $retval in
+    2) continue ;;     # Invalid mountpoint attempted
+    1) return 1 ;;     # Inform calling function that user cancelled; no details added
+    *) # If this point has been reached, then all data for a partiton has been accepted
+      create_filesystem                                 # So create a filesystem on the partition
+      # And add it to the arrays for extra partitions
+      ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
+      AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
+      AddPartType[$ExtraPartitions]="${PartitionType}"  # Add filesystem
+      AddPartMount[$ExtraPartitions]="${PartMount}"     # And the mountpoint
+      if [ "${Partition}" = "/home" ]; then HomePartition="${Partition}"; fi
+      PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//") # Remove the used partition from the list
+      Elements=$(echo "$PartitionList" | wc -w)                    # and count remaining partitions
+    esac
   done
   # Ensure that if AddPartList (the defining array) is empty, all others are also empty
   if [ ${#AddPartList[@]} -eq 0 ]; then
@@ -375,11 +379,11 @@ function choose_mountpoint {  # Called by more_partitions. Uses $Partition set b
 
   if [ ${#AddPartMount[@]} -gt 0 ]; then          # If there are existing (extra) mountpoints
     for MountPoint in ${AddPartMount}; do         # Go through AddPartMount
-      if [ "$MountPoint" = "$PartMount" ]; then       # If the mountpoint has already been used
+      if [ "$MountPoint" = "$PartMount" ]; then   # If the mountpoint has already been used, inform user ...
         dialog --backtitle "$Backtitle" --ok-label "$Ok" \
           --msgbox "\nMountpoint ${PartMount} has already been used.\nPlease use a different mountpoint." 6 30
-        PartMount=""                              # Ensure that outer loop will continue
-        break
+        PartMount=""                              # ... ensure that outer loop will continue ...
+        return 2                                  # ... and return
       fi
     done
   fi
