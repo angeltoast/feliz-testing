@@ -152,7 +152,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   EndPoint="${End}MiB"
   parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 1MiB 12000MiB
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
-  mkfs."{RootType}" "${RootPartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
+  mkfs."${RootType}" "${RootPartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
   StartPoint="${EndPoint}"                            # For /home or /swap
