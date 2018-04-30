@@ -95,20 +95,16 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
       Message="$Message 1024MiB"
       message_subsequent "Please enter the desired size"
       Message="$Message \n [ eg: 550M or 1024M ] ... "
-  
       dialog --backtitle "$Backtitle" --title " EFI boot partition " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
       retval=$?
-  
       # Check input
       if [ $retval -ne 0 ]; then continue 1; fi
-      
       Result="$(cat output.file)"
       if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
         continue
       else
         RESPONSE="${Result^^}"
       fi
- 
       CheckInput=${RESPONSE: -1}
       if [ "$CheckInput" != "M" ]; then
         continue
@@ -117,7 +113,6 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
     parted_script "mklabel gpt"                     # Create new filesystem
     parted_script "mkpart ESP fat32 1MiB $RESPONSE" # EFI boot partition
     EFIPartition="${GrubDevice}1"                   # Define EFI partition 
-    
     Chars=${#RESPONSE}                              # Count characters in variable
     efi_size=${RESPONSE:0:Chars-1}                  # $RESPONSE stripped of unit
     FreeSpace="$((FreeSpace-efi_size))"             # For guided partitioning
@@ -195,10 +190,9 @@ function select_filesystem # User chooses filesystem from list in global variabl
   message_first_line "Please select the file system for"
   Message="$Message ${Partition}"
   message_subsequent "It is not recommended to mix the btrfs file-system with others"
-
-  menu_dialog_variable="ext4 ext3 btrfs xfs None"
-  menu_dialog 16 55 "$_Exit"
-  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then
+  menu_dialog_variable="ext4 ext3 btrfs xfs None"         # Set the menu elements
+  menu_dialog 16 55 "$_Exit"                              # Display the menu
+  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then   # Nothing selected
     PartitionType=""
     return 1
   else
@@ -213,7 +207,6 @@ function guided_message # Inform user
   message_subsequent "and create a new partition table with your settings"
   message_subsequent "$limitations"
   message_subsequent "Do you wish to continue?"
-
   dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 12 60
   retval=$?
@@ -269,7 +262,6 @@ function guided_recalc  # Calculate remaining disk space
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                               # Count characters in variable
-  
   if [ ${1: -1} = "%" ]; then               # Allow for percentage
     Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
     Value=$((FreeSpace*100/Passed))         # Convert percentage to value
@@ -325,12 +317,10 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     Message="$Message \n"
     message_subsequent "Please enter the desired size"
     Message="$Message \n [ eg: 12G or 100% ] ... "
-
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then continue 1; fi
     Result="$(cat output.file)"
-    
     if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
         continue        # Cannot be zero or blank
       else
@@ -338,7 +328,6 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       fi
     # Check that entry includes 'G or M or %'
     CheckInput=${RESPONSE: -1}
-
     if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       translate "You must include M or G or %"
       dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n$Result\n" 6 50
@@ -384,7 +373,6 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     message_subsequent "Please enter the desired size"
     translate "Size"
     message_subsequent "${Result} [ eg: 10G or 0 or 100% ] ... "
-    
     dialog --backtitle "$Backtitle" --title " Home " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
@@ -468,7 +456,6 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       message_subsequent "Please enter the desired size"
       translate "Size"
       message_subsequent "$Result [ eg: 2G or 0 or 100% ] ... "
-  
       dialog --backtitle "$Backtitle" --title " Swap " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
       retval=$?
       Result="$(cat output.file)"
@@ -515,7 +502,6 @@ function guided_swap # MBR & EFI Set variable: SwapSize
           SwapPartition="${GrubDevice}${MountDevice}"
           mkswap "$SwapPartition"
           MakeSwap="Y"
-          
           break
         fi
       esac
@@ -529,10 +515,9 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       SwapSize="0"
       dialog --backtitle "$Backtitle" --title " $title " \
         --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 10 60 2>output.file
-      
       if [ $? -eq 0 ]; then
         set_swap_file # Note: Global variable SwapFile is set by set_swap_file
-                    # and SwapFile is created during installation by MountPartitions
+                      # and SwapFile is created during installation by MountPartitions
       else
         SwapSize="0"
       fi
