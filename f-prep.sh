@@ -49,6 +49,7 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
   prepare_device                                    # Create partition table and device variables
   RootType="ext4"                                   # Default for auto
   HomeType="ext4"                                   # Default for auto
+  # Use partition variables ($StartPoint is initially set in prepare_device)
   if [ $DiskSize -ge 50 ]; then                     # ------ /root /home /swap partitions ------
     HomeSize=$((DiskSize-19))                       # /root 15 GiB, /home from 31GiB, /swap 4GiB
     prepare_partitions "${StartPoint}" "15GiB" "${HomeSize}GiB" "100%"
@@ -153,6 +154,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   guided_recalc "$2"                                  # Get numeric part of root size
   End=$((Start+Calculator))
   EndPoint="${End}MiB"
+  # Use partition variables ($StartPoint is initially set in prepare_device)
   parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 1MiB 12000MiB
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
   mkfs."${RootType}" "${RootPartition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
@@ -166,6 +168,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     guided_recalc "$3"                                # Get numeric part og home size
     End=$((Start+Calculator))
     EndPoint="${End}MiB"
+    # Use partition variables ($StartPoint is initially set in prepare_device)
     parted_script "mkpart primary ext4 ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary ext4 12000GiB 19000GiB
     HomePartition="${GrubDevice}${MountDevice}"
     AddPartList[0]="${HomePartition}"                 # eg: /dev/sda2  | add to
@@ -179,6 +182,7 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
   # 3) Make /swap partition at startpoint
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     EndPoint="${4}"
+    # Use partition variables ($StartPoint is initially set in prepare_device)
     parted_script "mkpart primary linux-swap ${StartPoint} ${EndPoint}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition"
@@ -246,6 +250,7 @@ function guided_partitions  # Called by f-part/check_parts
       SwapSize="0"
     fi
   fi
+  # Use partition variables ($StartPoint is initially set in prepare_device)
   prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
 }
 
@@ -374,6 +379,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     else
       RESPONSE="${Result^^}"
     fi
+    HomeType=""
     case ${RESPONSE} in
       "" | 0) HomeSize="0"
           break ;;
@@ -490,7 +496,7 @@ function guided_swap # MBR & EFI Set variable: SwapSize
             end_value=$((StartPoint+swap_value))
             EndPoint="${end_value}MiB"
           fi
-          parted_script "mkpart primary linux-swap ${StartPoint}MiB ${EndPoint}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
+        #  parted_script "mkpart primary linux-swap ${StartPoint}MiB ${EndPoint}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
           SwapPartition="${GrubDevice}${MountDevice}"
           mkswap "$SwapPartition"
           MakeSwap="Y"

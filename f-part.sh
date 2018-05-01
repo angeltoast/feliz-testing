@@ -91,10 +91,9 @@ function check_parts {  # Called by feliz.sh and f-set.sh
 }
 
 function use_parts { # Called by feliz.sh/the_start step 7 to display existing partitions
-  build_lists                                             # Generate list of partitions and matching array
+  build_lists        # Generate list of partitions and matching array
   translate "Here is a list of available partitions"
   Message="\n               ${Result}:\n"
-
   for part in ${PartitionList}; do
     Message="${Message}\n        $part ${PartitionArray[${part}]}"
   done
@@ -106,39 +105,39 @@ function build_lists { # Called by check_parts to generate details of existing p
   # 2) Saves any existing labels on any partitions into an associative array - Labelled
   # 3) Assembles information about all partitions in another associative array - PartitionArray
 
-  # 1) Make a simple list variable of all partitions up to sd*99
+# 1) Make a simple list variable of all partitions up to sd*99
                          # | starts /dev/  | select 1st field | ignore /dev/
   PartitionList=$(fdisk -l | grep '^/dev/' | cut -d' ' -f1 | cut -d'/' -f3) # eg: sda1 sdb1 sdb2
-  # 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
-    ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
-    # If at least one labelled partition found, add a matching record to associative array Labelled[]
-    for item in $ListLabelledIDs; do      
-      Labelled[$item]=$(blkid /dev/sd* | grep "/dev/$item" | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
-    done
-  # 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
-    for part in ${PartitionList}; do
-      # Get size and mountpoint of that partition
-      SizeMount=$(lsblk -l "$RootDevice" | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
-      # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
-      Type=$(blkid /dev/"$part" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
-      PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
-    done
-    # Add label and bootable flag to PartitionArray
-    for part in ${PartitionList}; do
-      # Test if flagged as bootable
-      Test=$(sfdisk -l 2>/dev/null | grep '/dev' | grep "$part" | grep '*')
-      if [ -n "$Test" ]; then
-        Bootable="Bootable"
-      else
-        Bootable=""
-      fi
-      # Read the current record for this partition in the array
-      Temp="${PartitionArray[${part}]}"
-      # ... and add the new data
-      PartitionArray[${part}]="$Temp ${Labelled[$part]} ${Bootable}" 
-      # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
-      #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
-    done
+# 2) List IDs of all partitions with "LABEL=" | select 1st field (eg: sdb1) | remove colon | remove /dev/
+  ListLabelledIDs=$(blkid /dev/sd* | grep '/dev/sd.[0-9]' | grep LABEL= | cut -d':' -f1 | cut -d'/' -f3)
+  # If at least one labelled partition found, add a matching record to associative array Labelled[]
+  for item in $ListLabelledIDs; do      
+    Labelled[$item]=$(blkid /dev/sd* | grep "/dev/$item" | sed -n -e 's/^.*LABEL=//p' | cut -d'"' -f2)
+  done
+# 3) Add records to the other associative array, PartitionArray, corresponding to PartitionList
+  for part in ${PartitionList}; do
+    # Get size and mountpoint of that partition
+    SizeMount=$(lsblk -l "$RootDevice" | grep "${part} " | awk '{print $4 " " $7}')      # eg: 7.5G [SWAP]
+    # And the filesystem:        | just the text after TYPE= | select first text inside double quotations
+    Type=$(blkid /dev/"$part" | sed -n -e 's/^.*TYPE=//p' | cut -d'"' -f2) # eg: ext4
+    PartitionArray[$part]="$SizeMount $Type" # ... and save them to the associative array
+  done
+# 4) Add label and bootable flag to PartitionArray
+  for part in ${PartitionList}; do
+    # Test if flagged as bootable
+    Test=$(sfdisk -l 2>/dev/null | grep '/dev' | grep "$part" | grep '*')
+    if [ -n "$Test" ]; then
+      Bootable="Bootable"
+    else
+      Bootable=""
+    fi
+    # Read the current record for this partition in the array
+    Temp="${PartitionArray[${part}]}"
+    # ... and add the new data
+    PartitionArray[${part}]="$Temp ${Labelled[$part]} ${Bootable}" 
+    # eg: PartitionArray[sdb1] = "912M /media/elizabeth/Lubuntu dos Lubuntu 17.04 amd64"
+    #               | partition | size | -- mountpoint -- | filesystem | ------ label ------- |
+  done
 }
 
 function allocate_partitions { # Called by feliz.sh
@@ -175,7 +174,8 @@ function allocate_partitions { # Called by feliz.sh
   fi
 }
 
-function parted_script { # Calls GNU parted tool with options
+function parted_script # Called by f-prep/prepare_device & prepare_partitions
+{ # Calls GNU parted tool with options
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
