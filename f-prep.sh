@@ -127,6 +127,12 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
     parted_script "mklabel msdos"                   # Create new filesystem
     StartPoint="1MiB"                               # For next partition
   fi
+  # Prepare to count devices
+  if [ $UEFI -eq 1 ]; then                            # eg: 1 in sda1
+    MountDevice=2                                     # Next after EFI
+  else
+    MountDevice=1                                     # Or 1 if not on EFI
+  fi
 }
 
 function prepare_partitions # Called from autopart for either EFI or BIOS system
@@ -143,11 +149,6 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
 
   StartPoint="$1"
   # Set the partition number for parted commands
-  if [ $UEFI -eq 1 ]; then                            # eg: 1 in sda1
-    MountDevice=2                                     # Next after EFI
-  else
-    MountDevice=1                                     # Or 1 if not on EFI
-  fi
   # 1) Make /root partition at startpoint
   guided_recalc "$1"                                  # Get numeric part of startpoint
   Start="$Calculator"
@@ -223,14 +224,14 @@ function guided_partitions  # Called by f-part/check_parts
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
-
+  MountDevice=$((MountDevice+1))            # Advance partition numbering
   if [ ${FreeSpace} -gt 2 ]; then
     guided_home                             # Prepare $HomeSize & $HomeType
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
     guided_recalc "$HomeSize"               # Recalculate remaining space after adding /home
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
   fi
-  
+  MountDevice=$((MountDevice+1))            # Advance partition numbering
   if [ ${FreeSpace} -gt 1 ]; then
     guided_swap                             # Prepare $SwapSize
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
@@ -336,8 +337,9 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       else
         RootSize="${RESPONSE}iB"
       fi
-      Partition="/root"
-      create_filesystem 1       # Get filesystem variable
+      Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
+      RootPartition="${Partition}"
+      create_filesystem 1                       # Get partition type
       RootType=${PartitionType}
       break
     fi
@@ -396,7 +398,9 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           else
             HomeSize="${RESPONSE}iB"
           fi
-          create_filesystem 1       # Get filesystem variable
+          Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
+          HomePartition="${Partition}"
+          create_filesystem 1                       # Get filesystem variable
           HomeType=${PartitionType}
           break
         fi
@@ -496,8 +500,8 @@ function guided_swap # MBR & EFI Set variable: SwapSize
             end_value=$((StartPoint+swap_value))
             EndPoint="${end_value}MiB"
           fi
-        #  parted_script "mkpart primary linux-swap ${StartPoint}MiB ${EndPoint}" # eg: parted /dev/sda mkpart primary linux-swap 31GiB 100%
-          SwapPartition="${GrubDevice}${MountDevice}"
+          Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
+          SwapPartition="${Partition}"
           mkswap "$SwapPartition"
           MakeSwap="Y"
           break

@@ -179,7 +179,7 @@ function parted_script # Called by f-prep/prepare_device & prepare_partitions
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
-function create_filesystem {  # Called by choose_mountpoint & allocate_root
+function create_filesystem {  # Called by allocate_root, more_partitions, guided_root & guided_home
                               # User chooses filesystem from ${TypeList}
   local record="$1"  # 0 to create a filesystem, 1 to just record the variables
   local Counter=0
@@ -195,7 +195,7 @@ function create_filesystem {  # Called by choose_mountpoint & allocate_root
     PartitionType="$Result"
     retval=0
   fi
-  # Create a file-system on the selected partition
+  # If required, create a file-system on the selected partition
   if [ $record -eq 0 ] && [ $retval -eq 0 ] && [ -n $PartitionType ]; then
     mkfs."${PartitionType}" "${Partition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   fi
@@ -220,7 +220,7 @@ function allocate_root {  # Called by allocate_partitions
   
   PassPart=${Result:0:4}                # eg: sda4
   MountDevice=${PassPart:3:2}           # Save the device number for 'set x boot on'
-  Partition="/dev/$Result"
+  Partition="/dev/$Result"              # Result from display_partitions (eg: sda1)
   RootPartition="${Partition}"
 
   create_filesystem 0                   # User selects filesystem
