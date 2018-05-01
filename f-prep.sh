@@ -25,16 +25,14 @@
 # ------------------------    ----------------------
 # Functions           Line    Functions         Line 
 # ------------------------    ----------------------
-# auto_warning          36    guided_partitions  221
-# autopart              46    guided_recalc      266
-# prepare_device        72    guided_root        293
-# prepare_partitions   132    guided_home        360
-#                             swap_message       421
-# select_filesystem    191    guided_swap        430
-# guided_message       208    display_results    544
+# auto_warning          36    guided_recalc      249
+# autopart              46    guided_root        275
+# prepare_device        72    guided_home        339
+# prepare_partitions   132    swap_message       398
+# guided_partitions    196    guided_swap        407
 # ------------------------    ----------------------
 
-function auto_warning
+function auto_warning # Called by f-part/check_parts before autopart
 {
   message_first_line "This will erase any data on"
   Message="$Message $RootDevice"
@@ -47,6 +45,7 @@ function auto_warning
 function autopart   # Consolidated fully automatic partitioning for BIOS or EFI environment
 {                   # Called by f-part.sh/check_parts (after auto_warning)
                     # Decide partition sizes based on device size
+  AutoPart="AUTO"                                   # Set auto-partition flag
   prepare_device                                    # Create partition table and device variables
   RootType="ext4"                                   # Default for auto
   HomeType="ext4"                                   # Default for auto
@@ -67,7 +66,6 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
     SwapFile="2G"                                   # Swap file
     SwapPartition=""                                # Clear swap partition variable
   fi
-  AutoPart="AUTO"                                   # Set auto-partition flag
 }
 
 function prepare_device # Called by autopart, guided_MBR and guided_EFI
@@ -87,27 +85,32 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
   if [ ${UEFI} -eq 1 ]; then                        # Installing in UEFI environment
     while true
     do
-      message_first_line "A partition is needed for"
-      Message="$Message EFI boot"
-      message_subsequent "can be anything from 512MiB upwards but"
-      Message="EFI boot $Message"
-      message_subsequent "it is not necessary to exceed"
-      Message="$Message 1024MiB"
-      message_subsequent "Please enter the desired size"
-      Message="$Message \n [ eg: 550M or 1024M ] ... "
-      dialog --backtitle "$Backtitle" --title " EFI boot partition " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
-      retval=$?
-      # Check input
-      if [ $retval -ne 0 ]; then continue 1; fi
-      Result="$(cat output.file)"
-      if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
-        continue
-      else
-        RESPONSE="${Result^^}"
-      fi
-      CheckInput=${RESPONSE: -1}
-      if [ "$CheckInput" = "M" ]; then
+      if [ "$AutoPart" == "AUTO" ]; then
+        RESPONSE="550M"
         break
+      else
+        message_first_line "A partition is needed for"
+        Message="$Message EFI boot"
+        message_subsequent "can be anything from 512MiB upwards but"
+        Message="EFI boot $Message"
+        message_subsequent "it is not necessary to exceed"
+        Message="$Message 1024MiB"
+        message_subsequent "Please enter the desired size"
+        Message="$Message \n [ eg: 550M or 1024M ] ... "
+        dialog --backtitle "$Backtitle" --title " EFI boot partition " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
+        retval=$?
+        # Check input
+        if [ $retval -ne 0 ]; then continue 1; fi
+        Result="$(cat output.file)"
+        if [ $retval -eq 1 ] || [ -z "$Result" ] || [ "$Result" = "0" ]; then
+          continue
+        else
+          RESPONSE="${Result^^}"
+        fi
+        CheckInput=${RESPONSE: -1}
+        if [ "$CheckInput" = "M" ]; then
+          break
+        fi
       fi
     done
     parted_script "mklabel gpt"                     # Create new filesystem
@@ -181,27 +184,24 @@ function prepare_partitions # Called from autopart for either EFI or BIOS system
     mkswap "$SwapPartition"
     MakeSwap="Y"
   fi
-  display_results
+  # Display partitions for user
+  fdisk -l "${RootDevice}" > output.file
+  p=" "
+  while read -r Item; do             # Read items from the output.file file
+    p="$p \n $Item"                  # Add to $p with newline after each $Item
+  done < output.file
+  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 77
 }
 
-function select_filesystem # User chooses filesystem from list in global variable ${TypeList}
-{
-  local Counter=0
-  message_first_line "Please select the file system for"
-  Message="$Message ${Partition}"
-  message_subsequent "It is not recommended to mix the btrfs file-system with others"
-  menu_dialog_variable="ext4 ext3 btrfs xfs None"         # Set the menu elements
-  menu_dialog 16 55 "$_Exit"                              # Display the menu
-  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then   # Nothing selected
-    PartitionType=""
-    return 1
-  else
-    PartitionType="$Result"
+function guided_partitions  # Called by f-part/check_parts
+{                           # Calls each partitioning function
+  limitations="This facility will create"
+  if [ $UEFI -eq 1 ]; then  # EFI system
+    limitations="$limitations /boot /root /swap & /home"
+  else                      # BIOS system
+    limitations="$limitations /root /swap & /home"
   fi
-}
-
-function guided_message # Inform user
-{
+  # Inform user about guided partitioning
   message_first_line "Here you can set the size and format of the partitions"
   message_subsequent "you wish to create. When ready, Feliz will wipe the disk"
   message_subsequent "and create a new partition table with your settings"
@@ -210,20 +210,13 @@ function guided_message # Inform user
   dialog --backtitle "$Backtitle" --title " $title " \
       --yes-label "$Yes" --no-label "$No" --yesno "\n$Message" 12 60
   retval=$?
-}
-
-function guided_partitions
-{
-  limitations="This facility will create /root, /swap and /home"
-  guided_message
   if [ $retval -ne 0 ]; then return 1; fi   # If 'No' then return to caller
-
+  AutoPart="GUIDED"                         # Set auto-partition flag
   prepare_device                            # Create partition table and prepare device size variables
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
 
   guided_root                               # Prepare $RootSize variable (eg: 9GiB) & $RootType)
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
-
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
 
@@ -253,11 +246,10 @@ function guided_partitions
       SwapSize="0"
     fi
   fi
-  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
-  AutoPart="GUIDED"                         # Set auto-partition flag
+ # prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
 }
 
-function guided_recalc  # Calculate remaining disk space
+function guided_recalc  # Called by prepare_partitions & guided_partitions to calculate remaining disk space
 {                       # $1 is a partition size eg: 10MiB or 100% or perhaps 0
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
@@ -524,15 +516,4 @@ function guided_swap # MBR & EFI Set variable: SwapSize
       break
     fi
   done
-}
-
-function display_results
-{
-  fdisk -l "${RootDevice}" > output.file
-  p=" "
-  while read -r Item; do             # Read items from the output.file file
-    p="$p \n $Item"                  # Add to $p with newline after each $Item
-  done < output.file
-
-  dialog --backtitle "$Backtitle" --ok-label "$Ok" --msgbox "\n Partitioning of ${GrubDevice} \n $p" 20 77
 }

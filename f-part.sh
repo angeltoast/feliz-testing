@@ -26,14 +26,14 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           45    select_device       249
-# use_parts             99    no_swap_partition   299
-# build_lists          109    set_swap_file       313
-# allocate_partitions  152    more_partitions     337
-# parted_script        176    choose_mountpoint   382
-# create_filesystem    181    display_partitions  413
-# allocate_root        186    allocate_uefi       441 
-# allocate_swap        214    get_device_size     462
+# check_parts           39    select_device       264
+# use_parts             93    
+# build_lists          103    set_swap_file       313
+# allocate_partitions  144    more_partitions     334
+# parted_script        178    choose_mountpoint   373
+# create_filesystem    182    display_partitions  402
+# allocate_root        203    allocate_uefi       430 
+# allocate_swap        230    get_device_size     450
 # ------------------------    ------------------------
 
 function check_parts {  # Called by feliz.sh and f-set.sh
@@ -152,8 +152,18 @@ function allocate_partitions { # Called by feliz.sh
   if [ -n "$PartitionList" ]; then      # If there are unallocated partitions
     allocate_swap                       # Display display them for user to choose swap
   else                                  # If there is no partition for swap
-    no_swap_partition                   # Inform user and allow swapfile
+    message_first_line "There are no partitions available for swap"
+    message_subsequent "but you can assign a swap file"
+    dialog --backtitle "$Backtitle" --title " $title " \
+      --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 14 60 2>output.file
+    case $? in
+    0) set_swap_file
+      SwapPartition="" ;;
+    *) SwapPartition=""
+      SwapFile=""
+    esac
   fi
+
   if [ -z "$PartitionList" ]; then return 0; fi
   for i in ${PartitionList}; do         # Check contents of PartitionList
     echo "$i" > output.file               # If anything found, echo to file
@@ -170,8 +180,21 @@ function parted_script { # Calls GNU parted tool with options
 }
 
 function create_filesystem {  # Called by choose_mountpoint & allocate_root
-                              # Creates a file-system on the selected partition
-  select_filesystem           # Offer the user the list of filesystem options
+                              # User chooses filesystem from ${TypeList}
+  local Counter=0
+  message_first_line "Please select the file system for"
+  Message="$Message ${Partition}"
+  message_subsequent "It is not recommended to mix the btrfs file-system with others"
+  menu_dialog_variable="ext4 ext3 btrfs xfs None"         # Set the menu elements
+  menu_dialog 16 55 "$_Exit"                              # Display the menu
+  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then   # Nothing selected
+    PartitionType=""
+    retval=1
+  else
+    PartitionType="$Result"
+    retval=0
+  fi
+  # Create a file-system on the selected partition
   if [ $retval -eq 0 ] && [ -n $PartitionType ]; then
     mkfs."${PartitionType}" "${Partition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   fi
@@ -285,19 +308,6 @@ function select_device {  # Called by f-part.sh/check_parts
   fi
   RootDevice="/dev/${UseDisk}"  # Full path of selected device
   EFIPartition="${RootDevice}1"
-}
-
-function no_swap_partition {  # Called by allocate_partitions when there are no unallocated partitions
-  message_first_line "There are no partitions available for swap"
-  message_subsequent "but you can assign a swap file"
-  dialog --backtitle "$Backtitle" --title " $title " \
-    --yes-label "$Yes" --no-label "$No"--yesno "\n$Message" 14 60 2>output.file
-  case $? in
-  0) set_swap_file
-    SwapPartition="" ;;
-  *) SwapPartition=""
-    SwapFile=""
-  esac
 }
 
 function set_swap_file {

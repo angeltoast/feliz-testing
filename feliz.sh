@@ -102,8 +102,6 @@ function the_start {  # All user interraction takes place in this function
       setlocale                                   # CountryLocale eg: en_GB.UTF-8
       if [ $? -ne 0 ]; then step=1; continue; fi
       get_keymap                                  # Select keyboard layout eg: uk
-      if [ $? -ne 0 ]; then continue; fi
-      set_hostname
       case $? in
        0) step=5 ;;                               # Step 3 completed, advance to step 5
        1) continue ;;                             # Backout, rerun this step
@@ -116,6 +114,7 @@ function the_start {  # All user interraction takes place in this function
        *) step=3 ;;                               # Backout, rerun previous step
       esac ;;
     6) # desktop settings
+      set_hostname
       DesktopEnvironment=""
       type_of_installation                        # Basic or Full - use chooses Build, FeliOB or Basic
       if [ $? -ne 0 ]; then
