@@ -181,6 +181,7 @@ function parted_script { # Calls GNU parted tool with options
 
 function create_filesystem {  # Called by choose_mountpoint & allocate_root
                               # User chooses filesystem from ${TypeList}
+  local record="$1"  # 0 to create a filesystem, 1 to just record the variables
   local Counter=0
   message_first_line "Please select the file system for"
   Message="$Message ${Partition}"
@@ -195,7 +196,7 @@ function create_filesystem {  # Called by choose_mountpoint & allocate_root
     retval=0
   fi
   # Create a file-system on the selected partition
-  if [ $retval -eq 0 ] && [ -n $PartitionType ]; then
+  if [ $record -eq 0 ] && [ $retval -eq 0 ] && [ -n $PartitionType ]; then
     mkfs."${PartitionType}" "${Partition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
   fi
 }
@@ -222,7 +223,7 @@ function allocate_root {  # Called by allocate_partitions
   Partition="/dev/$Result"
   RootPartition="${Partition}"
 
-  create_filesystem                     # User selects filesystem
+  create_filesystem 0                   # User selects filesystem
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
 }
@@ -352,7 +353,7 @@ function more_partitions {  # Called by allocate_partitions if any partitions
     2) continue ;;     # Invalid mountpoint attempted
     1) return 1 ;;     # Inform calling function that user cancelled; no details added
     *) # If this point has been reached, then all data for a partiton has been accepted
-      create_filesystem                                 # So create a filesystem on the partition
+      create_filesystem 0                               # So create a filesystem on the partition
       # And add it to the arrays for extra partitions
       ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
       AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)

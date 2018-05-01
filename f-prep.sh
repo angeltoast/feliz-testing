@@ -246,7 +246,7 @@ function guided_partitions  # Called by f-part/check_parts
       SwapSize="0"
     fi
   fi
- # prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
+  prepare_partitions "${StartPoint}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables include MiB GiB or %
 }
 
 function guided_recalc  # Called by prepare_partitions & guided_partitions to calculate remaining disk space
@@ -332,7 +332,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
         RootSize="${RESPONSE}iB"
       fi
       Partition="/root"
-      create_filesystem
+      create_filesystem 1       # Get filesystem variable
       RootType=${PartitionType}
       break
     fi
@@ -390,7 +390,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           else
             HomeSize="${RESPONSE}iB"
           fi
-          create_filesystem
+          create_filesystem 1       # Get filesystem variable
           HomeType=${PartitionType}
           break
         fi
