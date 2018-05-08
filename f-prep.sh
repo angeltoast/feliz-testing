@@ -219,9 +219,20 @@ function guided_partitions  # Called by f-part/check_parts
   AutoPart="GUIDED"                         # Set auto-partition flag
   prepare_device                            # Create partition table and prepare device size variables
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
+  
+echo "$DiskSize"
+echo "EFIPartition $EFIPartition : efi_size $efi_size"
+echo "MountDevice $MountDevice : StartPoint $StartPoint"
+read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
+
                                             # If an ESP is required, it was set during prepare_device
   guided_root                               # Prepare $RootSize variable (eg: 9GiB) & $RootType)
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
+  
+echo "EFIPartition $EFIPartition : RootSize $Rootize"
+echo "MountDevice $MountDevice : StartPoint $StartPoint"
+read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
+
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   MountDevice=$((MountDevice+1))            # Advance partition numbering
@@ -260,6 +271,11 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions to ca
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                               # Count characters in variable
+   
+echo "Passed $Passed : Chars $Chars"
+echo "MountDevice $MountDevice : StartPoint $StartPoint"
+echo "guided_recalc ... before. Factor $Factor : FreeSpace $FreeSpace"
+  
   if [ ${1: -1} = "%" ]; then               # Allow for percentage
     Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
     Value=$((FreeSpace*100/Passed))         # Convert percentage to value
@@ -279,6 +295,10 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions to ca
   fi
   # Recalculate available space
   FreeSpace=$((FreeSpace-Calculator))
+   
+echo "guided_recalc ... after. Calculator $Calculator"
+read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
+  
 }
 
 function guided_root # MBR & EFI Set variables: RootSize, RootType
