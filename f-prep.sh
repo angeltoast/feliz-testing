@@ -220,7 +220,7 @@ function guided_partitions  # Called by f-part/check_parts
   prepare_device                            # Create partition table and prepare device size variables
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   
-echo "$DiskSize"
+echo "DiskSize $DiskSize"
 echo "EFIPartition $EFIPartition : efi_size $efi_size"
 echo "MountDevice $MountDevice : StartPoint $StartPoint"
 read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
@@ -229,7 +229,7 @@ read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
   guided_root                               # Prepare $RootSize variable (eg: 9GiB) & $RootType)
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   
-echo "EFIPartition $EFIPartition : RootSize $Rootize"
+echo "RootPartition $RootPartition : RootType $RootType : RootSize $RootSize"
 echo "MountDevice $MountDevice : StartPoint $StartPoint"
 read -p "$LINENO Factor $Factor : FreeSpace $FreeSpace"
 
