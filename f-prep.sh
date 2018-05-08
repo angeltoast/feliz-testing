@@ -219,7 +219,7 @@ function guided_partitions  # Called by f-part/check_parts
   AutoPart="GUIDED"                         # Set auto-partition flag
   prepare_device                            # Create partition table and prepare device size variables
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
-
+                                            # If an ESP is required, it was set during prepare_device
   guided_root                               # Prepare $RootSize variable (eg: 9GiB) & $RootType)
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
@@ -283,15 +283,16 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions to ca
 
 function guided_root # MBR & EFI Set variables: RootSize, RootType
 {
-  if [ $Factor -gt 0 ]; then          # Factor is set by prepare_device
-    FreeGigs=$((FreeSpace/Factor))
+  if [ $Factor -gt 0 ]; then          # Factor is set by prepare_device, to convert calculations to MiB
+    FreeGigs=$((FreeSpace/Factor))    # But FreeGigs displays in GiB
   else
     FreeGigs=0
     Return 1
   fi
+  
   while true
   do
-    # Clear display, show /boot and available space
+  # 1) Show /boot and available space
     if [ $UEFI -eq 1 ]; then
       message_first_line "EFI Partition : ${efi_size}MiB"
       message_subsequent "You now have"
@@ -315,6 +316,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
     Message="$Message \n"
     message_subsequent "Please enter the desired size"
     Message="$Message \n [ eg: 12G or 100% ] ... "
+  # 2) User enters size of /root
     dialog --backtitle "$Backtitle" --title " Root " --ok-label "$Ok" --inputbox "$Message" 18 70 2>output.file
     retval=$?
     if [ $retval -ne 0 ]; then continue 1; fi
@@ -324,7 +326,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       else
         RESPONSE="${Result^^}"
       fi
-    # Check that entry includes 'G or M or %'
+  # 3) Check that entry includes 'G or M or %'
     CheckInput=${RESPONSE: -1}
     if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
       translate "You must include M or G or %"
@@ -348,15 +350,15 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
 
 function guided_home # MBR & EFI Set variables: HomeSize, HomeType
 {
-  if [ $Factor -gt 0 ]; then
-    FreeGigs=$((FreeSpace/Factor))
+  if [ $Factor -gt 0 ]; then          # Factor is set by prepare_device, to convert calculations to MiB
+    FreeGigs=$((FreeSpace/Factor))    # But FreeGigs displays in GiB
   else
     FreeGigs=0
     Return 1
   fi
   while true
   do
-    # Show /root, /swap and available space
+  # 1) Show /root, /swap and available space
     translate "partition"
     message_first_line "/root $Result : ${RootType} : ${RootSize}"
     message_subsequent "You now have"
@@ -372,6 +374,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     message_subsequent "Please enter the desired size"
     translate "Size"
     message_subsequent "${Result} [ eg: 10G or 0 or 100% ] ... "
+  # 2) User enters size of /home
     dialog --backtitle "$Backtitle" --title " Home " --ok-label "$Ok" --inputbox "$Message" 16 70 2>output.file
     retval=$?
     Result="$(cat output.file)"
@@ -384,8 +387,8 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
     HomeType=""
     case ${RESPONSE} in
       "" | 0) HomeSize="0"
-          break ;;
-      *) # Check that entry includes 'G or M'
+          return 0 ;;
+      *) # 3) Check that entry includes 'G or M or %'
           CheckInput=${RESPONSE: -1}
         if [ "$CheckInput" != "%" ] && [ "$CheckInput" != "G" ] && [ "$CheckInput" != "M" ]; then
           translate "You must include M or G or %"
@@ -398,7 +401,7 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           else
             HomeSize="${RESPONSE}iB"
           fi
-          Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
+          Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda3 if there is an EFI partition
           HomePartition="${Partition}"
           create_filesystem 1                       # Get filesystem variable
           HomeType=${PartitionType}
@@ -419,7 +422,7 @@ function swap_message
 
 function guided_swap # MBR & EFI Set variable: SwapSize
 {
-  # Show /boot and /root
+  # 1) Show /boot and /root and /home (if any)
   if [ $Factor -gt 0 ]; then
     FreeGigs=$((FreeSpace/Factor))
   else
@@ -502,8 +505,6 @@ function guided_swap # MBR & EFI Set variable: SwapSize
           fi
           Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
           SwapPartition="${Partition}"
-          mkswap "$SwapPartition"
-          MakeSwap="Y"
           break
         fi
       esac
