@@ -174,8 +174,8 @@ function allocate_partitions { # Called by feliz.sh
   fi
 }
 
-function parted_script # Called by f-prep/prepare_device & prepare_partitions
-{ # Calls GNU parted tool with options
+function parted_script  # Called by f-prep/prepare_device & prepare_partitions
+{                       # Calls GNU parted with options passed in $1
   parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 

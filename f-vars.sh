@@ -118,6 +118,10 @@ function not_found {                # Optional arguments $1 & $2 for box size
   dialog --backtitle "$Backtitle" --title " Not Found " --ok-label "$Ok" --msgbox "\n$Message $3" $Height $Length
 }
 
+function Error { # Error-handling - $1 should be "${BASH_SOURCE[0]} ${FUNCNAME[0]} $LINENO"
+  echo "Error at $1" >> feliz.log
+}
+
 function dialog_inputbox {          # General-purpose input box ... $1 & $2 are box size
   dialog --backtitle "$Backtitle" --title " $title " --ok-label "$Ok" \
     --inputbox "\n$Message\n" $1 $2 2>output.file
