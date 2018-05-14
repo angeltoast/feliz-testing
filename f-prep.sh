@@ -1,13 +1,11 @@
 #!/bin/bash
 
-999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
-This block is designed to fail with errors
-Converting all arguments passed from auto and guided to prepare_partitions
-Arguments are to be numeric only, representing MiB (without extension)
-Before passing the arguments, each unit must convert input to MiB
-
-Most basic work is done, but every step needs to be checked
-999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
+#999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
+# Converting all arguments passed from auto and guided to prepare_partitions
+# Arguments are to be numeric only, representing MiB (without extension)
+# Before passing the arguments, each unit must convert input to MiB
+# Most of the work is now done, but every step needs to be checked
+#999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
 
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
