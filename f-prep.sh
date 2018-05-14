@@ -273,8 +273,7 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions
   Chars=${#1}                               # Count characters in variable
   if [ ${1: -1} = "%" ]; then               # Allow for percentage
     Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
-    Value=$((FreeSpace*100/Passed))         # Convert percentage to value in MiB
-    Calculator=$Value
+    Calculator=$((FreeSpace*Passed/100))    # Convert percentage to value in MiB
   elif [ ${1: -1} = "G" ]; then
     Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
     Calculator=$((Passed*1024))             # Convert to MiB
