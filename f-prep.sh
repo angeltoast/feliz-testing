@@ -2,9 +2,10 @@
 
 #999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
 # Converting all arguments passed from auto and guided to prepare_partitions
-# Arguments are to be numeric only, representing MiB (without extension)
-# Before passing the arguments, each unit must convert input to MiB
-# Most of the work is now done, but every step needs to be checked
+# Arguments are to be numeric only, representing MiB (without unit)
+# Before passing the arguments to prepare_partitions, each unit must convert to MiB
+# 
+# First test quite good. Only the swap partition failed - maybe bad start point
 #999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
 
 # The Feliz installation scripts for Arch Linux
@@ -244,7 +245,7 @@ function guided_partitions  # Called by f-part/check_parts
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
     guided_recalc "$SwapSize"               # Use guided_recalc to convert SwapSize
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
-    SwapSize="$Calculator"                  # SwapSize is now MiB (numeric only)
+    SwapSize="$Calculator"                  # SwapSize is now in MiB (numeric only)
   else
     message_first_line "There is no space for a"
     translate "partition"
@@ -491,15 +492,6 @@ function guided_swap # MBR & EFI Set variable: SwapSize
             SwapSize="${RESPONSE}"
           else
             SwapSize="${RESPONSE}iB"
-          fi
-          Chars=${#RESPONSE}                # Count characters in variable
-          swap_value=${RESPONSE:0:Chars-1}  # Separate the value from the unit
-          StartPoint=$(((DiskSize*1024)-(FreeGigs*1024)))    # All sizes in MiB
-          if [ "$CheckInput" = "%" ]; then
-            EndPoint="${SwapSize}"
-          else
-            end_value=$((StartPoint+swap_value))
-            EndPoint="${end_value}MiB"
           fi
           Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
           SwapPartition="${Partition}"
