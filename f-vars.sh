@@ -34,8 +34,8 @@
 # print_first_line   127       ... and onwards
 # ----------------------    ------------------------
 
-function set_language {
-  
+function set_language
+{
   setfont LatGrkCyr-8x16 -m 8859-2    # To display wide range of characters
   # First load English file
   if [ ! -f English.lan ]; then
@@ -104,7 +104,8 @@ function set_language {
   Yes="$Result"
 }
 
-function not_found {                # Optional arguments $1 & $2 for box size
+function not_found
+{                     # Optional arguments $1 & $2 for box size
   if [ $1 ] && [ -n $1 ]; then
     Height="$1"
   else
