@@ -163,20 +163,20 @@ if [ -n "$DEBUG" ]; then
   read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
-  # 1) Make /root partition at startpoint
+  # 1) Make /root partition
   Start="$1"
   Size="$2"                                           # root size
   End=$((Start+Size))
-  parted_script "mkpart primary ext4 ${Start}MiB ${End}MiB" # eg: parted /dev/sda mkpart primary ext4 1M 12000M
+  parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
+  # eg: parted /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
-  mkfs."${RootType}" "${RootPartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda1
+  mkfs."$RootType $RootPartition" &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
-  Point="${End}"                                      # For /home or /swap
+  Start="$End"                                        # For /home or /swap
   MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
-  # 2) Make /home partition at startpoint
+  # 2) Make /home partition
   if [ -n "$3" ] && [ "$3" != "0" ]; then
-    Start="$End"
     Size="$3"                                         # home size
     End=$((Start+Size))
     parted_script "mkpart primary ext4 ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
@@ -185,17 +185,17 @@ fi
     AddPartMount[0]="/home"                           # Mountpoint     | array of
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
-    mkfs."$HomeType" "${HomePartition}" &>> feliz.log # eg: mkfs.ext4 /dev/sda3
+    mkfs."$HomeType $HomePartition" &>> feliz.log   # eg: mkfs.ext4 /dev/sda3
     Start="${End}"                                    # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
   fi
-  # 3) Make /swap partition at startpoint
+  # 3) Make /swap partition
   if [ -n "$4" ] && [ "$4" != "0" ]; then
-    Size="${4}"
+    Size="$4"
     End=$((Start+Size))
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
     SwapPartition="${GrubDevice}${MountDevice}"
-    mkswap "$SwapPartition"
+    mkswap "$SwapPartition $Size"
     MakeSwap="Y"
   fi
   # Display partitions for user
@@ -347,7 +347,7 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
       Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda2 if there is an EFI partition
       RootPartition="${Partition}"
       create_filesystem 1                       # Get partition type
-      RootType=${PartitionType}
+      RootType="$PartitionType"
       break
     fi
   done
