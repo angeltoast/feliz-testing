@@ -236,6 +236,7 @@ fi
 
 function guided_partitions  # Called by f-part/check_parts
 {                           # Calls each guided partitioning function
+  # local MountDevice="$MountDevice"
   limitations="This facility will create"
   if [ $UEFI -eq 1 ]; then  # EFI system
     limitations="$limitations /boot /root /swap & /home"
@@ -262,7 +263,7 @@ function guided_partitions  # Called by f-part/check_parts
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
   RootSize="$Calculator"                    # RootSize is now in MiB (numeric only)
-  MountDevice=$((MountDevice+1))            # Advance partition number
+  # MountDevice=$((MountDevice+1))            # Advance partition number
   if [ ${FreeSpace} -gt 2 ]; then
     guided_home                             # Prepare $HomeSize & $HomeType
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
@@ -270,7 +271,7 @@ function guided_partitions  # Called by f-part/check_parts
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
     HomeSize="$Calculator"                  # HomeSize is now in MiB (numeric only)
   fi
-  MountDevice=$((MountDevice+1))            # Advance partition number
+  # MountDevice=$((MountDevice+1))            # Advance partition number
   if [ ${FreeSpace} -gt 1 ]; then
     guided_swap                             # Prepare $SwapSize
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
