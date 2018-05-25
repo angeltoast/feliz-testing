@@ -297,8 +297,8 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions
 {                       # $1 is a partition size eg: 10G or 100% or perhaps 0
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
-  Passed=${1:0:Chars-1}                     # Passed variable stripped of unit
   Chars=${#1}                               # Count characters in variable
+  Passed=${1:0:Chars-1}                     # Passed variable stripped of unit
   if [ ${1: -1} == "%" ]; then               # Allow for percentage
     Calculator=$((FreeSpace*Passed/100))    # Convert percentage to value in MiB
   elif [ ${1: -1} == "G" ]; then
