@@ -133,7 +133,7 @@ function prepare_device # Called by autopart, guided_MBR and guided_EFI
     Start=$((efi_size+1))                               # For next partition
   else                                                  # Installing in BIOS environment
     parted_script "mklabel msdos"                       # Create new filesystem
-    Start="1"                                           # For next partition
+    Start=1                                             # For next partition
   fi
   # Prepare to count devices
   if [ $UEFI -eq 1 ]; then                              # eg: 1 in sda1
@@ -160,17 +160,23 @@ function prepare_partitions # Called from autopart and guided_partitions
 
 if [ -n "$DEBUG" ]; then
   echo "$1 $2 $3 $4"
-  read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
   # 1) Make /root partition
-  Start="$1"
-  Size="$2"                                           # root size
-  End=$((Start+Size))
+  local Start="$1"                                    # Probably the same as global Start
+  local Size="$2"                                     # root size
+  local End=$((Start+Size))
+
+if [ -n "$DEBUG" ]; then
+  echo "$Start $Size $End"
+  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+fi
+
   parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
   # eg: parted /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
-  mkfs."$RootType $RootPartition" &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
+  mkfs."$RootType $RootPartition" &>> feliz.log       # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
   Start="$End"                                        # For /home or /swap
@@ -179,25 +185,42 @@ fi
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     Size="$3"                                         # home size
     End=$((Start+Size))
-    parted_script "mkpart primary ext4 ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
+
+if [ -n "$DEBUG" ]; then
+  echo "$Start $Size $End"
+  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+fi
+
+    parted_script "mkpart primary $HomeType ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
     HomePartition="${GrubDevice}${MountDevice}"
     AddPartList[0]="${HomePartition}"                 # eg: /dev/sda2  | add to
     AddPartMount[0]="/home"                           # Mountpoint     | array of
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
-    mkfs."$HomeType $HomePartition" &>> feliz.log   # eg: mkfs.ext4 /dev/sda3
-    Start="${End}"                                    # Reset start for /swap
+    mkfs."$HomeType $HomePartition" &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
+    Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
   fi
   # 3) Make /swap partition
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     Size="$4"
     End=$((Start+Size))
+
+if [ -n "$DEBUG" ]; then
+  echo "$Start $Size $End"
+  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+fi
+
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition $Size"
     MakeSwap="Y"
   fi
+
+if [ -n "$DEBUG" ]; then
+  read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+fi
+
   # Display partitions for user
   fdisk -l "${RootDevice}" > output.file
   p=" "
@@ -234,14 +257,14 @@ function guided_partitions  # Called by f-part/check_parts
 
   guided_recalc "$RootSize"                 # Recalculate remaining space after adding /root
   if [ $? -ne 0 ]; then return 1; fi        # If error then return to caller
-  RootSize="$Calculator"                    # RootSize is now MiB (numeric only)
+  RootSize="$Calculator"                    # RootSize is now in MiB (numeric only)
   MountDevice=$((MountDevice+1))            # Advance partition number
   if [ ${FreeSpace} -gt 2 ]; then
     guided_home                             # Prepare $HomeSize & $HomeType
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
     guided_recalc "$HomeSize"               # Recalculate remaining space after adding /home
     if [ $? -ne 0 ]; then return 1; fi      # If error then return to caller
-    HomeSize="$Calculator"                  # HomeSize is now MiB (numeric only)
+    HomeSize="$Calculator"                  # HomeSize is now in MiB (numeric only)
   fi
   MountDevice=$((MountDevice+1))            # Advance partition number
   if [ ${FreeSpace} -gt 1 ]; then
@@ -266,24 +289,24 @@ function guided_partitions  # Called by f-part/check_parts
       SwapSize="0"
     fi
   fi
-  prepare_partitions "${Start}" "${RootSize}" "${HomeSize}" "${SwapSize}" # variables all in MiB
+  prepare_partitions "$Start" "$RootSize" "$HomeSize" "$SwapSize" # variables all in MiB
 }
 
 function guided_recalc  # Called by prepare_partitions & guided_partitions
                         # Convert to MiB and calculate remaining disk space
-{                       # $1 is a partition size eg: 10MiB or 100% or perhaps 0
+{                       # $1 is a partition size eg: 10G or 100% or perhaps 0
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
+  Passed=${1:0:Chars-1}                     # Passed variable stripped of unit
   Chars=${#1}                               # Count characters in variable
-  if [ ${1: -1} = "%" ]; then               # Allow for percentage
-    Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
+  if [ ${1: -1} == "%" ]; then               # Allow for percentage
     Calculator=$((FreeSpace*Passed/100))    # Convert percentage to value in MiB
-  elif [ ${1: -1} = "G" ]; then
-    Passed=${1:0:Chars-1}                   # Passed variable stripped of unit
+  elif [ ${1: -1} == "G" ]; then
     Calculator=$((Passed*1024))             # Convert to MiB
-  elif [ ${1: -1} = "M" ]; then
-    Calculator=${1:0:Chars-1}               # Passed variable stripped of unit
+  elif [ ${1: -1} == "M" ]; then
+    Calculator="$Passed"                    # Passed value
   else
+    Calculator=0                            # Just in case
     Error "${BASH_SOURCE[0]} ${FUNCNAME[0]} line $LINENO"
     return 1
   fi
@@ -397,14 +420,10 @@ function guided_home # MBR & EFI Set variables: HomeSize, HomeType
           HomeSize=""
           continue
         else
-          if [ "$CheckInput" = "%" ]; then
-            HomeSize="${RESPONSE}"
-          else
-            HomeSize="${RESPONSE}"
-          fi
+          HomeSize="${RESPONSE}"
           Partition="${GrubDevice}${MountDevice}"   # eg: /dev/sda3 if there is an EFI partition
           HomePartition="${Partition}"
-          create_filesystem 1                       # Get filesystem variable
+          create_filesystem                         # Get filesystem variable
           HomeType=${PartitionType}
           break
         fi
