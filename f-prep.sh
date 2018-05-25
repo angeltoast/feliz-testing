@@ -160,6 +160,7 @@ function prepare_partitions # Called from autopart and guided_partitions
 
 if [ -n "$DEBUG" ]; then
   echo "$1 $2 $3 $4"
+  echo "MountDevice $MountDevice"
   echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
@@ -169,7 +170,8 @@ fi
   local End=$((Start+Size))
 
 if [ -n "$DEBUG" ]; then
-  echo "$Start $Size $End"
+  echo "Start $Start Size $Size End $End"
+  echo "MountDevice $MountDevice"
   echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
@@ -187,7 +189,8 @@ fi
     End=$((Start+Size))
 
 if [ -n "$DEBUG" ]; then
-  echo "$Start $Size $End"
+  echo "Start $Start Size $Size End $End"
+  echo "MountDevice $MountDevice"
   echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
@@ -207,7 +210,8 @@ fi
     End=$((Start+Size))
 
 if [ -n "$DEBUG" ]; then
-  echo "$Start $Size $End"
+  echo "Start $Start Size $Size End $End"
+  echo "MountDevice $MountDevice"
   echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 fi
 
