@@ -1,17 +1,16 @@
 #!/bin/bash
 
 # 999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
-#  Converting all arguments passed from auto and guided to prepare_partitions function
-#  Arguments are to be numeric only, representing MiB (without unit)
-#  Before passing the arguments to prepare_partitions, each unit must convert to MiB
-#  swap partition failed - maybe bad start point
-DEBUG="Y" # 161 to check actual values from guided_swap
+#  All arguments passed from auto and guided routines to the prepare_partitions
+#  function are now numeric, representing MiB (without unit)
+#  But prepare_partitions is failing with errors
+#  Search for "DEBUG"
 # 999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
 
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 16th May 2018
+# Revision date: 26th May 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -158,22 +157,21 @@ function prepare_partitions # Called from autopart and guided_partitions
       # If system is EFI, prepare_device has also created the /boot partition at
       #  /dev/${UseDisk}1 and Start (passed here as $1) has been set to follow /boot
 
-if [ -n "$DEBUG" ]; then
-  echo "$1 $2 $3 $4"
-  echo "MountDevice $MountDevice"
-  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-fi
+# DEBUG
+echo "Arguments received: $1 $2 $3 $4"
+echo "MountDevice $MountDevice"
+echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
   # 1) Make /root partition
   local Start="$1"                                    # Probably the same as global Start
   local Size="$2"                                     # root size
   local End=$((Start+Size))
 
-if [ -n "$DEBUG" ]; then
-  echo "Start $Start Size $Size End $End"
-  echo "MountDevice $MountDevice"
-  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-fi
+# DEBUG
+echo "Before making /root"
+echo "Start $Start Size $Size End $End"
+echo "MountDevice $MountDevice"
+echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
   parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
   # eg: parted /dev/sda mkpart primary ext4 1M 12000M
@@ -188,11 +186,11 @@ fi
     Size="$3"                                         # home size
     End=$((Start+Size))
 
-if [ -n "$DEBUG" ]; then
-  echo "Start $Start Size $Size End $End"
-  echo "MountDevice $MountDevice"
-  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-fi
+# DEBUG
+echo "After making /root"
+echo "Start $Start Size $Size End $End"
+echo "MountDevice $MountDevice"
+read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
     parted_script "mkpart primary $HomeType ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
     HomePartition="${GrubDevice}${MountDevice}"
@@ -203,27 +201,31 @@ fi
     mkfs."$HomeType $HomePartition" &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
     Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
+
+# DEBUG
+echo "After making /home"
+echo "Start $Start Size $Size End $End"
+echo "MountDevice $MountDevice"
+read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+  
   fi
   # 3) Make /swap partition
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     Size="$4"
     End=$((Start+Size))
 
-if [ -n "$DEBUG" ]; then
-  echo "Start $Start Size $Size End $End"
-  echo "MountDevice $MountDevice"
-  echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-fi
-
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition $Size"
     MakeSwap="Y"
-  fi
 
-if [ -n "$DEBUG" ]; then
-  read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-fi
+# DEBUG
+echo "After making swap"
+echo "Start $Start Size $Size End $End"
+echo "MountDevice $MountDevice"
+read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+
+  fi
 
   # Display partitions for user
   fdisk -l "${RootDevice}" > output.file
