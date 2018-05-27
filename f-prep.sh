@@ -10,7 +10,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 26th May 2018
+# Revision date: 27th May 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -162,12 +162,6 @@ function prepare_partitions # Called from autopart and guided_partitions
   local Size="$2"                                     # root size
   local End=$((Start+Size))
 
-# DEBUG
-echo "Before making /root"
-echo "Start $Start Size $Size End $End"
-echo "MountDevice $MountDevice"
-echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-
   parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
   # eg: parted /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
@@ -180,13 +174,6 @@ echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     Size="$3"                                         # home size
     End=$((Start+Size))
-
-# DEBUG
-echo "Before making /home"
-echo "Start: $Start Size: $Size End: $End"
-echo "MountDevice: $MountDevice"
-read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-
     parted_script "mkpart primary $HomeType ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
     HomePartition="${GrubDevice}${MountDevice}"
     AddPartList[0]="${HomePartition}"                 # eg: /dev/sda2  | add to
@@ -202,17 +189,9 @@ read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     Size="$4"
     End=$((Start+Size))
-
-# DEBUG
-echo "Befor making /swap"
-echo "Start: $Start Size: $Size End: $End"
-echo "MountDevice: $MountDevice"
-read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-  
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
-    parted_script "mkfs $MountDevice linux-swap"
     SwapPartition="${GrubDevice}${MountDevice}"
-    mkswap "$SwapPartition $Size"
+    mkswap "$SwapPartition"
     MakeSwap="Y"
 
 # DEBUG
