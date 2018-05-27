@@ -165,9 +165,8 @@ function prepare_partitions # Called from autopart and guided_partitions
   parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
   # eg: parted /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
-  mkfs."$RootType $RootPartition" &>> feliz.log       # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
-  parted_script "set 1 boot on"                       # eg: parted /dev/sda set 1 boot on
+  parted_script "set $MountDevice boot on"                       # eg: parted /dev/sda set 1 boot on
   Start="$End"                                        # For /home or /swap
   MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
   # 2) Make /home partition
@@ -180,7 +179,7 @@ function prepare_partitions # Called from autopart and guided_partitions
     AddPartMount[0]="/home"                           # Mountpoint     | array of
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
-    mkfs."$HomeType $HomePartition" &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
+    mkfs."$HomeType $HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
     Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
 
@@ -190,22 +189,20 @@ function prepare_partitions # Called from autopart and guided_partitions
     Size="$4"
     End=$((Start+Size))
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
-
-# DEBUG
-echo "After using parted to make swap"
-
-read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-
     SwapPartition="${GrubDevice}${MountDevice}"
-    mkswap "$SwapPartition"
     MakeSwap="Y"
 
 # DEBUG
-echo "After making swap"
-cat feliz.log
+echo "After everything"
+lsblk
 read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
   fi
+  
+  fdisk -l "${RootDevice}"
+  mkfs."$RootType $RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
+  mkfs."$HomeType $HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
+  mkswap "$SwapPartition"
 
   # Display partitions for user
   fdisk -l "${RootDevice}" > output.file
