@@ -3,7 +3,7 @@
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills  liz@feliz.one
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
-# Revision date: 30th April 2018
+# Revision date: 27th May 2018
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ function allocate_partitions { # Called by feliz.sh
 
 function parted_script  # Called by f-prep/prepare_device & prepare_partitions
 {                       # Calls GNU parted with options passed in $1
-  parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
+  parted --script "$GrubDevice" "$1" 2>> feliz.log
 }
 
 function create_filesystem {  # Called by allocate_root, more_partitions, guided_root & guided_home

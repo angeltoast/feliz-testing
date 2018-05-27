@@ -190,12 +190,19 @@ function prepare_partitions # Called from autopart and guided_partitions
     Size="$4"
     End=$((Start+Size))
     parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
+
+# DEBUG
+echo "After using parted to make swap"
+
+read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition"
     MakeSwap="Y"
 
 # DEBUG
 echo "After making swap"
+cat feliz.log
 read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
   fi
