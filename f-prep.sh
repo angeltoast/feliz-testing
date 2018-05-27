@@ -157,11 +157,6 @@ function prepare_partitions # Called from autopart and guided_partitions
       # If system is EFI, prepare_device has also created the /boot partition at
       #  /dev/${UseDisk}1 and Start (passed here as $1) has been set to follow /boot
 
-# DEBUG
-echo "Arguments received: $1 $2 $3 $4"
-echo "MountDevice $MountDevice"
-echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-
   # 1) Make /root partition
   local Start="$1"                                    # Probably the same as global Start
   local Size="$2"                                     # root size
@@ -187,9 +182,9 @@ echo "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
     End=$((Start+Size))
 
 # DEBUG
-echo "After making /root"
-echo "Start $Start Size $Size End $End"
-echo "MountDevice $MountDevice"
+echo "Before making /home"
+echo "Start: $Start Size: $Size End: $End"
+echo "MountDevice: $MountDevice"
 read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
     parted_script "mkpart primary $HomeType ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
@@ -202,27 +197,25 @@ read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
     Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
 
-# DEBUG
-echo "After making /home"
-echo "Start $Start Size $Size End $End"
-echo "MountDevice $MountDevice"
-read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-  
   fi
   # 3) Make /swap partition
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     Size="$4"
     End=$((Start+Size))
 
-    parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
+# DEBUG
+echo "Befor making /swap"
+echo "Start: $Start Size: $Size End: $End"
+echo "MountDevice: $MountDevice"
+read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+  
+    parted_script "mkpartfs primary linux-swap ${Start}MiB ${End}MiB"
     SwapPartition="${GrubDevice}${MountDevice}"
     mkswap "$SwapPartition $Size"
     MakeSwap="Y"
 
 # DEBUG
 echo "After making swap"
-echo "Start $Start Size $Size End $End"
-echo "MountDevice $MountDevice"
 read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
 
   fi
