@@ -158,7 +158,7 @@ function prepare_partitions # Called from autopart and guided_partitions
   parted_script "mkpart primary $RootType ${Start}M ${End}M"
   # eg: parted --script /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
-  mkfs."$RootType $RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
+  mkfs."$RootType" "$RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set $MountDevice boot on"            # eg: parted /dev/sda set 1 boot on
 
