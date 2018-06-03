@@ -161,13 +161,6 @@ function prepare_partitions # Called from autopart and guided_partitions
   mkfs."$RootType" "$RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
   parted_script "set $MountDevice boot on"            # eg: parted /dev/sda set 1 boot on
-
-  # DEBUG #############################################
-  echo "After /root"
-  lsblk
-  read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-  #####################################################
-  
   Start="$End"                                        # For /home or /swap
   MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
   # 2) Make /home partition
@@ -182,13 +175,6 @@ function prepare_partitions # Called from autopart and guided_partitions
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
     mkfs."$HomeType" "$HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
-
-    # DEBUG ###########################################
-    echo "After /home"
-    lsblk
-    read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-    ###################################################
-    
     Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
   fi
@@ -202,13 +188,6 @@ function prepare_partitions # Called from autopart and guided_partitions
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
     mkswap "$SwapPartition"
-    
-    # DEBUG ##########################################
-    echo "After swap"
-    lsblk
-    read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-    ##################################################
-    
   fi
   
   # Display partitions for user
