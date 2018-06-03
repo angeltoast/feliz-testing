@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# 999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
-#  All arguments passed from auto and guided routines to the prepare_partitions
-#  function are now numeric, representing MiB (without unit)
-#  But prepare_partitions is failing with errors
-#  Search for "DEBUG"
-# 999999999999999999999999999999999999999999999999999999999999999999999999999999}}}}}}
-
 # The Feliz installation scripts for Arch Linux
 # Developed by Elizabeth Mills
 # With grateful acknowlegements to Helmuthdu, Carl Duff and Dylan Schacht
@@ -162,48 +155,62 @@ function prepare_partitions # Called from autopart and guided_partitions
   local Size="$2"                                     # root size
   local End=$((Start+Size))
 
-  parted_script "mkpart primary $RootType ${Start}MiB ${End}MiB"
-  # eg: parted /dev/sda mkpart primary ext4 1M 12000M
+  parted_script "mkpart primary $RootType ${Start}M ${End}M"
+  # eg: parted --script /dev/sda mkpart primary ext4 1M 12000M
   RootPartition="${GrubDevice}${MountDevice}"         # eg: /dev/sda2 if there is an EFI partition
+  mkfs."$RootType $RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
   # Set first partition as bootable
-  parted_script "set $MountDevice boot on"                       # eg: parted /dev/sda set 1 boot on
+  parted_script "set $MountDevice boot on"            # eg: parted /dev/sda set 1 boot on
+
+  # DEBUG #############################################
+  echo "After /root"
+  lsblk
+  read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+  #####################################################
+  
   Start="$End"                                        # For /home or /swap
   MountDevice=$((MountDevice+1))                      # Advance partition numbering for next step
   # 2) Make /home partition
   if [ -n "$3" ] && [ "$3" != "0" ]; then
     Size="$3"                                         # home size
     End=$((Start+Size))
-    parted_script "mkpart primary $HomeType ${Start}MiB ${End}MiB" # eg: mkpart primary ext4 12000M 19000M
+    parted_script "mkpart primary $HomeType ${Start}M ${End}M"
+    # eg: parted --script /dev/sda mkpart primary ext4 12000M 19000M
     HomePartition="${GrubDevice}${MountDevice}"
     AddPartList[0]="${HomePartition}"                 # eg: /dev/sda2  | add to
     AddPartMount[0]="/home"                           # Mountpoint     | array of
     AddPartType[0]="$HomeType"                        # Filesystem     | additional partitions
     Home="Y"
-    mkfs."$HomeType $HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
+    mkfs."$HomeType" "$HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
+
+    # DEBUG ###########################################
+    echo "After /home"
+    lsblk
+    read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+    ###################################################
+    
     Start="$End"                                      # Reset start for /swap
     MountDevice=$((MountDevice+1))                    # Advance partition number
-
   fi
+  
   # 3) Make /swap partition
   if [ -n "$4" ] && [ "$4" != "0" ]; then
     Size="$4"
     End=$((Start+Size))
-    parted_script "mkpart primary linux-swap ${Start}MiB ${End}MiB"
+    parted_script "mkpart primary linux-swap ${Start}M ${End}M"
+    # eg: parted --script /dev/sda mkpart primary ext4 19000M 21000M
     SwapPartition="${GrubDevice}${MountDevice}"
     MakeSwap="Y"
-
-# DEBUG
-echo "After everything"
-lsblk
-read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
-
+    mkswap "$SwapPartition"
+    
+    # DEBUG ##########################################
+    echo "After swap"
+    lsblk
+    read -p "${BASH_SOURCE[0]} ${FUNCNAME[0]} Line: $LINENO"
+    ##################################################
+    
   fi
   
-  fdisk -l "${RootDevice}"
-  mkfs."$RootType $RootPartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda1
-  mkfs."$HomeType $HomePartition" # &>> feliz.log     # eg: mkfs.ext4 /dev/sda3
-  mkswap "$SwapPartition"
-
   # Display partitions for user
   fdisk -l "${RootDevice}" > output.file
   p=" "
