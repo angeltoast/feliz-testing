@@ -381,7 +381,7 @@ function search_keyboards { # Called by get_keymap when all other options failed
       return 1
     fi
     local term="${Result,,}"
-    ListKbs=$(grep "${Term}" keymaps.list)
+    ListKbs=$(grep "${term}" keymaps.list)
     if [ -n "${ListKbs}" ]; then  # If a match or matches found
       menu_dialog_variable="$ListKbs"
       message_first_line "Please choose one"
