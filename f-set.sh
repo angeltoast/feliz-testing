@@ -60,7 +60,7 @@ function menu_dialog {  # Display a simple menu from $menu_dialog_variable and r
   done
   # Display the list for user-selection
   dialog --backtitle "$Backtitle" --title " $title " \
-    --no-tags --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
+    --no-tags --ok-label "$Ok" --cancel-label "$cancel" --menu "$Message" \
       "$1" "$2" ${Items} "${ItemList[@]}" 2>output.file
   retval=$?
   Result=$(cat output.file)
