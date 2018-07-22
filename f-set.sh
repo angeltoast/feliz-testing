@@ -26,19 +26,19 @@
 # --------------------------  ---------------------------
 # Function             Line   Function               Line
 # --------------------------  ---------------------------
-# menu_dialog            44   pick_category           554
-# set_timezone          102   choose_extras           633
-# set_subzone           154   display_extras          692
-# america               199   choose_display_manager  752
-# america_subgroups     250   select_grub_device      776
-# setlocale             273   enter_grub_path         804
-# edit_locale           349   select_kernel           828
-# get_keymap            369   choose_mirrors          852
-# search_keyboards      431   edit_mirrors            923
-# set_username          477   confirm_virtualbox      949
-# set_hostname          496   final_check             968
-# type_of_installation  515   manual_settings        1098
-#                             wireless_option        1115
+# menu_dialog            44   pick_category           493
+# set_timezone           69   choose_extras           572
+# set_subzone           111   display_extras          623
+# america               146   choose_display_manager  678
+# america_subgroups     197   select_grub_device      700
+# setlocale             220   enter_grub_path         726
+# edit_locale           292   select_kernel           751
+# get_keymap            311   choose_mirrors          780
+# search_keyboards      367   edit_mirrors            852
+# set_username          413   confirm_virtualbox      892
+# set_hostname          433   final_check             907
+# type_of_installation  453   manual_settings        1035
+#                             wireless_option        1081
 # -------------------------   ---------------------------
 
 function menu_dialog {  # Display a simple menu from $menu_dialog_variable and return selection as $Result
@@ -471,7 +471,7 @@ function type_of_installation { # User chooses between FelizOB, self-build or ba
   translate "Basic_Arch_Linux"
   BAL="$Result"
   
-  dialog --backtitle "$Backtitle" --title " type_of_installation " \
+  dialog --backtitle "$Backtitle" --title " Type of Installation " \
     --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" \
       24 70 3 \
       1 "$BMO" \
@@ -1041,7 +1041,7 @@ function manual_settings {  # Called without arguments by final_check if
     translate "User Name"
     Uname="$Result"
     message_first_line "Choose an item"
-    dialog --backtitle "$Backtitle" --title " $Uname & $Hname "
+    dialog --backtitle "$Backtitle" --title " $Uname & $Hname " \
       --ok-label "$Ok" --cancel-label "Done" --menu "\n$Message" 10 40 2 \
       "$Uname"  "$user_name" \
       "$Hname" 	"$HostName"   2> output.file
