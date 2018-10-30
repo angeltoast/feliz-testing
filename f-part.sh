@@ -54,10 +54,10 @@ function check_parts {  # Called by feliz.sh and f-set.sh
     first_item="$Result"
     translate "Shut down this session"
     second_item="$Result"
-    translate "Allow Feliz to partition the device"
-    third_item="$Result"
-    translate "Use Guided Manual Partitioning"
-    fourth_item="$Result"
+  # translate "Allow Feliz to partition the device"
+  #  third_item="$Result"
+  #  translate "Use Guided Manual Partitioning"
+  #  fourth_item="$Result"
     translate "Display the 'partitioning' file"
     fifth_item="$Result"
 
@@ -67,19 +67,17 @@ function check_parts {  # Called by feliz.sh and f-set.sh
       --ok-label "$Ok" --cancel-label "$Cancel" --menu "$Message" 15 50 5 \
         1 "$first_item" \
         2 "$second_item" \
-        3 "$third_item" \
-        4 "$fourth_item" \
-        5 "$fifth_item" 2>output.file
+        3 "$fifth_item" 2>output.file
       if [ $? -ne 0 ]; then return 1; fi
       Result=$(cat output.file)
     
       case $Result in
         1) exit ;;
         2) shutdown -h now ;;
-        3) auto_warning
-            if [ $retval -ne 0 ]; then continue; fi       # If 'No' then display menu again
-            autopart ;;
-        4) guided_partitions ;;
+      #  3) auto_warning
+      #      if [ $retval -ne 0 ]; then continue; fi       # If 'No' then display menu again
+      #      autopart ;;
+      #  4) guided_partitions ;;
         *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
@@ -176,11 +174,19 @@ function allocate_partitions { # Called by feliz.sh
 
 function parted_script  # Called by f-prep/prepare_device & prepare_partitions
 {                       # Calls GNU parted with options passed in $1
+  
+  return # This function is deprecated
+  
   parted --script "$GrubDevice" "$1" 2>> feliz.log
 }
 
 function create_filesystem {  # Called by allocate_root, more_partitions, guided_root & guided_home
                               # User chooses filesystem from ${TypeList}
+                              
+  PartitionType=""
+  retval=1
+  return # This function is deprecated
+                              
   local record="$1"  # 0 to create a filesystem, 1 to just record the variables
   local Counter=0
   message_first_line "Please select the file system for"

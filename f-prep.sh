@@ -34,6 +34,9 @@
 
 function auto_warning # Called by f-part/check_parts before autopart
 {
+  
+  return # This function is deprecated
+  
   message_first_line "This will erase any data on"
   Message="$Message $RootDevice"
   message_subsequent "Are you sure you wish to continue?"
@@ -45,6 +48,9 @@ function auto_warning # Called by f-part/check_parts before autopart
 function autopart   # Consolidated fully automatic partitioning for BIOS or EFI environment
 {                   # Called by f-part.sh/check_parts (after auto_warning)
                     # Decide partition sizes based on device size
+ 
+  return # This function is deprecated
+  
   AutoPart="AUTO"                                   # Set auto-partition flag
   prepare_device                                    # Create partition table and device variables
   RootType="ext4"                                   # Default for auto
@@ -72,6 +78,9 @@ function autopart   # Consolidated fully automatic partitioning for BIOS or EFI 
 function prepare_device # Called by autopart, guided_MBR and guided_EFI
 {                       # Create partition table
   GrubDevice="/dev/${UseDisk}"
+ 
+  return # This function is deprecated
+  
   Home="N"                                          # No /home partition at this point
   DiskSize=$(lsblk -l "$RootDevice" | grep "${UseDisk} " | awk '{print $4}' | sed "s/G\|M\|K//g" | cut -d'.' -f1) # eg: 149
   get_unit=$(lsblk -l "$RootDevice" | grep "${UseDisk} " | awk '{print $4}') # eg: 149.1G
@@ -149,7 +158,9 @@ function prepare_partitions # Called from autopart and guided_partitions
       # An appropriate partition table has already been created in prepare_device
       # If system is EFI, prepare_device has also created the /boot partition at
       #  /dev/${UseDisk}1 and Start (passed here as $1) has been set to follow /boot
-
+ 
+  return # This function is deprecated
+  
   # 1) Make /root partition
   local Start="$1"                                    # Probably the same as global Start
   local Size="$2"                                     # root size
@@ -201,6 +212,9 @@ function prepare_partitions # Called from autopart and guided_partitions
 
 function guided_partitions  # Called by f-part/check_parts
 {                           # Calls each guided partitioning function
+ 
+  return # This function is deprecated
+  
   # local MountDevice="$MountDevice"
   limitations="This facility will create"
   if [ $UEFI -eq 1 ]; then  # EFI system
@@ -265,6 +279,9 @@ function guided_partitions  # Called by f-part/check_parts
 function guided_recalc  # Called by prepare_partitions & guided_partitions
                         # Convert to MiB and calculate remaining disk space
 {                       # $1 is a partition size eg: 10G or 100% or perhaps 0
+ 
+  return # This function is deprecated
+  
   if [ -z "$1" ] || [  "$1" == 0 ]; then Calculator=0; return; fi # Just in case
   local Passed
   Chars=${#1}                               # Count characters in variable
@@ -286,6 +303,9 @@ function guided_recalc  # Called by prepare_partitions & guided_partitions
 
 function guided_root # MBR & EFI Set variables: RootSize, RootType
 {
+ 
+  return # This function is deprecated
+  
   FreeGigs=$((FreeSpace/1024))    # Display FreeSpace in GiB
   
   while true
@@ -348,6 +368,9 @@ function guided_root # MBR & EFI Set variables: RootSize, RootType
 
 function guided_home # MBR & EFI Set variables: HomeSize, HomeType
 {
+   
+  return # This function is deprecated
+  
   FreeGigs=$((FreeSpace/1024))    # Display Freespace in GiB
  
   while true
@@ -412,6 +435,9 @@ function swap_message
 
 function guided_swap # MBR & EFI Set variable: SwapSize
 {
+ 
+  return # This function is deprecated
+  
   while true
   do
     if [ ${FreeSpace} -gt 0 ]; then           # show /root /home and available space
