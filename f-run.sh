@@ -89,30 +89,30 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 function install_kernel { # Called without arguments by feliz.sh
                           # Installs selected kernel and some other core systems
                           
-  LANG=C                  # Set the locale for all processes run from the current shell 
+ # LANG=C   # Set the locale for all processes run from the current shell - this may be out of date
 
   # Pacman keys must be updated if the Feliz or Arch iso is older than the last keyring change
     # 1) Get the page of the last Arch Linux trust update
-    trustpage=$(wget -q -O - https://www.archlinux.org/packages/core/any/archlinux-keyring/)
+  #  trustpage=$(wget -q -O - https://www.archlinux.org/packages/core/any/archlinux-keyring/)
     # 2) grep the line with the version date, and separate the date field 
-    trustline=$(echo "$trustpage" | grep '"version" content=' | cut -d'=' -f3) # eg: "20180404-1"/>
+  #  trustline=$(echo "$trustpage" | grep '"version" content=' | cut -d'=' -f3) # eg: "20180404-1"/>
     # 3) Trim just the first 6 digits of the date
-    TrustDate="${trustline:1:6}"
-    echo "TrustDate $TrustDate" >> feliz.log  # Save for reference
+  #  TrustDate="${trustline:1:6}"
+  #  echo "TrustDate $TrustDate" >> feliz.log  # Save for reference
     # 4) Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
-    isodate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
-    echo "isodate $isodate" >> feliz.log      # Save for reference
+  #  isodate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
+  #  echo "isodate $isodate" >> feliz.log      # Save for reference
     # 5) If the running iso is more recent than the last trust update, no action is taken
-    if [ "$isodate" -ge "$TrustDate" ]; then                        
-      echo "pacman-key trust check passed" >> feliz.log
-    else  # But if the iso is older than the last trust update, then the keys must be updated
-      install_message "Updating keys"
-      pacman-db-upgrade
-      pacman-key --init
-      pacman-key --populate archlinux
-      pacman-key --refresh-keys
-      pacman -Sy --noconfirm archlinux-keyring
-      echo "pacman keys updated" >> feliz.log
+  #  if [ "$isodate" -ge "$TrustDate" ]; then                        
+  #    echo "pacman-key trust check passed" >> feliz.log
+  #  else  # But if the iso is older than the last trust update, then the keys must be updated
+  #    install_message "Updating keys"
+  #    pacman-db-upgrade
+  #    pacman-key --init
+  #    pacman-key --populate archlinux
+  #    pacman-key --refresh-keys
+  #    pacman -Sy --noconfirm archlinux-keyring
+  #    echo "pacman keys updated" >> feliz.log
     fi
 
   translate "Installing"
