@@ -113,7 +113,7 @@ function install_kernel { # Called without arguments by feliz.sh
   #    pacman-key --refresh-keys
   #    pacman -Sy --noconfirm archlinux-keyring
   #    echo "pacman keys updated" >> feliz.log
-    fi
+  #  fi
 
   translate "Installing"
   Message="$Result"
