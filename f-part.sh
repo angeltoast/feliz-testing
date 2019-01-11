@@ -26,14 +26,13 @@
 # ------------------------    ------------------------
 # Functions           Line    Functions           Line
 # ------------------------    ------------------------
-# check_parts           39    select_device       264
-# use_parts             93    
-# build_lists          103    set_swap_file       313
-# allocate_partitions  144    more_partitions     334
-# parted_script        178    choose_mountpoint   373
-# create_filesystem    182    display_partitions  402
+# check_parts           39    set_swap_file       313
+# use_parts             93    more_partitions     334
+# build_lists          103    choose_mountpoint   373
+# allocate_partitions  144    display_partitions  402
 # allocate_root        203    allocate_uefi       430 
 # allocate_swap        230    get_device_size     450
+# select_device        264    
 # ------------------------    ------------------------
 
 function check_parts {  # Called by feliz.sh and f-set.sh
@@ -54,10 +53,6 @@ function check_parts {  # Called by feliz.sh and f-set.sh
     first_item="$Result"
     translate "Shut down this session"
     second_item="$Result"
-  # translate "Allow Feliz to partition the device"
-  #  third_item="$Result"
-  #  translate "Use Guided Manual Partitioning"
-  #  fourth_item="$Result"
     translate "Display the 'partitioning' file"
     fifth_item="$Result"
 
@@ -74,10 +69,6 @@ function check_parts {  # Called by feliz.sh and f-set.sh
       case $Result in
         1) exit ;;
         2) shutdown -h now ;;
-      #  3) auto_warning
-      #      if [ $retval -ne 0 ]; then continue; fi       # If 'No' then display menu again
-      #      autopart ;;
-      #  4) guided_partitions ;;
         *) more partitioning                              # Use bash 'more' to display help file
           continue
       esac
@@ -172,41 +163,6 @@ function allocate_partitions { # Called by feliz.sh
   fi
 }
 
-function parted_script  # Called by f-prep/prepare_device & prepare_partitions
-{                       # Calls GNU parted with options passed in $1
-  
-  return # This function is deprecated
-  
-  parted --script "$GrubDevice" "$1" 2>> feliz.log
-}
-
-function create_filesystem {  # Called by allocate_root, more_partitions, guided_root & guided_home
-                              # User chooses filesystem from ${TypeList}
-                              
-  PartitionType=""
-  retval=1
-  return # This function is deprecated
-                              
-  local record="$1"  # 0 to create a filesystem, 1 to just record the variables
-  local Counter=0
-  message_first_line "Please select the file system for"
-  Message="$Message ${Partition}"
-  message_subsequent "It is not recommended to mix the btrfs file-system with others"
-  menu_dialog_variable="ext4 ext3 btrfs xfs None"         # Set the menu elements
-  menu_dialog 16 55 "$_Exit"                              # Display the menu
-  if [ $retval -ne 0 ] || [ "$Result" == "None" ]; then   # Nothing selected
-    PartitionType=""
-    retval=1
-  else
-    PartitionType="$Result"
-    retval=0
-  fi
-  # If required, create a file-system on the selected partition
-  if [ $record -eq 0 ] && [ $retval -eq 0 ] && [ -n $PartitionType ]; then
-    mkfs."${PartitionType}" "${Partition}" &>> feliz.log  # eg: mkfs.ext4 /dev/sda1
-  fi
-}
-
 function allocate_root {  # Called by allocate_partitions
                           # Display partitions for user-selection of one as /root
                           #  (uses list of all available partitions in PartitionList)
@@ -228,8 +184,6 @@ function allocate_root {  # Called by allocate_partitions
   MountDevice=${PassPart:3:2}           # Save the device number for 'set x boot on'
   Partition="/dev/$Result"              # Result from display_partitions (eg: sda1)
   RootPartition="${Partition}"
-
-  create_filesystem 0                   # User selects filesystem
 
   PartitionList=$(echo "$PartitionList" | sed "s/$PassPart//")  # Remove the used partition from the list
 }
@@ -359,8 +313,7 @@ function more_partitions {  # Called by allocate_partitions if any partitions
     2) continue ;;     # Invalid mountpoint attempted
     1) return 1 ;;     # Inform calling function that user cancelled; no details added
     *) # If this point has been reached, then all data for a partiton has been accepted
-      create_filesystem 0                               # So create a filesystem on the partition
-      # And add it to the arrays for extra partitions
+      # Add it to the arrays for extra partitions
       ExtraPartitions=${#AddPartList[@]}                # Count items in AddPartList
       AddPartList[$ExtraPartitions]="${Partition}"      # Add this item (eg: /dev/sda5)
       AddPartType[$ExtraPartitions]="${PartitionType}"  # Link filesystem

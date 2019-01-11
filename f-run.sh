@@ -27,21 +27,16 @@
 # Functions              Line    Functions              Line
 # ---------------------------    ---------------------------
 # arch_chroot              39    install_extras          228
-# parted_script            43    install_yaourt          321
-# install_message          47    user_add                342
-# mount_partitions         55    check_existing          409
-# install_kernel           90    set_root_password       415 
-# add_codecs              127    set_user_password       468 
-# mirror_list             163    finish                  510
-# install_display_manager 216    
+# install_message          47    install_yaourt          321
+# mount_partitions         55    user_add                342
+# install_kernel           90    check_existing          409
+# add_codecs              127    set_root_password       415 
+# mirror_list             163    set_user_password       468 
+# install_display_manager 216    finish                  510
 # --------------------------    ---------------------------
 
 function arch_chroot { # From Lution AIS - calls arch-chroot with options
   arch-chroot /mnt /bin/bash -c "${1}" 2>> feliz.log
-}
-
-function parted_script { # Calls GNU parted tool with options
-  parted --script "/dev/${UseDisk}" "$1" 2>> feliz.log
 }
 
 function install_message { # For displaying status while running on auto
@@ -57,12 +52,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   
   install_message "Preparing and mounting partitions"
 
-  # 1) Root partition
-    # umount "$RootPartition" 2>> feliz.log
-  #  if [ -n "$RootType" ]; then
-  #    mkfs.${RootType} ${RootPartition} &>> feliz.log                 # eg: mkfs.ext4 -L Arch-Root /dev/sda1
-  #  fi
-    mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
+  mount "$RootPartition" /mnt 2>> feliz.log                         # eg: mount /dev/sda1 /mnt
 
   # 2) EFI (if required)
     if [ "$UEFI" -eq 1 ] && [ "$DualBoot" = "N" ]; then               # Check if /boot partition required
@@ -79,7 +69,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
   # 4) Any additional partitions (from the related arrays AddPartList, AddPartMount & AddPartType)
     local Counter=0
     for id in "${AddPartList[@]}"; do                                 # $id will be in the form /dev/sda2
-      # umount "$id" 2>> feliz.log
+
       mkdir -p /mnt${AddPartMount[$Counter]} 2>> feliz.log            # eg: mkdir -p /mnt/home
       mount "$id" /mnt${AddPartMount[$Counter]} &>> feliz.log         # eg: mount /dev/sda3 /mnt/home
       Counter=$((Counter+1))
@@ -88,33 +78,7 @@ function mount_partitions { # Format and mount each partition as defined by MANU
 
 function install_kernel { # Called without arguments by feliz.sh
                           # Installs selected kernel and some other core systems
-                          
- # LANG=C   # Set the locale for all processes run from the current shell - this may be out of date
-
-  # Pacman keys must be updated if the Feliz or Arch iso is older than the last keyring change
-    # 1) Get the page of the last Arch Linux trust update
-  #  trustpage=$(wget -q -O - https://www.archlinux.org/packages/core/any/archlinux-keyring/)
-    # 2) grep the line with the version date, and separate the date field 
-  #  trustline=$(echo "$trustpage" | grep '"version" content=' | cut -d'=' -f3) # eg: "20180404-1"/>
-    # 3) Trim just the first 6 digits of the date
-  #  TrustDate="${trustline:1:6}"
-  #  echo "TrustDate $TrustDate" >> feliz.log  # Save for reference
-    # 4) Use blkid to get details of the Feliz or Arch iso that is running, in the form yyyymm
-  #  isodate=$(blkid | grep "feliz\|arch" | cut -d'=' -f3 | cut -d'-' -f2 | cut -b-6)
-  #  echo "isodate $isodate" >> feliz.log      # Save for reference
-    # 5) If the running iso is more recent than the last trust update, no action is taken
-  #  if [ "$isodate" -ge "$TrustDate" ]; then                        
-  #    echo "pacman-key trust check passed" >> feliz.log
-  #  else  # But if the iso is older than the last trust update, then the keys must be updated
-  #    install_message "Updating keys"
-  #    pacman-db-upgrade
-  #    pacman-key --init
-  #    pacman-key --populate archlinux
-  #    pacman-key --refresh-keys
-  #    pacman -Sy --noconfirm archlinux-keyring
-  #    echo "pacman keys updated" >> feliz.log
-  #  fi
-
+ 
   translate "Installing"
   Message="$Result"
   translate "kernel and core systems"
@@ -122,7 +86,8 @@ function install_kernel { # Called without arguments by feliz.sh
   case "$Kernel" in
   1) # LTS - This is the full linux group list at 24th April 2018 with linux-lts in place of linux
      # Use the script ArchBaseGroup.sh in FelizWorkshop to regenerate the list periodically
-    pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils pcmciautils perl pkg-config procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs ;;
+     
+     pacstrap /mnt autoconf automake bash binutils bison bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs fakeroot file filesystem findutils flex gawk gcc gcc-libs gettext glibc grep groff gzip inetutils iproute2 iputils jfsutils less libtool licenses linux-lts linux-firmware logrotate lvm2 m4 make man-db man-pages mdadm nano netctl pacman patch pciutils perl pkgconf procps-ng psmisc reiserfsprogs sed shadow s-nail sudo sysfsutils systemd systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs ;;
   *) pacstrap /mnt base base-devel 2>> feliz.log
   esac
   translate "cli tools"
@@ -162,9 +127,6 @@ function add_codecs { # Called without arguments by feliz.sh
   install_message "$Result $Message"
   pacstrap /mnt ttf-liberation 2>> feliz.log
 
-  # install_message "Installing  CUPS printer services"
-  # pacstrap /mnt -S system-config-printer cups
-  # arch_chroot "systemctl enable org.cups.cupsd.service"
 }
 
 function mirror_list {  # Use rankmirrors (script in /usr/bin/ from Arch) to generate fast mirror list
@@ -308,7 +270,7 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
       *) continue                                                     # Ignore all others on this pass
       esac
     done
-    install_yaourt
+    # install_yaourt # Yaourt is no longer supported
     # Second parse through LuxuriesList for any extras (not triggered by FelizOB)
     for i in ${LuxuriesList}; do
         translate "Installing"
@@ -325,7 +287,7 @@ function install_extras { # Install desktops and other extras for FelizOB (note 
   fi
 }
 
-function install_yaourt {
+function install_yaourt { # Not to be called, as Yaourt is no longer supported
   translate "Installing"
   install_message "$Result Yaourt"
   arch=$(uname -m)

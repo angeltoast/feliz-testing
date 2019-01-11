@@ -26,7 +26,6 @@
 
 # Include source files
 source f-vars.sh      # Global functions, variables and arrays are declared in this module
-source f-prep.sh      # Added 30th March 2018 - creates partitions if none exist
 source f-set.sh       # Functions to set user locale and preferences
 source f-part.sh      # Functions concerned with allocating partitions
 source f-run.sh       # Functions called during installation
